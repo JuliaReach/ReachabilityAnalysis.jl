@@ -8,16 +8,6 @@
 
 A reachability analysis library written in pure Julia.
 
-## Features
-
-`ReachabilityAnalysis.jl` can handle ordinary differential equations (ODEs) with uncertain
-initial states, parameters or inputs. The following types of ODEs are supported:
-
-- continuous ODEs with *linear* dynamics
-- continuous ODEs with *non-linear* dynamics
-- hybrid ODEs with *piecweise-affine* dynamics
-- hybrid ODEs with *non-linear* dynamics
-
 ## Resources
 
 - [Manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
@@ -27,10 +17,31 @@ initial states, parameters or inputs. The following types of ODEs are supported:
 - [Publications](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/publications/)
 - [Citations](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/citations/)
 
-## Installing
+
+## Features
+
+`ReachabilityAnalysis.jl` can handle ordinary differential equations (ODEs) with uncertain
+initial states, uncertain parameters and non-deterministic inputs.
+
+The following types of ODEs are supported:
+
+- continuous ODEs with *linear* dynamics
+- continuous ODEs with *non-linear* dynamics
+- hybrid ODEs with *piecweise-affine* dynamics
+- hybrid ODEs with *non-linear* dynamics
+
+We suggest to explore the Examples section of the online documentation for examples illustrating how to use the library.
+
+Full references to the scientific papers presenting the algorithms implemented in this package can be generally found in the source code as well as in the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
+
+## Installation
+
+### Compatibility
 
 This package is compatible with the current stable release of Julia v1.3, with
-the long-term release v1.0.5 and with all intermediate versions.
+the long-term release v1.0.5 and with all intermediate versions. The package is expected to work
+under Linux OS, MacOS and Windows. If you find problems installing,
+do not hesitate to open an issue in the [issue tracker](https://github.com/mforets/ReachabilityAnalysis.jl/issues).
 
 Refer to the [official documentation](https://julialang.org/downloads) on how to
 install and run Julia in your system.
