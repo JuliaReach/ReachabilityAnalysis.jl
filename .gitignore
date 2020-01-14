@@ -1,0 +1,15 @@
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+*.ipynb_checkpoints
+.ipynb_checkpoints
+*.png
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+
+docs/build/
+docs/site/
