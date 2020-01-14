@@ -10,8 +10,11 @@ A reachability analysis library written in pure Julia.
 
 ## Features
 
-`ReachabilityAnalysis.jl` can handle ordinary differential equations (ODEs) with uncertain
-initial states, parameters or inputs. The following types of ODEs are supported:
+`ReachabilityAnalysis.jl` is a library to compute rigorous approximations of the
+sets of states reachable by dynamical systems. The library can handle ordinary
+differential equations (ODEs) with uncertain initial states, parameters or inputs.
+
+The following types of ODEs are currently supported:
 
 - continuous ODEs with *linear* dynamics
 - continuous ODEs with *non-linear* dynamics
@@ -35,10 +38,11 @@ the long-term release v1.0.5 and with all intermediate versions.
 Refer to the [official documentation](https://julialang.org/downloads) on how to
 install and run Julia in your system.
 
->  :book: This package is still a work-in-progress and it grew out of the package
+>  :book: This package is still a work-in-progress and it has grown out of
     [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
-    If you are interested to know more, feel free to join the chat room
-    [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
+    If you are interested to know more about the project, if you found a bug,
+    or if you want to propose an idea for improvement, feel free to open an issue or
+    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
 
 ### Installation
 
