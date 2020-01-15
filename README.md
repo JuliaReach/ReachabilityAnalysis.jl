@@ -6,7 +6,7 @@
 [![Code coverage](http://codecov.io/github/mforets/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/mforets/ReachabilityAnalysis.jl?branch=master)
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/mforets/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A reachability analysis library written in pure Julia.
+A reachability analysis library written in Julia.
 
 ## Resources
 
@@ -25,10 +25,10 @@ initial states, uncertain parameters and non-deterministic inputs.
 
 The following types of ODEs are supported:
 
-- continuous ODEs with *linear* dynamics
-- continuous ODEs with *non-linear* dynamics
-- hybrid ODEs with *piecweise-affine* dynamics
-- hybrid ODEs with *non-linear* dynamics
+- continuous ODEs with linear dynamics
+- continuous ODEs with non-linear dynamics
+- hybrid ODEs with piecweise-affine dynamics
+- hybrid ODEs with non-linear dynamics
 
 We suggest to explore the Examples section of the online documentation for examples illustrating how to use the library.
 
@@ -46,7 +46,7 @@ do not hesitate to open an issue in the [issue tracker](https://github.com/mfore
 Refer to the [official documentation](https://julialang.org/downloads) on how to
 install and run Julia in your system.
 
->  :book: This package is still a work-in-progress and it grew out of the package
+>  :book: This package is still a work-in-progress. It grew out of the package
     [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
     If you are interested to know more, feel free to join the chat room
     [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
