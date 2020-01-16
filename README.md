@@ -19,8 +19,10 @@ A Reachability Analysis suite for Dynamical Systems.
 
 ## Features
 
-`ReachabilityAnalysis.jl` can handle ordinary differential equations (ODEs) with uncertain
-initial states, uncertain parameters and non-deterministic inputs.
+Reachability Analysis consists of computing rigorous approximations of the sets
+of states reachable by a dynamical system. The scope of the package are systems
+modeled by ordinary differential equations (ODEs) with uncertain initial states,
+uncertain parameters or non-deterministic inputs.
 
 The following types of systems are supported:
 
@@ -29,9 +31,12 @@ The following types of systems are supported:
 - Hybrid systems with piecweise-affine dynamics
 - Hybrid systems with non-linear dynamics
 
-We suggest to explore the Examples section of the online documentation for examples illustrating how to use the library.
+We suggest to explore the Examples section of the online documentation for examples
+illustrating how to use the library.
 
-Full references to the scientific papers presenting the algorithms implemented in this package can be generally found in the source code as well as in the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
+References to the scientific papers presenting the algorithms implemented in this
+package can be found in the source code and in
+the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
 
 ## Installation
 
@@ -45,33 +50,14 @@ do not hesitate to open an issue in the [issue tracker](https://github.com/mfore
 Refer to the [official documentation](https://julialang.org/downloads) on how to
 install and run Julia in your system.
 
->  :book: This package is still a work-in-progress. It grew out of the package
-    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
-    If you are interested to know more about the project, if you found a bug,
-    or if you want to propose an idea for improvement, feel free to open an issue or
-    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
-
 ### Installation
 
-Depending on your needs, choose an appropriate command from the following list
-and enter it in Julia's REPL. To activate the `pkg` mode, type `]` (and to leave it, type `<backspace>`).
-
-#### [Install the latest release version](https://julialang.github.io/Pkg.jl/v1/managing-packages/#Adding-registered-packages-1) (recommended for first-time use)
-
-```julia
-pkg> add https://github.com/mforets/ReachabilityAnalysis.jl
-```
-
-#### Install the latest development version
+Once you have installed Julia in your system, open a Julia session, activate the
+`pkg` mode (remember that to activate the `pkg` mode in Julia's REPL, you need to type `]`,
+and to leave it, type `<backspace>`), and enter:
 
 ```julia
-pkg> add https://github.com/mforets/ReachabilityAnalysis.jl#master
-```
-
-#### [Clone the package for development](https://julialang.github.io/Pkg.jl/v1/managing-packages/#Developing-packages-1)
-
-```julia
-pkg> dev https://github.com/mforets/ReachabilityAnalysis.jl
+pkg> add ReachabilityAnalysis.jl
 ```
 
 ### Dependencies
@@ -82,3 +68,9 @@ which is part of the [JuliaReach](https://github.com/JuliaReach/) framework.
 The full list of dependencies can be found in the `Project.toml` file in this repository,
 in the `[deps]` section. These dependencies are installed automatically when
 you `add` `ReachabilityAnaysis.jl` as explained in the previous paragraphs.
+
+>  :book: This package is still a work-in-progress. It grew out of the package
+    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
+    If you are interested to know more about the project, if you found a bug,
+    or if you want to propose an idea for improvement, feel free to open an issue or
+    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
