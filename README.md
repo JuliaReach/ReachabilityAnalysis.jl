@@ -6,20 +6,7 @@
 [![Code coverage](http://codecov.io/github/mforets/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/mforets/ReachabilityAnalysis.jl?branch=master)
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/mforets/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A reachability analysis library written in pure Julia.
-
-## Features
-
-`ReachabilityAnalysis.jl` is a library to compute rigorous approximations of the
-sets of states reachable by dynamical systems. The library can handle ordinary
-differential equations (ODEs) with uncertain initial states, parameters or inputs.
-
-The following types of ODEs are currently supported:
-
-- continuous ODEs with *linear* dynamics
-- continuous ODEs with *non-linear* dynamics
-- hybrid ODEs with *piecweise-affine* dynamics
-- hybrid ODEs with *non-linear* dynamics
+A Reachability Analysis suite for Dynamical Systems.
 
 ## Resources
 
@@ -30,15 +17,35 @@ The following types of ODEs are currently supported:
 - [Publications](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/publications/)
 - [Citations](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/citations/)
 
-## Installing
+## Features
+
+`ReachabilityAnalysis.jl` can handle ordinary differential equations (ODEs) with uncertain
+initial states, uncertain parameters and non-deterministic inputs.
+
+The following types of systems are supported:
+
+- Continuous ODEs with linear dynamics
+- Continuous ODEs with non-linear dynamics
+- Hybrid systems with piecweise-affine dynamics
+- Hybrid systems with non-linear dynamics
+
+We suggest to explore the Examples section of the online documentation for examples illustrating how to use the library.
+
+Full references to the scientific papers presenting the algorithms implemented in this package can be generally found in the source code as well as in the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
+
+## Installation
+
+### Compatibility
 
 This package is compatible with the current stable release of Julia v1.3, with
-the long-term release v1.0.5 and with all intermediate versions.
+the long-term release v1.0.5 and with all intermediate versions. The package is expected to work
+under Linux OS, MacOS and Windows. If you find problems installing,
+do not hesitate to open an issue in the [issue tracker](https://github.com/mforets/ReachabilityAnalysis.jl/issues).
 
 Refer to the [official documentation](https://julialang.org/downloads) on how to
 install and run Julia in your system.
 
->  :book: This package is still a work-in-progress and it has grown out of
+>  :book: This package is still a work-in-progress. It grew out of the package
     [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
     If you are interested to know more about the project, if you found a bug,
     or if you want to propose an idea for improvement, feel free to open an issue or
