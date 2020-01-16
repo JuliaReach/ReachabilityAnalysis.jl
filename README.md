@@ -6,7 +6,7 @@
 [![Code coverage](http://codecov.io/github/mforets/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/mforets/ReachabilityAnalysis.jl?branch=master)
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/mforets/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A reachability analysis library written in Julia.
+A Reachability Analysis suite for Dynamical Systems.
 
 ## Resources
 
@@ -17,18 +17,17 @@ A reachability analysis library written in Julia.
 - [Publications](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/publications/)
 - [Citations](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/citations/)
 
-
 ## Features
 
 `ReachabilityAnalysis.jl` can handle ordinary differential equations (ODEs) with uncertain
 initial states, uncertain parameters and non-deterministic inputs.
 
-The following types of ODEs are supported:
+The following types of systems are supported:
 
-- continuous ODEs with linear dynamics
-- continuous ODEs with non-linear dynamics
-- hybrid ODEs with piecweise-affine dynamics
-- hybrid ODEs with non-linear dynamics
+- Continuous ODEs with linear dynamics
+- Continuous ODEs with non-linear dynamics
+- Hybrid systems with piecweise-affine dynamics
+- Hybrid systems with non-linear dynamics
 
 We suggest to explore the Examples section of the online documentation for examples illustrating how to use the library.
 
