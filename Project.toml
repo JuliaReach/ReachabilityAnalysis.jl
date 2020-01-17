@@ -1,7 +1,6 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
-authors = ["mforets <mforets@gmail.com>",
-           "schillic <christian.schilling@ist.ac.at>"]
+authors = ["mforets <mforets@gmail.com>", "schillic <christian.schilling@ist.ac.at>"]
 version = "0.1"
 
 [deps]
@@ -26,12 +25,11 @@ TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 
 [compat]
-julia = "1"
 CDDLib = "^0.5.3"
 Expokit = "^0.2"
 HybridSystems = "^0.3"
 IntervalArithmetic = "^0.16"
-IntervalMatrices = "^0.2"
+IntervalMatrices = "^0.2, 0.3"
 LazySets = "^1.26"
 MathematicalSystems = "^0.8"
 Memento = "^0.11, ^0.12"
@@ -44,6 +42,7 @@ Reexport = "^0.2.0"
 TaylorIntegration = "^0.6"
 TaylorModels = "^0.3"
 TaylorSeries = "^0.10"
+julia = "1"
 
 [extras]
 CDDLib = "3391f64e-dcde-5f30-b752-e11513730f60"
