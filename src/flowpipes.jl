@@ -63,7 +63,7 @@ end
 
 # TODO: use struct of array /// array of struct?
 @inline array(fp::Flowpipe) = fp.Xk
-dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
+LazySets.dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
 Base.length(fp::Flowpipe) = (length(fp.Xk),)
 
 Base.first(fp::Flowpipe) = fp[1]
