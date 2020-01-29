@@ -8,6 +8,11 @@
 
 A Reachability Analysis suite for Dynamical Systems.
 
+>  :book: This package is still a work-in-progress. It grew out of the package
+    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
+    If you are interested to know more about the project, feel free to open an issue or
+    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
+
 ## Resources
 
 - [Manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
@@ -68,9 +73,3 @@ which is part of the [JuliaReach](https://github.com/JuliaReach/) framework.
 The full list of dependencies can be found in the `Project.toml` file in this repository,
 in the `[deps]` section. These dependencies are installed automatically when
 you `add` `ReachabilityAnaysis.jl` as explained in the previous paragraphs.
-
->  :book: This package is still a work-in-progress. It grew out of the package
-    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
-    If you are interested to know more about the project, if you found a bug,
-    or if you want to propose an idea for improvement, feel free to open an issue or
-    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
