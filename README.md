@@ -6,8 +6,6 @@
 [![Code coverage](http://codecov.io/github/mforets/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/mforets/ReachabilityAnalysis.jl?branch=master)
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A Reachability Analysis suite for Dynamical Systems.
-
 >  :book: This package is still a work-in-progress. It grew out of the package
     [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
     If you are interested to know more about the project, feel free to open an issue or
@@ -24,7 +22,7 @@ A Reachability Analysis suite for Dynamical Systems.
 
 ## Features
 
-Reachability Analysis consists of computing rigorous approximations of the sets
+Reachability Analysis is concerned with computing rigorous approximations of the set
 of states reachable by a dynamical system. The scope of the package are systems
 modeled by ordinary differential equations (ODEs) with uncertain initial states,
 uncertain parameters or non-deterministic inputs.
