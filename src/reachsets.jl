@@ -12,7 +12,7 @@ export project,
 # ================================
 
 """
-    AbstractReachSet{T}
+    AbstractReachSet{N}
 
 Abstract type for all reach-sets types.
 
@@ -23,8 +23,8 @@ system over a given time span `Δt`. In its simplest form, we represent reach-se
 with a struct that wraps the tuple `(X, Δt)`, where `X` corresponds to a geometric
 set, and `Δt` is the interval with the time span associated to this reach-set.
 
-This type is parametric in `T`. This parameter is used in some subtypes for the
-type of numerical coefficient used in the representation (typically, `T = Float64`).
+This type is parametric in `N`. This parameter is used in some subtypes for the
+type of numerical coefficient used in the representation (typically, `N = Float64`).
 
 Each concrete subtype should implement the following methods:
 
@@ -35,7 +35,7 @@ Each concrete subtype should implement the following methods:
 - `tend`   -- return the final time
 - `dim`    -- ambient dimension of the reach-set
 """
-abstract type AbstractReachSet{T} end
+abstract type AbstractReachSet{N} end
 
 """
     set(R::AbstractReachSet)

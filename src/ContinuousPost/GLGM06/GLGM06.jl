@@ -32,6 +32,12 @@ export GLGM06
     max_order::Int=10
 end
 
+function init()
+    # normalize
+    # discretize
+    # return system ready for calling the post operation post
+end
+
 #include("post.jl")
 include("reach.jl")
 #include("project.jl")
