@@ -17,9 +17,13 @@ using LazySets: LinearMap, AffineMap, ResetMap, Interval
 # required to avoid conflicts with IntervalMatrices and IntervalArithmetic
 using LazySets: isdisjoint, radius, sample, ∅, dim
 
-# common aliases
+# aliases for intervals
 const IM = IntervalMatrices
 import IntervalArithmetic
 const IA = IntervalArithmetic
-# const Interval64 = Interval{Float64, IA.Interval{Float64}}
-# IA.Interval{Float64}
+const I64 = IA.Interval{Float64}
+
+# aliases for sets / system types
+const CPA = CartesianProductArray
+const LCS = LinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem

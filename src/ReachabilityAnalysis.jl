@@ -1,4 +1,4 @@
-module ReachabilityAnalysis
+ckearmodule ReachabilityAnalysis
 
 # ==================
 # Load dependencies
@@ -27,7 +27,7 @@ include("discretization.jl")
 # Continuous post-operators for linear systems
 #include("ContinuousPost/GLGM06/LGG09.jl")
 include("ContinuousPost/GLGM06/GLGM06.jl")
-#include("ContinuousPost/BFFPSV18/BFFPSV18.jl")
+include("ContinuousPost/BFFPSV18/BFFPSV18.jl")
 #include("ContinuousPost/ASB07/ASB07.jl")
 #include("ContinuousPost/ASB07d/ASB07d.jl")
 #include("ContinuousPost/A17/A17.jl")

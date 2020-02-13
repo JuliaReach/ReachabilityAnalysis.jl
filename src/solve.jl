@@ -5,7 +5,7 @@ export solve
 # ===================
 
 """
-    default_continuous_post(ivp::IVP{ST}) where {ST<:AbstractContinuousSystem}
+    _default_continuous_post(ivp::IVP{ST}) where {ST<:AbstractContinuousSystem}
 
 Return the default continous post operator for an initial value problem of a
 continuous system.
@@ -23,7 +23,7 @@ A continuous post operator with default options.
 If the system is affine, the algorithm `GLGM06` is returned. Otherwise, the algorithm
 `TMJets` is used.
 """
-function default_continuous_post(ivp::IVP{ST}) where {ST<:AbstractContinuousSystem}
+function _default_continuous_post(ivp::IVP{ST}) where {ST<:AbstractContinuousSystem}
     if isaffine(ivp)
         opC = GLGM06()
     else
@@ -34,7 +34,6 @@ end
 
 # main solve function for continuous systems
 function solve(ivp::InitialValueProblem{<:AbstractContinuousSystem}, args...; kwargs...)
-
     _check_dimension(ivp)
     tspan = _get_time_span(kwargs...)
     opC = _get_continuous_post(args...)
