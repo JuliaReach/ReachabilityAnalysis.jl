@@ -34,7 +34,21 @@ lower-dimensional space. The projection is lazy, and consists of mapping each se
 the given variables `vars`.
 """
 function project(F::AbstractFlowpipe, vars::AbstractVector)
+    # TODO: add lazy option
     return map(x -> LazySets.project(set(x), vars, LinearMap), array(F))
+end
+
+# Implement LazySets interface; the flowpipe behaves like the union set array
+function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
+    ρ(d, set(R))
+end
+
+function  LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
+    σ(d, set(R))
+end
+
+function LazySets.dim(R::AbstractLazyReachSet)
+    return dim(set(R))
 end
 
 # ================================
@@ -42,45 +56,51 @@ end
 # ================================
 
 """
-    Flowpipe{ST, RT<:AbstractReachSet{ST}, VT<:AbstractVector{RT}} <: AbstractFlowpipe
+    Flowpipe{N, RT<:AbstractReachSet{N}} <: AbstractFlowpipe
 
 Type that wraps a flowpipe.
 
 ### Fields
 
 - `Xk`  -- set
-- `ext` -- field used by extensions
+- `ext` -- extension dictionary; field used by extensions
+
+### Notes
+
+The dimension of the flowpipe corresponds to the dimension of the underlying
+reach-sets; in this type, it is is assumed that the dimension is the same for
+the different reach-sets.
 """
-struct Flowpipe{T, RT<:AbstractReachSet{T}} <: AbstractFlowpipe
+struct Flowpipe{N, RT<:AbstractReachSet{N}} <: AbstractFlowpipe
     Xk::Vector{RT}
     ext::Dict{Symbol, Any}
 end
 
-# constructor from empty ext dictionary
+# TODO: consider struct of array vs. array of struct
+
+# constructor from empty extension dictionary
 function Flowpipe(Xk::Vector{RT}) where {N, RT<:AbstractReachSet{N}}
     return Flowpipe(Xk, Dict{Symbol, Any}())
 end
 
-# TODO: use struct of array /// array of struct?
+# iteration interface
 @inline array(fp::Flowpipe) = fp.Xk
-LazySets.dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
 Base.length(fp::Flowpipe) = (length(fp.Xk),)
-
 Base.first(fp::Flowpipe) = fp[1]
 Base.last(fp::Flowpipe) = fp[end]
 Base.firstindex(fp::Flowpipe) = 1
 Base.lastindex(fp::Flowpipe) = length(fp.Xk)
 
+# abstract reach set interface
+@inline tstart(fp::Flowpipe) = tstart(first(fp))
+@inline tend(fp::Flowpipe) = tend(last(fp))
+@inline tspan(fp::Flowpipe) = IA.Interval(tstart(fp), tend(fp))
+LazySets.dim(fp::Flowpipe) = dim(first(fp))
+
 # support indexing with ranges or with vectors of integers
 Base.getindex(fp::Flowpipe, i::Int) = fp.Xk[i]
 Base.getindex(fp::Flowpipe, i::Number) = fp[convert(Int, i)]
 Base.getindex(fp::Flowpipe, I) = [fp[i] for i in I]
-
-function tspan(fp::Flowpipe)
-    tinit = inf(Δt(first(fp)))
-    tend = sup(Δt(last(fp)))
-    return IA.Interval{Float64}(tinit, tend)
-end
 
 # get the set of the flowpipe with the given index
 function Base.getindex(fp::Flowpipe, t::Float64)
@@ -89,20 +109,20 @@ function Base.getindex(fp::Flowpipe, t::Float64)
 end
 
 # evaluate a flowpipe at a given time point: gives a reach set
-# here it would be useful to layout the times contiguously in a vector ?
+# here it would be useful to layout the times contiguously in a vector
+# (see again array of struct vs struct of array)
 function (fp::Flowpipe)(t::Float64)
     for (i, X) in enumerate(fp.Xk)
         if t ∈ Δt(X) # exit on the first occurrence
             return fp[i]
         end
     end
-
     throw(ArgumentError("time $t does not belong to the time span, " *
             "$(tspan(fp)), of the given flowpipe"))
 end
 
 # evaluate a flowpipe at a given time interval: gives possibly more than one reach set
-# ie. first and last sets and those in between them
+# i.e. first and last sets and those in between them
 function (fp::Flowpipe)(dt::IA.Interval{Float64})
     # here we assume that indices are of the form 1 .. n
     firstidx = 0
@@ -148,7 +168,7 @@ struct HybridFlowpipe{FT, VF<:AbstractVector{FT}} <: AbstractFlowpipe
     ext::Dict{Symbol, Any}
 end
 
-@inline array(fp::HybridFlowpipe) = fp.Xk
+array(fp::HybridFlowpipe) = fp.Xk
 
 #=
 #dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))

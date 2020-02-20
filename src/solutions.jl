@@ -9,17 +9,16 @@ Abstract supertype of all solution types of a rechability problem.
 """
 abstract type AbstractSolution end
 
-#=
 
 # ================================
 # Property checking problem
 # ================================
 
-#=
-"""
-    CheckSolution <: AbstractSolution
 
-Type that wraps the solution of a property checking problem.
+"""
+    VerificationSolution <: AbstractSolution
+
+Type that wraps the solution of a verification problem.
 
 ### Fields
 
@@ -28,6 +27,8 @@ Type that wraps the solution of a property checking problem.
 - `options`   -- the dictionary of options
 
 ### Notes
+
+Property checking
 
 This type contains the answer if the property is satisfied, and if not, it
 contains the index at which the property might be violated for the first time.
@@ -41,14 +42,12 @@ end
 # constructor with no options
 CheckSolution(satisfied::Bool, violation::Int) = CheckSolution(satisfied, violation, Options())
 
-=#
-
 # ================================
 # Reachability problem
 # ================================
 
 """
-    ReachSolution{SN, RSN<:AbstractReachSet{SN}} <: AbstractSolution
+    ReachabilitySolution{SN, RSN<:AbstractReachSet{SN}} <: AbstractSolution
 
 Type that wraps the solution of a reachability problem as a sequence of lazy
 sets, and a dictionary of options.
@@ -58,7 +57,7 @@ sets, and a dictionary of options.
 - `Xk`       -- the list of [`AbstractReachSet`](@ref)s
 - `options`  -- the dictionary of options
 """
-struct ReachSolution{SN, RSN<:AbstractReachSet{SN}, T} <: AbstractSolution
+struct ReachabilitySolution{SN, RSN<:AbstractReachSet{SN}, T} <: AbstractSolution
     Xk::Flowpipe
     solver::T
 end
@@ -71,6 +70,8 @@ function project(rs::ReachSolution, M::AbstractMatrix)
     Yk = [project(X, M) for X in rs.Xk]
     return ReachSolution(Yk, rs.options)
 end
+
+# solution interface
 
 """
     plot_sol(sol::ReachSolution; ...)
@@ -99,6 +100,9 @@ Plots the solution of a reachability problem in 2D with the given options.
 
 To define your own x and y labels, use the `xlabel` (resp. `ylabel`) keyword
 argument. For additional options, consult the Plots.jl reference manual.
+
+# TODO: add warning if too many sets are tried to be plotted, and use sampling
+# if it is the case.
 """
 @recipe function plot_sol(sol::ReachSolution;
                           seriescolor=:auto,

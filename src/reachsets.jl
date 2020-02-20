@@ -230,7 +230,7 @@ By assumption the coordinates in this reach-set are associated to the integers
 """
 struct ReachSet{N, ST<:LazySet{N}} <: AbstractLazyReachSet{N}
     X::ST
-    Δt::I64
+    Δt::IA.Interval{Float64}
 end
 
 # abstract reach set interface functions
@@ -269,9 +269,15 @@ notation, *dimensions*) corresponding to the set `X`.
 For instance in the ambient space `n=5`, one may have a `SparseReachSet` whose
 variables tuple is `vars = (4, 5, 6)`, i.e. representing a three-dimensional
 projection of the full-dimensional reach-set. In consequence, the dimension of
-`X` doesn't match the length of `vars`, in general.
+`X` doesn't match the length of `vars`, in general
+
+In this type, the parameter `N` represents the numerical type of the `LazySet`
+(typically, `Float64`), the type `ST` represents the set representation used,
+and `D` denotes the dimension of this sparse reach set. Note that, in contrast
+to `ReachSet`, for `SparseReachSet` the number of dimensions is part of the type
+information.
 """
-struct SparseReachSet{T, ST<:LazySet{T}, D} <: AbstractLazyReachSet{T}
+struct SparseReachSet{N, ST<:LazySet{N}, D} <: AbstractLazyReachSet{N}
     X::ST
     Δt::IA.Interval{Float64}
     vars::NTuple{D, Int}
@@ -279,17 +285,17 @@ end
 
 # interface functions
 set(R::SparseReachSet) = R.X
-setrep(R::SparseReachSet{T, ST}) where {T, ST<:LazySet{T}} = ST
+setrep(R::SparseReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
 tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt
-LazySets.dim(R::SparseReachSet{T, ST, D}) where {T, ST<:LazySet{T}, D} = D
+LazySets.dim(R::SparseReachSet{N, ST, D}) where {N, ST<:LazySet{N}, D} = D
 vars(R::SparseReachSet) = R.vars
 
 # constructor from vector of dimensions
-function SparseReachSet(X::ST, Δt::I64, vars::AbstractVector) where {T, ST<:LazySet{T}}
-    vars = Tuple(vi for vi in vcat(vars...))
-    SparseReachSet(X, Δt, vars)
+function SparseReachSet(X::ST, Δt::IA.Interval{Float64},
+                        vars::AbstractVector) where {N, ST<:LazySet{N}}
+    SparseReachSet(X, Δt, Tuple(vars))
 end
 
 # ================================
@@ -301,4 +307,6 @@ struct TaylorModelReachSet{N, ST, D} <: AbstractTaylorModelReachSet{N}
     X::ST
     Δt::IA.Interval{Float64}
 end
+
+...
 =#
