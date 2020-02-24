@@ -9,14 +9,13 @@ Abstract supertype of all solution types of a rechability problem.
 """
 abstract type AbstractSolution end
 
-
 # ================================
 # Property checking problem
 # ================================
 
 
 """
-    VerificationSolution <: AbstractSolution
+    VerificationSolution{T} <: AbstractSolution
 
 Type that wraps the solution of a verification problem.
 
@@ -33,7 +32,7 @@ Property checking
 This type contains the answer if the property is satisfied, and if not, it
 contains the index at which the property might be violated for the first time.
 """
-struct CheckSolution{T} <: AbstractSolution
+struct VerificationSolution{T} <: AbstractSolution
     satisfied::Bool
     violation::Int
     solver::T
@@ -62,16 +61,17 @@ struct ReachabilitySolution{SN, RSN<:AbstractReachSet{SN}, T} <: AbstractSolutio
     solver::T
 end
 
-# constructor with no options
-ReachSolution(Xk::Vector{RSN}) where {SN, RSN<:AbstractReachSet{SN}} =
-    ReachSolution{SN, RSN}(Xk, Options())
-
+#=
 function project(rs::ReachSolution, M::AbstractMatrix)
     Yk = [project(X, M) for X in rs.Xk]
     return ReachSolution(Yk, rs.options)
 end
+=#
 
-# solution interface
+# solution iterator interface
+
+
+#=
 
 """
     plot_sol(sol::ReachSolution; ...)
