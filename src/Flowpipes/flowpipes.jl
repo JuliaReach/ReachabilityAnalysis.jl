@@ -38,18 +38,10 @@ function project(F::AbstractFlowpipe, vars::AbstractVector)
     return map(x -> LazySets.project(set(x), vars, LinearMap), array(F))
 end
 
-# Implement LazySets interface; the flowpipe behaves like the union set array
-function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
-    ρ(d, set(R))
-end
-
-function  LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
-    σ(d, set(R))
-end
-
-function LazySets.dim(R::AbstractLazyReachSet)
-    return dim(set(R))
-end
+# TODO: Implement LazySets interface; the flowpipe behaves like the union set array
+#LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe) = ρ(d, set(R))
+#LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe) = σ(d, set(R))
+#LazySets.dim(R::AbstractFlowpipe) = dim(set(R))
 
 # ================================
 # Flowpipes
@@ -148,6 +140,8 @@ end
 # Hybrid flowpipe
 # ================================
 
+#=
+
 """
     HybridFlowpipe{FT, VF<:AbstractVector{FT}} <: AbstractFlowpipe
 
@@ -164,11 +158,13 @@ A `ReachSet` is a struct representing (an approximation of) the reachable states
 for a given time interval. The type of the approximation is `ST`.
 """
 struct HybridFlowpipe{FT, VF<:AbstractVector{FT}} <: AbstractFlowpipe
+    # TODO: use a VectorOfArray{ST, 2, Vector{VT}}
     Fk::VF
     ext::Dict{Symbol, Any}
 end
+=#
 
-array(fp::HybridFlowpipe) = fp.Xk
+#array(fp::HybridFlowpipe) = fp.Xk
 
 #=
 #dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
