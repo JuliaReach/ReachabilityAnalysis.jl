@@ -39,8 +39,6 @@ function reach_inhomog!(F::Vector{ReachSet{N, Zonotope{N}}},
                         max_order::Integer,
                         U::LazySet) where {N}
     # initial reach set
-    t₀ = zero(N)
-    t₁ = δ
     Δt = zero(N) .. δ
     F[1] = ReachSet(Ω0, Δt)
 
@@ -49,7 +47,7 @@ function reach_inhomog!(F::Vector{ReachSet{N, Zonotope{N}}},
     Φ_power_k_cache = similar(Φ)
 
     k = 2
-    while k <= N
+    while k <= NSTEPS
         Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = reduce_order(Rₖ, max_order)
         Δt += δ

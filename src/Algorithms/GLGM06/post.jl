@@ -69,6 +69,7 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...;
     F = Vector{ReachSet{N, Zonotope{N}}}(undef, NSTEPS)
     if hasinput(ivp)
         U = inputset(ivp_discr)::LazySet
+        U = _convert_or_overapproximate(Zonotope, U)
         reach_inhomog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, U)
         # error("time-varying input sets not implemented yet")
     else
