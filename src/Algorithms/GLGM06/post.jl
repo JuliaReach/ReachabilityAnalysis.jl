@@ -1,40 +1,83 @@
-"""
-    post(alg::GLGM06, problem, time_horizon)
-"""
-function post(alg::GLGM06, problem, time_horizon)
+# return the time horizon given a time span
+function _get_T(tspan::Tuple{Float64, Float64})
+    t0 = tspan[1]
+    # TODO: add this functionality, see #21
+    @assert iszero(t0) "this algorithm can only handle zero initial time"
 
-    # ==================================
-    # Initialization and discretization
-    # ==================================
-    max_order = alg.max_order
-    δ = alg.δ
-    T = time_horizon
-    N = round(Int, T / δ) # number of reach sets to be evaluated at most
+    T = tspan[2]
+    @assert T > 0 "the time horizon should be positive"
 
-    # compute and unrwap discretized system
-    Pdiscr = discretize(problem, δ, algorithm=alg.discretization,
-                                    sih_method=alg.sih_method,
-                                    exp_method=alg.exp_method,
-                                    set_operations="zonotope")
+    return T
+end
 
-    Ω0, Φ = Pdiscr.x0, Pdiscr.s.A
+# The canonical form is:
+#     - If the system doesn't have input, a constrained linear continous system (CLCS)
+#       x' = Ax, x ∈ X
+#     - If the system has an input, a CLCCS, x' = Ax + u, x ∈ X, u ∈ U
+# If the original system is unconstrained, the constraint set X is the universal set.
+function _normalize(ivp)
 
-    # =====================
-    # Flowpipe computation
-    # =====================
-
-    # preallocate output
-    Rsets = Vector{ReachSet{Zonotope{Float64}}}(undef, N)
-
-    info("Reachable States Computation...")
-    @timing begin
-    if inputdim(Pdiscr) == 0
-        reach_homog!(Rsets, Ω0, Φ, N, δ, max_order)
+    # initial states normalization
+    X0 = initial_state(ivp)
+    if X0 isa AbstractVector
+        X0_norm = Singleton(X0)
+    elseif X0 isa IA.Interval
+        X0_norm = convert(Interval, X0)
+    elseif X0 isa IA.IntervalBox
+        X0_norm = convert(Hyperrectangle, X0)
     else
-        U = inputset(Pdiscr) # TODO dispatch for constant input..
-        reach_inhomog!(Rsets, Ω0, U, Φ, N, δ, max_order)
+        X0_norm = X0
     end
-    end # timing
 
-    return Rsets
+    # system's normalization
+    S = system(ivp)
+    S_norm = normalize(S)
+
+    if S_norm === S && X0_norm === X0
+        ivp_norm = ivp
+    else
+        ivp_norm = IVP(S_norm, X0_norm)
+    end
+
+    return ivp_norm
+end
+
+# TODO: refactor
+hasinput(S::AbstractSystem) = inputdim(S) > 0
+isconstantinput(::ConstantInput) = true
+isconstantinput(::VaryingInput) = false
+isconstantinput(::LazySet) = true
+
+function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
+
+    # get time horizon
+    T = _get_T(tspan)
+
+    # normalize system to canonical form
+    ivp_norm = _normalize(ivp)
+
+    # discretize system
+    δ = step_size(alg)
+    ivp_discr = discretize(ivp_norm, δ, alg.approximation_model)
+    Ω0 = initial_state(ivp_discr)
+    Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
+    Φ = state_matrix(ivp_discr)
+    N = eltype(Φ)
+
+    # flowpipe computation
+    NSTEPS = round(Int, T / δ)
+    F = Vector{ReachSet{N, Zonotope{N}}}(undef, NSTEPS)
+    if hasinput(ivp)
+        U = inputset(ivp_discr)
+        if isconstantinput(U)
+            U = next_set(U)
+            reach_inhomog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, U)
+        else
+            error("time-varying input sets not implemented yet")
+        end
+    else
+        reach_homog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order)
+    end
+
+    return Flowpipe(F)
 end

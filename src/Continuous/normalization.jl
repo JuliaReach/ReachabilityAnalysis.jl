@@ -54,7 +54,7 @@ next_set(inputs::AbstractInput, state::Int64) = collect(nextinput(inputs, state)
 """
     add_dimension(A::AbstractMatrix, m=1)
 
-Adds an extra zero row and column to a matrix.
+Append one or more zero rows and columns to a matrix.
 
 ### Input
 
@@ -68,12 +68,14 @@ julia> A = [0.4 0.25; 0.46 -0.67]
 2×2 Array{Float64,2}:
  0.4    0.25
  0.46  -0.67
+
 julia> add_dimension(A)
 3×3 Array{Float64,2}:
  0.4    0.25  0.0
  0.46  -0.67  0.0
  0.0    0.0   0.0
 ```
+To append more than one zero row-column, use the second argument `m`:
 
 ```jldoctest add_dimension_test
 julia> add_dimension(A, 2)
@@ -221,11 +223,11 @@ function add_dimension(cs, m=1)
     X0ext = add_dimension(cs.x0, m)
     if hasmethod(inputset, Tuple{typeof(cs.s)})
         Uext = map(x -> add_dimension(x, m), inputset(cs))
-        s = ConstrainedLinearControlContinuousSystem(Aext, Matrix(1.0I, size(Aext)), nothing, Uext)
+        s = CLCCS(Aext, Matrix(1.0I, size(Aext)), nothing, Uext)
     else
-        s = LinearContinuousSystem(Aext)
+        s = LCS(Aext)
     end
-    return InitialValueProblem(s, X0ext)
+    return IVP(s, X0ext)
 end
 
 """
@@ -331,7 +333,7 @@ for (L_S, CL_S) in ((:LCS, :CLCS), (:LDS, :CLDS))
         function normalize(system::$L_S{N, AN}) where {N, AN<:AbstractMatrix{N}}
             n = statedim(system)
             X = Universe(n)
-            return $CL_S(system.A, X)
+            return $CL_S(state_matrix(system), X)
         end
     end
 end
@@ -343,7 +345,7 @@ for CL_S in (:CLCS, :CLDS)
         function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, XT<:XNCF{N}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
-            return $CL_S(system.A, X)
+            return $CL_S(state_matrix(A), X)
         end
     end
 end
@@ -355,8 +357,8 @@ for CLC_S in (:CLCCS, :CLCDS)
         function normalize(system::$CLC_S{N, AN, BN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, XT<:XNCF{N}, UT<:UNCF{N}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
-            U = _wrap_inputs(system.U, system.B)
-            $CLC_S(system.A, I(n, N), X, U)
+            U = _wrap_inputs(inputset(system), input_matrix(system))
+            $CLC_S(state_matrix(A), I(n, N), X, U)
         end
     end
 end
@@ -367,9 +369,9 @@ for (CA_S, CLC_S) in ((:CACS, :CLCCS), (:CADS, :CLCDS))
     @eval begin
         function normalize(system::$CA_S{N, AN, VN, XT}) where {N, AN<:AbstractMatrix{N}, VN<:AbstractVector{N}, XT<:XNCF{N}}
             n = statedim(system)
-            X = _wrap_invariant(system.X, n)
-            U = _wrap_inputs(system.b)
-            $CLC_S(system.A, I(n, N), X, U)
+            X = _wrap_invariant(stateset(system), n)
+            U = _wrap_inputs(affine_term(system))
+            $CLC_S(state_matrix(A), I(n, N), X, U)
         end
     end
 end
@@ -381,8 +383,8 @@ for (A_S, CLC_S) in ((:ACS, :CLCCS), (:ADS, :CLCDS))
         function normalize(system::$A_S{N, AN, VN}) where {N, AN<:AbstractMatrix{N}, VN<:AbstractVector{N}}
             n = statedim(system)
             X = Universe(n)
-            U = _wrap_inputs(system.b)
-            $CLC_S(system.A, I(n, N), X, U)
+            U = _wrap_inputs(affine_term(system))
+            $CLC_S(state_matrix(A), I(n, N), X, U)
         end
     end
 end
@@ -393,8 +395,8 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
     @eval begin
         function normalize(system::$CAC_S{N, AN, BN, VN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, VN<:AbstractVector{N}, XT<:XNCF{N}, UT<:UNCF{N}}
             n = statedim(system)
-            X = _wrap_invariant(system.X, n)
-            U = _wrap_inputs(system.U, system.B, system.c)
+            X = _wrap_invariant(stateset(X), n)
+            U = _wrap_inputs(inputset(U), input_matrix(system), affine_term(system))
             $CLC_S(system.A, I(n, N), X, U)
         end
     end
@@ -424,24 +426,3 @@ _wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple, c::AbstractVector) = isi
 _wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector) = VaryingInput(map(u -> B*u ⊕ c, U))
 
 _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
-
-"""
-    distribute_initial_set(system::InitialValueProblem{<:HybridSystem, <:LazySet)
-
-Distribute the set of initial states to each mode of a hybrid system.
-
-### Input
-
-- `system` -- an initial value problem wrapping a mathematical system (hybrid)
-              and a set of initial states
-
-### Output
-
-A new initial value problem with the same hybrid system but where the set of initial
-states is the list of tuples `(state, X0)`, for each state in the hybrid system.
-"""
-function distribute_initial_set(system::InitialValueProblem{<:HybridSystem, <:LazySet})
-    HS, X0 = system.s, system.x0
-    initial_states = [(loc, X0) for loc in states(HS)]
-    return InitialValueProblem(HS, initial_states)
-end

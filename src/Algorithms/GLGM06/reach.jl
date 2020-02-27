@@ -2,28 +2,31 @@
 # Homogeneous case
 # ================
 
-function reach_homog!(R::Vector{ReachSet{Zonotope{Float64}}},
-                      Ω0::Zonotope,
+using LinearAlgebra
+# TODO: add to MathematicalSystems
+Base.:*(im::IdentityMultiple, d::Diagonal) = im.M.λ * d
+
+function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
+                      Ω0::Zonotope{N},
                       Φ::AbstractMatrix,
-                      N::Int,
+                      NSTEPS::Integer,
                       δ::Float64,
-                      max_order::Int)
+                      max_order::Integer) where {N}
     # initial reach set
-    0,
-    δ
-    R[1] = ReachSet(Ω0, t0..t1)
+    t₀ = zero(N)
+    t₁ = δ
+    F[1] = ReachSet(Ω0, t₀ .. t₁)
 
     k = 2
-    while k <= N
-        Rₖ = linear_map(Φ, set(R[k-1]))
+    while k <= NSTEPS
+        Rₖ = linear_map(Φ, set(F[k-1]))
         Rₖ = reduce_order(Rₖ, max_order)
-        t0 = t1
-        t1 += δ
-        R[k] = ReachSet(Rₖ, t0..t1)
-
+        t₀ = t₁
+        t₁ += δ
+        F[k] = ReachSet(Rₖ, t₀ .. t₁)
         k += 1
     end
-    return R
+    return F
 end
 
 # ==================

@@ -5,7 +5,8 @@
 using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       Reexport,    # see @reexport macro below
       RecipesBase, # plotting
-      Parameters   # structs with kwargs
+      Parameters,   # structs with kwargs
+      StaticArrays
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -29,11 +30,11 @@ const IA = IntervalArithmetic
 # aliases for set types
 const CPA = CartesianProductArray
 
-# aliases for system types
-const ACS = AbstractContinuousSystem
-const ADS = AbstractDiscreteSystem
-const LCS = LinearContinuousSystem
-const CLCCS = ConstrainedLinearControlContinuousSystem
+# aliases for system types (TODO: merge with definitions in normalization.jl)
+#const ACS = AbstractContinuousSystem
+#const ADS = AbstractDiscreteSystem
+#const LCS = LinearContinuousSystem
+#const CLCCS = ConstrainedLinearControlContinuousSystem
 
 # ======================
 # Optional dependencies

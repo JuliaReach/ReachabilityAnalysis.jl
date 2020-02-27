@@ -4,44 +4,59 @@ export solve
 # Solve function for continuous systems
 # ======================================
 
-function solve(ivp::IVP{<:ACS}, args...; kwargs...)
-
-    S = system(ivp)
-    X0 = initial_state(ivp)
-
-    # check dimension
-    if statedim(ivp) != dim(X0)
-        throw(ArgumentError("the state-space dimension should match the " *
-                            "dimension of the initial state, but they are of size " *
-                            "$(statedim(problem)) and $(dim(X0)) respectively"))
-    end
-
-    tspan = _get_time_span(kwargs...)
-    opC = _get_continuous_post(args...)
-
-    _solve_continuous(ivp, opC; tspan=tspan)
-end
-
-function _solve_continuous(problem, op; T...)
-    # normalize system to canonical form if needed
-    # TODO check normalization... probably only applies locally
-    problem = IVP(normalize(problem.s), problem.x0)
+function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
+    _check_dim(ivp)
+    tspan = _get_tspan(; kwargs...)
+    cpost = _get_cpost(ivp, tspan, args...; kwargs...)
 
     # run the continuous-post operator
-    sol = post(problem, op; T=T)
+    post(cpost, ivp, tspan, args...; kwargs...)
+end
+
+#=
+function solve_continuous(ivp, cpost, tspan, args...; kwargs...)
+
+
+    sol = post(ivp, cpost, tspan, args...; kwargs...)
 
     return sol
 end
+=#
 
 # ==================
 # Argument handling
 # ==================
 
-@inline function _get_continuous_post(args...)
+# extend dimension for common IntervalArithmetic types
+LazySets.dim(::IA.Interval) = 1
+LazySets.dim(::IA.IntervalBox{D, N}) where {D, N} = D
 
+function _check_dim(ivp)
+    S = system(ivp)
+    X0 = initial_state(ivp)
+    if statedim(S) != dim(X0)
+        throw(ArgumentError("the state-space dimension should match the " *
+                            "dimension of the initial state, but they are of size " *
+                            "$(statedim(S)) and $(dim(X0)) respectively"))
+    else
+        return true
+    end
 end
 
-@inline function _get_time_span(; kwargs...)
+@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = promote(t1, t2)
+@inline _promote_tspan(tspan::Number) = (zero(tspan),tspan)
+@inline _promote_tspan(tspan::IA.Interval) = (inf(tspan), sup(tspan))
+@inline function _promote_tspan(tspan::AbstractArray)
+    if length(tspan) == 2
+        return (first(tspan), last(tspan))
+    else
+        throw(ArgumentError("the length of tspan must be two (and preferably, " *
+                            "`tspan` should be a tuple, i.e. (0.0,1.0)), but " *
+                            "it is of length $(length(tspan))"))
+    end
+end
+
+function _get_tspan(; kwargs...)
     got_tspan = haskey(kwargs, :tspan)
     got_T = haskey(kwargs, :T)
 
@@ -50,59 +65,59 @@ end
             "time span `tspan` simultaneously; use one or the other"))
     end
 
-    if got_T
+    if got_tspan
         tspan = kwargs[:tspan]
         tspan = _promote_tspan(tspan)
-        # TODO: add functionality for linear systems and remove this restriction
-        @assert iszero(tspan[1]) "can only handle initial time t(0) = 0.0"
-    elseif got_tspan
+    elseif got_T
         T = kwargs[:T]
         tspan = (zero(T), T)
     else
-        throw(ArgumentError("the time span `timespan` has not been specified, " *
-            "but is required for `solve`"))
+        throw(ArgumentError("the time span has not been specified, " *
+            "but is required for `solve`; you should specify either the time horizon " *
+            "`T=...` or the time span `tspan=...`"))
     end
     return tspan
 end
 
-@inline _promote_tspan((t1,t2)::Tuple{T,S}) where {T, S} = promote(t1, t2)
-@inline _promote_tspan(tspan::Number) = (zero(tspan),tspan)
-@inline _promote_tspan(tspan::IA.Interval) = (inf(tspan), sup(tspan))
-@inline function _promote_tspan(tspan::AbstractArray)
-    if length(tspan) == 2
-        return (first(tspan),last(tspan))
+function _get_cpost(ivp, tspan, args...; kwargs...)
+    got_alg = haskey(kwargs, :alg)
+    got_algorithm = haskey(kwargs, :algorithm)
+    got_opC = haskey(kwargs, :opC)
+    no_args = isempty(args) || args[1] === nothing
+
+    if got_alg && no_args
+        opC = kwargs[:alg]
+    elseif got_algorithm && no_args
+        opC = kwargs[:algorithm]
+    elseif got_opC && no_args
+        opC = kwargs[:opC]
+    elseif !no_args && typeof(args[1]) <: AbstractContinuousPost
+        opC = args[1]
     else
-        throw(ArgumentError("the length of tspan must be two (and preferably, " *
-        "`tspan` should be a tuple, i.e. (0.0,1.0))."))
+        opC = _default_cpost(ivp, tspan, args... ; kwargs...)
     end
+    return opC
 end
 
 # ===================
 # Algorithm defaults
 # ===================
 
-"""
-    _default_continuous_post(ivp::IVP{ST}) where {ST<:ACS}
+const DEFAULT_NSTEPS = 100
 
-Return the default continous post operator for an initial value problem of a
-continuous system.
-
-### Input
-
-- `ivp` -- initial value problem
-
-### Output
-
-A continuous post operator with default options.
-
-### Algorithm
-
-- If the system is affine, the algorithm `GLGM06` is used.
-- Otherwise, the algorithm `TMJets` is used.
-"""
-function _default_continuous_post(ivp::IVP{ST}) where {ST<:ACS}
+# If the system is affine, algorithm `GLGM06` is used.
+# Otherwise, algorithm `TMJets` is used.
+function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
     if isaffine(ivp)
-        opC = GLGM06()
+        if haskey(kwargs, :δ)
+            δ = kwargs[:δ]
+        elseif haskey(kwargs, :N)
+            N = kwargs[:N]
+            δ = (tspan[2] - tspan[1]) / N
+        else
+            δ = (tspan[2] - tspan[1]) / DEFAULT_NSTEPS
+        end
+        opC = GLGM06(δ=δ)
     else
         opC = TMJets()
     end

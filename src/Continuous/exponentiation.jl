@@ -16,6 +16,9 @@ using LinearAlgebra: checksquare
 # pade approximants (requires Expokit.jl)
 @inline _exp_pade(A::SparseMatrixCSC) = padm(A)
 
+# TODO: add this method in MathematicalSystems
+@inline _exp(A::IdentityMultiple) = IdentityMultiple(exp(A.M.λ), size(A, 1))
+
 """
     _exp(A::AbstractMatrix, δ::Float64, method::String)
 
@@ -48,7 +51,7 @@ exponential are done with the `expmv` implementation from `Expokit`
 function _exp(A::AbstractMatrix, δ::Float64, method::String)
     n = checksquare(A)
     if method == "base"
-        return _exp(A * δ)
+        return _exp(A * δ) # TODO use dots ? (requires MathematicalSystems#189 for IdentityMultiple)
 
     elseif method == "lazy"
         return _exp_lazy(A * δ)
@@ -183,6 +186,10 @@ International Conference on Computer Aided Verification. Springer, Berlin,
 Heidelberg, 2011.
 """
 function Φ₂(A::AbstractMatrix, δ::Float64, method::String)
+    if method == "inverse"
+        return _Φ₂_inverse(A, δ)
+    end
+
     n = checksquare(A)
     B = _Aδ_3n(A, δ, n)
 
@@ -202,3 +209,28 @@ function Φ₂(A::AbstractMatrix, δ::Float64, method::String)
        throw(ArgumentError("the exponentiation method $exp_method is unknown"))
     end
 end
+
+@inline function _Φ₂_inverse(A::IdentityMultiple, δ::Float64)
+    λ = A.M.λ
+    @assert !iszero(λ) "the given identity multiple is not invertible"
+    δλ = δ * λ
+    α = (1/λ)^2 * (exp(δλ) - 1 - δλ)
+    return IdentityMultiple(α, size(A, 1))
+end
+
+using LazySets.Arrays: isinvertible
+
+@inline function _Φ₂_inverse(A::AbstractMatrix, δ::Float64)
+    @assert isinvertible(A) "the given matrix should be invertible"
+    Ainv = inv(A)
+    n = size(A, 1)
+    In = Matrix(one(N)*I, n, n)
+    return Ainv^2 * (exp(δ*A) - In - δ * A)
+end
+# ================
+# Absolute values
+# ================
+
+@inline _elementwise_abs(A::AbstractMatrix) = abs.(A)
+@inline _elementwise_abs(A::SparseMatrixCSC) = SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
+@inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(exp(A.M.λ), size(A, 1))
