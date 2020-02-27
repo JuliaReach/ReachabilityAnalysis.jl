@@ -48,20 +48,27 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::ForwardApprox
 end
 
 # inhomogeneous case
-function _discretize_inhomog(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::ForwardApproximation)
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::ForwardApproximation)
     A = state_matrix(ivp)
+    n = size(A, 1)
     X0 = initial_state(ivp)
-    U = next_set(inputset(P), 1)
+    U = next_set(inputset(ivp), 1)
     ϕ = _exp(A, δ, alg.exp_method)
-    A_abs = 
-    Phi2Aabs = Reachability.ReachSets.Φ₂(abs.(A), δ, exp_method="base")
-    Einit = symmetric_interval_hull(Phi2Aabs * symmetric_interval_hull((A * A) * X0))
-    # cf. _discretize_interpolation_inhomog
-    Eψ0 = symmetric_interval_hull(Phi2Aabs * symmetric_interval_hull(A * U0))
-    Ω0 = ConvexHull(X0, ϕ * X0 ⊕ δ*U0 ⊕ Eψ0 ⊕ Einit)
-    Ud = ConstantInput(δ*U0 ⊕ Eψ0)
-    In = IdentityMultiple(one(Float64) * LinearAlgebra.I, size(A, 1))
-    return IVP(CLCDS(ϕ, In, stateset(P.s), Ud), Ω0)
+    A_abs = _elementwise_abs(A)
+    Phi2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
+
+    @assert alg.sih_method == "concrete"
+    # TODO : specialize, add option to compute the concrete linear map
+    Einit = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull((A * A) * X0))
+
+    Eψ0 = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull(A * U))
+
+    Ω0 = ConvexHull(X0, ϕ * X0 ⊕ δ*U ⊕ Eψ0 ⊕ Einit)
+    Ud = δ*U ⊕ Eψ0
+    In = IdentityMultiple(one(eltype(A)), n)
+    S_discr = ConstrainedLinearControlDiscreteSystem(ϕ, In, stateset(ivp), Ud)
+
+    return InitialValueProblem(S_discr, Ω0)
 end
 
 #=

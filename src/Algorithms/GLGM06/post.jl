@@ -68,13 +68,9 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...;
     NSTEPS = round(Int, T / δ)
     F = Vector{ReachSet{N, Zonotope{N}}}(undef, NSTEPS)
     if hasinput(ivp)
-        U = inputset(ivp_discr)
-        if isconstantinput(U)
-            U = next_set(U)
-            reach_inhomog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, U)
-        else
-            error("time-varying input sets not implemented yet")
-        end
+        U = inputset(ivp_discr)::LazySet
+        reach_inhomog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, U)
+        # error("time-varying input sets not implemented yet")
     else
         reach_homog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order)
     end

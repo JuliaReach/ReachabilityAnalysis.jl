@@ -77,7 +77,7 @@ end
 
 # iteration interface
 @inline array(fp::Flowpipe) = fp.Xk
-Base.length(fp::Flowpipe) = (length(fp.Xk),)
+Base.length(fp::Flowpipe) = length(fp.Xk) # (length(fp.Xk),)
 Base.first(fp::Flowpipe) = fp[1]
 Base.last(fp::Flowpipe) = fp[end]
 Base.firstindex(fp::Flowpipe) = 1

@@ -5,7 +5,8 @@ export project,
        set,
        setrep,
        tstart,
-       tend
+       tend,
+       tspan
 
 # ================================
 # Abstract types

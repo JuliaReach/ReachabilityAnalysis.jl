@@ -207,7 +207,7 @@ julia> dim(next_set(inputset(sext), 1))
 ```
 
 Extending a varing input set with more than one extra dimension:
-
+1] normalize(::AffineContinuousSystem{Float64,Array{Float64,2},Array{Float64,1}}) at /home/mforets/.julia/dev/ReachabilityAnalysis/src/Continuous/normalization.jl:387
 ```jldoctest add_dimension_cont_sys
 julia> sext = add_dimension(s, 7);
 
@@ -345,7 +345,7 @@ for CL_S in (:CLCS, :CLDS)
         function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, XT<:XNCF{N}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
-            return $CL_S(state_matrix(A), X)
+            return $CL_S(state_matrix(system), X)
         end
     end
 end
@@ -358,7 +358,7 @@ for CLC_S in (:CLCCS, :CLCDS)
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system))
-            $CLC_S(state_matrix(A), I(n, N), X, U)
+            $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
 end
@@ -371,7 +371,7 @@ for (CA_S, CLC_S) in ((:CACS, :CLCCS), (:CADS, :CLCDS))
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(affine_term(system))
-            $CLC_S(state_matrix(A), I(n, N), X, U)
+            $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
 end
@@ -384,7 +384,7 @@ for (A_S, CLC_S) in ((:ACS, :CLCCS), (:ADS, :CLCDS))
             n = statedim(system)
             X = Universe(n)
             U = _wrap_inputs(affine_term(system))
-            $CLC_S(state_matrix(A), I(n, N), X, U)
+            $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
 end
@@ -397,7 +397,7 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
             n = statedim(system)
             X = _wrap_invariant(stateset(X), n)
             U = _wrap_inputs(inputset(U), input_matrix(system), affine_term(system))
-            $CLC_S(system.A, I(n, N), X, U)
+            $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
 end
