@@ -9,7 +9,7 @@ export project,
        tspan
 
 # ================================
-# Abstract types
+# Reach set interfaces
 # ================================
 
 """
@@ -159,6 +159,10 @@ abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
 LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
+
+# Expose common LazySets operations
+# radius, etc TODO: #24
+
 
 """
     project(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}

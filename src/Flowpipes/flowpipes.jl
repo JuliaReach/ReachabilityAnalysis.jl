@@ -68,22 +68,26 @@ struct Flowpipe{N, RT<:AbstractReachSet{N}} <: AbstractFlowpipe
     ext::Dict{Symbol, Any}
 end
 
-# TODO: consider struct of array vs. array of struct
-
 # constructor from empty extension dictionary
 function Flowpipe(Xk::Vector{RT}) where {N, RT<:AbstractReachSet{N}}
     return Flowpipe(Xk, Dict{Symbol, Any}())
 end
 
 # iteration interface
-@inline array(fp::Flowpipe) = fp.Xk
-Base.length(fp::Flowpipe) = length(fp.Xk) # (length(fp.Xk),)
+array(fp::Flowpipe) = fp.Xk
+Base.iterate(fp::Flowpipe) = iterate(fp.Xk)
+Base.iterate(fp::Flowpipe, state) = iterate(fp.Xk, state)
+Base.length(fp::Flowpipe) = length(fp.Xk)
 Base.first(fp::Flowpipe) = fp[1]
 Base.last(fp::Flowpipe) = fp[end]
 Base.firstindex(fp::Flowpipe) = 1
 Base.lastindex(fp::Flowpipe) = length(fp.Xk)
 
 # abstract reach set interface
+set(fp::Flowpipe) = throw(ArgumentError("to retrieve the array of sets represented by this flowpipe, " *
+    "use the `array(...)` function, or use the function `set(...)` at a specific index, i.e. " *
+    "`set(F[ind])`, or simply `set(F, ind)`, to get the reach-set with index `ind` of the flowpipe `F`"))
+set(fp::Flowpipe, ind::Integer) = set(fp.Xk[ind])
 @inline tstart(fp::Flowpipe) = tstart(first(fp))
 @inline tend(fp::Flowpipe) = tend(last(fp))
 @inline tspan(fp::Flowpipe) = IA.Interval(tstart(fp), tend(fp))
@@ -105,7 +109,7 @@ end
 # (see again array of struct vs struct of array)
 function (fp::Flowpipe)(t::Float64)
     for (i, X) in enumerate(fp.Xk)
-        if t ∈ Δt(X) # exit on the first occurrence
+        if t ∈ tspan(X) # exit on the first occurrence
             return fp[i]
         end
     end
@@ -113,24 +117,29 @@ function (fp::Flowpipe)(t::Float64)
             "$(tspan(fp)), of the given flowpipe"))
 end
 
+# conversion from other numeric type
+function (fp::Flowpipe)(t::Number)
+    fp(Float64(t))
+end
+
 # evaluate a flowpipe at a given time interval: gives possibly more than one reach set
 # i.e. first and last sets and those in between them
 function (fp::Flowpipe)(dt::IA.Interval{Float64})
-    # here we assume that indices are of the form 1 .. n
+    # here we assume that indices are one-based, ie. form 1 .. n
     firstidx = 0
     lastidx = 0
     α = inf(dt)
     β = sup(dt)
     for (i, X) in enumerate(fp.Xk)
-        if α ∈ Δt(X)
+        if α ∈ tspan(X)
             firstidx = i
         end
-        if β ∈ Δt(X)
+        if β ∈ tspan(X)
             lastidx = i
         end
     end
     if firstidx == 0 || lastidx == 0
-        throw(ArgumentError("time interval $Δt is not contained in the time span, " *
+        throw(ArgumentError("the time interval $dt is not contained in the time span, " *
                 "$(tspan(fp)), of the given flowpipe"))
     end
     return fp[firstidx:lastidx]
@@ -141,7 +150,7 @@ end
 # ================================
 
 #=
-
+# TODO: consider struct of array vs. array of struct
 """
     HybridFlowpipe{FT, VF<:AbstractVector{FT}} <: AbstractFlowpipe
 

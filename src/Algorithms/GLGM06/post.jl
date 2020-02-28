@@ -15,7 +15,23 @@ end
 #       x' = Ax, x ∈ X
 #     - If the system has an input, a CLCCS, x' = Ax + u, x ∈ X, u ∈ U
 # If the original system is unconstrained, the constraint set X is the universal set.
-function _normalize(ivp)
+abstract type AbstractLinearContinuousSystem <: AbstractContinuousSystem
+abstract type AbstractNonlinearContinuousSystem <: AbstractContinuousSystem
+
+function _normalize(ivp::IVP<:AbstractContinuousSystem)
+    if islinear(ivp) || isaffine(ivp)
+        return _normalize(ivp, AbstractLinearContinuousSystem())
+    else
+        return _normalize(ivp, AbstractNonlinearContinuousSystem())
+    end
+end
+
+function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractNonlinearContinuousSystem)
+    throw(ArgumentError("can't normalize a nonlinear initial-value problem; in particular " *
+                        "one of type $(typeof(ivp))"))
+end
+
+function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractLinearContinuousSystem)
 
     # initial states normalization
     X0 = initial_state(ivp)
