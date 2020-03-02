@@ -1,69 +1,4 @@
-# return the time horizon given a time span
-function _get_T(tspan::Tuple{Float64, Float64})
-    t0 = tspan[1]
-    # TODO: add this functionality, see #21
-    @assert iszero(t0) "this algorithm can only handle zero initial time"
-
-    T = tspan[2]
-    @assert T > 0 "the time horizon should be positive"
-
-    return T
-end
-
-# The canonical form is:
-#     - If the system doesn't have input, a constrained linear continous system (CLCS)
-#       x' = Ax, x ∈ X
-#     - If the system has an input, a CLCCS, x' = Ax + u, x ∈ X, u ∈ U
-# If the original system is unconstrained, the constraint set X is the universal set.
-abstract type AbstractLinearContinuousSystem <: AbstractContinuousSystem
-abstract type AbstractNonlinearContinuousSystem <: AbstractContinuousSystem
-
-function _normalize(ivp::IVP<:AbstractContinuousSystem)
-    if islinear(ivp) || isaffine(ivp)
-        return _normalize(ivp, AbstractLinearContinuousSystem())
-    else
-        return _normalize(ivp, AbstractNonlinearContinuousSystem())
-    end
-end
-
-function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractNonlinearContinuousSystem)
-    throw(ArgumentError("can't normalize a nonlinear initial-value problem; in particular " *
-                        "one of type $(typeof(ivp))"))
-end
-
-function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractLinearContinuousSystem)
-
-    # initial states normalization
-    X0 = initial_state(ivp)
-    if X0 isa AbstractVector
-        X0_norm = Singleton(X0)
-    elseif X0 isa IA.Interval
-        X0_norm = convert(Interval, X0)
-    elseif X0 isa IA.IntervalBox
-        X0_norm = convert(Hyperrectangle, X0)
-    else
-        X0_norm = X0
-    end
-
-    # system's normalization
-    S = system(ivp)
-    S_norm = normalize(S)
-
-    if S_norm === S && X0_norm === X0
-        ivp_norm = ivp
-    else
-        ivp_norm = IVP(S_norm, X0_norm)
-    end
-
-    return ivp_norm
-end
-
-# TODO: refactor
-hasinput(S::AbstractSystem) = inputdim(S) > 0
-isconstantinput(::ConstantInput) = true
-isconstantinput(::VaryingInput) = false
-isconstantinput(::LazySet) = true
-
+# TODO: dispatch on linear system only.. ?
 function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
 
     # get time horizon
@@ -86,10 +21,10 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...;
     if hasinput(ivp)
         U = inputset(ivp_discr)::LazySet
         U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, U)
+        reach_inhomog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, X, U)
         # error("time-varying input sets not implemented yet")
     else
-        reach_homog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order)
+        reach_homog!(F, Ω0, Φ, NSTEPS, δ, alg.max_order, X)
     end
 
     return Flowpipe(F)
