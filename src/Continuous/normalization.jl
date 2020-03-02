@@ -414,7 +414,7 @@ isconstantinput(::LazySet) = true
 abstract type AbstractLinearContinuousSystem <: AbstractContinuousSystem end
 abstract type AbstractNonlinearContinuousSystem <: AbstractContinuousSystem end
 
-function _normalize(ivp::IVP<:AbstractContinuousSystem)
+function _normalize(ivp::IVP{<:AbstractContinuousSystem})
     if islinear(ivp) || isaffine(ivp)
         return _normalize(ivp, AbstractLinearContinuousSystem())
     else
