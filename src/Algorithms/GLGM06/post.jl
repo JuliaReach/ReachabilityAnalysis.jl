@@ -17,7 +17,8 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...;
 
     # flowpipe computation
     NSTEPS = round(Int, T / δ)
-    F = Vector{ReachSet{N, Zonotope{N}}}(undef, NSTEPS)
+    ZT = Zonotope{Float64, Vector{Float64}, Matrix{Float64}} # TODO: typeof(Ω0) # should be a concretely typed Zonotope
+    F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
     if hasinput(ivp)
         U = inputset(ivp_discr)::LazySet
         U = _convert_or_overapproximate(Zonotope, U)

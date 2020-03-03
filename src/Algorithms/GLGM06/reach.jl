@@ -2,18 +2,14 @@
 # Homogeneous case
 # ================
 
-using LinearAlgebra
-# TODO: add to MathematicalSystems
-Base.:*(im::IdentityMultiple, d::Diagonal) = im.M.λ * d
-
 # X is the universal set => it is ignored
-function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
-                      Ω0::Zonotope{N},
+function reach_homog!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                      Ω0::Zonotope{N, VN, MN},
                       Φ::AbstractMatrix,
                       NSTEPS::Integer,
                       δ::Float64,
                       max_order::Integer,
-                      X::Universe) where {N}
+                      ::Universe) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
     F[1] = ReachSet(Ω0, Δt)
@@ -29,7 +25,8 @@ function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
     return F
 end
 
-# early termination checking for intersection with the invariant << TODO
+# early termination checking for intersection with the invariant
+# TODO : check stopping criterion
 function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
                       Ω0::Zonotope{N},
                       Φ::AbstractMatrix,
@@ -45,9 +42,13 @@ function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
     while k <= NSTEPS
         Rₖ = linear_map(Φ, set(F[k-1]))
         Rₖ = reduce_order(Rₖ, max_order)
+        is_intersection_empty(X, Rₖ) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
+    end
+    if k < NSTEPS
+        resize!(F, k)
     end
     return F
 end
@@ -58,7 +59,7 @@ end
 
 # TODO: add invariant information
 
-function reach_inhomog!(F::Vector{ReachSet{N, Zonotope{N}}},
+function reach_inhomog!(F::Vector{ReachSet{N, <:Zonotope{N}}},
                         Ω0::Zonotope{N},
                         Φ::AbstractMatrix,
                         NSTEPS::Integer,

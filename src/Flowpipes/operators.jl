@@ -1,7 +1,7 @@
 """
-    AbstractPostOperator
+    AbstractPost
 
-Abstract supertype of all post operators.
+Abstract supertype of all post operator types.
 
 ### Notes
 
@@ -13,14 +13,14 @@ init(op::AbstractPostOperator, system, options)
 post(op::AbstractPostOperator, system, ...)
 ```
 """
-abstract type AbstractPostOperator end
+abstract type AbstractPost end
 
 """
     AbstractContinuousPost
 
 Abstract supertype of all continuous post operators.
 """
-abstract type AbstractContinuousPost <: AbstractPostOperator end
+abstract type AbstractContinuousPost <: AbstractPost end
 
 """
     AbstractDiscretePost
@@ -37,4 +37,4 @@ tube⋂inv!(𝒫::AbstractDiscretePost, reach_tube::Vector{<:AbstractReachSet{<:
           invariant, Rsets, start_interval) where {N}
 ```
 """
-abstract type AbstractDiscretePost <: AbstractPostOperator end
+abstract type AbstractDiscretePost <: AbstractPost end

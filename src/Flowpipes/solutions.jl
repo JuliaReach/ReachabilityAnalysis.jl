@@ -13,9 +13,8 @@ abstract type AbstractSolution end
 # Property checking problem
 # ================================
 
-
 """
-    VerificationSolution{T} <: AbstractSolution
+    CheckSolution{T} <: AbstractSolution
 
 Type that wraps the solution of a verification problem.
 
@@ -32,21 +31,18 @@ Property checking
 This type contains the answer if the property is satisfied, and if not, it
 contains the index at which the property might be violated for the first time.
 """
-struct VerificationSolution{T} <: AbstractSolution
+struct CheckSolution{ST} <: AbstractSolution
     satisfied::Bool
     violation::Int
-    solver::T
+    solver::ST
 end
-
-# constructor with no options
-CheckSolution(satisfied::Bool, violation::Int) = CheckSolution(satisfied, violation, Options())
 
 # ================================
 # Reachability problem
 # ================================
 
 """
-    ReachabilitySolution{SN, RSN<:AbstractReachSet{SN}} <: AbstractSolution
+    ReachSolution{FT, ST} <: AbstractSolution
 
 Type that wraps the solution of a reachability problem as a sequence of lazy
 sets, and a dictionary of options.
@@ -56,9 +52,10 @@ sets, and a dictionary of options.
 - `Xk`       -- the list of [`AbstractReachSet`](@ref)s
 - `options`  -- the dictionary of options
 """
-struct ReachabilitySolution{SN, RSN<:AbstractReachSet{SN}, T} <: AbstractSolution
-    Xk::Flowpipe
-    solver::T
+struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
+    Xk::FP
+    tspan::TimeInterval
+    solver::ST
 end
 
 #=

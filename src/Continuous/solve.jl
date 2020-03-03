@@ -5,16 +5,18 @@ export solve
 # ======================================
 
 function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
+    # preliminary checks
     _check_dim(ivp)
+
+    # retrieve time span and continuous post operator algorithm
     tspan = _get_tspan(; kwargs...)
     cpost = _get_cpost(ivp, tspan, args...; kwargs...)
 
     # run the continuous-post operator
     F = post(cpost, ivp, tspan, args...; kwargs...)
 
-    # store the flowpipe and the algorithm in a solution structure
-    return F
-    #return ReachSolution(F, tspan, cpost)
+    # store and return the flowpipe and algorithm in a solution structure
+    return ReachSolution(F, tspan, cpost)
 end
 
 #=
@@ -47,15 +49,16 @@ function _check_dim(ivp)
     end
 end
 
-@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = promote(t1, t2)
-@inline _promote_tspan(tspan::Number) = (zero(tspan),tspan)
-@inline _promote_tspan(tspan::IA.Interval) = (inf(tspan), sup(tspan))
+@inline _promote_tspan((t1, t2)::Tuple{T, T}) where {T} = TimeInterval(t1, t2)
+@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = TimeInterval(promote(t1, t2))
+@inline _promote_tspan(tspan::Number) = TimeInterval(zero(tspan), tspan)
+@inline _promote_tspan(tspan::IA.Interval) = TimeInterval(inf(tspan), sup(tspan))
 @inline function _promote_tspan(tspan::AbstractArray)
     if length(tspan) == 2
-        return (first(tspan), last(tspan))
+        return TimeInterval(first(tspan), last(tspan))
     else
         throw(ArgumentError("the length of tspan must be two (and preferably, " *
-                            "`tspan` should be a tuple, i.e. (0.0,1.0)), but " *
+                            "`tspan` should be a tuple, i.e. (0.0, 1.0)), but " *
                             "it is of length $(length(tspan))"))
     end
 end

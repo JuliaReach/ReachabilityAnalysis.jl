@@ -401,6 +401,8 @@ _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
 # Shared functionality for linear continuous post operators
 # ==========================================================
 
+Base.:*(im::IdentityMultiple, d::Diagonal) = im.M.λ * d  # TODO: add to MathematicalSystems
+
 hasinput(S::AbstractSystem) = inputdim(S) > 0
 isconstantinput(::ConstantInput) = true
 isconstantinput(::VaryingInput) = false
@@ -416,20 +418,20 @@ abstract type AbstractNonlinearContinuousSystem <: AbstractContinuousSystem end
 
 function _normalize(ivp::IVP{<:AbstractContinuousSystem})
     if islinear(ivp) || isaffine(ivp)
-        return _normalize(ivp, AbstractLinearContinuousSystem())
+        return _normalize(ivp, AbstractLinearContinuousSystem)
     else
-        return _normalize(ivp, AbstractNonlinearContinuousSystem())
+        return _normalize(ivp, AbstractNonlinearContinuousSystem)
     end
 end
 
-function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractNonlinearContinuousSystem)
+function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonlinearContinuousSystem})
     throw(ArgumentError("can't normalize a nonlinear initial-value problem; in particular " *
                         "one of type $(typeof(ivp))"))
 end
 
 const CanonicalLinearContinuousSystem = Union{CLCS, CLCCS}
 
-function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractLinearContinuousSystem)
+function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractLinearContinuousSystem})
 
     # initial states normalization
     X0 = initial_state(ivp)
@@ -439,6 +441,8 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::AbstractLinearContin
         X0_norm = convert(Interval, X0)
     elseif X0 isa IA.IntervalBox
         X0_norm = convert(Hyperrectangle, X0)
+    elseif X0 isa Number
+        X0_norm = Singleton([X0])
     else
         X0_norm = X0
     end
