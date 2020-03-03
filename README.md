@@ -11,6 +11,8 @@
     If you are interested to know more about the project, feel free to open an issue or
     join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
 
+NOTE: i'm currently using `mforets/dev` branch in LazySets.jl.
+
 ## Resources
 
 - [Manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
