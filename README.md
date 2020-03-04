@@ -6,12 +6,11 @@
 [![Code coverage](http://codecov.io/github/mforets/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/mforets/ReachabilityAnalysis.jl?branch=master)
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
->  :book: This package is still a work-in-progress. It grew out of the package
-    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
-    If you are interested to know more about the project, feel free to open an issue or
-    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
 
-!! NOTE: currently using `mforets/dev` branch in LazySets.jl.
+Reachability Analysis is concerned with computing rigorous approximations of the set
+of states reachable by a dynamical system. The scope of the package are systems
+modeled by ordinary differential equations (ODEs) with uncertain initial states,
+uncertain parameters or non-deterministic inputs.
 
 ## Resources
 
@@ -20,18 +19,12 @@
 
 ## Features
 
-Reachability Analysis is concerned with computing rigorous approximations of the set
-of states reachable by a dynamical system. The scope of the package are systems
-modeled by ordinary differential equations (ODEs) with uncertain initial states,
-uncertain parameters or non-deterministic inputs.
-
 The following types of systems are supported:
 
 - Continuous ODEs with linear dynamics
 - Continuous ODEs with non-linear dynamics
 - Hybrid systems with piecweise-affine dynamics
 - Hybrid systems with non-linear dynamics
-
 
 References to the scientific papers presenting the algorithms implemented in this
 package can be found in the source code and in
@@ -46,6 +39,14 @@ and to leave it, type `<backspace>`), and enter:
 ```julia
 pkg> add ReachabilityAnalysis.jl
 ```
+
+
+>  :book: This package is still a work-in-progress. It grew out of the package
+    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
+    If you are interested to know more about the project, feel free to open an issue or
+    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
+
+!! NOTE: currently using `mforets/dev` branch in LazySets.jl.
 
 ## Examples
 
