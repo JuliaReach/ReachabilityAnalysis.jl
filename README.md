@@ -11,16 +11,12 @@
     If you are interested to know more about the project, feel free to open an issue or
     join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
 
-NOTE: i'm currently using `mforets/dev` branch in LazySets.jl.
+!! NOTE: currently using `mforets/dev` branch in LazySets.jl.
 
 ## Resources
 
 - [Manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
-- [Contributing](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/about/#Contributing-1)
-- [Release notes of tagged versions](https://github.com/mforets/ReachabilityAnalysis.jl/releases)
-- [Release log of the development version](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Release-log-tracker)
-- [Publications](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/publications/)
-- [Citations](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/citations/)
+- [Citation]()
 
 ## Features
 
@@ -36,8 +32,6 @@ The following types of systems are supported:
 - Hybrid systems with piecweise-affine dynamics
 - Hybrid systems with non-linear dynamics
 
-We suggest to explore the Examples section of the online documentation for examples
-illustrating how to use the library.
 
 References to the scientific papers presenting the algorithms implemented in this
 package can be found in the source code and in
@@ -55,6 +49,11 @@ pkg> add ReachabilityAnalysis.jl
 
 ## Examples
 
+We suggest to explore the Examples section of the online documentation for examples
+illustrating how to use the library.
+
+### Linear
+
 ```julia
 using ReachabilityAnalysis
 
@@ -65,6 +64,8 @@ using Plots
 
 plot(sol)
 ```
+
+### Higher-dimensional linear
 
 ```julia
 using ReachabilityAnalysis
@@ -79,3 +80,10 @@ using Plots
 
 plot(sol)
 ```
+
+### Nonlinear
+
+
+### Hybrid
+
+
