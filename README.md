@@ -14,7 +14,7 @@ uncertain parameters or non-deterministic inputs.
 
 ## Resources
 
-- [Manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
+- [Reference manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
 - [Citation]()
 
 ## Features
@@ -87,4 +87,16 @@ plot(sol)
 
 ### Hybrid
 
+## Citation
 
+If you use this package for your research, we kindly ask you to consider citing the following paper.
+
+```
+@inproceedings{bogomolov2019juliareach,
+  title={JuliaReach: a toolbox for set-based reachability},
+  author={Bogomolov, Sergiy and Forets, Marcelo and Frehse, Goran and Potomkin, Kostiantyn and Schilling, Christian},
+  booktitle={Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control},
+  pages={39--44},
+  year={2019}
+}
+```
