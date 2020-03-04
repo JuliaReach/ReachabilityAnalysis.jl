@@ -11,6 +11,7 @@ include("Initialization/init.jl")
 include("Flowpipes/reachsets.jl")
 include("Flowpipes/flowpipes.jl")
 include("Flowpipes/operators.jl")
+include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
 
 # ================================================

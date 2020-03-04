@@ -4,6 +4,25 @@ export solve
 # Solve function for continuous systems
 # ======================================
 
+"""
+    solve(ivp::IVP{<:AbstractContinuousSystem}, tspan, alg; kwargs...)
+
+Solves the initial-value problem defined by `ivp` over the time span `tspan`,
+using the algorihm `alg`. If no algorithm is given, a default algorithm is chosen.
+
+### Input
+
+- `ivp`   -- initial-value problem
+- `tspan` -- time span for this initial-value problem
+- `alg`   -- reachability algorithm
+
+Additional options are passed as arguments or keyword arguments.
+See the online documentation for examples.
+
+### Output
+
+A solution type.
+"""
 function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # preliminary checks
     _check_dim(ivp)

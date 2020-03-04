@@ -26,6 +26,7 @@ using LazySets: Interval, isdisjoint, radius, sample, ∅, dim
 const IM = IntervalMatrices
 import IntervalArithmetic
 const IA = IntervalArithmetic
+const TimeInterval = IA.Interval{Float64}
 
 # aliases for set types
 const CPA = CartesianProductArray

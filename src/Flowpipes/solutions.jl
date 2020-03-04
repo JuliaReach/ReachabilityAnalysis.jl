@@ -20,29 +20,33 @@ Type that wraps the solution of a verification problem.
 
 ### Fields
 
-- `satisfied` -- is the property satisfied?
-- `violation` -- step at which the property is violated (-1 otherwise)
-- `options`   -- the dictionary of options
+TODO
 
 ### Notes
-
-Property checking
 
 This type contains the answer if the property is satisfied, and if not, it
 contains the index at which the property might be violated for the first time.
 """
-struct CheckSolution{ST} <: AbstractSolution
+struct CheckSolution{PT, ST<:AbstractPost} <: AbstractSolution
+    property::PT
     satisfied::Bool
-    violation::Int
+    vidx::Int
+    vtspan::TimeInterval
     solver::ST
 end
+
+property(sol::CheckSolution) = sol.property
+satisfied(sol::CheckSolution) = sol.satisfied
+violation_index(sol::CheckSolution) = sol.vidx
+violation_tspan(sol::CheckSolution) = sol.vtspan
+solver(sol::CheckSolution) = sol.solver
 
 # ================================
 # Reachability problem
 # ================================
 
 """
-    ReachSolution{FT, ST} <: AbstractSolution
+    ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
 
 Type that wraps the solution of a reachability problem as a sequence of lazy
 sets, and a dictionary of options.
@@ -53,10 +57,27 @@ sets, and a dictionary of options.
 - `options`  -- the dictionary of options
 """
 struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
-    Xk::FP
-    tspan::TimeInterval
+    F::FT
     solver::ST
+    ext::Dict{Symbol, Any} # dictionary used by extensions
 end
+
+# getter functions
+flowpipe(sol::ReachSolution) = sol.F
+tstart(sol::ReachSolution) = tstart(sol.F)
+tend(sol::ReachSolution) = tend(sol.F)
+tspan(sol::ReachSolution) = tspan(sol.F)
+LazySets.dim(sol::ReachSolution) = dim(sol.F) # TODO: keep for hybrid?
+
+# solution iterator interface
+array(sol::ReachSolution) = array(sol.F)
+Base.iterate(sol::ReachSolution) = iterate(sol.F)
+Base.iterate(sol::ReachSolution, state) = iterate(sol.F, state)
+Base.length(sol::ReachSolution) = length(sol.F)
+Base.first(sol::ReachSolution) = first(sol.F)
+Base.last(sol::ReachSolution) = last(sol.F)
+Base.firstindex(sol::ReachSolution) = 1
+Base.lastindex(sol::ReachSolution) = length(sol.F)
 
 #=
 function project(rs::ReachSolution, M::AbstractMatrix)
@@ -64,9 +85,6 @@ function project(rs::ReachSolution, M::AbstractMatrix)
     return ReachSolution(Yk, rs.options)
 end
 =#
-
-# solution iterator interface
-
 
 #=
 

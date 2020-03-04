@@ -1,6 +1,6 @@
 # See MathematicalSystems#160
 MathematicalSystems.system(sys::AbstractSystem) = sys
-MathematicalSystems.system(sys::InitialValueProblem) = sys.s
+#MathematicalSystems.system(sys::InitialValueProblem) = sys.s
 
 struct VectorField{T}
     field::T
