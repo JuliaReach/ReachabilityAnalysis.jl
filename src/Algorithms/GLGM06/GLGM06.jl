@@ -28,7 +28,7 @@ TODO: move these references to the general references
 """
 @with_kw struct GLGM06 <: AbstractContinuousPost
     δ::Float64
-    appmodel::AbstractApproximationModel=ForwardApproximation(sih_method="concrete",
+    approx_model::AbstractApproximationModel=ForwardApproximation(sih_method="concrete",
                                                               exp_method="base",
                                                               set_operations="zonotope",
                                                               phi2_method="base")
@@ -36,7 +36,7 @@ TODO: move these references to the general references
 end
 
 step_size(alg::GLGM06) = alg.δ
-approximation_model(alg::GLGM06) = alg.appmodel
+approx_model(alg::GLGM06) = alg.approx_model
 max_order(alg::GLGM06) = alg.max_order
 
 include("post.jl")

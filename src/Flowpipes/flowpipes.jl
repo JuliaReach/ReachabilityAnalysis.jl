@@ -96,7 +96,7 @@ LazySets.dim(fp::Flowpipe) = dim(first(fp))
 # support indexing with ranges or with vectors of integers
 Base.getindex(fp::Flowpipe, i::Int) = fp.Xk[i]
 Base.getindex(fp::Flowpipe, i::Number) = fp[convert(Int, i)]
-Base.getindex(fp::Flowpipe, I) = [fp[i] for i in I]
+Base.getindex(fp::Flowpipe, I::AbstractVector) = [fp[i] for i in I]
 
 # get the set of the flowpipe with the given index
 function Base.getindex(fp::Flowpipe, t::Float64)

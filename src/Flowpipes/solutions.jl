@@ -62,6 +62,11 @@ struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
     ext::Dict{Symbol, Any} # dictionary used by extensions
 end
 
+# constructor from empty extension dictionary
+function ReachSolution(F::FT, solver::ST) where {FT<:AbstractFlowpipe, ST<:AbstractPost}
+    return ReachSolution(F, solver, Dict{Symbol, Any}())
+end
+
 # getter functions
 flowpipe(sol::ReachSolution) = sol.F
 tstart(sol::ReachSolution) = tstart(sol.F)
@@ -69,7 +74,7 @@ tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
 LazySets.dim(sol::ReachSolution) = dim(sol.F) # TODO: keep for hybrid?
 
-# solution iterator interface
+# iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
 Base.iterate(sol::ReachSolution) = iterate(sol.F)
 Base.iterate(sol::ReachSolution, state) = iterate(sol.F, state)
@@ -78,6 +83,15 @@ Base.first(sol::ReachSolution) = first(sol.F)
 Base.last(sol::ReachSolution) = last(sol.F)
 Base.firstindex(sol::ReachSolution) = 1
 Base.lastindex(sol::ReachSolution) = length(sol.F)
+Base.getindex(sol::ReachSolution, i::Int) = getindex(sol.F, i)
+Base.getindex(sol::ReachSolution, i::Number) = getindex(sol.F, i)
+Base.getindex(sol::ReachSolution, I::AbstractVector) = getindex(sol.F, I)
+
+# evaluation interface
+Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
+(sol::ReachSolution)(t::Float64) = sol.F(t)
+(sol::ReachSolution)(t::Number) = sol.F(t)
+(sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
 
 #=
 function project(rs::ReachSolution, M::AbstractMatrix)

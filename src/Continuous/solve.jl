@@ -28,14 +28,14 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     _check_dim(ivp)
 
     # retrieve time span and continuous post operator algorithm
-    tspan = _get_tspan(; kwargs...)
+    tspan = _get_tspan(args...; kwargs...)
     cpost = _get_cpost(ivp, tspan, args...; kwargs...)
 
     # run the continuous-post operator
     F = post(cpost, ivp, tspan, args...; kwargs...)
 
     # store and return the flowpipe and algorithm in a solution structure
-    return ReachSolution(F, tspan, cpost)
+    return ReachSolution(F, cpost)
 end
 
 #=
@@ -68,13 +68,13 @@ function _check_dim(ivp)
     end
 end
 
-@inline _promote_tspan((t1, t2)::Tuple{T, T}) where {T} = TimeInterval(t1, t2)
-@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = TimeInterval(promote(t1, t2))
-@inline _promote_tspan(tspan::Number) = TimeInterval(zero(tspan), tspan)
-@inline _promote_tspan(tspan::IA.Interval) = TimeInterval(inf(tspan), sup(tspan))
+@inline _promote_tspan((t1, t2)::Tuple{T, T}) where {T} = (t1, t2)
+@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = promote(t1, t2)
+@inline _promote_tspan(tspan::Number) = (zero(tspan), tspan)
+@inline _promote_tspan(tspan::IA.Interval) = (inf(tspan), sup(tspan))
 @inline function _promote_tspan(tspan::AbstractArray)
     if length(tspan) == 2
-        return TimeInterval(first(tspan), last(tspan))
+        return (first(tspan), last(tspan))
     else
         throw(ArgumentError("the length of tspan must be two (and preferably, " *
                             "`tspan` should be a tuple, i.e. (0.0, 1.0)), but " *
@@ -82,7 +82,7 @@ end
     end
 end
 
-function _get_tspan(; kwargs...)
+function _get_tspan(args...; kwargs...)
     got_tspan = haskey(kwargs, :tspan)
     got_T = haskey(kwargs, :T)
 
@@ -102,19 +102,18 @@ function _get_tspan(; kwargs...)
             "but is required for `solve`; you should specify either the time horizon " *
             "`T=...` or the time span `tspan=...`"))
     end
-    return tspan
+    return TimeInterval(tspan[1], tspan[2])
 end
 
 # return the time horizon given a time span
 # the check_positive flag is used for algorithms that do not support negative
 # times
-function _get_T(tspan::Tuple{Float64, Float64},
-                check_zero::Bool=true, check_positive::Bool=true)
-    t0 = tspan[1]
+function _get_T(tspan::TimeInterval, check_zero::Bool=true, check_positive::Bool=true)
+    t0 = inf(tspan)
     if check_zero
         @assert iszero(t0) "this algorithm can only handle zero initial time"
     end
-    T = tspan[2]
+    T = sup(tspan)
     if check_positive
         @assert T > 0 "the time horizon should be positive"
     end
@@ -155,9 +154,9 @@ function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kw
             δ = kwargs[:δ]
         elseif haskey(kwargs, :N)
             N = kwargs[:N]
-            δ = (tspan[2] - tspan[1]) / N
+            δ = diam(tspan) / N
         else
-            δ = (tspan[2] - tspan[1]) / DEFAULT_NSTEPS
+            δ = diam(tspan) / DEFAULT_NSTEPS
         end
         opC = GLGM06(δ=δ)
     else
