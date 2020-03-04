@@ -45,18 +45,6 @@ the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/d
 
 ## Installation
 
-### Compatibility
-
-This package is compatible with the current stable release of Julia v1.3, with
-the long-term release v1.0.5 and with all intermediate versions. The package is expected to work
-under Linux OS, MacOS and Windows. If you find problems installing,
-do not hesitate to open an issue in the [issue tracker](https://github.com/mforets/ReachabilityAnalysis.jl/issues).
-
-Refer to the [official documentation](https://julialang.org/downloads) on how to
-install and run Julia in your system.
-
-### Installation
-
 Once you have installed Julia in your system, open a Julia session, activate the
 `pkg` mode (remember that to activate the `pkg` mode in Julia's REPL, you need to type `]`,
 and to leave it, type `<backspace>`), and enter:
@@ -65,11 +53,29 @@ and to leave it, type `<backspace>`), and enter:
 pkg> add ReachabilityAnalysis.jl
 ```
 
-### Dependencies
+## Examples
 
-The set-based computations are handled by the library [`LazySets.jl`](https://github.com/JuliaReach/LazySets.jl),
-which is part of the [JuliaReach](https://github.com/JuliaReach/) framework.
+```julia
+using ReachabilityAnalysis
 
-The full list of dependencies can be found in the `Project.toml` file in this repository,
-in the `[deps]` section. These dependencies are installed automatically when
-you `add` `ReachabilityAnaysis.jl` as explained in the previous paragraphs.
+prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 1)
+sol = solve(prob, T=1.0, GLGM06())
+
+using Plots
+
+plot(sol)
+```
+
+```julia
+using ReachabilityAnalysis
+
+A = [1 0; 0 -1]
+B = [1, 1]
+U = Interval(-0.1, 0.1)
+prob = @ivp(x' = Ax + Bu, u ∈ U, x(0) ∈ X0)
+sol = solve(prob, T=1.0, GLGM06())
+
+using Plots
+
+plot(sol)
+```
