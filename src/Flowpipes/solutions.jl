@@ -68,10 +68,11 @@ function ReachSolution(F::FT, solver::ST) where {FT<:AbstractFlowpipe, ST<:Abstr
 end
 
 # getter functions
-flowpipe(sol::ReachSolution) = sol.F
+flowpipe(sol::ReachSolution) = flowpipe(sol.F)
 tstart(sol::ReachSolution) = tstart(sol.F)
 tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
+setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
 LazySets.dim(sol::ReachSolution) = dim(sol.F) # TODO: keep for hybrid?
 
 # iteration and indexing iterator interface

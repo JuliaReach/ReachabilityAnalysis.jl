@@ -72,6 +72,7 @@ end
 @inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = promote(t1, t2)
 @inline _promote_tspan(tspan::Number) = (zero(tspan), tspan)
 @inline _promote_tspan(tspan::IA.Interval) = (inf(tspan), sup(tspan))
+@inline _promote_tspan(tspan::Interval) = (min(tspan), max(tspan))
 @inline function _promote_tspan(tspan::AbstractArray)
     if length(tspan) == 2
         return (first(tspan), last(tspan))

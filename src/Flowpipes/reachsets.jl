@@ -241,6 +241,7 @@ end
 # abstract reach set interface functions
 set(R::ReachSet) = R.X
 setrep(R::ReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
+setrep(::Type{ReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
 tstart(R::ReachSet) = inf(R.Δt)
 tend(R::ReachSet) = sup(R.Δt)
 tspan(R::ReachSet) = R.Δt
