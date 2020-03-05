@@ -1,5 +1,6 @@
 export Flowpipe,
-       HybridFlowpipe
+       HybridFlowpipe,
+       flowpipe
 
 # ================================
 # Abstract types
@@ -68,13 +69,16 @@ struct Flowpipe{N, RT<:AbstractReachSet{N}} <: AbstractFlowpipe
     ext::Dict{Symbol, Any}
 end
 
+# getter functions
+array(fp::Flowpipe) = fp.Xk
+flowpipe(fp::Flowpipe) = fp
+
 # constructor from empty extension dictionary
 function Flowpipe(Xk::Vector{RT}) where {N, RT<:AbstractReachSet{N}}
     return Flowpipe(Xk, Dict{Symbol, Any}())
 end
 
 # iteration interface
-array(fp::Flowpipe) = fp.Xk
 Base.iterate(fp::Flowpipe) = iterate(fp.Xk)
 Base.iterate(fp::Flowpipe, state) = iterate(fp.Xk, state)
 Base.length(fp::Flowpipe) = length(fp.Xk)
@@ -88,6 +92,8 @@ set(fp::Flowpipe) = throw(ArgumentError("to retrieve the array of sets represent
     "use the `array(...)` function, or use the function `set(...)` at a specific index, i.e. " *
     "`set(F[ind])`, or simply `set(F, ind)`, to get the reach-set with index `ind` of the flowpipe `F`"))
 set(fp::Flowpipe, ind::Integer) = set(fp.Xk[ind])
+setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
+setrep(::Type{Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 @inline tstart(fp::Flowpipe) = tstart(first(fp))
 @inline tend(fp::Flowpipe) = tend(last(fp))
 @inline tspan(fp::Flowpipe) = IA.Interval(tstart(fp), tend(fp))

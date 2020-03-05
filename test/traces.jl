@@ -10,4 +10,10 @@ using DifferentialEquations
     sol = DifferentialEquations.solve(prob, T=1.0)
     @test sol isa OrdinaryDiffEq.ODECompositeSolution
     @test first(sol.t) == 0.0 && last(sol.t) == 1.0
+
+    # inplace (default)
+    sol = DifferentialEquations.solve(prob, T=1.0, inplace=true)
+
+    # out-of-place
+    sol = DifferentialEquations.solve(prob, T=1.0, inplace=false)
 end

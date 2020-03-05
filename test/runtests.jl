@@ -1,5 +1,6 @@
 using Test, ReachabilityAnalysis
 
+include("utils.jl")
 include("solve.jl")
 
 #include("traces.jl")
