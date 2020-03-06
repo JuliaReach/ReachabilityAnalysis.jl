@@ -38,3 +38,15 @@ tube⋂inv!(𝒫::AbstractDiscretePost, reach_tube::Vector{<:AbstractReachSet{<:
 ```
 """
 abstract type AbstractDiscretePost <: AbstractPost end
+
+# -----
+# TEMP
+# -----
+
+function add_time(R::AbstractLazyReachSet)
+    ReachSet(Interval(tspan(R)) × set(R), tspan(R))
+end
+
+function add_time(F::Flowpipe{N, RT}) where {N, RT<:AbstractLazyReachSet}
+    Flowpipe([add_time(F[i]) for i in 1:length(F)]) # use eachindex
+end
