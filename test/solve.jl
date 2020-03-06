@@ -72,6 +72,9 @@ end
     # time span given as a vector
     sol = solve(p, tspan=[0.0, 2.0])
     @test _isapprox(tspan(sol), Δt)
+
+    # test that in the border of the tim transition we get 2 reachsets
+    @test F(0.1) == F[1:2]
 end
 
 

@@ -114,9 +114,13 @@ end
 # here it would be useful to layout the times contiguously in a vector
 # (see again array of struct vs struct of array)
 function (fp::Flowpipe)(t::Float64)
-    for (i, X) in enumerate(fp.Xk)
+    @inbounds for (i, X) in enumerate(fp.Xk)
         if t ∈ tspan(X) # exit on the first occurrence
-            return fp[i]
+            if i < length(fp.Xk) && t ∈ tspan(fp.Xk[i+1])
+                return fp[i:i+1] # TODO return a view?
+            else
+                return fp[i]
+            end
         end
     end
     throw(ArgumentError("time $t does not belong to the time span, " *
@@ -148,7 +152,7 @@ function (fp::Flowpipe)(dt::IA.Interval{Float64})
         throw(ArgumentError("the time interval $dt is not contained in the time span, " *
                 "$(tspan(fp)), of the given flowpipe"))
     end
-    return fp[firstidx:lastidx]
+    return fp[firstidx:lastidx] # TODO  return a view ?
 end
 
 # ================================

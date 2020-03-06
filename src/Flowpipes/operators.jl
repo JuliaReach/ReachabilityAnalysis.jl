@@ -43,10 +43,10 @@ abstract type AbstractDiscretePost <: AbstractPost end
 # TEMP
 # -----
 
-function add_time(R::AbstractLazyReachSet)
-    ReachSet(Interval(tspan(R)) × set(R), tspan(R))
+function add_time(R::AbstractLazyReachSet, t0::Float64=0.0)
+    ReachSet(Interval(tspan(R)+t0) × set(R), tspan(R)+t0)
 end
 
-function add_time(F::Flowpipe{N, RT}) where {N, RT<:AbstractLazyReachSet}
-    Flowpipe([add_time(F[i]) for i in 1:length(F)]) # use eachindex
+function add_time(F::Flowpipe{N, RT}, t0::Float64=0.0) where {N, RT<:AbstractLazyReachSet}
+    Flowpipe([add_time(F[i], t0) for i in 1:length(F)]) # use eachindex
 end
