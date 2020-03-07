@@ -1,12 +1,17 @@
+# types
 export ReachSet,
        SparseReachSet
 
+# methods
 export project,
        set,
        setrep,
+       shift,
        tstart,
        tend,
        tspan
+
+import LazySets: dim
 
 # ================================
 # Reach set interfaces
@@ -40,6 +45,22 @@ Each concrete subtype should implement the following methods:
 - `dim`    -- ambient dimension of the reach-set
 """
 abstract type AbstractReachSet{N} end
+
+"""
+    basetype(T::Type{<:AbstractReachSet})
+
+Return the base type of the given reach-set type (i.e., without type parameters).
+
+### Input
+
+- `T` -- reach-set type, used for dispatch
+
+### Output
+
+The base type of `T`.
+"""
+basetype(T::Type{<:AbstractReachSet}) = Base.typename(T).wrapper
+
 
 """
     set(R::AbstractReachSet)
@@ -131,6 +152,13 @@ An integer corresponding to the ambient dimension of the given reach-set.
 """
 function LazySets.dim(::AbstractReachSet) end
 
+# other generic functions
+Base.copy(R::AbstractReachSet) = deepcopy(R)
+
+# ============================================================
+# AbstractLazyReachSet: reach-set that behaves like a LazySet
+# ============================================================
+
 """
     AbstractLazyReachSet{N} <: AbstractReachSet{N}
 
@@ -160,12 +188,12 @@ LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
 LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 
-# Expose common LazySets operations
-# radius, etc TODO: #24
-
+# Expose more LazySets operations
+constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
+vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
 
 """
-    project(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}
+    project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
 
 Projects a reach-set onto the subspace spanned by the given variables.
 
@@ -180,19 +208,27 @@ This function can be used to project a reach-set onto a lower-dimensional
 sub-space. The projection is lazy, and consists of mapping `X = set(R)` to `MX`,
 where `M` is the projection matrix associated with the given variables `vars`.
 """
-function project(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}
-    #=
-    #TODO: add this kind of check
-    if !(vars ⊆ vars(R))
-        throw(ArgumentError("the variables `vars` do not belong to the variables " *
+function project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
+    if check_vars
+        vars ⊆ vars(R) || throw(ArgumentError("the variables `vars` do not belong to the variables " *
                 " of this reach-set, $(vars(R))"))
     end
-    =#
-    return project!(copy(R), vars)
+
+    if 0 ∈ vars
+        # if the projection involves "time", we shift the vars indices by one as
+        # we take the Cartesian product of the reach-set with the time interval
+        aux = vars .+ 1
+        Δt = convert(Interval, tspan(R))
+        proj =  _project(Δt × set(R), vars)
+    else
+        proj = _project(set(R), vars)
+    end
+
+    return ReachSet(proj, tspan(R))
 end
 
 # handle generic vars vector
-function project(R::AbstractLazyReachSet, vars::AbstractVector{Integer})
+function project(R::AbstractLazyReachSet, vars::VN) where {N<:Integer, VN<:AbstractVector{N}}
     return project(R, Tuple(vars))
 end
 
@@ -206,6 +242,7 @@ function project!(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}
     else
         return _project!(set(R), vars)
     end
+    # TODO: change like project
 end
 
 function project!(R::AbstractLazyReachSet, vars::AbstractVector{Integer})
@@ -221,17 +258,20 @@ else
 end
 =#
 
-
 """
-    AbstractTaylorModelReachSet{N}
+    shift(R::RT, t0::Number) where {RT<:AbstractReachSet}
 
-Abstract type for all reach sets types that represent a Taylor model.
+Return the reach-set shifted by a certain time amount.
 
-### Notes
+### Input
 
-The parameter `N` refers to the numerical type of the representation.
+- `R`    -- reach-set
+- `vars` -- tuple of variables for the projection
 """
-abstract type AbstractTaylorModelReachSet{N} <: AbstractReachSet{N} end
+function shift(R::RT, t0::Number) where {RT<:AbstractReachSet}
+    T = basetype(RT)
+    return T(set(R), tspan(R) + t0)
+end
 
 # ================================
 # Reach set
@@ -270,6 +310,16 @@ tend(R::ReachSet) = sup(R.Δt)
 tspan(R::ReachSet) = R.Δt
 LazySets.dim(R::ReachSet) = dim(R.X)
 vars(R::ReachSet) = Tuple(Base.OneTo(dim(R.X)),)
+
+function Base.convert(T::Type{LazySet{N}}, R::ReachSet) where {N}
+    X = convert(T, set(R))
+    return ReachSet(X, tspan(R))
+end
+
+function _project(R::ReachSet{N, ZT}, vars) where {N, ZT<:LazySets.AbstractZonotope}
+    M = LazySets.Arrays.projection_matrix(vars, dim(R), N)
+    return ReachSet(linear_map(M, set(R)), tspan(R))
+end
 
 # ================================
 # Sparse reach set
@@ -331,11 +381,41 @@ end
 # Taylor model reach set
 # ================================
 
-#=
-struct TaylorModelReachSet{N, ST, D} <: AbstractTaylorModelReachSet{N}
-    X::ST
-    Δt::IA.Interval{Float64}
+using TaylorModels: TaylorModel1, TaylorN
+
+"""
+    AbstractTaylorModelReachSet{N}
+
+Abstract type for all reach sets types that represent a Taylor model.
+
+### Notes
+
+The parameter `N` refers to the numerical type of the representation.
+"""
+abstract type AbstractTaylorModelReachSet{N} <: AbstractReachSet{N} end
+
+"""
+    TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
+
+Taylor model reach-set represented as a vector taylor models in one variable
+(namely, the "time" variable) whose coefficients are multivariate polynomials
+(namely in the "space" variables).
+
+### Notes
+
+The parameter `N` refers to the numerical type of the representation.
+"""
+struct TaylorModelReachSet{N, D<:Integer} <: AbstractTaylorModelReachSet{N}
+    X::Vector{TaylorModel1{TaylorN{N}, N}}
+    Δt::TimeInterval
+    #dim::D
 end
 
-...
-=#
+# interface functions
+set(R::TaylorModelReachSet) = R.X
+setrep(R::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}}
+tstart(R::TaylorModelReachSet) = inf(R.Δt)
+tend(R::TaylorModelReachSet) = sup(R.Δt)
+tspan(R::TaylorModelReachSet) = R.Δt
+LazySets.dim(R::TaylorModelReachSet{N, D}) where {N, D} = R.dim # TODO
+vars(R::TaylorModelReachSet) = R.vars

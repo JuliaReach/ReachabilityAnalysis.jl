@@ -125,28 +125,6 @@ function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer
     return fp
 end
 
-# fallback concrete projection
-function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
-    return project(X, collect(vars))
-end
-
-# not available yet
-function _project!(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
-    error("the concrete inplace projection for a set of type $(typeof(X)) is not implemented yet")
-#   return project!(X, collect(vars))
-end
-
-# more efficient concrete projection for zonotopic sets (see LazySets#2013)
-function _project!(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
-    M = projection_matrix(collect(vars), dim(Z), N)
-    return linear_map!(M, Z)
-end
-
-# more efficient concrete projection for zonotopic sets (see LazySets#2013)
-function _project(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
-    return _project!(copy(Z), vars)
-end
-
 """
     shift(fp::AbstractFlowpipe, t0::Number)
 
