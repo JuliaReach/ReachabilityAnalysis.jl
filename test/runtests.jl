@@ -1,6 +1,7 @@
 using Test, ReachabilityAnalysis
+using ReachabilityAnalysis: _isapprox
 
-include("utils.jl")
+#include("utils.jl")
 include("solve.jl")
 
 #include("traces.jl")

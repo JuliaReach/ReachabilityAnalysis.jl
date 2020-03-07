@@ -25,7 +25,13 @@
     @test F(0.05) == F[1]
     @test F(1.0) == F[end]
     @test F(0.05 .. 0.15) == F[1:2]
-    @test_throws ArgumentError F(0.05 .. 1.05) # time interval not contained in flowpipe
+
+    # time interval not contained in flowpipe
+    @test_throws ArgumentError F(0.05 .. 1.05)
+
+    # test that in the border of the time transition we get two reachsets
+    F = flowpipe(sol)
+    @test F(0.1) == F[1:2]
 end
 
 @testset "Solution interface: initial states" begin
@@ -38,12 +44,12 @@ end
     solve(p, T=1.0)
 
     # deterministic initial condition, scalar for one-dimensional matrix (TODO)
-    #p = InitialValueProblem(@system(x' = -x), 0.5)
-    #solve(p, T=1.0)
+    p = InitialValueProblem(@system(x' = -x), 0.5)
+    solve(p, T=1.0)
 
     # deterministic initial condition, vector
-    #p = InitialValueProblem(@system(x' = -x), [0.5])
-    #solve(p, T=1.0)
+    p = InitialValueProblem(@system(x' = -x), [0.5])
+    solve(p, T=1.0)
 end
 
 @testset "Solution interface: time span" begin
@@ -72,11 +78,23 @@ end
     # time span given as a vector
     sol = solve(p, tspan=[0.0, 2.0])
     @test _isapprox(tspan(sol), Δt)
-
-    # test that in the border of the tim transition we get 2 reachsets
-    @test F(0.1) == F[1:2]
 end
-
 
 # TODO:
 # eachindex(F)
+
+
+#=
+TESTS
+
+using LazySets, Revise, ReachabilityAnalysis
+N = Float64
+X = Hyperrectangle(N[0, 0], N[1, 1])
+R = ReachSet(X, 0 .. 1)
+set(R) ==
+tstart(R) == 0.0
+tend(R) == 1.0
+tspan(R) == 1.0
+dim(R) == 2
+overapproximate(project(X, [1]), Interval) == Interval(-1, 1)
+=#

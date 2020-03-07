@@ -42,3 +42,8 @@ max_order(alg::GLGM06) = alg.max_order
 
 include("post.jl")
 include("reach.jl")
+
+function _project(R::ReachSet{N, ZT}, vars) where {N, ZT<:LazySets.AbstractZonotope}
+    M = LazySets.Arrays.projection_matrix(vars, dim(R), N)
+    return ReachSet(linear_map(M, set(R)), tspan(R))
+end

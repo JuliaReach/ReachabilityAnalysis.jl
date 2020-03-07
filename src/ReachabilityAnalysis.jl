@@ -13,11 +13,11 @@ include("Flowpipes/flowpipes.jl")
 include("Flowpipes/operators.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
+include("Flowpipes/recipes.jl")
 
 # ================================================
 # Pre-processing functions for continuous systems
 # ================================================
-
 include("Continuous/normalization.jl")
 include("Continuous/exponentiation.jl")
 include("Continuous/discretization.jl")
