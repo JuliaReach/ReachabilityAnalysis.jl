@@ -6,7 +6,8 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       Reexport,    # see @reexport macro below
       RecipesBase, # plotting
       Parameters,   # structs with kwargs
-      StaticArrays
+      StaticArrays,
+      RecursiveArrayTools
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -22,11 +23,18 @@ using LazySets: LinearMap, AffineMap, ResetMap
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, isdisjoint, radius, sample, ∅, dim
 
+# LazySets internal functions frequently used
+using LazySets.Arrays: projection_matrix
+
 # aliases for intervals
 const IM = IntervalMatrices
 import IntervalArithmetic
 const IA = IntervalArithmetic
 const TimeInterval = IA.Interval{Float64}
+
+@inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
+    return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
+end
 
 # aliases for set types
 const CPA = CartesianProductArray

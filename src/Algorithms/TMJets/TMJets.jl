@@ -1,32 +1,16 @@
-export TMJets
-
-using Reexport
-@reexport using TaylorIntegration
-
-using IntervalArithmetic: IntervalBox
-
-using StaticArrays: SVector
-
-struct TMJets <: AbstractContinuousPost
-    options::TwoLayerOptions
-
-    function TMJets(𝑂::Options)
-        𝑂new = validate_and_wrap_options(𝑂, options_TMJets())
-        return new(𝑂new)
-    end
+@with_kw struct TMJets <: AbstractContinuousPost
+    δ::Float64
+    approx_model::AbstractApproximationModel=ForwardApproximation(sih_method="concrete",
+                                                                  exp_method="base",
+                                                                  set_operations="zonotope",
+                                                                  phi2_method="base")
+    max_order::Int=10
+    #setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
 end
 
-# TODO: add invariant in the loop, see
-# https://github.com/JuliaReach/Reachability.jl/pull/595/files
-# the branch is mforets/property_TMJetspost
+step_size(alg::GLGM06) = alg.δ
+approx_model(alg::GLGM06) = alg.approx_model
+max_order(alg::GLGM06) = alg.max_order
 
-# convenience constructor from pairs of symbols
-TMJets(𝑂::Pair{Symbol, <:Any}...) = TMJets(Options(Dict{Symbol, Any}(𝑂)))
-
-# default options (they are added in the function validate_and_wrap_options)
-TMJets() = TMJets(Options())
-
-include("init.jl")
 include("post.jl")
-include("project.jl")
 include("reach.jl")

@@ -34,8 +34,18 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # run the continuous-post operator
     F = post(cpost, ivp, tspan, args...; kwargs...)
 
-    # store and return the flowpipe and algorithm in a solution structure
-    return ReachSolution(F, cpost)
+    if haskey(kwargs, :save_traces) && (kwargs[:save_traces] == true)
+        @requires DifferentialEquations
+        error("saving traces is not implemented yet")
+        # compute trajectories, cf. ensemble simulation
+        # traces =
+        # sol = ReachSolution(F, cpost, traces) # new solution type?
+    else
+        # wrap the flowpipe and algorithm in a solution structure
+        sol = ReachSolution(F, cpost)
+    end
+
+    return sol
 end
 
 #=
@@ -56,15 +66,27 @@ end
 LazySets.dim(::IA.Interval) = 1
 LazySets.dim(::IA.IntervalBox{D, N}) where {D, N} = D
 
-function _check_dim(ivp)
+function _check_dim(ivp; throw_error::Bool=true)
     S = system(ivp)
+    n = statedim(S)
     X0 = initial_state(ivp)
-    if statedim(S) != dim(X0)
-        throw(ArgumentError("the state-space dimension should match the " *
-                            "dimension of the initial state, but they are of size " *
-                            "$(statedim(S)) and $(dim(X0)) respectively"))
+    if X0 isa LazySet
+        d = dim(X0)
+    elseif X0 isa AbstractVector
+        d = length(X0)
+    elseif X0 isa Number
+        d = 1
     else
+        throw(ArgumentError("the type of the initial condition, $(typeof(X0)), cannot be handled"))
+    end
+
+    if n == d
         return true
+    else
+        throw_error || throw(ArgumentError("the state-space dimension should match the " *
+                                "dimension of the initial state, but they are of size " *
+                                "$n and $(dim(X0)) respectively"))
+        return false
     end
 end
 

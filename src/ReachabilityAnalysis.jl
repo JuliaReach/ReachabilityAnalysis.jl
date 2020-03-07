@@ -8,16 +8,17 @@ include("Initialization/init.jl")
 # ===========================================================
 # Structures to represent solutions of reachability problems
 # ===========================================================
+include("Flowpipes/inplaceops.jl")
 include("Flowpipes/reachsets.jl")
 include("Flowpipes/flowpipes.jl")
 include("Flowpipes/operators.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
+include("Flowpipes/recipes.jl")
 
 # ================================================
 # Pre-processing functions for continuous systems
 # ================================================
-
 include("Continuous/normalization.jl")
 include("Continuous/exponentiation.jl")
 include("Continuous/discretization.jl")
