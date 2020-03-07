@@ -192,41 +192,6 @@ LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
 vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
 
-"""
-    project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
-
-Projects a reach-set onto the subspace spanned by the given variables.
-
-### Input
-
-- `R`    -- reach-set
-- `vars` -- tuple of variables for the projection
-
-### Notes
-
-This function can be used to project a reach-set onto a lower-dimensional
-sub-space. The projection is lazy, and consists of mapping `X = set(R)` to `MX`,
-where `M` is the projection matrix associated with the given variables `vars`.
-"""
-function project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
-    if check_vars
-        vars ⊆ vars(R) || throw(ArgumentError("the variables `vars` do not belong to the variables " *
-                " of this reach-set, $(vars(R))"))
-    end
-
-    if 0 ∈ vars
-        # if the projection involves "time", we shift the vars indices by one as
-        # we take the Cartesian product of the reach-set with the time interval
-        aux = vars .+ 1
-        Δt = convert(Interval, tspan(R))
-        proj =  _project(Δt × set(R), vars)
-    else
-        proj = _project(set(R), vars)
-    end
-
-    return ReachSet(proj, tspan(R))
-end
-
 # handle generic vars vector
 function project(R::AbstractLazyReachSet, vars::VN) where {N<:Integer, VN<:AbstractVector{N}}
     return project(R, Tuple(vars))
@@ -319,6 +284,41 @@ end
 function _project(R::ReachSet{N, ZT}, vars) where {N, ZT<:LazySets.AbstractZonotope}
     M = LazySets.Arrays.projection_matrix(vars, dim(R), N)
     return ReachSet(linear_map(M, set(R)), tspan(R))
+end
+
+"""
+    project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
+
+Projects a reach-set onto the subspace spanned by the given variables.
+
+### Input
+
+- `R`    -- reach-set
+- `vars` -- tuple of variables for the projection
+
+### Notes
+
+This function can be used to project a reach-set onto a lower-dimensional
+sub-space. The projection is lazy, and consists of mapping `X = set(R)` to `MX`,
+where `M` is the projection matrix associated with the given variables `vars`.
+"""
+function project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
+    if check_vars
+        vars ⊆ vars(R) || throw(ArgumentError("the variables `vars` do not belong to the variables " *
+                " of this reach-set, $(vars(R))"))
+    end
+
+    if 0 ∈ vars
+        # if the projection involves "time", we shift the vars indices by one as
+        # we take the Cartesian product of the reach-set with the time interval
+        aux = vars .+ 1
+        Δt = convert(Interval, tspan(R))
+        proj =  _project(Δt × set(R), vars)
+    else
+        proj = _project(set(R), vars)
+    end
+
+    return ReachSet(proj, tspan(R))
 end
 
 # ================================
