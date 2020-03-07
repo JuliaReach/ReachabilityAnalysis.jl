@@ -180,24 +180,47 @@ This function can be used to project a reach-set onto a lower-dimensional
 sub-space. The projection is lazy, and consists of mapping `X = set(R)` to `MX`,
 where `M` is the projection matrix associated with the given variables `vars`.
 """
-function project(R::AbstractLazyReachSet, vars::NTuple{D, Int}; lazy::Bool=true) where {D}
+function project(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}
+    #=
+    #TODO: add this kind of check
     if !(vars ⊆ vars(R))
         throw(ArgumentError("the variables `vars` do not belong to the variables " *
                 " of this reach-set, $(vars(R))"))
     end
-    if lazy
-        X = set(R)
-        return project(X, vars, LinearMap)
-    else
-        error("the concrete projection is not implemented yet")
-    end
+    =#
+    return project!(copy(R), vars)
 end
 
 # handle generic vars vector
-function project(R::AbstractLazyReachSet, vars::AbstractVector; lazy::Bool=true)
-    vars = Tuple(vars) # Tuple(vi for vi in vcat(vars...))
-    return project(R, vars; lazy=lazy)
+function project(R::AbstractLazyReachSet, vars::AbstractVector{Integer})
+    return project(R, Tuple(vars))
 end
+
+function project!(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}
+    if 0 ∈ vars
+        # if the projection involves "time", we shift the vars indices by one as
+        # we take the Cartesian product of the reach-set with the time interval
+        aux = vars .+ 1
+        Δt = convert(Interval, tspan(R))
+        return _project!(Δt × set(R), vars)
+    else
+        return _project!(set(R), vars)
+    end
+end
+
+function project!(R::AbstractLazyReachSet, vars::AbstractVector{Integer})
+    return project!(R, Tuple(vars))
+end
+
+#=
+if lazy
+    X = set(R)
+    return project(X, vars, LinearMap)
+else
+    error("the concrete projection is not implemented yet")
+end
+=#
+
 
 """
     AbstractTaylorModelReachSet{N}

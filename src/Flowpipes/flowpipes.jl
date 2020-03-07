@@ -1,8 +1,18 @@
+# types
 export Flowpipe,
+       ShiftedFlowpipe,
+       MappedFlowpipe,
        HybridFlowpipe,
-       flowpipe,
-       Projection,
-       project
+       MixedHybridFlowpipe
+
+# methods
+export flowpipe,
+       project,
+       shift
+
+# convenience constructors
+export Projection,
+       Shift
 
 # ================================
 # Abstract types
@@ -20,41 +30,19 @@ A flowpipe is the set union of an array of reach-sets.
 abstract type AbstractFlowpipe end
 
 """
-    project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    basetype(T::Type{<:AbstractFlowpipe})
 
-Projects a flowpipe onto the subspace spanned by the given variables.
+Return the base type of the given flowpipe type (i.e., without type parameters).
 
 ### Input
 
-- `fp`   -- flowpipe
-- `vars` -- tuple with variable indices
+- `T` -- flowpipe type, used for dispatch
 
-### Notes
+### Output
 
-This function can be used to project a high-dimensional flowpipe onto a
-lower-dimensional space.
-
-, with `0` denoting the time variable
-
-
+The base type of `T`.
 """
-function project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
-    Xk = array(fp)
-    return map(X -> _project(set(X), vars), Xk)
-end
-
-# TODO: define inplace projection
-
-# fallback concrete projection
-function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
-    return project(X, collect(vars))
-end
-
-# more efficient concrete projection for zonotopic sets (see LazySets#2013)
-function _project(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
-    M = projection_matrix(collect(vars), dim(Z), N)
-    return linear_map(M, Z)
-end
+basetype(T::Type{<:AbstractFlowpipe}) = Base.typename(T).wrapper
 
 # LazySets interface: a flowpipe behaves like the union of the reach-sets (UnionSetArray)
 LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe) = ρ(d, UnionSetArray(array(R)))
@@ -98,6 +86,90 @@ Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
 #    return getindex(fp, i)
 #end
 
+"""
+    project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+
+Projects a flowpipe onto the subspace spanned by the given variables.
+
+### Input
+
+- `fp`   -- flowpipe
+- `vars` -- tuple with variable indices
+
+### Notes
+
+This function can be used to project a high-dimensional flowpipe onto a
+lower-dimensional space.
+
+, with `0` denoting the time variable
+
+
+"""
+function project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Xk = array(fp)
+    if 0 ∈ vars # projection includes "time"
+        # we shift the vars indices by one as we take the Cartesian prod with the time spans
+        aux = vars .+ 1
+        return map(X -> _project(convert(Interval, tspan(X)) × set(X), aux), Xk)
+    else
+        return map(X -> _project(set(X), vars), Xk)
+    end
+end
+
+# inplace projection
+function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Xk = array(fp)
+    for X in Xk
+        _project!(set(X), vars)
+    end
+    return fp
+end
+
+# fallback concrete projection
+function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
+    return project(X, collect(vars))
+end
+
+# not available yet
+function _project!(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
+    error("the concrete inplace projection for a set of type $(typeof(X)) is not implemented yet")
+#   return project!(X, collect(vars))
+end
+
+# more efficient concrete projection for zonotopic sets (see LazySets#2013)
+function _project!(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
+    M = projection_matrix(collect(vars), dim(Z), N)
+    return linear_map!(M, Z)
+end
+
+# more efficient concrete projection for zonotopic sets (see LazySets#2013)
+function _project(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
+    return _project!(copy(Z), vars)
+end
+
+"""
+    shift(fp::AbstractFlowpipe, t0::Number)
+
+Return the time-shifted flowpipe by the given number.
+
+### Input
+
+- `fp` -- flowpipe
+- `t0` -- time shift
+
+### Output
+
+A new flowpipe such that the time-span of each constituent reach-set has been
+shifted by `t0`.
+
+### Notes
+
+See also `Shift` for the lazy counterpart.
+"""
+function shift(fp::FT, t0::Number) where {FT<:AbstractFlowpipe} # TODO fix docstring ref
+    return FT(map(X -> ReachSet(set(X), tspan(X) + t0), array(fp)))
+end
+
 # ================================
 # Flowpipes
 # ================================
@@ -139,7 +211,7 @@ setrep(::Type{Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 # evaluate a flowpipe at a given time point: gives a reach set
 # here it would be useful to layout the times contiguously in a vector
 # (see again array of struct vs struct of array)
-function (fp::Flowpipe)(t::Number)
+function (fp::AbstractFlowpipe)(t::Number)
     Xk = array(fp)
     @inbounds for (i, X) in enumerate(Xk)
         if t ∈ tspan(X) # exit on the first occurrence
@@ -216,7 +288,7 @@ const Shift = ShiftedFlowpipe
 # time domain interface
 @inline tstart(fp::ShiftedFlowpipe) = tstart(first(fp)) + time_shift(fp)
 @inline tend(fp::ShiftedFlowpipe) = tend(last(fp)) + time_shift(fp)
-@inline tspan(fp::ShiftedFlowpipe) = TimeInterval(tstart(fp), tend(fp)) + time_shift(fp)
+@inline tspan(fp::ShiftedFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
 # =====================================
 # Flowpipe composition with a lazy map
@@ -274,7 +346,7 @@ Type that wraps a vector of flowpipes of possibly differen types.
 ### Notes
 """
 struct HybridFlowpipe{N, D, FT<:AbstractFlowpipe} <: AbstractFlowpipe
-    Fk::VectorOfArray{N, D, Vector{FT}
+    Fk::VectorOfArray{N, D, Vector{FT}}
     ext::Dict{Symbol, Any}
 end
 
