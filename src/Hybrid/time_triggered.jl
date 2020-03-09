@@ -1,5 +1,12 @@
 # Hybrid systems with time-triggered transitions
 
+# return one reach-set by taking the convex hull of the reach-sets in the
+# given flowpipe 
+function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
+    Y = ConvexHullArray([set(X) for X in array(fp)])
+    return ReachSet(Y, tspan(fp))
+end
+
 function solve_hybrid(S, X0, reset_map;
                       Tsample=0.75, max_jumps=100, ζ=0.005,
                       t_offset=0.0, alg=GLGM06(δ=0.0003))
