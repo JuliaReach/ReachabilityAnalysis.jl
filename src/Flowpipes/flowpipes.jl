@@ -85,18 +85,6 @@ Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
 #    1 <= i <= length(fp) || throw(BoundsError(fp, i))
 #    return getindex(fp, i)
 
-function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
-    Xk = array(fp)
-    # TODO: use projection of the reachsets
-    if 0 ∈ vars # projection includes "time"
-        # we shift the vars indices by one as we take the Cartesian prod with the time spans
-        aux = vars .+ 1
-        return map(X -> _project(convert(Interval, tspan(X)) × set(X), aux), Xk)
-    else
-        return map(X -> _project(set(X), vars), Xk)
-    end
-end
-
 #=
 function Projection(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
 
@@ -215,6 +203,18 @@ function (fp::Flowpipe)(dt::TimeInterval)
                             "$(tspan(fp)), of the given flowpipe"))
     end
     return view(Xk, firstidx:lastidx)
+end
+
+function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Xk = array(fp)
+    # TODO: use projection of the reachsets
+    if 0 ∈ vars # projection includes "time"
+        # we shift the vars indices by one as we take the Cartesian prod with the time spans
+        aux = vars .+ 1
+        return map(X -> _project(convert(Interval, tspan(X)) × set(X), aux), Xk)
+    else
+        return map(X -> _project(set(X), vars), Xk)
+    end
 end
 
 # =======================================
