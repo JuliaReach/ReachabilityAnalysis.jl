@@ -107,6 +107,7 @@ lower-dimensional space.
 """
 function project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
+    # TODO: use projection of the reachsets
     if 0 ∈ vars # projection includes "time"
         # we shift the vars indices by one as we take the Cartesian prod with the time spans
         aux = vars .+ 1
@@ -116,6 +117,7 @@ function project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     end
 end
 
+#=
 # inplace projection
 function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
@@ -124,6 +126,7 @@ function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer
     end
     return fp
 end
+=#
 
 """
     shift(fp::AbstractFlowpipe, t0::Number)

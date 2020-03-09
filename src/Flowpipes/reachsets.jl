@@ -3,14 +3,15 @@ export ReachSet,
        SparseReachSet
 
 # methods
-export project,
-       set,
+export set,
        setrep,
-       shift,
        tstart,
        tend,
-       tspan
+       tspan,
+       project,
+       shift
 
+# method extensions
 import LazySets: dim
 
 # ================================
@@ -28,21 +29,23 @@ A reach-set is a set representation `X` associated to a given time span `Δt`.
 
 In its simplest form, we represent reach-sets with a struct that wraps the tuple
 `(X, Δt)`, where `X` corresponds to a geometric set, eg. a polytope, and `Δt` is
-the interval with the time span associated to this reach-set. Concrete subtypes
-of `AbstractReachSet` may represent the set `X` in different ways, or add extra
-information associated to variables, etc.
+the interval with the time span associated to this reach-set.
 
-This type is parametric in `N`. This parameter is used in some subtypes for the
-type of numerical coefficient used in the representation (typically, `N = Float64`).
+This type is parametric in `N`. The parameter `N` represents for the type of numerical
+coefficient used in the representation (typically, `N = Float64`).
 
-Each concrete subtype should implement the following methods:
+Although concrete subtypes of `AbstractReachSet` may represent the set `X` in
+different ways, or carry additional information as an extra type field, they
+should all implement the `AbstractReachSet` interface to enable shared functionality
+for reach-set types. In particular, each concrete subtype should implement the
+following methods:
 
 - `set`    -- return the geometric set
 - `setrep` -- return the type of the set representation
 - `tspan`  -- return the time interval span
 - `tstart` -- return the initial time
 - `tend`   -- return the final time
-- `dim`    -- ambient dimension of the reach-set
+- `dim`    -- return ambient dimension of the reach-set
 """
 abstract type AbstractReachSet{N} end
 
@@ -60,7 +63,6 @@ Return the base type of the given reach-set type (i.e., without type parameters)
 The base type of `T`.
 """
 basetype(T::Type{<:AbstractReachSet}) = Base.typename(T).wrapper
-
 
 """
     set(R::AbstractReachSet)
@@ -152,8 +154,37 @@ An integer corresponding to the ambient dimension of the given reach-set.
 """
 function LazySets.dim(::AbstractReachSet) end
 
-# other generic functions
+"""
+    copy(R::AbstractReachSet)
+
+Return a copy of the given reach-set.
+
+### Input
+
+- `R`  -- reach-set
+
+### Output
+
+A new reach-set of the sam type and the same field values as `R`.
+"""
 Base.copy(R::AbstractReachSet) = deepcopy(R)
+
+"""
+    shift(R::AbstractReachSet, t0::Number)
+
+Perform a time-shift of the given reach-set.
+
+### Input
+
+- `R`  -- reach-set
+- `t0` -- number that corresponds to the time-shift
+
+### Output
+
+A new reach-set of the same type of `R` such that its time-span has been shifted
+by `t0`.
+"""
+function shift(R::AbstractReachSet, t0::Number) end
 
 # ============================================================
 # AbstractLazyReachSet: reach-set that behaves like a LazySet
@@ -175,11 +206,18 @@ support vector (`σ`) and ambient dimension (`dim`) functions. Hence, these
 functions directly apply to concrete subtypes of an `AbstractLazyReachSet`. The
 set wrapped by this type is obtained through `set(R)`.
 
+The following functions should be implemented by any concrete subtype:
+
+- `reconstruct` -- create a new instance of the given reach-set with a different
+                   set representation but sharing the other fields, i.e. the same
+                   time span (and the same for other fields, if applicable)
+
 In addition to the functions inherited from `AbstractReachSet`, the following
 are available:
 
-- `project` -- projection of a reach-set along the given variables in `vars`
-- `vars`    -- tuple of integers associated to the variables of the given reach-set
+- `project`  -- projection of a reach-set
+- `shift`    -- time-shift of a reach-set
+- `vars_idx` -- tuple of integers associated to the variables of the given reach-set
 """
 abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
@@ -188,54 +226,15 @@ LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
 LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 
-# Expose more LazySets operations
+# Expose common LazySets operations
 constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
 vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
+LinearMap(M::Union{AbstractMatrix, Number}, R::ReachSet) = reconstruct(R, LinearMap(M, set(R)))
+linear_map(M::AbstractMatrix, R::SparseReachSet) = reconstruct(R, linear_map(M, set(R)))
 
 # handle generic vars vector
-function project(R::AbstractLazyReachSet, vars::VN) where {N<:Integer, VN<:AbstractVector{N}}
+function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
     return project(R, Tuple(vars))
-end
-
-function project!(R::AbstractLazyReachSet, vars::NTuple{D, Int}) where {D}
-    if 0 ∈ vars
-        # if the projection involves "time", we shift the vars indices by one as
-        # we take the Cartesian product of the reach-set with the time interval
-        aux = vars .+ 1
-        Δt = convert(Interval, tspan(R))
-        return _project!(Δt × set(R), vars)
-    else
-        return _project!(set(R), vars)
-    end
-    # TODO: change like project
-end
-
-function project!(R::AbstractLazyReachSet, vars::AbstractVector{Integer})
-    return project!(R, Tuple(vars))
-end
-
-#=
-if lazy
-    X = set(R)
-    return project(X, vars, LinearMap)
-else
-    error("the concrete projection is not implemented yet")
-end
-=#
-
-"""
-    shift(R::RT, t0::Number) where {RT<:AbstractReachSet}
-
-Return the reach-set shifted by a certain time amount.
-
-### Input
-
-- `R`    -- reach-set
-- `vars` -- tuple of variables for the projection
-"""
-function shift(R::RT, t0::Number) where {RT<:AbstractReachSet}
-    T = basetype(RT)
-    return T(set(R), tspan(R) + t0)
 end
 
 # ================================
@@ -259,7 +258,7 @@ for a given time interval. The type of the representation is `ST`, which may be
 any subtype LazySet. For efficiency reasons, `ST` should be concretely typed.
 
 By assumption the coordinates in this reach-set are associated to the integers
-`1, …, n`.
+`1, …, n`. The function `vars_idx` returns such tuple.
 """
 struct ReachSet{N, ST<:LazySet{N}} <: AbstractLazyReachSet{N}
     X::ST
@@ -274,51 +273,25 @@ tstart(R::ReachSet) = inf(R.Δt)
 tend(R::ReachSet) = sup(R.Δt)
 tspan(R::ReachSet) = R.Δt
 LazySets.dim(R::ReachSet) = dim(R.X)
-vars(R::ReachSet) = Tuple(Base.OneTo(dim(R.X)),)
+vars_idx(R::ReachSet) = Tuple(Base.OneTo(dim(R.X)),)
 
-function Base.convert(T::Type{LazySet{N}}, R::ReachSet) where {N}
-    X = convert(T, set(R))
+# no-op
+function Base.convert(T::Type{ReachSet{N, ST}}, R::ReachSet{N, ST}) where {N, ST<:LazySet{N}}
+    return R
+end
+
+# convert to a reach-set with another underlying set representation
+function Base.convert(T::Type{ReachSet{N, LT}}, R::ReachSet{N, ST}) where {N, ST<:LazySet{N}, LT<:LazySet{N}}
+    X = convert(LT, set(R))
     return ReachSet(X, tspan(R))
 end
 
-function _project(R::ReachSet{N, ZT}, vars) where {N, ZT<:LazySets.AbstractZonotope}
-    M = LazySets.Arrays.projection_matrix(vars, dim(R), N)
-    return ReachSet(linear_map(M, set(R)), tspan(R))
+function shift(R::ReachSet, t0::Number)
+    return ReachSet(set(R), tspan(R) + t0)
 end
 
-"""
-    project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
-
-Projects a reach-set onto the subspace spanned by the given variables.
-
-### Input
-
-- `R`    -- reach-set
-- `vars` -- tuple of variables for the projection
-
-### Notes
-
-This function can be used to project a reach-set onto a lower-dimensional
-sub-space. The projection is lazy, and consists of mapping `X = set(R)` to `MX`,
-where `M` is the projection matrix associated with the given variables `vars`.
-"""
-function project(R::ReachSet, vars::NTuple{D, Int}; check_vars::Bool=true) where {D}
-    if check_vars
-        vars ⊆ vars(R) || throw(ArgumentError("the variables `vars` do not belong to the variables " *
-                " of this reach-set, $(vars(R))"))
-    end
-
-    if 0 ∈ vars
-        # if the projection involves "time", we shift the vars indices by one as
-        # we take the Cartesian product of the reach-set with the time interval
-        aux = vars .+ 1
-        Δt = convert(Interval, tspan(R))
-        proj =  _project(Δt × set(R), vars)
-    else
-        proj = _project(set(R), vars)
-    end
-
-    return ReachSet(proj, tspan(R))
+function reconstruct(R::ReachSet, Y::LazySet)
+    return ReachSet(Y, tspan(R))
 end
 
 # ================================
@@ -333,9 +306,9 @@ together with a tuple of variables associated to this reach-set.
 
 ### Fields
 
-- `X`    -- set
-- `Δt`   -- time interval
-- `vars` -- variables represented by the set `X`
+- `X`        -- set
+- `Δt`       -- time interval
+- `vars_idx` -- tuple of variable indices represented by the set `X`
 
 ### Notes
 
@@ -360,6 +333,7 @@ struct SparseReachSet{N, ST<:LazySet{N}, D} <: AbstractLazyReachSet{N}
     X::ST
     Δt::IA.Interval{Float64}
     vars::NTuple{D, Int}
+    # TODO: inner constructor that the dimension of vars matches that of X ?
 end
 
 # interface functions
@@ -369,12 +343,77 @@ tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt
 LazySets.dim(R::SparseReachSet{N, ST, D}) where {N, ST<:LazySet{N}, D} = D
-vars(R::SparseReachSet) = R.vars
+vars_idx(R::SparseReachSet) = R.vars
 
 # constructor from vector of dimensions
 function SparseReachSet(X::ST, Δt::IA.Interval{Float64},
                         vars::AbstractVector) where {N, ST<:LazySet{N}}
     SparseReachSet(X, Δt, Tuple(vars))
+end
+
+function shift(R::SparseReachSet, t0::Number)
+    return SparseReachSet(set(R), tspan(R) + t0, vars_idx(R))
+end
+
+function reconstruct(R::SparseReachSet, Y::LazySet)
+    return SparseReachSet(Y, tspan(R), vars_idx(R))
+end
+
+"""
+    project(R::Union{ReachSet, SparseReachSet}, vars::NTuple{D, Int};
+            [check_vars]::Bool=true) where {D}
+
+Projects a reach-set onto the subspace spanned by the given variables.
+
+### Input
+
+- `R`          -- reach-set
+- `vars`       -- tuple of variables for the projection
+- `check_vars` -- (optional, default: `true`) if `true`, check that the given variable
+                  indices `vars` are a subset of the variables of `R`
+
+### Output
+
+A `SparseReachSet` whose variable indices are given by `vars`.
+
+The type of the new reach-set depends on the type of the reach-set `R`:
+
+- If `R` contains a hyperrectangular set, the output is a hyperrectangle.
+- If `R` contains a zonotopic set, the output is a zonotope.
+- Otherwise, the return type is a polytope either in constraint representation
+  or in vertex representation, depending on the dimension and the properties of `M`.
+  For details, see `LazySets.project`.
+
+### Notes
+
+This function can be used to project a reach-set onto a lower-dimensional
+sub-space. The projection is concrete, and it consists of mapping the reach-set
+`X = set(R)` to a new reach-set through to `MX`, where `M` is the projection matrix
+associated with the given variables `vars`.
+
+To project onto the time variable, use the index `0`. For instance, `(0, 1)` projects
+onto the time variable and the first variable in `R`.
+"""
+function project(R::Union{ReachSet, SparseReachSet}, vars::NTuple{D, Int};
+                 check_vars::Bool=true) where {D}
+
+    # TODO: make vars check faster, specific for ReachSets and number of vars D
+    if check_vars && !(setdiff(vars, 0) ⊆ vars_idx(R))
+        throw(ArgumentError("the variables $vars do not belong to the variables " *
+                            " of this reach-set, $(vars_idx(R))"))
+    end
+
+    if 0 ∈ vars
+        # if the projection involves "time", we shift the vars indices by one as
+        # we will take the Cartesian product of the reach-set with the time interval
+        aux = vars .+ 1
+        Δt = convert(Interval, tspan(R))
+        proj =  _project(Δt × set(R), aux)
+    else
+        proj = _project(set(R), vars)
+    end
+
+    return SparseReachSet(proj, tspan(R), vars)
 end
 
 # ================================
@@ -417,5 +456,9 @@ setrep(R::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}
 tstart(R::TaylorModelReachSet) = inf(R.Δt)
 tend(R::TaylorModelReachSet) = sup(R.Δt)
 tspan(R::TaylorModelReachSet) = R.Δt
-LazySets.dim(R::TaylorModelReachSet{N, D}) where {N, D} = R.dim # TODO
-vars(R::TaylorModelReachSet) = R.vars
+LazySets.dim(R::TaylorModelReachSet{N, D}) where {N, D} = R.dim # TODO (!)
+vars_idx(R::TaylorModelReachSet) = Tuple(Base.OneTo(dim(R.X)),)
+
+function shift(R::TaylorModelReachSet, t0::Number)
+    return TaylorModelReachSet(set(R), tspan(R) + t0)
+end
