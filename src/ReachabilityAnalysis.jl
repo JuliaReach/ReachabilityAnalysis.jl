@@ -44,6 +44,7 @@ include("Algorithms/BFFPSV18/BFFPSV18.jl")
 # Discrete post-operators for hybrid systems
 # ===========================================
 
+include("Hybrid/time_triggered.jl")
 #include("DiscretePost/concrete.jl")
 #include("DiscretePost/decomposed.jl")
 #include("DiscretePost/lazy.jl")
