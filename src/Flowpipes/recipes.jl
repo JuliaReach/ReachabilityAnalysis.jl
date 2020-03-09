@@ -10,7 +10,8 @@ using LazySets: plot_recipe,
                 _extract_limits,
                 _extract_extrema,
                 _set_auto_limits_to_extrema!,
-                _bounding_hyperrectangle
+                _bounding_hyperrectangle,
+                _update_plot_limits!
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
 # of the available optoions.

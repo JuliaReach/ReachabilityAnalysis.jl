@@ -102,29 +102,6 @@ function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer
 end
 =#
 
-"""
-    shift(fp::AbstractFlowpipe, t0::Number)
-
-Return the time-shifted flowpipe by the given number.
-
-### Input
-
-- `fp` -- flowpipe
-- `t0` -- time shift
-
-### Output
-
-A new flowpipe such that the time-span of each constituent reach-set has been
-shifted by `t0`.
-
-### Notes
-
-See also `Shift` for the lazy counterpart.
-"""
-function shift(fp::FT, t0::Number) where {FT<:AbstractFlowpipe} # TODO fix docstring ref
-    return FT(map(X -> ReachSet(set(X), tspan(X) + t0), array(fp)))
-end
-
 # ================================
 # Flowpipes
 # ================================
@@ -215,6 +192,33 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     else
         return map(X -> _project(set(X), vars), Xk)
     end
+end
+
+function Base.similar(fp::Flowpipe{N, RT}) where {N, RT<:AbstractReachSet{N}}
+   return Flowpipe(Vector{RT}())
+end
+
+"""
+    shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
+
+Return the time-shifted flowpipe by the given number.
+
+### Input
+
+- `fp` -- flowpipe
+- `t0` -- time shift
+
+### Output
+
+A new flowpipe such that the time-span of each constituent reach-set has been
+shifted by `t0`.
+
+### Notes
+
+See also `Shift` for the lazy counterpart.
+"""
+function shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
+    return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)
 end
 
 # =======================================
