@@ -1,6 +1,7 @@
 # types
 export ReachSet,
-       SparseReachSet
+       SparseReachSet,
+       Projection
 
 # methods
 export set,
@@ -227,10 +228,14 @@ LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 
 # Expose common LazySets operations
-constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
-vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
-LinearMap(M::Union{AbstractMatrix, Number}, R::ReachSet) = reconstruct(R, LinearMap(M, set(R)))
-linear_map(M::AbstractMatrix, R::SparseReachSet) = reconstruct(R, linear_map(M, set(R)))
+LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
+LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
+function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
+    return reconstruct(R, LinearMap(M, set(R)))
+end
+function LazySets.linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
+    return reconstruct(R, linear_map(M, set(R)))
+end
 
 # handle generic vars vector
 function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
@@ -394,8 +399,8 @@ associated with the given variables `vars`.
 To project onto the time variable, use the index `0`. For instance, `(0, 1)` projects
 onto the time variable and the first variable in `R`.
 """
-function project(R::Union{ReachSet, SparseReachSet}, vars::NTuple{D, Int};
-                 check_vars::Bool=true) where {D}
+function project(R::AbstractLazyReachSet, vars::NTuple{D, M};
+                 check_vars::Bool=true) where {D, M<:Integer}
 
     # TODO: make vars check faster, specific for ReachSets and number of vars D
     if check_vars && !(setdiff(vars, 0) ⊆ vars_idx(R))
@@ -411,6 +416,29 @@ function project(R::Union{ReachSet, SparseReachSet}, vars::NTuple{D, Int};
         proj =  _project(Δt × set(R), aux)
     else
         proj = _project(set(R), vars)
+    end
+
+    return SparseReachSet(proj, tspan(R), vars)
+end
+
+# lazy projection of a reach-set
+function Projection(R::AbstractLazyReachSet, vars::NTuple{D, M},
+                    check_vars::Bool=true) where {D, M<:Integer}
+
+    # TODO: make vars check faster, specific for ReachSets and number of vars D
+    if check_vars && !(setdiff(vars, 0) ⊆ vars_idx(R))
+        throw(ArgumentError("the variables $vars do not belong to the variables " *
+                            " of this reach-set, $(vars_idx(R))"))
+    end
+
+    if 0 ∈ vars
+        # if the projection involves "time", we shift the vars indices by one as
+        # we will take the Cartesian product of the reach-set with the time interval
+        aux = vars .+ 1
+        Δt = convert(Interval, tspan(R))
+        proj =  _Projection(Δt × set(R), aux)
+    else
+        proj = _Projection(set(R), vars)
     end
 
     return SparseReachSet(proj, tspan(R), vars)

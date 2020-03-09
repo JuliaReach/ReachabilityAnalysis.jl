@@ -8,8 +8,8 @@ include("Initialization/init.jl")
 # ===========================================================
 # Structures to represent solutions of reachability problems
 # ===========================================================
-include("Flowpipes/setops.jl")
 include("Flowpipes/reachsets.jl")
+include("Flowpipes/setops.jl")
 include("Flowpipes/flowpipes.jl")
 include("Flowpipes/operators.jl")
 include("Flowpipes/fields.jl")

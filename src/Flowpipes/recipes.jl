@@ -14,9 +14,27 @@ using LazySets: plot_recipe,
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
 # of the available optoions.
-@recipe function plot_reachset(R::AbstractLazyReachSet{N}, ε::N=N(PLOT_PRECISION)) where {N<:Real}
-    X = set(R)
-    if dim(X) == 1
+#
+# The type annotation NTuple in vars is removed because of this warning:
+# ┌ Warning: Type annotations on keyword arguments not currently supported in recipes. Type information has been discarded
+# └ @ RecipesBase ~/.julia/packages/RecipesBase/zBoFG/src/RecipesBase.jl:112
+@recipe function plot_reachset(R::AbstractLazyReachSet{N};
+                               vars=nothing,
+                               ε=N(PLOT_PRECISION)
+                               ) where {N<:Real}
+
+    if vars == nothing
+        error("default ploting variables not implemented yet; you need to pass the `vars=(...)` option")
+    end
+
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+
+    πR = project(R, vars) # project the reach-set
+    X = set(πR) # extract the set representation
+
+    if (dim(X) == 1) && (D == 1)
         plot_recipe(X, ε)
     else
         label --> DEFAULT_LABEL
@@ -58,12 +76,21 @@ using LazySets: plot_recipe,
             x, y
         end
     end
+#    else
+#        throw(ArgumentError("can only plot reach-sets of dimension 1 or 2, but " *
+#                            "received a reach-set of dimension $(dim(R))"))
+#    end
 end
+
+#=
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
 # of the available optoions.
-@recipe function plot_list(list::AbstractVector{RN}, ε::N=N(PLOT_PRECISION),
-                           Nφ::Int=PLOT_POLAR_DIRECTIONS, fast::Bool=false
+@recipe function plot_list(list::AbstractVector{RN};
+                           vars,
+                           ε=N(PLOT_PRECISION),
+                           Nφ=PLOT_POLAR_DIRECTIONS,
+                           fast=true
                           ) where {N<:Real, RN<:AbstractReachSet{N}}
     if fast
         label --> DEFAULT_LABEL
@@ -122,3 +149,22 @@ end
         end
     end
 end
+=#
+
+#=
+# TODO: default plotting without vars definition
+# plot each variable vs time
+@recipe function plot_reachset(R::AbstractLazyReachSet{N};
+                               ε::N=N(PLOT_PRECISION)
+                               ) where {N<:Real, D, M<:Integer}
+    error("not implemented yet")
+end
+
+@recipe function plot_list(list::AbstractVector{RN};
+                           ε::N=N(PLOT_PRECISION),
+                           Nφ::Int=PLOT_POLAR_DIRECTIONS,
+                           fast::Bool=true
+                          ) where {N<:Real, RN<:AbstractReachSet{N}}
+    error("not implemented yet")
+end
+=#

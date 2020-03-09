@@ -106,3 +106,8 @@ end
 #function reduce!(Z::AbstractZonotope, ord::Integer)
 # ...
 #end
+
+# fallback lazy projection
+function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
+    return LazySets.Projection(X, collect(vars))
+end

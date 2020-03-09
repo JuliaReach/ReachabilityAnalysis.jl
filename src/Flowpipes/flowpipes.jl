@@ -84,28 +84,8 @@ Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
     # annotate as a boundscheck
 #    1 <= i <= length(fp) || throw(BoundsError(fp, i))
 #    return getindex(fp, i)
-#end
 
-"""
-    project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
-
-Projects a flowpipe onto the subspace spanned by the given variables.
-
-### Input
-
-- `fp`   -- flowpipe
-- `vars` -- tuple with variable indices
-
-### Notes
-
-This function can be used to project a high-dimensional flowpipe onto a
-lower-dimensional space.
-
-, with `0` denoting the time variable
-
-
-"""
-function project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
     # TODO: use projection of the reachsets
     if 0 ∈ vars # projection includes "time"
@@ -116,6 +96,12 @@ function project(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
         return map(X -> _project(set(X), vars), Xk)
     end
 end
+
+#=
+function Projection(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+
+end
+=#
 
 #=
 # inplace projection

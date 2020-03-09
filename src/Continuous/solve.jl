@@ -83,9 +83,9 @@ function _check_dim(ivp; throw_error::Bool=true)
     if n == d
         return true
     else
-        throw_error || throw(ArgumentError("the state-space dimension should match the " *
-                                "dimension of the initial state, but they are of size " *
-                                "$n and $(dim(X0)) respectively"))
+        throw_error && throw(ArgumentError("the state-space dimension should match " *
+                            "the dimension of the initial state, but they are " *
+                            "$n and $(dim(X0)) respectively"))
         return false
     end
 end
