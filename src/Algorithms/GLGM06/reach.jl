@@ -53,6 +53,30 @@ function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
     return F
 end
 
+# in-place computations
+function reach_homog_inplace!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                              Ω0::Zonotope{N, VN, MN},
+                              Φ::AbstractMatrix,
+                              NSTEPS::Integer,
+                              δ::Float64,
+                              max_order::Integer,
+                              ::Universe) where {N, VN, MN}
+    # initial reach set
+    Δt = zero(N) .. δ
+    F[1] = ReachSet(Ω0, Δt)
+
+    k = 2
+    while k <= NSTEPS
+        Rₖ = copy(F[k-1])
+        linear_map!(Φ, set(Rₖ))
+        # reduce_order!(Rₖ, max_order) not available yet
+        Δt += δ
+        F[k] = ReachSet(reduce_order(set(Rₖ), max_order), Δt)
+        k += 1
+    end
+    return F
+end
+
 # ==================
 # Inhomogeneous case
 # ==================

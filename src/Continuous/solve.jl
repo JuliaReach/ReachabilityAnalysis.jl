@@ -48,16 +48,6 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     return sol
 end
 
-#=
-function solve_continuous(ivp, cpost, tspan, args...; kwargs...)
-
-
-    sol = post(ivp, cpost, tspan, args...; kwargs...)
-
-    return sol
-end
-=#
-
 # ==================
 # Argument handling
 # ==================
@@ -131,7 +121,7 @@ end
 # return the time horizon given a time span
 # the check_positive flag is used for algorithms that do not support negative
 # times
-function _get_T(tspan::TimeInterval, check_zero::Bool=true, check_positive::Bool=true)
+function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool=true)
     t0 = inf(tspan)
     if check_zero
         @assert iszero(t0) "this algorithm can only handle zero initial time"

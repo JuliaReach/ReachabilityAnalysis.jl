@@ -1,15 +1,20 @@
 export GLGM06
 
 """
-    GLGM06 <: AbstractContinuousPost
+    GLGM06{N, AM<:AbstractApproximationModel} <: AbstractContinuousPost
+
+Implementation of Girard - Le Guernic - Maler algorithm for reachability of
+uncertain linear systems using zonotopes.
 
 ## Fields
 
+- `δ`           -- step-size of the discretization
+- `appro_model` -- (optional, default `_DEFAULT_APPROX_MODEL_GLGM06`) approximation model
+                   for the discretization of the ODE; see `Notes` below
+- `max_order`   -- (optional, default: `10`) maximum zonotope order
 
-- `δ`                   -- (optional, default: `1e-2`) step-size of the discretization
-- `approximation_model` -- (optional, default `ForwardApproximation`) approximation model
-                           for the discretization of the ODE
-- `max_order`           -- (optional, default: `10`) maximum zonotope order
+## Notes
+
 
 ## References
 
@@ -26,19 +31,27 @@ TODO: move these references to the general references
     Springer, Berlin, Heidelberg.
     [Link](http://www-verimag.imag.fr/~maler/Papers/zonotope.pdf).
 """
-@with_kw struct GLGM06 <: AbstractContinuousPost
-    δ::Float64
-    approx_model::AbstractApproximationModel=ForwardApproximation(sih_method="concrete",
-                                                                  exp_method="base",
-                                                                  set_operations="zonotope",
-                                                                  phi2_method="base")
+@with_kw struct GLGM06{N, AM<:AbstractApproximationModel} <: AbstractContinuousPost
+    δ::N
+    approx_model::AM=_DEFAULT_APPROX_MODEL_GLGM06
     max_order::Int=10
-    #setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
 end
 
-step_size(alg::GLGM06) = alg.δ
-approx_model(alg::GLGM06) = alg.approx_model
-max_order(alg::GLGM06) = alg.max_order
+const _DEFAULT_APPROX_MODEL_GLGM06 = ForwardApproximation(sih_method="concrete", exp_method="base",
+                                                          set_operations="zonotope", phi2_method="base") # TODO use Val{...}
 
 include("post.jl")
 include("reach.jl")
+
+#=
+struct GLGM06{N, AM} <: AbstractContinuousPost
+    δ::N
+    approx_model::AM
+    max_order::Int
+end
+
+function DEFAULT_APPROX_MODEL
+
+GLGM06(; δ, approx_model=DEFAULT_APPROX_MODEL(::GLGM06), max_order=10)
+    = GLGM06{typeof(δ), ...)
+=#
