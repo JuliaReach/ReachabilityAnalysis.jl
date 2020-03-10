@@ -321,7 +321,7 @@ struct HybridFlowpipe{N, D, FT<:AbstractFlowpipe} <: AbstractFlowpipe
     ext::Dict{Symbol, Any}
 end
 
-#array(fp::HybridFlowpipe) = fp.Xk
+array(fp::HybridFlowpipe) = fp.Xk
 
 #=
 #dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
@@ -381,9 +381,9 @@ function add_time!(F::Flowpipe{ST}) where {ST}
 end
 =#
 
-# ================================
-# Hybrid flowpipe
-# ================================
+# ============================================
+# Hybrid flowpipe of possibly different types
+# ============================================
 
 """
     MixedHybridFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe

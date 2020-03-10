@@ -19,6 +19,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 TaylorIntegration = "92b13dbe-c966-51a2-8445-caca9f8a7d42"
 TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
@@ -29,6 +30,7 @@ DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Polyhedra = "67491407-f73d-577b-9b50-8179a7c68029"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
@@ -52,7 +54,8 @@ StaticArrays = "0.12"
 TaylorIntegration = "0.6, 0.7, 0.8"
 TaylorModels = "0.3"
 TaylorSeries = "0.10"
+UnPack = "0.1"
 julia = "1.3"
 
 [targets]
-test = ["CDDLib", "Polyhedra", "Test"]
+test = ["CDDLib", "Polyhedra", "SparseArrays", "Test"]

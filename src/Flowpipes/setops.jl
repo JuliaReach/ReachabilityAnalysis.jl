@@ -16,6 +16,17 @@ function linear_map!(M::AbstractMatrix, Z::AbstractZonotope)
     return Z
 end
 
+# fallback implementation for conversion (if applicable) or overapproximation
+function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
+    if applicable(convert, T, X)
+        return convert(T, X)
+    elseif applicable(overapproximate, X, T)
+        return overapproximate(X, T)
+    else
+        return convert(T, overapproximate(X, Hyperrectangle))
+    end
+end
+
 # fallback concrete projection
 function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
     return LazySets.project(X, collect(vars))
