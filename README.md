@@ -37,7 +37,7 @@ Once you have installed Julia in your system, open a Julia session, activate the
 and to leave it, type `<backspace>`), and enter:
 
 ```julia
-pkg> add ReachabilityAnalysis.jl
+pkg> add ReachabilityAnalysis
 ```
 
 
