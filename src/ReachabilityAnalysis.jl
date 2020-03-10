@@ -1,9 +1,11 @@
 module ReachabilityAnalysis
 
-# ==================
-# Load dependencies
-# ==================
+# ===========================================================
+# Dependencies & User API
+# ===========================================================
 include("Initialization/init.jl")
+include("Initialization/exports.jl")
+include("Continuous/solve.jl")
 
 # ===========================================================
 # Structures to represent solutions of reachability problems
@@ -16,18 +18,17 @@ include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
 include("Flowpipes/recipes.jl")
 
-# ================================================
-# Pre-processing functions for continuous systems
-# ================================================
+# ===========================================================
+# Shared functionality for continuous systems
+# ===========================================================
 include("Continuous/normalization.jl")
 include("Continuous/exponentiation.jl")
 include("Continuous/discretization.jl")
 
-# ===============================
+# ===========================================================
 # Reachability solver algorithms
-# ===============================
-
-# Continuous post-operators for linear systems
+# ===========================================================
+# Linear
 #include("Algorithms/GLGM06/LGG09.jl")
 include("Algorithms/GLGM06/GLGM06.jl")
 include("Algorithms/BFFPSV18/BFFPSV18.jl")
@@ -35,25 +36,17 @@ include("Algorithms/BFFPSV18/BFFPSV18.jl")
 #include("Algorithms/ASB07d/ASB07d.jl")
 #include("Algorithms/A17/A17.jl")
 
-# Continuous post-operators for non-linear systems
+# Nonlinear
 #include("Algorithms/TMJets/TMJets.jl")
 #include("Algorithms/A13/A13.jl")
 #include("Algorithms/KA19/KA19.jl")
 
-# ===========================================
+# ===========================================================
 # Discrete post-operators for hybrid systems
-# ===========================================
-
+# ===========================================================
 include("Hybrid/time_triggered.jl")
 #include("DiscretePost/concrete.jl")
 #include("DiscretePost/decomposed.jl")
 #include("DiscretePost/lazy.jl")
-
-# =========
-# User API
-# =========
-
-#include("logging.jl")
-include("Continuous/solve.jl")
 
 end # module

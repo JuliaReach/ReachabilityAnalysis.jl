@@ -1,28 +1,38 @@
-@with_kw struct BFFPSV18{#N<:Number,                 # numeric coefficient of the set rep
-                         ST,            # parameter for the set type
-                         NI, #<:Integer,               # integer type for the indices
-                         IDX, #<:AbstractVector{NI},   # variable indices
-                         BLK, #<:AbstractVector{NI},   # block indices
-                         RBLK, #<:AbstractVector{NI},  # row indices
-                         CBLK#<:AbstractVector{NI},  # column indices
-                         } <: AbstractContinuousPost
-    δ::Float64
-    approx_model::AbstractApproximationModel=ForwardApproximation(sih_method="concrete",
-                                                                  exp_method="base",
-                                                                  phi2_method="base")
+"""
+    BFFPSV18{N, ST, NI, IDX, BLK, RBLK CBLK} <: AbstractContinuousPost
 
-    #setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
+Implementation of Girard - Le Guernic - Maler algorithm for reachability of
+uncertain linear systems using zonotopes.
+
+## Fields
+
+- `δ`           -- step-size of the discretization
+- `appro_model` -- (optional, default `_DEFAULT_APPROX_MODEL_GLGM06`) approximation model
+                   for the discretization of the ODE; see `Notes` below
+- `max_order`   -- (optional, default: `10`) maximum zonotope order
+
+## Notes
+
+
+## References
+
+TODO: move these references to the general references
+
+[1]
+"""
+@with_kw struct BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK, PT} <: AbstractContinuousPost
+    δ::N
+    setrep::ST  # remove ?
+    approx_model::AM=_DEFAULT_APPROX_MODEL_BFFPSV18
     vars::IDX
     block_indices::BLK
     row_blocks::RBLK
     column_blocks::CBLK
-    setrep::ST
-    partition::AbstractVector{AbstractVector{Int}} # TODO add parameter
+    partition::PT
 end
 
-step_size(alg::BFFPSV18) = alg.δ
-approx_model(alg::BFFPSV18) = alg.approx_model
-setrep(alg::BFFPSV18{N, ST}) where {N, ST} = ST
+const _DEFAULT_APPROX_MODEL_BFFPSV18 = ForwardApproximation(sih_method="concrete", exp_method="base",
+                                                            phi2_method="base") # TODO use Val{...}
 
 include("post.jl")
 include("reach_homog.jl")

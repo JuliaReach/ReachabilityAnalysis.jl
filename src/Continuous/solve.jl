@@ -1,5 +1,3 @@
-export solve
-
 # ======================================
 # Solve function for continuous systems
 # ======================================

@@ -1,19 +1,3 @@
-# types
-export Flowpipe,
-       ShiftedFlowpipe,
-       MappedFlowpipe,
-       HybridFlowpipe,
-       MixedHybridFlowpipe
-
-# methods
-export flowpipe,
-       project,
-       shift
-
-# convenience constructors
-export Projection,
-       Shift
-
 # ================================
 # Abstract types
 # ================================
