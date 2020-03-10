@@ -9,7 +9,7 @@ end
 
 # tstart       Ts-ζ          tend
 # [-------------|-------------]
-function solve_hybrid(S::AbstractSystem, X0::InitialValueProblem, reset_map,
+function solve_hybrid(S::AbstractSystem, X0::InitialValueProblem, reset_map;
                       Tsample=0.75, max_jumps=100, ζ=0.005,
                       t0=0.0, alg=GLGM06(δ=0.0003))
 
