@@ -64,7 +64,7 @@ sol = solve(prob, tspan=(0.0, 1.0))
 plot(sol, vars=(0, 1))
 ```
 
-### Linear with uncertain inputs
+### Higher-order linear
 
 (motor or a problem from the problem library)
 
