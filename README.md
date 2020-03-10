@@ -56,36 +56,67 @@ illustrating how to use the library.
 ### Linear
 
 ```julia
-using ReachabilityAnalysis
+using ReachabilityAnalysis, Plots
 
 prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 1)
-sol = solve(prob, T=1.0, GLGM06())
+sol = solve(prob, tspan=(0.0, 1.0))
 
-using Plots
-
-plot(sol)
+plot(sol, vars=(0, 1))
 ```
 
-### Higher-dimensional linear
+### Linear with uncertain inputs
+
+(motor or a problem from the problem library)
 
 ```julia
-using ReachabilityAnalysis
+using ReachabilityAnalysis, Plots
 
 A = [1 0; 0 -1]
 B = [1, 1]
+X = Universe(n)
 U = Interval(-0.1, 0.1)
-prob = @ivp(x' = Ax + Bu, u ∈ U, x(0) ∈ X0)
+X0 = ...
+prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0)
 sol = solve(prob, T=1.0, GLGM06())
 
-using Plots
-
-plot(sol)
+plot(sol, vars=(1, 2))
 ```
 
 ### Nonlinear
 
+(van der pol?)
+
+```julia
+using ReachabilityAnalysis, Plots
+
+A = [1 0; 0 -1]
+B = [1, 1]
+X = Universe(n)
+U = Interval(-0.1, 0.1)
+X0 = ...
+prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0)
+sol = solve(prob, T=1.0, GLGM06())
+
+plot(sol, vars=(1, 2))
+```
 
 ### Hybrid
+
+(bouncing ball?)
+
+```julia
+using ReachabilityAnalysis, Plots
+
+A = [1 0; 0 -1]
+B = [1, 1]
+X = Universe(n)
+U = Interval(-0.1, 0.1)
+X0 = ...
+prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0)
+sol = solve(prob, T=1.0, GLGM06())
+
+plot(sol, vars=(1, 2))
+```
 
 ## Citation
 
