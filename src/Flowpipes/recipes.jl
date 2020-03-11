@@ -2,6 +2,7 @@ using RecipesBase
 
 using LazySets: plot_recipe,
                 PLOT_PRECISION,
+                PLOT_POLAR_DIRECTIONS,
                 DEFAULT_LABEL,
                 DEFAULT_GRID,
                 DEFAULT_ASPECT_RATIO,
@@ -14,7 +15,7 @@ using LazySets: plot_recipe,
                 _update_plot_limits!
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
-# of the available optoions.
+# of the available options.
 #
 # The type annotation NTuple in vars is removed because of this warning:
 # ┌ Warning: Type annotations on keyword arguments not currently supported in recipes. Type information has been discarded
@@ -25,7 +26,9 @@ using LazySets: plot_recipe,
                                ) where {N<:Real}
 
     if vars == nothing
-        error("default ploting variables not implemented yet; you need to pass the `vars=(...)` option")
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
     end
 
     D = length(vars)
@@ -34,6 +37,8 @@ using LazySets: plot_recipe,
 
     πR = project(R, vars) # project the reach-set
     X = set(πR) # extract the set representation
+
+    # TODO : try D = 1
 
     if (dim(X) == 1) && (D == 1)
         plot_recipe(X, ε)
@@ -83,16 +88,27 @@ using LazySets: plot_recipe,
 #    end
 end
 
-#=
-
 # This function is from LazySets.jl. See the docstring in LazySets for the description
-# of the available optoions.
+# of the available options.
 @recipe function plot_list(list::AbstractVector{RN};
-                           vars,
+                           vars=nothing,
                            ε=N(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
                            fast=true
                           ) where {N<:Real, RN<:AbstractReachSet{N}}
+
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+
+    # TODO : try D = 1
+
     if fast
         label --> DEFAULT_LABEL
         grid --> DEFAULT_GRID
@@ -107,7 +123,9 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in list
-            Xi = set(Ri)
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
             else
@@ -141,7 +159,8 @@ end
         x, y
     else
         for Ri in list
-            Xi = set(Ri)
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -150,7 +169,174 @@ end
         end
     end
 end
-=#
+
+# This function is from LazySets.jl. See the docstring in LazySets for the description
+# of the available options.
+@recipe function plot_list(fp::AbstractFlowpipe;
+                           vars=nothing,
+                           ε=Float64(PLOT_PRECISION),
+                           Nφ=PLOT_POLAR_DIRECTIONS,
+                           fast=true
+                          )
+    N = Float64 # TODO: add type parameter to the AbstractFlowpipe ?
+
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+
+    # TODO : try D = 1
+
+    if fast
+        label --> DEFAULT_LABEL
+        grid --> DEFAULT_GRID
+        if DEFAULT_ASPECT_RATIO != :none
+            aspect_ratio --> DEFAULT_ASPECT_RATIO
+        end
+        seriesalpha --> DEFAULT_ALPHA
+        seriescolor --> DEFAULT_COLOR
+        seriestype --> :shape
+
+        first = true
+        x = Vector{N}()
+        y = Vector{N}()
+        for Ri in fp
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+
+            if Xi isa Intersection
+                res = plot_recipe(Xi, ε, Nφ)
+            else
+                # hard-code overapproximation here to avoid individual
+                # compilations for mixed sets
+                Pi = overapproximate(Xi, ε)
+                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+                if isempty(vlist)
+                    @warn "overapproximation during plotting was empty"
+                    continue
+                end
+                res = vlist[:, 1], vlist[:, 2]
+                # add first vertex to "close" the polygon
+                push!(res[1], vlist[1, 1])
+                push!(res[2], vlist[1, 2])
+            end
+            if isempty(res)
+                continue
+            else
+                x_new, y_new = res
+            end
+            if first
+                first = false
+            else
+                push!(x, N(NaN))
+                push!(y, N(NaN))
+            end
+            append!(x, x_new)
+            append!(y, y_new)
+        end
+        x, y
+    else
+        for Ri in fp
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+            if Xi isa Intersection
+                @series Xi, ε, Nφ
+            else
+                @series Xi, ε
+            end
+        end
+    end
+end
+
+
+# This function is from LazySets.jl. See the docstring in LazySets for the description
+# of the available options.
+@recipe function plot_list(sol::ReachSolution;
+                           vars=nothing,
+                           ε=Float64(PLOT_PRECISION),
+                           Nφ=PLOT_POLAR_DIRECTIONS,
+                           fast=true
+                          )
+
+    N = Float64
+
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+
+    # TODO : try D = 1
+
+    if fast
+        label --> DEFAULT_LABEL
+        grid --> DEFAULT_GRID
+        if DEFAULT_ASPECT_RATIO != :none
+            aspect_ratio --> DEFAULT_ASPECT_RATIO
+        end
+        seriesalpha --> DEFAULT_ALPHA
+        seriescolor --> DEFAULT_COLOR
+        seriestype --> :shape
+
+        first = true
+        x = Vector{N}()
+        y = Vector{N}()
+        for Ri in flowpipe(sol)
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+
+            if Xi isa Intersection
+                res = plot_recipe(Xi, ε, Nφ)
+            else
+                # hard-code overapproximation here to avoid individual
+                # compilations for mixed sets
+                Pi = overapproximate(Xi, ε)
+                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+                if isempty(vlist)
+                    @warn "overapproximation during plotting was empty"
+                    continue
+                end
+                res = vlist[:, 1], vlist[:, 2]
+                # add first vertex to "close" the polygon
+                push!(res[1], vlist[1, 1])
+                push!(res[2], vlist[1, 2])
+            end
+            if isempty(res)
+                continue
+            else
+                x_new, y_new = res
+            end
+            if first
+                first = false
+            else
+                push!(x, N(NaN))
+                push!(y, N(NaN))
+            end
+            append!(x, x_new)
+            append!(y, y_new)
+        end
+        x, y
+    else
+        for Ri in flowpipe(sol)
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+            if Xi isa Intersection
+                @series Xi, ε, Nφ
+            else
+                @series Xi, ε
+            end
+        end
+    end
+end
 
 #=
 # TODO: default plotting without vars definition

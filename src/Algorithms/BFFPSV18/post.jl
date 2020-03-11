@@ -1,4 +1,3 @@
-# TODO: dispatch on linear system only.. ?
 function post(alg::BFFPSV18, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
 
     # get time horizon

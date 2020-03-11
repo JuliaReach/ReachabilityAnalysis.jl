@@ -37,7 +37,7 @@ include("Algorithms/BFFPSV18/BFFPSV18.jl")
 #include("Algorithms/A17/A17.jl")
 
 # Nonlinear
-#include("Algorithms/TMJets/TMJets.jl")
+include("Algorithms/TMJets/TMJets.jl")
 #include("Algorithms/A13/A13.jl")
 #include("Algorithms/KA19/KA19.jl")
 
