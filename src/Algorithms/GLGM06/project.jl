@@ -1,5 +1,6 @@
 # =======================================
 # Functionality to project the flowpipe
+# REMOVE ?
 # =======================================
 import LazySets.Approximations: project
 

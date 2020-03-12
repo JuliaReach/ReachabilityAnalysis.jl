@@ -131,6 +131,10 @@ function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool
     return T
 end
 
+tstart(Δt::TimeInterval) = inf(Δt)
+tend(Δt::TimeInterval) = sup(Δt)
+tspan(Δt::TimeInterval) = Δt
+
 function _get_cpost(ivp, tspan, args...; kwargs...)
     got_alg = haskey(kwargs, :alg)
     got_algorithm = haskey(kwargs, :algorithm)
