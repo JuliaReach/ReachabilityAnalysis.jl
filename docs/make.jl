@@ -17,12 +17,11 @@ makedocs(
                         "Nonlinear ODEs" => "man/nonlinear.md",
                         "Hybrid systems" => "man/hybrid.md",
                         "Parametric reachability" => "man/parametric.md",
-                        "FAQ" => "man/faq.md",
+                        #"FAQ" => "man/faq.md",
                         "Benchmarks" => "man/benchmarks.md",
                         "Model library" => "man/library.md"],
                         # Other topics: Distributed computations. Multithreading.
-        "Applications" => Any["Thermal conduction" => "man/applications/thermal_conduction.md",
-                              "Spiking neurons" => "man/applications/spiking_neurons.md",
+        "Applications" => Any["Electromechanic break" => "man/applications/embrake.md",
                               "Quadrotor altitude control" => "man/applications/quadrotor.md",
                               "Transmision line" => "man/applications/transmission_line.md"],
                               # Other topics: car control, power systems stability.
