@@ -5,7 +5,7 @@ export
 # Algorithms
     GLGM06,
     BFFPSV18,
-    #TMJets,
+    TMJets,
 
 # Flowpipes
     flowpipe,

@@ -66,6 +66,7 @@ function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:Abstrac
     return linear_map(M, Z)
 end
 
+#=
 # TODO: add to LazySets
 # specialize to cartesian product of Interval vs Zonotopic set
 function Base.convert(::Type{Zonotope}, cp::CartesianProduct{N, <:AbstractZonotope{N}, <:AbstractZonotope{N}}) where {N<:Real}
@@ -74,6 +75,7 @@ function Base.convert(::Type{Zonotope}, cp::CartesianProduct{N, <:AbstractZonoto
     G = blockdiag(sparse(genmat(Z1)), sparse(genmat(Z2)))
     return Zonotope(c, G)
 end
+=#
 
 #=
 function project!(Z::AbstractZonotope{N}, vars::AbstractVector{Int}) where {N}

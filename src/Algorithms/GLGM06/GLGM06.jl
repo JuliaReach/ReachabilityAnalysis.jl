@@ -1,5 +1,3 @@
-export GLGM06
-
 """
     GLGM06{N, AM<:AbstractApproximationModel} <: AbstractContinuousPost
 
