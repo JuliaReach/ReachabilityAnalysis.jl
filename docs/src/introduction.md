@@ -6,7 +6,7 @@ influence of a set of input trajectories and parameter values.
 More technically, we define the reachable set at a given time point
 $\delta \in \mathbb{R}$, also known as the *reach-set* for the ODE
 ```math
-x' = f(x(t), u(t), p(t), t),
+x'(t) = f(x(t), u(t), p(t), t),
 ```
 as given by
 ```math
