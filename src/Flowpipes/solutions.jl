@@ -73,7 +73,7 @@ tstart(sol::ReachSolution) = tstart(sol.F)
 tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
 setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
-LazySets.dim(sol::ReachSolution) = dim(sol.F) # TODO: keep for hybrid?
+dim(sol::ReachSolution) = dim(sol.F) # TODO: keep for hybrid?
 
 # iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
@@ -93,6 +93,10 @@ Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
 (sol::ReachSolution)(t::Float64) = sol.F(t)
 (sol::ReachSolution)(t::Number) = sol.F(t)
 (sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
+
+function overapproximate(sol::ReachSolution{<:Flowpipe}, args...)
+    return ReachSolution(overapproximate(sol.F, args...), sol.solver, sol.ext)
+end
 
 #=
 function project(rs::ReachSolution, M::AbstractMatrix)

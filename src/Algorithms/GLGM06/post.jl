@@ -1,4 +1,4 @@
-function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
+function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
     @unpack δ, approx_model, max_order = alg
 

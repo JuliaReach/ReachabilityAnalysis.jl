@@ -15,6 +15,19 @@ export
     HybridFlowpipe,
     MixedHybridFlowpipe,
 
+# Reach-sets
+    ReachSet,
+    SparseReachSet,
+    ShiftedReachSet,
+    TaylorModelReachSet,
+
+# Getter functions
+    set,
+    setrep,
+    tstart,
+    tend,
+    tspan,
+
 # Concrete operations
     project,
     shift,

@@ -30,7 +30,7 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     cpost = _get_cpost(ivp, tspan, args...; kwargs...)
 
     # run the continuous-post operator
-    F = post(cpost, ivp, tspan, args...; kwargs...)
+    F = post(cpost, ivp, tspan; kwargs...)
 
     if haskey(kwargs, :save_traces) && (kwargs[:save_traces] == true)
         @requires DifferentialEquations

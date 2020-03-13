@@ -1,7 +1,8 @@
 """
     TMJets{N} <: AbstractContinuousPost
 
-Validated integration using Taylor models.
+Validated integration with Taylor models, based on the algorithm implemented
+by Luis Benet and David Sanders in `TalorModels.jl`.
 
 ### Fields
 
@@ -15,18 +16,12 @@ Validated integration using Taylor models.
     abs_tol::N=1e-10
     orderT::Int=8
     orderQ::Int=2
-    #setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
+    # setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
+    # add setrep as a type?
 end
 
-#import IntervalArithmetic
-#using TaylorSeries
-#import TaylorIntegration
-#using TaylorModels: validated_step!, TaylorModel1, TaylorModelN, evaluate
 using TaylorModels: TaylorModelN
-
-#import IntervalArithmetic
-#const IA = IntervalArithmetic
-#const TI = TaylorIntegration
+using TaylorModels: fp_rpa, remainder
 
 include("post.jl")
 include("reach.jl")

@@ -1,24 +1,9 @@
-# types
-export ReachSet,
-       SparseReachSet,
-       Projection,
-       ShiftedReachSet
-
-# methods
-export set,
-       setrep,
-       tstart,
-       tend,
-       tspan,
-       project,
-       shift
-
 # method extensions
-import LazySets: dim
+import LazySets: dim, overapproximate
 
-# ================================
+# ================================================================
 # Reach set interfaces
-# ================================
+# ================================================================
 
 """
     AbstractReachSet{N}
@@ -225,15 +210,20 @@ abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
 # Implement LazySets interface
 LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
+
 LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
+
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
+
 LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
+
 function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end
+
 function LazySets.linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
     return reconstruct(R, linear_map(M, set(R)))
 end
@@ -282,7 +272,7 @@ setrep(::Type{ReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
 tstart(R::ReachSet) = inf(R.Δt)
 tend(R::ReachSet) = sup(R.Δt)
 tspan(R::ReachSet) = R.Δt
-LazySets.dim(R::ReachSet) = dim(R.X)
+dim(R::ReachSet) = dim(R.X)
 vars_idx(R::ReachSet) = Tuple(Base.OneTo(dim(R.X)),)
 
 # no-op
@@ -304,9 +294,9 @@ function reconstruct(R::ReachSet, Y::LazySet)
     return ReachSet(Y, tspan(R))
 end
 
-# ================================
+# ================================================================
 # Sparse reach set
-# ================================
+# ================================================================
 
 """
     SparseReachSet{N, ST<:LazySet{N}, D} <: AbstractReachSet{N}
@@ -352,7 +342,7 @@ setrep(R::SparseReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
 tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt
-LazySets.dim(R::SparseReachSet{N, ST, D}) where {N, ST<:LazySet{N}, D} = D
+dim(R::SparseReachSet{N, ST, D}) where {N, ST<:LazySet{N}, D} = D
 vars_idx(R::SparseReachSet) = R.vars
 
 # constructor from vector of dimensions
@@ -449,9 +439,9 @@ function Projection(R::AbstractLazyReachSet, vars::NTuple{D, M},
     return SparseReachSet(proj, tspan(R), vars)
 end
 
-# ================================
+# ================================================================
 # Time-shifted reach-set
-# ================================
+# ================================================================
 
 struct ShiftedReachSet{N, RT<:AbstractLazyReachSet{N}} <: AbstractLazyReachSet{N}
     R::RT
@@ -466,11 +456,9 @@ end
 @inline tend(srs::ShiftedReachSet) = tend(srs.R) + time_shift(srs)
 @inline tspan(srs::ShiftedReachSet) = TimeInterval(tstart(srs), tend(srs))
 
-# ================================
+# ================================================================
 # Taylor model reach set
-# ================================
-
-using TaylorModels: TaylorModel1, TaylorN
+# ================================================================
 
 """
     AbstractTaylorModelReachSet{N}
@@ -483,6 +471,8 @@ The parameter `N` refers to the numerical type of the representation.
 """
 abstract type AbstractTaylorModelReachSet{N} <: AbstractReachSet{N} end
 
+using TaylorModels: TaylorModel1, TaylorN
+
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
 
@@ -494,21 +484,107 @@ Taylor model reach-set represented as a vector taylor models in one variable
 
 The parameter `N` refers to the numerical type of the representation.
 """
-struct TaylorModelReachSet{N, D<:Integer} <: AbstractTaylorModelReachSet{N}
+struct TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
     X::Vector{TaylorModel1{TaylorN{N}, N}}
     Δt::TimeInterval
-    #dim::D
 end
 
 # interface functions
-set(R::TaylorModelReachSet) = R.X
-setrep(R::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}}
-tstart(R::TaylorModelReachSet) = inf(R.Δt)
-tend(R::TaylorModelReachSet) = sup(R.Δt)
-tspan(R::TaylorModelReachSet) = R.Δt
-LazySets.dim(R::TaylorModelReachSet{N, D}) where {N, D} = R.dim # TODO (!)
-vars_idx(R::TaylorModelReachSet) = Tuple(Base.OneTo(dim(R.X)),)
+@inline set(R::TaylorModelReachSet) = R.X
+@inline setrep(R::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}}
+@inline tstart(R::TaylorModelReachSet) = inf(R.Δt)
+@inline tend(R::TaylorModelReachSet) = sup(R.Δt)
+@inline tspan(R::TaylorModelReachSet) = R.Δt
+@inline dim(R::TaylorModelReachSet) = get_numvars()
+@inline vars_idx(R::TaylorModelReachSet) = Tuple(Base.OneTo(R.dim),)
+
+# useful constants
+@inline zeroBox(m) = IntervalBox(zeroI, m)
+@inline unitBox(m) = IntervalBox(IA.Interval(0.0, 1.0), m)
+@inline symBox(n::Integer) = IntervalBox(symI, n)
+const zeroI = IA.Interval(0.0) # TODO use number type
+const oneI = IA.Interval(1.0)
+const symI = IA.Interval(-1.0, 1.0)
 
 function shift(R::TaylorModelReachSet, t0::Number)
     return TaylorModelReachSet(set(R), tspan(R) + t0)
+end
+
+function reconstruct(R::TaylorModelReachSet, X)
+    return TaylorModelReachSet(X, tspan(R))
+end
+
+function project(R::TaylorModelReachSet, vars::NTuple{D, M}) where {D, M<:Integer}
+    throw(ArgumentError("the concrete projection of Taylor model reach-set is not " *
+            "available; try first to overapproximate the Taylor model and the  project"))
+end
+
+# overapproximate taylor model reachset with one hyperrectangle
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) where {N}
+    # dimension of the reachset
+    D = dim(R)
+
+    # pick the time domain of the given TM (same in all dimensions)
+    t0 = tstart(R)
+    Δt = tspan(R)
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X_Δt = TM.evaluate(set(R), Δt - t0)
+
+    # evaluate the spatial variables in the symmetric box
+    Bn = symBox(D)
+    X̂ib = IntervalBox([TM.evaluate(X_Δt[i], Bn) for i in 1:D]...)
+    X̂ = convert(Hyperrectangle, X̂ib)
+
+    return ReachSet(X̂, Δt)
+end
+
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, nparts) where {N}
+    # dimension of the reachset
+    D = dim(R)
+
+    # pick the time domain of the given TM (same in all dimensions)
+    t0 = tstart(R)
+    Δt = tspan(R)
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X_Δt = TM.evaluate(set(R), Δt - t0)
+
+    # evaluate the spatial variables in the symmetric box
+    partition = IA.mince(symBox(D), nparts)
+    X̂ = Vector{Hyperrectangle{N, SVector{D, N}, SVector{D, N}}}(undef, length(partition))
+    @inbounds for (i, Bi) in enumerate(partition)
+        X̂ib = IntervalBox([TM.evaluate(X_Δt[i], Bi) for i in 1:D])
+        X̂[i] = convert(Hyperrectangle, X̂ib)
+    end
+    #return ReachSet(UnionSetArray(X̂), Δt) # but UnionSetArray is not yet a lazyset
+    return ReachSet(ConvexHullArray(X̂), Δt)
+end
+
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
+    # dimension of the reachset
+    n = dim(R)
+
+    # pick the time domain of the given TM (same in all dimensions)
+    t0 = tstart(R)
+    Δt = tspan(R)
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X = set(R)
+    X_Δt = TM.evaluate(X, Δt - t0)
+
+    # builds the associated taylor model for each coordinate j = 1...n
+    #  X̂ is a TaylorModelN whose coefficients are intervals
+    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+
+    # compute floating point rigorous polynomial approximation
+    # fX̂ is a TaylorModelN whose coefficients are floats
+    fX̂ = TaylorModels.fp_rpa.(X̂)
+
+    # LazySets can overapproximate a Taylor model with a Zonotope
+    Zi = overapproximate(fX̂, Zonotope)
+    return ReachSet(Zi, Δt)
 end

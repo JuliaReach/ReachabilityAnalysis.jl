@@ -29,6 +29,8 @@ function VectorField(sys::AbstractSystem)
         else
             field = (x, u) -> state_matrix(sys) * x + affine_term(sys) + input_matrix(sys) * u
         end
+    elseif sys isa BBCS || sys isa CBBCS || sys isa CBBCCS
+        return sys.f
     else
         error("the vector field for a system of type $sys is not implemented yet")
     end

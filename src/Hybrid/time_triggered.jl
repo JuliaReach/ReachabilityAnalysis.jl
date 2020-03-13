@@ -1,11 +1,9 @@
 # Hybrid systems with time-triggered transitions
-
-# return one reach-set by taking the convex hull of the reach-sets in the
-# given flowpipe
-function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
-    Y = ConvexHullArray([set(X) for X in array(fp)])
-    return ReachSet(Y, tspan(fp))
+struct HybridAutomatonWithClockedLinearDynamics <: AbstractHybridSystem
+#
 end
+
+const HACLD = HybridAutomatonWithClockedLinearDynamics
 
 # tstart       Ts-ζ          tend
 # [-------------|-------------]

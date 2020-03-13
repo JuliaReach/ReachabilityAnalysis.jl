@@ -1,4 +1,4 @@
-function post(alg::BFFPSV18, ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
+function post(alg::BFFPSV18, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
     # get time horizon
     T = _get_T(tspan)

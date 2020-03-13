@@ -205,6 +205,14 @@ function shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
     return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)
 end
 
+# return one reach-set by taking the convex hull of the reach-sets in the
+# given flowpipe. TODO add second argument for number of reach-sets
+# return a flowpipe..?
+function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
+    Y = ConvexHullArray([set(X) for X in array(fp)])
+    return ReachSet(Y, tspan(fp))
+end
+
 # =======================================
 # Flowpipe composition with a time-shift
 # =======================================
@@ -282,6 +290,10 @@ function LazySets.Projection(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D,
     M = projection_matrix(collect(vars), dim(F), Float64)
     func = @map(x -> M*x)
     return MappedFlowpipe(fp, func)
+end
+
+function overapproximate(fp::Flowpipe, args...)
+    return Flowpipe(map(R -> overapproximate(R, args...), fp))
 end
 
 # ================================
