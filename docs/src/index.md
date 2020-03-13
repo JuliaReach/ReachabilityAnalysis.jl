@@ -21,22 +21,23 @@ In simple terms, reachability analysis is concerned with studying the sets of st
 that a system can reach, starting from a set of initial states and under the
 influence of a set of input trajectories and parameter values.
 More technically, we define the reachable set at a given time point
-$\delta \in \mathbb{R}$, also known as *reach-set* for the ODE
-$x' = f(x(t), u(t), p(t), t)$, as:
-
+$\delta \in \mathbb{R}$, also known as the *reach-set* for the ODE
 ```math
-\mathcal{R}(δ) := \left\{ x(δ) = \int_0^δ f(x(t), u(t), p(t), t) dt, x(0) ∈ X₀, u(t) ∈ \mathcal{U}, p(t) ∈ \mathcal{P} \right\}.
+x' = f(x(t), u(t), p(t), t),
 ```
-Here $X₀$ denotes the set of initial states, $\mathcal{U}$ denotes the input set,
-and $\mathcal{P}$ denotes the parameter values. The set $\mathcal{R}(δ)$
-cannot be obtained exactly for practical problems, and reachability methods aim at
-computing suitable over-approximations (or under-approximations) of
-$\mathcal{R}(δ)$.
-
-Similary, we define the reachable set associated to a time interval $[0, δ]$,
-also known as *flowpipe*, as
+as given by
 ```math
-\mathcal{F}(0 .. δ) = ⋃\_{t \in [0, δ]} \mathcal{R}(δ)
+\mathcal{R}(δ) := \left\{ x(δ) = \int_0^δ f(x(t), u(t), p(t), t) dt, x(0) ∈ X_0, u(t) ∈ \mathcal{U}, p(t) ∈ \mathcal{P} \right\}.
+```
+Here $X_0$ denotes the set of initial states, $\mathcal{U}$ denotes the input set,
+and $\mathcal{P}$ denotes the parameter values. For practical problems, the set
+$\mathcal{R}(δ)$ cannot be obtained exactly, and reachability methods aim at
+computing suitable over-approximations (or under-approximations) of it.
+
+We define the reachable set associated to a time interval $[0, δ]$,
+also known as the *flowpipe*, as
+```math
+\mathcal{F}(0 .. δ) = ⋃_{t \in [0, δ]} \mathcal{R}(δ).
 ```
 Reachability methods are used to compute rigorous approximations of the flowpipe
 for continuous or hybrid systems, in bounded time or unbounded time horizon.
@@ -59,7 +60,7 @@ terminology of *hybrid automata*, and we also model hybrid systems with such fra
 in this library. The concept of reach-set, flowpipe and safety verification are
 naturally extended to hybrid automata, although there is the additional complication
 that the flowpipe must include the behaviors for all possible transitions between
-discrete modes that are admissible with the dynamics.
+discrete modes that are compatible with the dynamics.
 
 ## Features
 
@@ -67,7 +68,7 @@ The following types of ODEs are currently supported:
 
 - Continuous ODEs with linear dynamics
 - Continuous ODEs with non-linear dynamics
-- Hybrid systems with piecweise-affine dynamics
+- Hybrid systems with piecewise-affine dynamics
 - Hybrid systems with non-linear dynamics
 
 ## Application domains
