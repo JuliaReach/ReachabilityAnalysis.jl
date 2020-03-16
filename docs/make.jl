@@ -14,6 +14,7 @@ makedocs(
         "Introduction" => "introduction.md", # TODO: keep?
         "Manual" => Any["Set representations" => "man/setrep.md",
                         "Linear ODEs" => "man/linear.md",
+                        "Exploiting structure" => "man/linear_high_dim.md",
                         "Nonlinear ODEs" => "man/nonlinear.md",
                         "Hybrid systems" => "man/hybrid.md",
                         "Parametric reachability" => "man/parametric.md",
