@@ -14,7 +14,7 @@ uncertain parameters or non-deterministic inputs.
 
 ## Resources
 
-- [Reference manual](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
+- [Reference manual](https://mforets.github.io/ReachabilityAnalysis.jl/dev/)
 - [Citation]()
 
 ## Features
