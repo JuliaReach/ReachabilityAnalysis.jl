@@ -32,21 +32,13 @@ the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/d
 
 ## Installation
 
-Once you have installed Julia in your system, open a Julia session, activate the
-`pkg` mode (remember that to activate the `pkg` mode in Julia's REPL, you need to type `]`,
+Open a Julia session and activate the
+`pkg` mode (to activate the `pkg` mode in Julia's REPL, type `]`,
 and to leave it, type `<backspace>`), and enter:
 
 ```julia
 pkg> add ReachabilityAnalysis
 ```
-
-
->  :book: This package is still a work-in-progress. It grew out of the package
-    [JuliaReach/Reachability.jl](https://github.com/JuliaReach/Reachability.jl).
-    If you are interested to know more about the project, feel free to open an issue or
-    join the chat room [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby).
-
-!! NOTE: currently using `mforets/dev` branch in LazySets.jl.
 
 ## Examples
 
