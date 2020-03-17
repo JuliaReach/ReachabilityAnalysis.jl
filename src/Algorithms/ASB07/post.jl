@@ -21,6 +21,7 @@ function post(alg::ASB07,
     X = stateset(ivp_discr)
 
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
+    Ω0 = Zonotope(center(Ω0), Matrix(genmat(Ω0)))
     ZT = typeof(Ω0)
     N = eltype(Ω0)
 
