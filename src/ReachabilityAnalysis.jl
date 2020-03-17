@@ -32,7 +32,7 @@ include("Continuous/discretization.jl")
 #include("Algorithms/GLGM06/LGG09.jl")
 include("Algorithms/GLGM06/GLGM06.jl")
 include("Algorithms/BFFPSV18/BFFPSV18.jl")
-#include("Algorithms/ASB07/ASB07.jl")
+include("Algorithms/ASB07/ASB07.jl")
 #include("Algorithms/ASB07d/ASB07d.jl")
 #include("Algorithms/A17/A17.jl")
 
