@@ -1,51 +1,39 @@
-function post(𝒜::ASB07,
-              𝑃::InitialValueProblem{<:AbstractContinuousSystem},
-              𝑂::Options)
-    # =================================
-    # Initialization and discretization
-    # =================================
+function post(alg::ASB07,
+              ivp::IVP{<:AbstractContinuousSystem},
+              tspan;
+              kwargs...)
 
-    𝑂 = merge(𝒜.options.defaults, 𝑂, 𝒜.options.specified)
-    δ, T = 𝑂[:δ], 𝑂[:T]
-    N = round(Int, T / δ)
+    @unpack δ, approx_model, max_order = alg
 
-    # compute and unrwap discretized system
-    𝑃_discrete = discretize(𝑃, δ; algorithm="interval_matrix",
-                            order=𝑂[:order_discretization],
-                            set_operations=𝑂[:set_operations_discretization])
-    Ω0, Φ = 𝑃_discrete.x0, 𝑃_discrete.s.A
+    # get time horizon from the time span imposing that
+    # tspan is of the form (0, T)
+    T = _get_T(tspan, check_zero=true, check_positive=true)
 
-    # ====================
-    # Flowpipe computation
-    # ====================
+    # normalize system to canonical form
+    # x' = Ax, x in X
+    # x' = Ax + u, x in X, u in U
+    ivp_norm = _normalize(ivp)
 
-    # preallocate output
-    T = 𝑂[:set_operations_discretization] == "zonotope" ? Zonotope : LazySet
-    Rsets = Vector{ReachSet{T{Float64}}}(undef, N)
-    # Flowpipe(args.ST, N)
+    # discretize system
+    ivp_discr = discretize(ivp_norm, δ, approx_model)
+    Ω0 = initial_state(ivp_discr)
+    Φ = state_matrix(ivp_discr)
+    X = stateset(ivp_discr)
 
-    max_order = 𝑂[:max_order]
+    Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
+    Ω0 = Zonotope(center(Ω0), Matrix(genmat(Ω0)))
+    ZT = typeof(Ω0)
+    N = eltype(Ω0)
 
-    info("Reachable States Computation...")
-    @timing begin
-    if inputdim(𝑃_discrete) == 0
-        U = nothing
-    else
-        U = inputset(𝑃_discrete)
-    end
-    reach_ASB07!(Rsets, Ω0, U, Φ, N, δ, max_order)
-    end # timing
+    # preallocate output flowpipe
+    NSTEPS = round(Int, T / δ)
+    F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
-    Rsol = ReachSolution(Rsets, 𝑂)
-
-    # ==========
-    # Projection
-    # ==========
-
-    if 𝑂[:project_reachset]
-        info("Projection...")
-        Rsol = @timing project(Rsol)
+    if hasinput(ivp_norm)
+        error("not implemented")
     end
 
-    return Rsol
+    reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X)
+
+    return Flowpipe(F)
 end

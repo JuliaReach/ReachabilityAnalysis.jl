@@ -124,3 +124,23 @@ end
 function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
     return LazySets.Projection(X, collect(vars))
 end
+
+#const Partition{}
+
+# concrete decomposition using a uniform block partition
+#using LazySets.Arrays: projection_matrix
+
+#const Partition{N, VT} = AbstractVector{VT} where {VT<:AbstractVector{Int}}
+
+function _decompose(X::LazySet{N},
+                    partition::AbstractVector{<:AbstractVector{Int}},
+                    set_type::Type{ST}) where {N, ST<:LazySet}
+    n = dim(X)
+    result = Vector{ST}(undef, length(partition))
+
+    @inbounds for (i, block) in enumerate(partition)
+        πS = Projection(S, block)
+        result[i] = overapproximate(πS, X)
+    end
+    return CartesianProductArray(result)
+end

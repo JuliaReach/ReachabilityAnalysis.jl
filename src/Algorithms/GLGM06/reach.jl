@@ -3,21 +3,21 @@
 # ================
 
 # X is the universal set => it is ignored
-function reach_homog!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                      Ω0::Zonotope{N, VN, MN},
-                      Φ::AbstractMatrix,
-                      NSTEPS::Integer,
-                      δ::Float64,
-                      max_order::Integer,
-                      ::Universe) where {N, VN, MN}
+function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                             Ω0::Zonotope{N, VN, MN},
+                             Φ::AbstractMatrix,
+                             NSTEPS::Integer,
+                             δ::Float64,
+                             max_order::Integer,
+                             X::Universe) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
-    F[1] = ReachSet(Ω0, Δt)
+    Ω0red = reduce_order(Ω0, max_order)
+    F[1] = ReachSet(Ω0red, Δt)
 
     k = 2
     while k <= NSTEPS
         Rₖ = linear_map(Φ, set(F[k-1]))
-        Rₖ = reduce_order(Rₖ, max_order)
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -27,21 +27,21 @@ end
 
 # early termination checking for intersection with the invariant
 # TODO : check stopping criterion
-function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
-                      Ω0::Zonotope{N},
-                      Φ::AbstractMatrix,
-                      NSTEPS::Integer,
-                      δ::Float64,
-                      max_order::Integer,
-                      X::LazySet) where {N}
+function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N}}},
+                             Ω0::Zonotope{N},
+                             Φ::AbstractMatrix,
+                             NSTEPS::Integer,
+                             δ::Float64,
+                             max_order::Integer,
+                             X::LazySet) where {N}
     # initial reach set
     Δt = zero(N) .. δ
-    F[1] = ReachSet(Ω0, Δt)
+    Ω0red = reduce_order(Ω0, max_order)
+    F[1] = ReachSet(Ω0red, Δt)
 
     k = 2
     while k <= NSTEPS
         Rₖ = linear_map(Φ, set(F[k-1]))
-        Rₖ = reduce_order(Rₖ, max_order)
         is_intersection_empty(X, Rₖ) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
@@ -53,6 +53,7 @@ function reach_homog!(F::Vector{ReachSet{N, Zonotope{N}}},
     return F
 end
 
+#=
 # in-place computations
 function reach_homog_inplace!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                               Ω0::Zonotope{N, VN, MN},
@@ -76,6 +77,7 @@ function reach_homog_inplace!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     end
     return F
 end
+=#
 
 # ==================
 # Inhomogeneous case
@@ -83,13 +85,13 @@ end
 
 # TODO: add invariant information
 
-function reach_inhomog!(F::Vector{ReachSet{N, <:Zonotope{N}}},
-                        Ω0::Zonotope{N},
-                        Φ::AbstractMatrix,
-                        NSTEPS::Integer,
-                        δ::Float64,
-                        max_order::Integer,
-                        U::LazySet) where {N}
+function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, <:Zonotope{N}}},
+                               Ω0::Zonotope{N},
+                               Φ::AbstractMatrix,
+                               NSTEPS::Integer,
+                               δ::Float64,
+                               max_order::Integer,
+                               U::LazySet) where {N}
     # initial reach set
     Δt = zero(N) .. δ
     F[1] = ReachSet(Ω0, Δt)
