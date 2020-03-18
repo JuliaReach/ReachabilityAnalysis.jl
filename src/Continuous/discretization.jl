@@ -1,41 +1,40 @@
+"""
+    abstract type AbstractApproximationModel end
+
+Abstract supertype for all approximation models.
+"""
 abstract type AbstractApproximationModel end
-const AAModel = AbstractApproximationModel
 
-export ForwardApproximation,
-       BackwardApproximation,
-       DiscreteApproximation,
-       CorrectionHullApproximation
-
-@with_kw struct ForwardApproximation <: AbstractApproximationModel
-    exp_method::String="base"
-    set_operations::String="lazy"
-    sih_method::String="concrete"
-    phi2_method::String="base"
+@with_kw struct Forward <: AbstractApproximationModel
+    exp_method::Symbol=:base
+    set_operations::Symbol=:lazy
+    sih_method::Symbol=:concrete
+    phi2_method::Symbol=:base
 end
 
-@with_kw struct BackwardApproximation <: AbstractApproximationModel
-    exp_method::String="base"
-    set_operations::String="lazy"
-    sih_method::String="concrete"
-    phi2_method::String="base"
+@with_kw struct Backward <: AbstractApproximationModel
+    exp_method::Symbol=:base
+    set_operations::Symbol=:lazy
+    sih_method::Symbol=:concrete
+    phi2_method::Symbol=:base
 end
 
 # no bloating
-struct DiscreteApproximation <: AbstractApproximationModel
+struct Discrete <: AbstractApproximationModel
 #
 end
 
-@with_kw struct CorrectionHullApproximation <: AbstractApproximationModel
+@with_kw struct CorrectionHull <: AbstractApproximationModel
    order::Int=10
-   exp_method::String="base"
+   exp_method::Symbol=:base
 end
 
 function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
-    return ForwardApproximation()
+    return Forward()
 end
 
 # homogeneous case
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::ForwardApproximation)
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     ϕ = _exp(A, δ, alg.exp_method)
@@ -54,7 +53,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::ForwardApprox
 end
 
 # inhomogeneous case
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::ForwardApproximation)
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
@@ -91,7 +90,7 @@ _correction_hull(A::AbstractMatrix, t, p) = correction_hull(IntervalMatrix(A), t
 # implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
 # where F is the correction (interval) matrix
 # if A is an interval matix, the exponential is overapproximated
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHullApproximation)
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHull)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
