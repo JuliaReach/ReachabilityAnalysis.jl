@@ -42,7 +42,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::Forward)
     Phi2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
 
     # "forward" algorithm, uses E⁺
-    @assert alg.sih_method == "concrete"
+    @assert alg.sih_method == :concrete
     # TODO : specialize, add option to compute the concrete linear map
     Einit = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull((A * A) * X0))
 
@@ -62,7 +62,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::Forward)
     A_abs = _elementwise_abs(A)
     Phi2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
 
-    @assert alg.sih_method == "concrete"
+    @assert alg.sih_method == :concrete
     # TODO : specialize, add option to compute the concrete linear map
     Einit = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull((A * A) * X0))
 
