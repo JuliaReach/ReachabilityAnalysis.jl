@@ -17,7 +17,7 @@ TODO
 @with_kw struct BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK, PT} <: AbstractContinuousPost
     δ::N
     setrep::ST  # remove ?
-    approx_model::AM=ForwardApproximation(sih_method="concrete", exp_method="base", phi2_method="base")
+    approx_model::AM=ForwardApproximation(sih_method=:concrete, exp_method=:base, phi2_method=:base)
     vars::IDX
     block_indices::BLK
     row_blocks::RBLK

@@ -8,6 +8,12 @@ export
     TMJets,
     ASB07,
 
+# Approximation models
+    Forward,
+    Backward,
+    Discrete,
+    CorrectionHull,
+
 # Flowpipes
     flowpipe,
     Flowpipe,
