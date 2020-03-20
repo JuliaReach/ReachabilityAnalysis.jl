@@ -13,6 +13,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     k = 2
     while k <= NSTEPS
         Rₖ = overapproximate(Φ * set(F[k-1]), Zonotope)
+        Rₖ = reduce_order(Rₖ, max_order)
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
