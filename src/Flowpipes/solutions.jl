@@ -32,14 +32,14 @@ struct CheckSolution{PT, ST<:AbstractPost} <: AbstractSolution
     satisfied::Bool
     vidx::Int
     vtspan::TimeInterval
-    solver::ST
+    alg::ST
 end
 
 property(sol::CheckSolution) = sol.property
 satisfied(sol::CheckSolution) = sol.satisfied
 violation_index(sol::CheckSolution) = sol.vidx
 violation_tspan(sol::CheckSolution) = sol.vtspan
-solver(sol::CheckSolution) = sol.solver
+alg(sol::CheckSolution) = sol.alg
 
 # ================================
 # Reachability problem
@@ -58,13 +58,13 @@ sets, and a dictionary of options.
 """
 struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
     F::FT
-    solver::ST
+    alg::ST
     ext::Dict{Symbol, Any} # dictionary used by extensions
 end
 
 # constructor from empty extension dictionary
-function ReachSolution(F::FT, solver::ST) where {FT<:AbstractFlowpipe, ST<:AbstractPost}
-    return ReachSolution(F, solver, Dict{Symbol, Any}())
+function ReachSolution(F::FT, alg::ST) where {FT<:AbstractFlowpipe, ST<:AbstractPost}
+    return ReachSolution(F, alg, Dict{Symbol, Any}())
 end
 
 # getter functions
@@ -95,7 +95,7 @@ Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
 (sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
 
 function overapproximate(sol::ReachSolution{<:Flowpipe}, args...)
-    return ReachSolution(overapproximate(sol.F, args...), sol.solver, sol.ext)
+    return ReachSolution(overapproximate(sol.F, args...), sol.alg, sol.ext)
 end
 
 #=
@@ -194,7 +194,7 @@ sets, and a dictionary of options.
 """
 struct ReachSolution{SN, RSN<:AbstractReachSet{SN}, T} <: AbstractSolution
     Xk::Flowpipe
-    solver::T
+    alg::T
 end
 
 # constructor with no options
