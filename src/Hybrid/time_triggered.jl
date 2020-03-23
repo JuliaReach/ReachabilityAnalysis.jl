@@ -1,29 +1,80 @@
+# ===============================================
 # Hybrid systems with time-triggered transitions
-struct HybridAutomatonWithClockedLinearDynamics <: AbstractHybridSystem
-#
+# ===============================================
+
+abstract type AbstractHybridAutomatonwithClockedLinearDynamics <: AbstractHybridSystem end
+const AHACLD = AbstractHybridAutomatonwithClockedLinearDynamics
+
+"""
+    HACLD1{T<:AbstractSystem, ST, MT, N} <: AHACLD
+
+Single-mode hybrid automaton with clocked linear dynamic.
+
+### Fields
+
+- `sys`     -- system
+- `X0`      -- initial states
+- `rmap`    -- reset map
+- `Tsample` -- sampling time
+- `ζ`       -- jitter
+
+### Notes
+
+This type is parametric in:
+
+- `T`  -- system type
+- `ST` -- type of the initial states
+- `MT` -- type of the reset map
+- `N`  -- numeric type, for the sampling time and jitter
+
+The following getter functions are available:
+
+- `system`         -- returns the associated system
+- `initial_state`  -- returns the set of initial states
+- `reset_map`      -- returns the reset map
+- `sampling_time`  -- retuns the sampling time
+- `jitter`         -- returns the jitter
+"""
+struct HACLD1{T<:AbstractSystem, ST, MT, N} <: AHACLD
+    sys::T
+    X0::ST
+    rmap::MT
+    Tsample::N
+    ζ::N
 end
 
-const HACLD = HybridAutomatonWithClockedLinearDynamics
+MathematicalSystems.system(hs::HACLD1) = hs.sys
+MathematicalSystems.initial_state(hs::HACLD1) = hs.x0
+reset_map(hs::HACLD1) = hs.rmap
+sampling_time(hs::HACLD1) = hs.Tsample
+jitter(hs::HACLD1) = hs.ζ
 
 # tstart       Ts-ζ          tend
 # [-------------|-------------]
-function solve_hybrid(S::AbstractSystem, X0, reset_map;
-                      Tsample=0.75, max_jumps=100, ζ=0.005,
-                      t0=0.0, alg=GLGM06(δ=0.0003))
+function post(ha::HACLD1,
+              max_jumps::Int,
+              tspan::TimeInterval,
+              alg::AbstractContinuousPost)
 
-    # resuelvo primer tramo
+    @unpack sys, X0, rmap, Tsample, ζ = ha
+    δ = step_size(alg)
+
+    # solve first interval
     prob = IVP(S, X0)
-    sol = solve(prob, T=2Tsample, alg=alg)
+    NLOW = floor(Int, (Tsample - ζ)/δ)
+    NHIGH = ceil(Int, (Tsample + ζ)/δ)
+    sol = solve(prob, NSTEPS=NHIGH, alg=alg)
 
     # preallocate output vector of flowpipes
     # TODO: usar un tipo eg. HybridFlowpipe
     FT = typeof(flowpipe(sol))
     out = Vector{FT}()
 
-    for k in 1:max_jumps
+    @inbounds for k in 1:max_jumps
 
-        # agrego segmento
+        # add time interval
         aux = Vector(sol(0 .. Tsample-ζ))
+
         # porque sol devuelve un view, despues
         # voy a hacer un flowpipe de view
         push!(out, shift(Flowpipe(aux), t0))
@@ -32,7 +83,7 @@ function solve_hybrid(S::AbstractSystem, X0, reset_map;
 
         Xend = sol(Tsample-ζ .. Tsample+ζ) |> Vector |> Flowpipe |> Convexify |> set
 
-        sol = solve(IVP(S, reset_map(Xend)), T=2Tsample, alg=alg)
+        sol = solve(IVP(S, reset_map(Xend)), T=Tsample + ζ + δ, alg=alg)
 
     end
 

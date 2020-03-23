@@ -293,6 +293,11 @@ function normalize(system::AbstractSystem)
     throw(ArgumentError("the system type $(typeof(system)) is currently not supported"))
 end
 
+# convenience extension to IVPs
+function normalize(ivp::InitialValueProblem)
+    return IVP(normalize(system(ivp)), initial_state(ivp))
+end
+
 # "black-box" like systems are not normalized; algorithms should handle this
 normalize(S::Union{BBCS, CBBCS, CBBCCS}) = S
 

@@ -32,3 +32,4 @@ end
 
 include("post.jl")
 include("reach.jl")
+#include("check.jl")
