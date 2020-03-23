@@ -3,8 +3,14 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
 
     @unpack δ, approx_model, max_order = alg
 
-    # get time horizon from the time span imposing that it is of the form (0, T)
-    T = _get_T(tspan, check_zero=true, check_positive=true)
+    if haskey(kwargs, :NSTEPS)
+        NSTEPS = kwargs[:NSTEPS]
+        T = NSTEPS * δ
+    else
+        # get time horizon from the time span imposing that it is of the form (0, T)
+        T = _get_T(tspan, check_zero=true, check_positive=true)
+        NSTEPS = ceil(Int, T / δ)
+    end
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)
@@ -49,14 +55,8 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
         Ω0 = Zonotope(c0, G0)
     end
 
-    ZT = typeof(Ω0)
-
     # preallocate output flowpipe
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-    else
-        NSTEPS = round(Int, T / δ)
-    end
+    ZT = typeof(Ω0)
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
     if got_homogeneous

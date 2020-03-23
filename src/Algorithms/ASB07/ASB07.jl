@@ -4,5 +4,7 @@
     max_order::Int=10
 end
 
+step_size(alg::ASB07) = alg.δ
+
 include("post.jl")
 include("reach.jl")

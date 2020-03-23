@@ -3,7 +3,7 @@
 # ======================================
 
 """
-    solve(ivp::IVP{<:AbstractContinuousSystem}, tspan, alg; kwargs...)
+    solve(ivp::IVP, tspan, alg; kwargs...)
 
 Solves the initial-value problem defined by `ivp` over the time span `tspan`,
 using the algorihm `alg`. If no algorithm is given, a default algorithm is chosen.
@@ -21,11 +21,12 @@ See the online documentation for examples.
 
 A solution type.
 """
-function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
+function solve(ivp::IVP, args...; kwargs...)
     # preliminary checks
     _check_dim(ivp)
 
     # retrieve time span and continuous post operator algorithm
+    # tspan is of the form (0, 0) if NSTEPS was specified
     tspan = _get_tspan(args...; kwargs...)
     cpost = _get_cpost(ivp, tspan, args...; kwargs...)
 
@@ -40,7 +41,8 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
         # sol = ReachSolution(F, cpost, traces) # new solution type?
     else
         # wrap the flowpipe and algorithm in a solution structure
-        sol = ReachSolution(F, cpost)
+        sol = F # TODO fix
+        #sol = ReachSolution(F, cpost)
     end
 
     return sol
@@ -96,6 +98,7 @@ end
 function _get_tspan(args...; kwargs...)
     got_tspan = haskey(kwargs, :tspan)
     got_T = haskey(kwargs, :T)
+    got_NSTEPS = haskey(kwargs, :NSTEPS)
 
     if got_tspan && got_T
         throw(ArgumentError("cannot parse the time horizon `T` and the " *
@@ -108,10 +111,14 @@ function _get_tspan(args...; kwargs...)
     elseif got_T
         T = kwargs[:T]
         tspan = (zero(T), T)
+    elseif got_NSTEPS
+        tspan = (0.0, 0.0) # defined a posteriori
     else
-        throw(ArgumentError("the time span has not been specified, " *
-            "but is required for `solve`; you should specify either the time horizon " *
-            "`T=...` or the time span `tspan=...`"))
+        tspan = (0.0, 0.0)
+        # TODO: find better solution such that the error message is used
+        #throw(ArgumentError("the time span has not been specified, " *
+        #    "but is required for `solve`; you should specify either the time horizon " *
+        #    "`T=...` or the time span `tspan=...`"))
     end
     return TimeInterval(tspan[1], tspan[2])
 end
@@ -170,6 +177,12 @@ function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kw
         elseif haskey(kwargs, :N)
             N = kwargs[:N]
             δ = diam(tspan) / N
+        elseif haskey(kwargs, :NSTEPS)
+            NSTEPS = kwargs[:NSTEPS]
+            δ = diam(tspan) / NSTEPS
+        elseif haskey(kwargs, :num_steps)
+            num_steps = kwargs[:num_steps]
+            δ = diam(tspan) / num_steps
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end

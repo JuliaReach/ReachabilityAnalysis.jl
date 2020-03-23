@@ -319,6 +319,10 @@ end
 
 array(fp::HybridFlowpipe) = fp.Xk
 
+# TODO
+tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
+# ETC
+
 #=
 #dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
 # Base.getindex

@@ -6,14 +6,13 @@ abstract type AbstractHybridAutomatonwithClockedLinearDynamics <: AbstractHybrid
 const AHACLD = AbstractHybridAutomatonwithClockedLinearDynamics
 
 """
-    HACLD1{T<:AbstractSystem, ST, MT, N} <: AHACLD
+    HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
 
 Single-mode hybrid automaton with clocked linear dynamic.
 
 ### Fields
 
 - `sys`     -- system
-- `X0`      -- initial states
 - `rmap`    -- reset map
 - `Tsample` -- sampling time
 - `ζ`       -- jitter
@@ -23,68 +22,75 @@ Single-mode hybrid automaton with clocked linear dynamic.
 This type is parametric in:
 
 - `T`  -- system type
-- `ST` -- type of the initial states
 - `MT` -- type of the reset map
 - `N`  -- numeric type, for the sampling time and jitter
 
 The following getter functions are available:
 
 - `system`         -- returns the associated system
-- `initial_state`  -- returns the set of initial states
 - `reset_map`      -- returns the reset map
 - `sampling_time`  -- retuns the sampling time
 - `jitter`         -- returns the jitter
 """
-struct HACLD1{T<:AbstractSystem, ST, MT, N} <: AHACLD
+struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
     sys::T
-    X0::ST
     rmap::MT
     Tsample::N
     ζ::N
 end
 
 MathematicalSystems.system(hs::HACLD1) = hs.sys
-MathematicalSystems.initial_state(hs::HACLD1) = hs.x0
+MathematicalSystems.statedim(hs::HACLD1) = statedim(hs.sys)
+#MathematicalSystems.initial_state(hs::HACLD1) = hs.x0
 reset_map(hs::HACLD1) = hs.rmap
 sampling_time(hs::HACLD1) = hs.Tsample
 jitter(hs::HACLD1) = hs.ζ
+#initial_time(hs::HACLD1) = hs.t0
 
 # tstart       Ts-ζ          tend
 # [-------------|-------------]
-function post(ha::HACLD1,
-              max_jumps::Int,
-              tspan::TimeInterval,
-              alg::AbstractContinuousPost)
+function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
 
-    @unpack sys, X0, rmap, Tsample, ζ = ha
+    X0 = initial_state(ivp)
+    ha = system(ivp)
+    @unpack sys, rmap, Tsample, ζ = ha
+    t0 = tstart(tspan)
     δ = step_size(alg)
 
+    if haskey(kwargs, :max_jumps)
+        max_jumps = kwargs[:max_jumps]
+    else
+        # define max_jumps using the time horizon tspan
+        T = tend(tspan)
+        # TODO: double check
+        max_jumps = ceil(Int, T / (Tsample - ζ))
+    end
+
     # solve first interval
-    prob = IVP(S, X0)
-    NLOW = floor(Int, (Tsample - ζ)/δ)
+    prob = IVP(sys, X0)
+    NLOW = ceil(Int, (Tsample - ζ)/δ)
     NHIGH = ceil(Int, (Tsample + ζ)/δ)
-    sol = solve(prob, NSTEPS=NHIGH, alg=alg)
+    sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
     # preallocate output vector of flowpipes
-    # TODO: usar un tipo eg. HybridFlowpipe
+    # TODO: use a custom flowpipe type, eg. HybridFlowpipe
     FT = typeof(flowpipe(sol))
     out = Vector{FT}()
 
-    @inbounds for k in 1:max_jumps
+    @inbounds for k in 1:max_jumps+1
 
         # add time interval
-        aux = Vector(sol(0 .. Tsample-ζ))
+        aux = sol[1:NLOW] # Vector(sol(0 .. Tsample-ζ))
 
-        # porque sol devuelve un view, despues
-        # voy a hacer un flowpipe de view
         push!(out, shift(Flowpipe(aux), t0))
 
         t0 += tstart(aux[end])
 
-        Xend = sol(Tsample-ζ .. Tsample+ζ) |> Vector |> Flowpipe |> Convexify |> set
+        # Xend = sol(Tsample-ζ .. Tsample+ζ) |> Vector |> Flowpipe |> Convexify |> set
+        Xend = sol[NLOW:NHIGH] |> Vector |> Flowpipe |> Convexify |> set
 
-        sol = solve(IVP(S, reset_map(Xend)), T=Tsample + ζ + δ, alg=alg)
-
+        prob = IVP(sys, rmap(Xend))
+        sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
     end
 
     return out
