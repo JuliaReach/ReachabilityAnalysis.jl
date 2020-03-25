@@ -1,19 +1,21 @@
 # Extension of some common LazySets operations, but without new allocations.
 
-function scale!(α::Real, Z::AbstractZonotope)
-    c = center(Z)
-    G = genmat(Z)
+# in-place scale of a zonotope
+function scale!(α::Real, Z::Zonotope)
+    c = Z.center
+    G = Z.generators
     c .= α .* c
     G .= α .* G
-    return Zonotope(c, G)
+    return Z
 end
 
-function linear_map!(M::AbstractMatrix, Z::AbstractZonotope)
-    c = center(Z)
-    G = genmat(Z)
-    c .= M * c
-    G .= M .* G
-    return Z
+# in-place linear map of a zonotope
+function linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
+    c = Z.center
+    G = Z.generators
+    Zout.center .= M * c
+    Zout.generators .= M .* G
+    return Zout
 end
 
 # fallback implementation for conversion (if applicable) or overapproximation
@@ -25,6 +27,10 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     else
         return convert(T, overapproximate(X, Hyperrectangle))
     end
+end
+
+function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
+    return _convert_or_overapproximate(T, X)
 end
 
 # fallback concrete projection
@@ -143,4 +149,92 @@ function _decompose(X::LazySet{N},
         result[i] = overapproximate(πS, X)
     end
     return CartesianProductArray(result)
+end
+
+# =========================
+# Overapproximation
+# =========================
+
+function _overapproximate(lm::LinearMap{N, <:AbstractZonotope{N}, NM, <:AbstractIntervalMatrix{NM}},
+                            ::Type{<:Zonotope}) where {N<:Real, NM}
+
+    Mc, Ms = _split(matrix(lm))
+    Z = LazySets.set(lm)
+    c = center(Z)
+    G = genmat(Z)
+    _overapproximate_interval_linear_map(Mc, Ms, c, G)
+end
+
+function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
+                                              Ms::AbstractMatrix{N},
+                                              c::AbstractVector{N},
+                                              G::AbstractMatrix{N}) where {N}
+    n = length(c)
+    m = size(G, 2) # number of generators
+    c_oa = Mc * c
+    Ggens = Mc * G
+
+    Dv = zeros(N, n, n)
+    Gt = transpose(G)
+    @inbounds for i in 1:n
+        Dv[i, i] = abs(c[i])
+        for j in 1:m
+            Dv[i, i] += abs(Gt[j, i])
+        end
+    end
+    G_oa = hcat(Ggens, Ms * Dv)
+
+    return Zonotope(c_oa, G_oa)
+end
+
+function _overapproximate_interval_linear_map(Mc::StaticArray{Tuple{q, n}, T, 2},
+                                              Ms::StaticArray{Tuple{q, n}, T, 2},
+                                              c::AbstractVector{N},
+                                              G::AbstractMatrix{N}) where {N, q, n, T}
+    m = size(G, 2) # number of generators
+    c_oa = Mc * c
+    Ggens = Mc * G
+
+    Dv = zeros(MMatrix{n, n, N})
+    c_abs = abs.(c)
+    Gt = transpose(G)
+    @inbounds for i in 1:n
+        Dv[i, i] = c_abs[i]
+        for j in 1:m
+            Dv[i, i] += abs(Gt[j, i])
+        end
+    end
+    G_oa = hcat(Ggens, Ms * Dv)
+
+    return Zonotope(c_oa, G_oa)
+end
+
+function _split_fallback!(A::IntervalMatrix{T}, C, S) where {T}
+    m, n = size(A)
+    @inbounds for j in 1:n
+        for i in 1:m
+            itv = A[i, j]
+            radius = (sup(itv) - inf(itv)) / T(2)
+            C[i, j] = inf(itv) + radius
+            S[i, j] = radius
+        end
+    end
+    return C, S
+end
+
+function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, MT<:AbstractMatrix{IT}}
+    m, n = size(A)
+    C = Matrix{T}(undef, m, n)
+    S = Matrix{T}(undef, m, n)
+    _split_fallback!(A, C, S)
+    return C, S
+end
+
+function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, ST, MT<:StaticArray{ST, IT}}
+    m, n = size(A)
+    # TODO: use MMatrix and convert to SMatrix afterwards?
+    C = Matrix{T}(undef, m, n)
+    S = Matrix{T}(undef, m, n)
+    _split_fallback!(A, C, S)
+    return SMatrix{m, n, T}(C), SMatrix{m, n, T}(S)
 end

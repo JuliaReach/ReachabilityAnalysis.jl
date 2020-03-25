@@ -30,5 +30,8 @@ See [xxx] and [yyy]
     max_order::Int=10
 end
 
+step_size(alg::GLGM06) = alg.δ
+
 include("post.jl")
 include("reach.jl")
+#include("check.jl")

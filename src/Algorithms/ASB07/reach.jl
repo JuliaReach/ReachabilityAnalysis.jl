@@ -1,3 +1,6 @@
+# computes overapproximation of Φ * set(F[k-1]) with a zonotope
+# this operations adds n generators, hence we use an order reduction
+# function
 function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             Ω0::Zonotope{N, VN, MN},
                             Φ::AbstractMatrix,
@@ -7,16 +10,21 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             X::Universe) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
-    Ω0red = reduce_order(Ω0, max_order)
-    F[1] = ReachSet(Ω0red, Δt)
+    @inbounds F[1] = ReachSet(Ω0, Δt)
 
-    k = 2
-    while k <= NSTEPS
-        Rₖ = overapproximate(Φ * set(F[k-1]), Zonotope)
+    # split the interval matrix into center and radius
+    Φc, Φs = _split(Φ)
+
+    k = 1
+    @inbounds while k <= NSTEPS - 1
+        Zk = set(F[k])
+        ck = Zk.center
+        Gk = Zk.generators
+        Rₖ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
         Rₖ = reduce_order(Rₖ, max_order)
         Δt += δ
-        F[k] = ReachSet(Rₖ, Δt)
         k += 1
+        F[k] = ReachSet(Rₖ, Δt)
     end
     return F
 end

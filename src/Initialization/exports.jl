@@ -41,4 +41,7 @@ export
 
 # Lazy operations
     Projection,
-    Shift
+    Shift,
+
+# Hybrid types
+    HACLD1
