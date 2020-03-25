@@ -1,19 +1,21 @@
 # Extension of some common LazySets operations, but without new allocations.
 
-function scale!(α::Real, Z::AbstractZonotope)
-    c = center(Z)
-    G = genmat(Z)
+# in-place scale of a zonotope
+function scale!(α::Real, Z::Zonotope)
+    c = Z.center
+    G = Z.generators
     c .= α .* c
     G .= α .* G
-    return Zonotope(c, G)
+    return Z
 end
 
-function linear_map!(M::AbstractMatrix, Z::AbstractZonotope)
-    c = center(Z)
-    G = genmat(Z)
-    c .= M * c
-    G .= M .* G
-    return Z
+# in-place linear map of a zonotope
+function linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
+    c = Z.center
+    G = Z.generators
+    Zout.center .= M * c
+    Zout.generators .= M .* G
+    return Zout
 end
 
 # fallback implementation for conversion (if applicable) or overapproximation
@@ -180,7 +182,7 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
             Dv[i, i] += abs(Gt[j, i])
         end
     end
-    G_oa = hcat(Ggens, Dv)
+    G_oa = hcat(Ggens, Ms * Dv)
 
     return Zonotope(c_oa, G_oa)
 end
@@ -202,7 +204,7 @@ function _overapproximate_interval_linear_map(Mc::StaticArray{Tuple{q, n}, T, 2}
             Dv[i, i] += abs(Gt[j, i])
         end
     end
-    G_oa = hcat(Ggens, Dv)
+    G_oa = hcat(Ggens, Ms * Dv)
 
     return Zonotope(c_oa, G_oa)
 end
@@ -230,6 +232,7 @@ end
 
 function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, ST, MT<:StaticArray{ST, IT}}
     m, n = size(A)
+    # TODO: use MMatrix and convert to SMatrix afterwards?
     C = Matrix{T}(undef, m, n)
     S = Matrix{T}(undef, m, n)
     _split_fallback!(A, C, S)

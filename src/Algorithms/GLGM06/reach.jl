@@ -93,9 +93,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     return F
 end
 
-# ================================================
 # TODO: static case with a state invariant
-# ================================================
 
 
 # OLD
