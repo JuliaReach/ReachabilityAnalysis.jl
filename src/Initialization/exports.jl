@@ -34,6 +34,7 @@ export
     tstart,
     tend,
     tspan,
+    vars_idx, # call this vars ?
 
 # Concrete operations
     project,

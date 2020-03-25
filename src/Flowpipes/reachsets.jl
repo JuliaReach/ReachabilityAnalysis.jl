@@ -262,7 +262,7 @@ By assumption the coordinates in this reach-set are associated to the integers
 """
 struct ReachSet{N, ST<:LazySet{N}} <: AbstractLazyReachSet{N}
     X::ST
-    Δt::IA.Interval{Float64}
+    Δt::TimeInterval
 end
 
 # abstract reach set interface functions
