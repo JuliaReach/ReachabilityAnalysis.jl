@@ -210,14 +210,11 @@ abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
 # Implement LazySets interface
 LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
-
 LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
-
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
-
 LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
 
 function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
@@ -237,9 +234,9 @@ function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Int
     return project(R, Tuple(vars))
 end
 
-# ================================
+# ================================================================
 # Reach set
-# ================================
+# ================================================================
 
 """
     ReachSet{N, ST<:LazySet{N}} <: AbstractLazyReachSet{N}
@@ -588,3 +585,45 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     Zi = overapproximate(fX̂, Zonotope)
     return ReachSet(Zi, Δt)
 end
+
+# ================================================================
+# Template reach set
+# ================================================================
+
+"""
+    TemplateReachSet{N, VN<:AbstractVector{N}} <: AbstractReachSet{N}
+
+Reach set that stores the support function of a set at a give set of directions.
+
+### Notes
+
+The parameter `N` refers to the numerical type of the representation.
+This reach-set implicitly represents a set by a set of directions and support
+functions. `set(R::TemplateReachSet)` returns a polyhedron in half-space
+representation.
+
+Apart from the getter functions inherited from the `AbstractReachSet` interface,
+the following methods are available:
+
+- `directions(R)`  -- return the set of directions normal to the faces of this reach-set
+- `sup_func(R)`    -- return the vector of support function evaluations
+- `sup_func(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
+"""
+struct TemplateReachSet{N, VN<:AbstractVector{N}} <: AbstractReachSet{N}
+    dirs::Vector{VN}
+    sf::Vector{N}
+    Δt::TimeInterval
+end
+
+# implement abstract reachset interface
+set(R::TemplateReachSet) = HPolyhedron([HalfSpace(R.dirs[i], rs.sf[i]) for i in eachindex(R.sf)])
+setrep(R::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
+tspan(R::TemplateReachSet) = rs.Δt
+tstart(R::TemplateReachSet) = inf(rs.Δt)
+tend(R::TemplateReachSet) = sup(rs.Δt)
+dim(R::ReachSet) = length(first(dirs))
+vars_idx(R::ReachSet) = Tuple(Base.OneTo(dim(R)),)
+
+directions(R::TemplateReachSet) = R.dirs
+sup_func(R::TemplateReachSet) = R.sf
+sup_func(R::TemplateReachSet, i) = R.sf[i]

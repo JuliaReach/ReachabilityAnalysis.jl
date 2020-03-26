@@ -27,6 +27,7 @@ export
     SparseReachSet,
     ShiftedReachSet,
     TaylorModelReachSet,
+    TemplateReachSet,
 
 # Getter functions
     set,
