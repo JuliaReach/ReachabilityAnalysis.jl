@@ -23,10 +23,10 @@ The following types of systems are supported.
 
 ### Implemented
 
-- Continuous ODEs with linear dynamics (GLGM06)
-- Continuous ODEs with linear dynamics and parametric uncertainty (ASB07)
-- Continuous ODEs with non-linear dynamics (TMJets)
-- Hybrid systems with clocked linear dynamics (HACLD1 with GLGM06 or ASB07)
+- Continuous ODEs with linear dynamics (GLGM06) :heavy_check_mark:
+- Continuous ODEs with linear dynamics and parametric uncertainty (ASB07) :heavy_check_mark:
+- Continuous ODEs with non-linear dynamics (TMJets) :heavy_check_mark:
+- Hybrid systems with clocked linear dynamics (HACLD1 with GLGM06 or ASB07) :heavy_check_mark:
 
 ### Planned
 
