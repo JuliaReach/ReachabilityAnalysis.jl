@@ -34,7 +34,7 @@ The following types of systems are supported.
 - Hybrid systems with piecweise-affine dynamics
 - Hybrid systems with non-linear dynamics
 
-Research credit and references to the scientific papers presenting the algorithms
+Research credit and full references to the scientific papers presenting the algorithms
 implemented in this package can be found in the source code and in
 the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
 
@@ -46,76 +46,6 @@ and to leave it, type `<backspace>`), and enter:
 
 ```julia
 pkg> add ReachabilityAnalysis
-```
-
-## Examples
-
-We suggest to explore the Examples section of the online documentation for examples
-illustrating how to use the library.
-
-### Linear
-
-```julia
-using ReachabilityAnalysis, Plots
-
-prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 1)
-sol = solve(prob, tspan=(0.0, 1.0))
-
-plot(sol, vars=(0, 1))
-```
-
-### Linear with uncertain inputs
-
-(motor or a problem from the problem library)
-
-```julia
-using ReachabilityAnalysis, Plots
-
-A = [1 0; 0 -1]
-B = [1, 1]
-X = Universe(n)
-U = Interval(-0.1, 0.1)
-X0 = ...
-prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0)
-sol = solve(prob, T=1.0, GLGM06())
-
-plot(sol, vars=(1, 2))
-```
-
-### Nonlinear
-
-(van der pol?)
-
-```julia
-using ReachabilityAnalysis, Plots
-
-A = [1 0; 0 -1]
-B = [1, 1]
-X = Universe(n)
-U = Interval(-0.1, 0.1)
-X0 = ...
-prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0)
-sol = solve(prob, T=1.0, GLGM06())
-
-plot(sol, vars=(1, 2))
-```
-
-### Hybrid with time-triggred transitions
-
-(bouncing ball?)
-
-```julia
-using ReachabilityAnalysis, Plots
-
-A = [1 0; 0 -1]
-B = [1, 1]
-X = Universe(n)
-U = Interval(-0.1, 0.1)
-X0 = ...
-prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0)
-sol = solve(prob, T=1.0, GLGM06())
-
-plot(sol, vars=(1, 2))
 ```
 
 ## Citation
