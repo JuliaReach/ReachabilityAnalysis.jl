@@ -19,15 +19,23 @@ uncertain parameters or non-deterministic inputs.
 
 ## Features
 
-The following types of systems are supported:
+The following types of systems are supported.
 
-- Continuous ODEs with linear dynamics
-- Continuous ODEs with non-linear dynamics
+### Implemented
+
+- Continuous ODEs with linear dynamics (GLGM06)
+- Continuous ODEs with linear dynamics and parametric uncertainty (ASB07)
+- Continuous ODEs with non-linear dynamics (TMJets)
+- Hybrid systems with clocked linear dynamics (HACLD1 with GLGM06 or ASB07)
+
+### Planned
+
+- Continuous ODEs with linear dynamics (BFFPSV18)
 - Hybrid systems with piecweise-affine dynamics
 - Hybrid systems with non-linear dynamics
 
-References to the scientific papers presenting the algorithms implemented in this
-package can be found in the source code and in
+Research credit and references to the scientific papers presenting the algorithms
+implemented in this package can be found in the source code and in
 the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
 
 ## Installation
@@ -56,7 +64,7 @@ sol = solve(prob, tspan=(0.0, 1.0))
 plot(sol, vars=(0, 1))
 ```
 
-### Higher-order linear
+### Linear with uncertain inputs
 
 (motor or a problem from the problem library)
 
@@ -92,7 +100,7 @@ sol = solve(prob, T=1.0, GLGM06())
 plot(sol, vars=(1, 2))
 ```
 
-### Hybrid
+### Hybrid with time-triggred transitions
 
 (bouncing ball?)
 
