@@ -35,8 +35,8 @@ The following types of systems are supported.
 - Hybrid systems with non-linear dynamics
 
 Research credit and full references to the scientific papers presenting the algorithms
-implemented in this package can be found in the source code and in
-the [online documentation](http://juliareach.github.io/ReachabilityAnalysis.jl/dev/).
+implemented in this package can be found in the source code for each algorithm and in the
+[References](https://mforets.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
 ## Installation
 
