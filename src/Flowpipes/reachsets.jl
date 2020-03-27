@@ -622,7 +622,7 @@ tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = length(first(R.dirs))
-vars_idx(R::ReachSet) = Tuple(Base.OneTo(dim(R)),)
+vars_idx(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
 
 directions(R::TemplateReachSet) = R.dirs
 sup_func(R::TemplateReachSet) = R.sf

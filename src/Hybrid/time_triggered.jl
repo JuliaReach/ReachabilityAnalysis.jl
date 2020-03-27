@@ -63,13 +63,24 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
         # define max_jumps using the time horizon tspan
         T = tend(tspan)
         # TODO: double check
-        max_jumps = ceil(Int, T / (Tsample - ζ))
+        α = T / (Tsample - ζ)
+        if α <= 0
+            error("inconsistent choice of parameters: T / (Tsample - ζ) = $α, " *
+                  "but it should be positive")
+        end
+        max_jumps = ceil(Int, α)
     end
 
     # solve first interval
     prob = IVP(sys, X0)
-    NLOW = ceil(Int, (Tsample - ζ)/δ)
-    NHIGH = ceil(Int, (Tsample + ζ)/δ)
+    αlow = (Tsample - ζ)/δ
+    NLOW = ceil(Int, αlow)
+    if NLOW == 0
+        error("inconsistent choice of parameters: (Tsample - ζ)/δ = $αlow " *
+              "but it should be positive")
+    end
+    αhigh = (Tsample + ζ)/δ
+    NHIGH = ceil(Int, αhigh)
     sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
     # preallocate output vector of flowpipes
