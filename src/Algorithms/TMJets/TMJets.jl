@@ -6,10 +6,12 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
 
 ### Fields
 
-- `max_steps` -- maximum number of steps in the validated integration
-- `abs_tol`   -- absolute tolerance
-- `orderT`    -- order of the Taylor model in time
-- `orderQ`    -- order of the Taylor models for jet transport variales
+- `max_steps` -- (optional, default: `1000`) maximum number of steps in the
+                 validated integration ``x' = f(x)``
+- `abs_tol`   -- (optional, default: `1e-10`) absolute tolerance
+- `orderT`    -- (optional, default: `8`) order of the Taylor model in time
+- `orderQ`    -- (optional, default: `2`) order of the Taylor models for jet
+                 transport variales
 """
 @with_kw struct TMJets{N} <: AbstractContinuousPost
     max_steps::Int=1000

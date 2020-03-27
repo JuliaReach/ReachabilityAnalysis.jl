@@ -616,12 +616,12 @@ struct TemplateReachSet{N, VN<:AbstractVector{N}} <: AbstractReachSet{N}
 end
 
 # implement abstract reachset interface
-set(R::TemplateReachSet) = HPolyhedron([HalfSpace(R.dirs[i], rs.sf[i]) for i in eachindex(R.sf)])
+set(R::TemplateReachSet) = HPolyhedron([HalfSpace(R.dirs[i], R.sf[i]) for i in eachindex(R.sf)])
 setrep(R::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
-tspan(R::TemplateReachSet) = rs.Δt
-tstart(R::TemplateReachSet) = inf(rs.Δt)
-tend(R::TemplateReachSet) = sup(rs.Δt)
-dim(R::ReachSet) = length(first(dirs))
+tspan(R::TemplateReachSet) = R.Δt
+tstart(R::TemplateReachSet) = inf(R.Δt)
+tend(R::TemplateReachSet) = sup(R.Δt)
+dim(R::TemplateReachSet) = length(first(R.dirs))
 vars_idx(R::ReachSet) = Tuple(Base.OneTo(dim(R)),)
 
 directions(R::TemplateReachSet) = R.dirs
