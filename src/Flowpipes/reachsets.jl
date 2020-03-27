@@ -610,13 +610,14 @@ the following methods are available:
 - `sup_func(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
 """
 struct TemplateReachSet{N, VN<:AbstractVector{N}} <: AbstractReachSet{N}
-    dirs::Vector{VN}
+    dirs::Vector{VN} # TODO: consider more general types eg. AbstractDirections ?
     sf::Vector{N}
     Δt::TimeInterval
 end
 
 # implement abstract reachset interface
-set(R::TemplateReachSet) = HPolyhedron([HalfSpace(R.dirs[i], R.sf[i]) for i in eachindex(R.sf)])
+# TODO: use HPolyhedron or HPolytope if the set is bounded or not
+set(R::TemplateReachSet) = HPolytope([HalfSpace(R.dirs[i], R.sf[i]) for i in eachindex(R.sf)])
 setrep(R::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
@@ -627,3 +628,9 @@ vars_idx(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
 directions(R::TemplateReachSet) = R.dirs
 sup_func(R::TemplateReachSet) = R.sf
 sup_func(R::TemplateReachSet, i) = R.sf[i]
+
+function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
+    Δt = tspan(R)
+    sup_func = map(d -> ρ(d, R), dirs)
+    return TemplateReachSet(dirs, sup_func, Δt)
+end
