@@ -6,17 +6,17 @@ Abstract supertype for all approximation models.
 abstract type AbstractApproximationModel end
 
 @with_kw struct Forward <: AbstractApproximationModel
-    exp_method::Symbol=:base
-    set_operations::Symbol=:lazy
-    sih_method::Symbol=:concrete
-    phi2_method::Symbol=:base
+    exp::Symbol=:base
+    setops::Symbol=:lazy
+    sih::Symbol=:concrete
+    phi2::Symbol=:base
 end
 
 @with_kw struct Backward <: AbstractApproximationModel
-    exp_method::Symbol=:base
-    set_operations::Symbol=:lazy
-    sih_method::Symbol=:concrete
-    phi2_method::Symbol=:base
+    exp::Symbol=:base
+    set::Symbol=:lazy
+    sih::Symbol=:concrete
+    phi2::Symbol=:base
 end
 
 # no bloating
@@ -26,7 +26,7 @@ end
 
 @with_kw struct CorrectionHull <: AbstractApproximationModel
    order::Int=10
-   exp_method::Symbol=:base
+   exp::Symbol=:base
 end
 
 function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
@@ -41,24 +41,24 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
-    Φ = _exp(A, δ, alg.exp_method)
+    Φ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
-    P2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
+    P2A_abs = Φ₂(A_abs, δ, alg.phi2)
 
-    Ω0 = _discretize(A, X0, Φ, A_abs, P2A_abs, alg, Val(alg.set_operations))
+    Ω0 = _discretize(A, X0, Φ, A_abs, P2A_abs, alg, Val(alg.setops))
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
 end
 
 # change set_operations / setrep to -> ConvexHull (?)
-function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:zonotope})
+function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:lazy})
 
     # "forward" algorithm, uses E⁺
-    if alg.sih_method == :concrete
+    if alg.sih == :concrete
         # here the arguments to each symmetric_interval_hull are lazy
         Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
-    elseif alg.sih_method == :lazy
+    elseif alg.sih == :lazy
         Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
     end
 
@@ -69,10 +69,10 @@ end
 function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:Interval})
 
     # "forward" algorithm, uses E⁺
-    if alg.sih_method == :concrete
+    if alg.sih == :concrete
         # here the arguments to each symmetric_interval_hull are lazy
         Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
-    elseif alg.sih_method == :lazy
+    elseif alg.sih == :lazy
         Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
     end
 
@@ -89,11 +89,11 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::Forward)
     X0 = initial_state(ivp)
     X = stateset(ivp)
     U = next_set(inputset(ivp), 1)
-    ϕ = _exp(A, δ, alg.exp_method)
+    ϕ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
-    Phi2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
+    Phi2A_abs = Φ₂(A_abs, δ, alg.phi2)
 
-    @assert alg.sih_method == :concrete
+    @assert alg.sih == :concrete
     # TODO : specialize, add option to compute the concrete linear map
     Einit = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull((A * A) * X0))
 
@@ -125,19 +125,18 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHul
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
-    @unpack order, exp_method = alg
 
     X0z = _convert_or_overapproximate(Zonotope, X0)
     if A isa IntervalMatrix
-        Φ = exp_overapproximation(A, δ, order)
+        Φ = exp_overapproximation(A, δ, alg.order)
         Y = overapproximate(Φ * X0z, Zonotope)
     else
-        Φ = _exp(A, δ, exp_method)
+        Φ = _exp(A, δ, alg.exp)
         Y = linear_map(Φ, X0z)
     end
 
     H = overapproximate(CH(X0z, Y), Zonotope)
-    F = _correction_hull(A, δ, order)
+    F = _correction_hull(A, δ, alg.order)
     R = overapproximate(F*X0z, Zonotope)
     Ω0 = minkowski_sum(H, R)
 

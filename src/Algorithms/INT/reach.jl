@@ -2,7 +2,7 @@
 # Homogeneous case
 # ================
 
-function reach_homog_INT20!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
+function reach_homog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
                             Ω0::Interval{N, IA.Interval{N}},
                             Φ::N,
                             NSTEPS::Integer,

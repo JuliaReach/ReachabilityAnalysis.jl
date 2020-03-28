@@ -1,6 +1,6 @@
 # this algorithms assumes that the initial-value problem
 # is one-dimensional
-function post(alg::INT20, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
+function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
     @assert statedim(ivp) == 1 "this algrithm only applies to one-dimensional systems, " *
                                "but this system is $(statedim(ivp))-dimensional"
@@ -38,13 +38,13 @@ function post(alg::INT20, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     F = Vector{ReachSet{N, IT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_INT20!(F, Ω0, Φ, NSTEPS, δ, X)
+        reach_homog_INT!(F, Ω0, Φ, NSTEPS, δ, X)
     else
         error("not implemented yet")
         U = inputset(ivp_discr)
         if isa(U, LazySet)
             U = overapproximate(U, Interval)
-            reach_inhomog_INT20!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
+            reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
         else
             error("inputs of type $(typeof(U)) cannot be handled yet")
         end
