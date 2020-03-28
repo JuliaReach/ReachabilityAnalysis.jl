@@ -24,6 +24,7 @@ See [xxx] and [yyy]
 """
 @with_kw struct GLGM06{N, AM} <: AbstractContinuousPost
     δ::N
+    # TODO: use set-operations option
     # nota: la opcion set_operations="zonotope" es ignorada (?)
     approx_model::AM=Forward(sih_method=:concrete, exp_method=:base,
                              phi2_method=:base, set_operations=:zonotope)

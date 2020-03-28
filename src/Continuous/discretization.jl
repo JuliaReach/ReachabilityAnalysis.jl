@@ -1,5 +1,5 @@
 """
-    abstract type AbstractApproximationModel end
+    AbstractApproximationModel
 
 Abstract supertype for all approximation models.
 """
@@ -33,26 +33,57 @@ function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
     return Forward()
 end
 
-# homogeneous case
+# ============================================================
+# Forward Approximation: Homogeneous case
+# ============================================================
+
 function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
-    ϕ = _exp(A, δ, alg.exp_method)
+
+    Φ = _exp(A, δ, alg.exp_method)
     A_abs = _elementwise_abs(A)
-    Phi2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
+    P2A_abs = Φ₂(A_abs, δ, alg.phi2_method)
 
-    # "forward" algorithm, uses E⁺
-    @assert alg.sih_method == :concrete
-    # TODO : specialize, add option to compute the concrete linear map
-    Einit = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull((A * A) * X0))
-
-    Ω0 = ConvexHull(X0, ϕ * X0 ⊕ Einit)
+    Ω0 = _discretize(A, X0, Φ, A_abs, P2A_abs, alg, Val(alg.set_operations))
     X = stateset(ivp)
-    Sdiscr = ConstrainedLinearDiscreteSystem(ϕ, X)
+    Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
 end
 
-# inhomogeneous case
+# change set_operations / setrep to -> ConvexHull (?)
+function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:zonotope})
+
+    # "forward" algorithm, uses E⁺
+    if alg.sih_method == :concrete
+        # here the arguments to each symmetric_interval_hull are lazy
+        Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
+    elseif alg.sih_method == :lazy
+        Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
+    end
+
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
+    return Ω0
+end
+
+function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:Interval})
+
+    # "forward" algorithm, uses E⁺
+    if alg.sih_method == :concrete
+        # here the arguments to each symmetric_interval_hull are lazy
+        Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
+    elseif alg.sih_method == :lazy
+        Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
+    end
+
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
+    return Ω0
+end
+
+# ============================================================
+# Forward Approximation: Inhomogeneous case
+# ============================================================
+
 function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
@@ -76,9 +107,9 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::Forward)
     return InitialValueProblem(S_discr, Ω0)
 end
 
-# =================
+# ===================================================
 # Correction hull
-# =================
+# ===================================================
 
 using IntervalMatrices: correction_hull
 
