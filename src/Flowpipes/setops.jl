@@ -29,6 +29,18 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     end
 end
 
+#=
+# no-op
+function _convert_or_overapproximate2(T::Type{<:Zonotope}, X::Zonotope)
+     return X
+end
+=#
+#=
+function _convert_or_overapproximate2(T::Type{Zonotope}, X::Interval)
+    return convert(T, X)
+end
+=#
+
 function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
@@ -237,4 +249,11 @@ function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, ST, MT<:StaticArray{
     S = Matrix{T}(undef, m, n)
     _split_fallback!(A, C, S)
     return SMatrix{m, n, T}(C), SMatrix{m, n, T}(S)
+end
+
+function _symmetric_interval_hull(x::Interval)
+    abs_inf = abs(min(x))
+    abs_sup = abs(max(x))
+    bound = max(abs_sup, abs_inf)
+    return Interval(-bound, bound)
 end

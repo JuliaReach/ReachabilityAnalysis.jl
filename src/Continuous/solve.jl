@@ -186,7 +186,11 @@ function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kw
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
-        opC = GLGM06(δ=δ)
+        if statedim(ivp) == 1
+            opC = INT(δ=δ)
+        else
+            opC = GLGM06(δ=δ)
+        end
     else
         opC = TMJets()
     end

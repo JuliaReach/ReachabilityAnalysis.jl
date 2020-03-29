@@ -7,6 +7,7 @@ export
     BFFPSV18,
     TMJets,
     ASB07,
+    INT,
 
 # Approximation models
     Forward,

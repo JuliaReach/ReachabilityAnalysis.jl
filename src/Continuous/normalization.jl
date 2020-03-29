@@ -377,6 +377,11 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
     end
 end
 
+# fix type inference
+function _normalize(ivp::IVP{LCS{N, IdentityMultiple{N}}, Interval{N, IA.Interval{N}}}) where {N}
+    return IVP(CLCS(ivp.s.A, Universe(1)), ivp.x0)
+end
+
 @inline isidentity(B::IdentityMultiple) = B.M.λ == oneunit(B.M.λ)
 
 _wrap_invariant(X::LazySet, n::Int) = X
