@@ -15,7 +15,7 @@ uncertain parameters or non-deterministic inputs.
 ## Resources
 
 - [Reference manual](https://mforets.github.io/ReachabilityAnalysis.jl/dev/)
-- [Citation]()
+- [Citation](#citation)
 
 ## Features
 
