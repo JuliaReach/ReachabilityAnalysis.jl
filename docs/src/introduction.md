@@ -20,7 +20,7 @@ computing suitable over-approximations (or under-approximations) of it.
 We define the reachable set associated to a time interval $[0, δ]$,
 also known as the *flowpipe*, as
 ```math
-\mathcal{F}(0 .. δ) = ⋃_{t \in [0, δ]} \mathcal{R}(δ).
+\mathcal{F}([0, δ]) = ⋃_{t \in [0, δ]} \mathcal{R}(t).
 ```
 Reachability methods are used to compute rigorous approximations of the flowpipe
 for continuous or hybrid systems, in bounded time or unbounded time horizon.
