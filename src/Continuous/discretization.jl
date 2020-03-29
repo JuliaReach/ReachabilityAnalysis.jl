@@ -80,6 +80,34 @@ function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:Inter
     return Ω0
 end
 
+function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ::Float64, alg::Forward) where {N}
+    A = state_matrix(ivp)
+    @assert size(A, 1) == 1
+    #@assert alg.setops == :Interval
+    X0 = initial_state(ivp)
+
+    a = A[1, 1]
+    aδ = a * δ
+    Φ = exp(aδ)
+    A_abs = abs(a)
+
+    # use inverse method
+    @assert !iszero(a) "the given matrix should be invertible"
+
+    # a_sqr = a * a
+    #P2A_abs = (1/a_sqr) * (Φ - one(N) - aδ)
+    #Einit = (P2A_abs * a_sqr) * RA._symmetric_interval_hull(X0).dat
+
+    #P2A_abs = (1/a_sqr) * (Φ - one(N) - aδ)
+    Einit = (Φ - one(N) - aδ) * _symmetric_interval_hull(X0).dat
+
+    Ω0 = Interval(hull(X0.dat, Φ * X0.dat + Einit))
+    X = stateset(ivp)
+    # the system constructor creates a matrix
+    Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(Sdiscr, Ω0)
+end
+
 # ============================================================
 # Forward Approximation: Inhomogeneous case
 # ============================================================

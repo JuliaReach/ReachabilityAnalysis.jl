@@ -3,11 +3,11 @@
 # ================
 
 function reach_homog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
-                            Ω0::Interval{N, IA.Interval{N}},
-                            Φ::N,
-                            NSTEPS::Integer,
-                            δ::Float64,
-                            X::Universe) where {N}
+                          Ω0::Interval{N, IA.Interval{N}},
+                          Φ::N,
+                          NSTEPS::Integer,
+                          δ::Float64,
+                          X::Universe) where {N}
 
     # initial reach set
     Δt = zero(N) .. δ

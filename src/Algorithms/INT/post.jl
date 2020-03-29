@@ -1,9 +1,9 @@
-# this algorithms assumes that the initial-value problem
-# is one-dimensional
+# this algorithms assumes that the initial-value problem is one-dimensional
 function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @assert statedim(ivp) == 1 "this algrithm only applies to one-dimensional systems, " *
-                               "but this system is $(statedim(ivp))-dimensional"
+    n = statedim(ivp)
+    n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
+                    "systems, but this initial-value problem is $n-dimensional"))
 
     @unpack δ, approx_model = alg
 
