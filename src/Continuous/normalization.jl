@@ -1,10 +1,13 @@
 #
 # TODO: fix normalization to use getter functions from MathematicalSystems
 #
-export add_dimension,
-       next_set,
-       iscontinuoussystem,
-       ishybridsystem
+#export add_dimension,
+#       next_set,
+#       iscontinuoussystem,
+#       ishybridsystem
+
+import Base: *
+import LazySets.constrained_dimensions
 
 # common aliases for system's names
 const LCS = LinearContinuousSystem
@@ -39,11 +42,8 @@ iscontinuoussystem(T::Type{<:CBBCCS}) = true
 ishybridsystem(T::Type{<:AbstractSystem}) = false
 ishybridsystem(T::Type{<:HybridSystem}) = true
 
-export LCS, LDS, CLCS, CLDS, CLCCS, CLCDS, CACCS, CACDS, CACS, CADS, IVP, BBCS,
-       CBBCS, CBBCCS
-
-import Base: *
-import LazySets.constrained_dimensions
+#export LCS, LDS, CLCS, CLDS, CLCCS, CLCDS, CACCS, CACDS, CACS, CADS, IVP, BBCS,
+#       CBBCS, CBBCCS
 
 *(M::AbstractMatrix, input::ConstantInput) =  ConstantInput(M * input.U)
 
