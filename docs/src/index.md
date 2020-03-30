@@ -47,9 +47,8 @@ Reachability analysis has applications in diverse domains such as:
   for any admissible value of the non-deterministic inputs, initial conditions
   or noise.
 
-- **Controller synthesis:** Finding parameter sets of controllers tha satisfy
+- **Controller synthesis:** Finding parameter sets of controllers that satisfy
   safety or performance constraints.
-
 
 - **Deep neural network verification:** Providing formal guarantees for the network
   behavior subject to perturbations in the inputs, e.g. detecting that small
@@ -59,7 +58,7 @@ We refer to the technical literature for further applications.
 
 ## Installation
 
-In Julia v1.0 or later you can install `ReachabilityAnalysis` from the Pkg REPL (press `]` in the Julia REPL the to enter pkg> mode):
+In Julia v1.0 or later you can install `ReachabilityAnalysis` from the Pkg REPL (press `]` in the Julia REPL to enter the `pkg>` mode):
 
 ```julia
 pkg> add ReachabilityAnalysis
