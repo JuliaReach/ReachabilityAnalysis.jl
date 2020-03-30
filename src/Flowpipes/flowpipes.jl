@@ -137,7 +137,7 @@ function (fp::AbstractFlowpipe)(t::Number)
             if i < length(Xk) && t ∈ tspan(Xk[i+1])
                 return view(Xk, i:i+1)
             else
-                return fp[i]
+                return fp[i] # same as X
             end
         end
     end
@@ -332,12 +332,35 @@ function HybridFlowpipe(Fk::Vector{FT}, ext::Dict{Symbol, Any}) where {N, RT<:Ab
 end
 
 array(fp::HybridFlowpipe) = fp.Fk
+flowpipe(fp::HybridFlowpipe) = fp # fp.Fk ?
+setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 
 # indexing: fp[j, i]
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 
 # assumes that the flowpipes are contiguous in time
 tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
+
+function (fp::HybridFlowpipe)(t::Number)
+    Fk = array(fp)
+    @inbounds for (i, F) in enumerate(Fk)
+        for (j, X) in enumerate(F)
+            if t ∈ tspan(X) # exit on the first occurrence
+                if j < length(F) && t ∈ tspan(F[i+1])
+                    return view(Fk, j:j+1, i)
+                else
+                    return X
+                end
+            end
+        end
+    end
+    throw(ArgumentError("time $t does not belong to the time span, " *
+                        "$(tspan(fp)), of the given flowpipe"))
+end
+
+# TODO:
+# function (fp::Flowpipe)(dt::TimeInterval)
+#
 
 #=
 # TODO:

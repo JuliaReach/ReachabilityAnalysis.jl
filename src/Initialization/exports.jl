@@ -39,6 +39,7 @@ export
     tend,
     tspan,
     vars_idx, # >> call this vars ?
+    sup_func,
 
 # Concrete operations
     project,
