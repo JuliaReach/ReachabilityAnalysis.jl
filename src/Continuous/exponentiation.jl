@@ -1,8 +1,9 @@
+using LinearAlgebra: checksquare
+using LazySets.Arrays: isinvertible
+
 # ==========================
 # Exponentiation functions
 # ==========================
-
-using LinearAlgebra: checksquare
 
 # general case: convert to Matrix
 @inline _exp(A::AbstractMatrix) = exp(Matrix(A))
@@ -16,7 +17,7 @@ using LinearAlgebra: checksquare
 # pade approximants (requires Expokit.jl)
 @inline _exp_pade(A::SparseMatrixCSC) = padm(A)
 
-# TODO: add this method in MathematicalSystems
+# TODO: use MathematicalSystems#202
 @inline _exp(A::IdentityMultiple) = IdentityMultiple(exp(A.M.λ), size(A, 1))
 
 """
@@ -218,8 +219,6 @@ end
     return IdentityMultiple(α, size(A, 1))
 end
 
-using LazySets.Arrays: isinvertible
-
 @inline function _Φ₂_inverse(A::AbstractMatrix, δ::Float64)
     @assert isinvertible(A) "the given matrix should be invertible"
     Ainv = inv(A)
@@ -227,6 +226,7 @@ using LazySets.Arrays: isinvertible
     In = Matrix(one(N)*I, n, n)
     return Ainv^2 * (exp(δ*A) - In - δ * A)
 end
+
 # ================
 # Absolute values
 # ================

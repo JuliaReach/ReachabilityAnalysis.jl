@@ -1,6 +1,8 @@
 export
 # Solve API
     solve,
+    normalization,
+    discretization,
 
 # Algorithms
     GLGM06,
@@ -36,7 +38,7 @@ export
     tstart,
     tend,
     tspan,
-    vars_idx, # call this vars ?
+    vars_idx, # >> call this vars ?
 
 # Concrete operations
     project,

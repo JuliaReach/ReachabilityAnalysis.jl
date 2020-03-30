@@ -141,7 +141,7 @@ end
 
 using IntervalMatrices: correction_hull
 
-# TODO: add to IntervalMatrices
+# TODO: se IntervalMatrices#149
 _correction_hull(A::IntervalMatrix, t, p) = correction_hull(A, t, p)
 _correction_hull(A::AbstractMatrix, t, p) = correction_hull(IntervalMatrix(A), t, p)
 
