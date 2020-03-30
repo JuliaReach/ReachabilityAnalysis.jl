@@ -7,10 +7,11 @@
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-Reachability Analysis is concerned with computing rigorous approximations of the set
-of states reachable by a dynamical system. The scope of the package are systems
+Reachability analysis is concerned with computing rigorous approximations of the set
+of states reachable by a dynamical system. In the scope of this package are systems
 modeled by ordinary differential equations (ODEs) with uncertain initial states,
-uncertain parameters or non-deterministic inputs.
+uncertain parameters or non-deterministic inputs. The package also considers the
+extension to so-called hybrid systems where the dynamics changes with discrete events.
 
 ## Resources
 
@@ -31,7 +32,7 @@ The following types of systems are supported.
 ### Planned
 
 - Continuous ODEs with linear dynamics (BFFPSV18)
-- Hybrid systems with piecweise-affine dynamics
+- Hybrid systems with piecewise-affine dynamics
 - Hybrid systems with non-linear dynamics
 
 Research credit and full references to the scientific papers presenting the algorithms
