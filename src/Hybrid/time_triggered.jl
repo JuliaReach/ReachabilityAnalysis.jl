@@ -87,6 +87,7 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     # TODO: use a custom flowpipe type, eg. HybridFlowpipe
     FT = typeof(flowpipe(sol))
     out = Vector{FT}()
+    sizehint!(out, max_jumps+1)
 
     @inbounds for k in 1:max_jumps+1
 
@@ -104,5 +105,5 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
         sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
     end
 
-    return out
+    return HybridFlowpipe(out)
 end
