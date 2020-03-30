@@ -41,6 +41,6 @@ makedocs(
 
 # Deploy built documentation from Travis.
 deploydocs(
-    repo = "github.com/mforets/ReachabilityAnalysis.jl.git",
+    repo = "github.com/JuliaReach/ReachabilityAnalysis.jl.git",
     push_preview=true,
 )
