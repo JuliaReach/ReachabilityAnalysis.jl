@@ -1,9 +1,9 @@
 # ReachabilityAnalysis.jl
 
-[![Build Status](https://travis-ci.org/mforets/ReachabilityAnalysis.jl.svg?branch=master)](https://travis-ci.org/mforets/ReachabilityAnalysis.jl)
-[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://mforets.github.io/ReachabilityAnalysis.jl/dev/)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/mforets/ReachabilityAnalysis.jl/blob/master/LICENSE)
-[![Code coverage](http://codecov.io/github/mforets/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/mforets/ReachabilityAnalysis.jl?branch=master)
+[![Build Status](https://travis-ci.org/JuliaReach/ReachabilityAnalysis.jl.svg?branch=master)](https://travis-ci.org/JuliaReach/ReachabilityAnalysis.jl)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/juliareach/ReachabilityAnalysis.jl/blob/master/LICENSE)
+[![Code coverage](http://codecov.io/github/juliareach/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/juliareach/ReachabilityAnalysis.jl?branch=master)
 [![Join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
@@ -14,7 +14,7 @@ uncertain parameters or non-deterministic inputs.
 
 ## Resources
 
-- [Reference manual](https://mforets.github.io/ReachabilityAnalysis.jl/dev/)
+- [Reference manual](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
 - [Citation](#citation)
 
 ## Features
@@ -36,7 +36,7 @@ The following types of systems are supported.
 
 Research credit and full references to the scientific papers presenting the algorithms
 implemented in this package can be found in the source code for each algorithm and in the
-[References](https://mforets.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
+[References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
 ## Installation
 
