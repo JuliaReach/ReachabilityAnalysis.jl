@@ -141,10 +141,6 @@ end
 # Correction hull
 # ===================================================
 
-# TODO: se IntervalMatrices#149
-#_correction_hull(A::IntervalMatrix, t, p) = correction_hull(A, t, p)
-#_correction_hull(A::AbstractMatrix, t, p) = correction_hull(IntervalMatrix(A), t, p)
-
 # homogeneous case x' = Ax, x in X
 # implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
 # where F is the correction (interval) matrix
