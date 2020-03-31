@@ -17,8 +17,8 @@ using LazySets.Arrays: isinvertible
 # pade approximants (requires Expokit.jl)
 @inline _exp_pade(A::SparseMatrixCSC) = padm(A)
 
-# TODO: use MathematicalSystems#202
-@inline _exp(A::IdentityMultiple) = IdentityMultiple(exp(A.M.λ), size(A, 1))
+# exponential of an identity multiple, defined in MathematicalSystems
+@inline _exp(A::IdentityMultiple) = exp(A)
 
 """
     _exp(A::AbstractMatrix, δ::Float64, method::Symbol)
