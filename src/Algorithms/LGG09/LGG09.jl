@@ -28,7 +28,7 @@ export LGG09
     δ::Float64=1e-2
     discretization::String="forward"
     sih_method::String="concrete"
-    exp_method::String "base"
+    exp_method::String="base"
 end
 
 include("reach.jl")
