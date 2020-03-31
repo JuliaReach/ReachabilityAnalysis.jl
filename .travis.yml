@@ -23,6 +23,4 @@ notifications:
   email: false
 
 after_success:
-  - julia --color=yes --project=test/coverage/ -e 'using Pkg; Pkg.instantiate()'
-  - julia --color=yes --project=test/coverage/ test/coverage/coverage.jl
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
