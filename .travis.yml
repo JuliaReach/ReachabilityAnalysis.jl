@@ -6,13 +6,14 @@ os:
   - osx
 
 julia:
+  - 1.0
   - 1.3
   - nightly
 
 matrix:
   fast_finish: true
   allow_failures:
-    - julia: nightly  # development versions
+    - julia: nightly
 
 # avoid duplicate tests in PRs
 branches:
