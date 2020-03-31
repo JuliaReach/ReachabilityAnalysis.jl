@@ -1,8 +1,8 @@
 export
 # Solve API
     solve,
-    normalization,
-    discretization,
+    normalize,
+    discretize,
 
 # Algorithms
     GLGM06,
