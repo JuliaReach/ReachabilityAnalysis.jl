@@ -346,25 +346,9 @@ Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 # assumes that the flowpipes are contiguous in time
 tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
 
+# first searches the flowpipe that contains `t` in its time-span, then the
+# corresponding reach-set
 function (fp::HybridFlowpipe)(t::Number)
-    Fk = array(fp)
-    @inbounds for (i, F) in enumerate(Fk)
-        for (j, X) in enumerate(F)
-            if t ∈ tspan(X) # exit on the first occurrence
-                if j < length(F) && t ∈ tspan(F[i+1])
-                    return view(Fk, j:j+1, i)
-                else
-                    return X
-                end
-            end
-        end
-    end
-    throw(ArgumentError("time $t does not belong to the time span, " *
-                        "$(tspan(fp)), of the given flowpipe"))
-end
-
-# faster version
-function _find(fp::HybridFlowpipe, t::Number)
     Fk = array(fp)
     i = 1
     while t ∉ tspan(Fk[i])
