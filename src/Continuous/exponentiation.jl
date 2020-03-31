@@ -18,7 +18,7 @@ using LazySets.Arrays: isinvertible
 @inline _exp_pade(A::SparseMatrixCSC) = padm(A)
 
 # TODO: use MathematicalSystems#202
-@inline _exp(A::IdentityMultiple) = IdentityMultiple(exp(A.M.λ), size(A, 1))
+@inline _exp(A::IdentityMultiple) = exp(A) # IdentityMultiple(exp(A.M.λ), size(A, 1))
 
 """
     _exp(A::AbstractMatrix, δ::Float64, method::Symbol)

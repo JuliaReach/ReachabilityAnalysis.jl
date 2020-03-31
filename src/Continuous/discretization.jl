@@ -1,3 +1,5 @@
+using IntervalMatrices: correction_hull
+
 """
     AbstractApproximationModel
 
@@ -139,11 +141,9 @@ end
 # Correction hull
 # ===================================================
 
-using IntervalMatrices: correction_hull
-
 # TODO: se IntervalMatrices#149
-_correction_hull(A::IntervalMatrix, t, p) = correction_hull(A, t, p)
-_correction_hull(A::AbstractMatrix, t, p) = correction_hull(IntervalMatrix(A), t, p)
+#_correction_hull(A::IntervalMatrix, t, p) = correction_hull(A, t, p)
+#_correction_hull(A::AbstractMatrix, t, p) = correction_hull(IntervalMatrix(A), t, p)
 
 # homogeneous case x' = Ax, x in X
 # implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
@@ -164,48 +164,10 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHul
     end
 
     H = overapproximate(CH(X0z, Y), Zonotope)
-    F = _correction_hull(A, δ, alg.order)
+    F = correction_hull(A, δ, alg.order)
     R = overapproximate(F*X0z, Zonotope)
     Ω0 = minkowski_sum(H, R)
 
     ivp_discr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(ivp_discr, Ω0)
 end
-
-#=
-function discretization(P::IVP{<:LCS, <:LazySet}, δ)
-    # transforms to a CLCS (ConstrainedLinearContinuousSystem),
-    # where the constraint is the universal set
-    Snorm = Reachability.normalize(P.s)
-    Pnorm = InitialValueProblem(Snorm, P.x0)
-    return _discretize_homog(Pnorm, δ)
-end
-=#
-
-#==
-function discretization(P::IVP{<:CLCCS, <:LazySet}, δ)
-    # transforms to a Constrained Linear Control Continuous System
-    # in particular, inputs passed as a LazySet are wrapped into a
-    # ConstantInput and inputs passed as a vector are wrapped as a
-    # VaryingInput
-    Snorm = Reachability.normalize(P.s)
-    Pnorm = InitialValueProblem(Snorm, P.x0)
-    return _discretize_inhomog(Pnorm, δ)
-end
-=#
-
-# ======================
-
-#=
-function discretize(ivp_norm::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::ForwardApproximation)
-    error("to-do")
-end
-=#
-
-#=
-function discretize(S::AbstractContinuousSystem, X0::LazySet, δ::Float64,
-                    algo::AbstractApproximationModel=_default_approximation_model(ivp))
-    # ...
-    error("TODO")
-end
-=#
