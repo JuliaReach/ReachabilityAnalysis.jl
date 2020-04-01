@@ -232,12 +232,12 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     k = 2
     while k <= NSTEPS
         Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊, remove_zero_generators=false)
-        Rₖ = reduce_order(Rₖ, max_order)
+        Rₖ = _reduce_order(Rₖ, max_order)
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
         Wk₊ = minkowski_sum(Wk₊, linear_map(Φ_power_k, U), remove_zero_generators=false)
-        Wk₊ = reduce_order(Wk₊, max_order)
+        Wk₊ = _reduce_order(Wk₊, max_order)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
         copyto!(Φ_power_k, Φ_power_k_cache)

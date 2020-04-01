@@ -181,6 +181,11 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     end
 end
 
+# convenience alias to match the usage in the plot recipe
+function project(fp::Flowpipe; vars::NTuple{D, T}) where {D, T<:Integer}
+    return projct(fp, vars)
+end
+
 function Base.similar(fp::Flowpipe{N, RT}) where {N, RT<:AbstractReachSet{N}}
    return Flowpipe(Vector{RT}())
 end
@@ -351,8 +356,8 @@ function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
     return HybridFlowpipe(Vector{FT}())
 end
 
-# first searches the flowpipe that contains `t` in its time-span, then the
-# corresponding reach-set
+# first searches the flowpipe that contains `t` in its time-span, then searches
+# inside that flowpipe for the corresponding reach-set
 function (fp::HybridFlowpipe)(t::Number)
     Fk = array(fp)
     i = 1

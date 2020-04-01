@@ -335,7 +335,8 @@ end
 
 # interface functions
 set(R::SparseReachSet) = R.X
-setrep(R::SparseReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
+setrep(::SparseReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
+setrep(::Type{SparseReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
 tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt
@@ -488,7 +489,8 @@ end
 
 # interface functions
 @inline set(R::TaylorModelReachSet) = R.X
-@inline setrep(R::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}}
+@inline setrep(::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}}
+@inline setrep(::Type{TaylorModelReachSet{N}}) where {N} = Vector{TaylorModel1{TaylorN{N}, N}}
 @inline tstart(R::TaylorModelReachSet) = inf(R.Δt)
 @inline tend(R::TaylorModelReachSet) = sup(R.Δt)
 @inline tspan(R::TaylorModelReachSet) = R.Δt
@@ -618,7 +620,8 @@ end
 # implement abstract reachset interface
 # TODO: use HPolyhedron or HPolytope if the set is bounded or not
 set(R::TemplateReachSet) = HPolytope([HalfSpace(R.dirs[i], R.sf[i]) for i in eachindex(R.sf)])
-setrep(R::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
+setrep(::Type{TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
+setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
