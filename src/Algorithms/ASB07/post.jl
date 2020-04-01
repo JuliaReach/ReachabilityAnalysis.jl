@@ -27,7 +27,7 @@ function post(alg::ASB07,
 
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
-    Ω0 = reduce_order(Ω0, max_order)
+    Ω0 = _reduce_order(Ω0, max_order)
     c0 = center(Ω0)
     G0 = genmat(Ω0)
     N = eltype(Ω0)
