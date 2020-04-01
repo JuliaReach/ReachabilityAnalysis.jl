@@ -8,14 +8,14 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
 
 - `max_steps` -- (optional, default: `1000`) maximum number of steps in the
                  validated integration ``x' = f(x)``
-- `abs_tol`   -- (optional, default: `1e-10`) absolute tolerance
+- `abs_tol`   -- (optional, default: `1e-15`) absolute tolerance
 - `orderT`    -- (optional, default: `8`) order of the Taylor model in time
 - `orderQ`    -- (optional, default: `2`) order of the Taylor models for jet
                  transport variales
 """
 @with_kw struct TMJets{N} <: AbstractContinuousPost
-    max_steps::Int=1000
-    abs_tol::N=1e-10
+    max_steps::Int=2000
+    abs_tol::N=1e-15
     orderT::Int=8
     orderQ::Int=2
     # setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
