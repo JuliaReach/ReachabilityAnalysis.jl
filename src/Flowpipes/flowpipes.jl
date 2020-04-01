@@ -342,9 +342,14 @@ setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
+#Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 
 # assumes that the flowpipes are contiguous in time
 tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
+
+function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
+    return HybridFlowpipe(Vector{FT}())
+end
 
 # first searches the flowpipe that contains `t` in its time-span, then the
 # corresponding reach-set
