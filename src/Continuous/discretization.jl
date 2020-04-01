@@ -162,7 +162,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHul
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
     R = overapproximate(F*X0z, Zonotope)
-    Ω0 = minkowski_sum(H, R)
+    Ω0 = _minkowski_sum(H, R)
 
     ivp_discr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(ivp_discr, Ω0)

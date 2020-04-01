@@ -14,14 +14,18 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     # split the interval matrix into center and radius
     Φc, Φs = _split(Φ)
-
+    println("max order = $max_order")
     k = 1
     @inbounds while k <= NSTEPS - 1
         Zk = set(F[k])
         ck = Zk.center
         Gk = Zk.generators
         Rₖ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
-        Rₖ = reduce_order(Rₖ, max_order)
+        println(typeof(Rₖ))
+        println(order(Rₖ))
+        Rₖ = _reduce_order(Rₖ, max_order)
+        println(typeof(Rₖ))
+        println(order(Rₖ))
         Δt += δ
         k += 1
         F[k] = ReachSet(Rₖ, Δt)
