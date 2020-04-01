@@ -41,8 +41,7 @@ function solve(ivp::IVP, args...; kwargs...)
         # sol = ReachSolution(F, cpost, traces) # new solution type?
     else
         # wrap the flowpipe and algorithm in a solution structure
-        sol = F # TODO fix
-        #sol = ReachSolution(F, cpost)
+        sol = ReachSolution(F, cpost)
     end
 
     return sol

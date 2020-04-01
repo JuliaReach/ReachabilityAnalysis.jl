@@ -1,5 +1,11 @@
 # Extension of some common LazySets operations, but without new allocations.
 
+function _minkowski_sum(Z1::Zonotope{N}, Z2::Zonotope{N}) where {N}
+    cnew = center(Z1) + center(Z2)
+    Gnew = hcat(genmat(Z1), genmat(Z2))
+    return Zonotope(cnew, Gnew)
+end
+
 # in-place scale of a zonotope
 function scale!(α::Real, Z::Zonotope)
     c = Z.center
@@ -256,4 +262,41 @@ function _symmetric_interval_hull(x::Interval)
     abs_sup = abs(max(x))
     bound = max(abs_sup, abs_inf)
     return Interval(-bound, bound)
+end
+
+# TODO: review
+function _reduce_order(Z::Zonotope{N}, r::Union{Integer, Rational}) where {N<:Real}
+    c = Z.center
+    G = Z.generators
+    d, p = size(G)
+
+    if (r * d >= p) || r < 1
+        # do not reduce
+        return Z
+    end
+
+    # subset of ngens that are reduced
+    m = p - floor(Int, d * (r - 1))
+
+    h = zeros(N, p)
+    @inbounds for i in 1:p
+        Gi = view(G, :, i)
+        h[i] = norm(Gi, 1) - norm(Gi, Inf)
+    end
+    ind = sortperm(h)
+
+    Gbox = zeros(N, d, p)
+    for j in ind[1:m]
+        for i in 1:d
+            @inbounds Gbox[i, j] += abs(G[i, j])
+        end
+    end
+
+    if m < p
+        Gnotred = G[:, ind[m+1:end]]
+        Gred = hcat(Gnotred, Gbox)
+    else
+        Gred = Gbox
+    end
+    return Zonotope(c, Gred)
 end

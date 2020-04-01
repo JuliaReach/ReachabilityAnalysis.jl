@@ -28,6 +28,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     return F
 end
 
+#=
 # homogeneous case using StaticArrays
 # it is assumed that the order of Ω0 is at most max_order
 function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
@@ -62,6 +63,33 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
         copyto!(Φ_power_k, Φ_power_k_cache)
+    end
+    return F
+end
+=#
+
+function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                             Ω0::Zonotope{N, VN, MN},
+                             Φ::SMatrix,
+                             NSTEPS::Integer,
+                             δ::Float64,
+                             max_order::Integer,
+                             X::Universe) where {N, VN<:SVector, MN<:SMatrix}
+
+    # initial reach set
+    Δt = zero(N) .. δ
+    F[1] = ReachSet(Ω0, Δt)
+
+    k = 2
+    @inbounds while k <= NSTEPS
+        X = set(F[k-1])
+        ck = Φ * X.center
+        Gk = Φ * X.generators
+
+        Δt += δ
+        Zk = Zonotope(ck, Gk)
+        F[k] = ReachSet(Zk, Δt)
+        k += 1
     end
     return F
 end

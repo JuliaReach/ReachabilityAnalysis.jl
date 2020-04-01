@@ -32,6 +32,12 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     force_static = haskey(kwargs, :force_static) ? kwargs[:force_static] : false
     Ω0 = _reconvert(Ω0, Val(force_static))
 
+    if force_static
+        n = size(Φ, 1)
+        N = eltype(Ω0)
+        Φ = SMatrix{n, n, N, n*n}(Φ)
+    end
+
     # preallocate output flowpipe
     N = eltype(Ω0)
     ZT = typeof(Ω0)
@@ -61,9 +67,9 @@ end
 function _reconvert(Ω0::Zonotope{N, VN, <:Diagonal}, static::Val{true}) where {N, VN}
     c0 = Ω0.center
     G0 = Ω0.generators
-    n = size(Φ, 1) # dimension
+    n = size(G0, 1) # dimension
     p = size(G0, 2) # number of generators
-    Φ = SMatrix{n, n, N, n*n}(Φ)
+#   Φ = SMatrix{n, n, N, n*n}(Φ)
     c0_st = SVector{n, N}(c0)
     G0_st = SMatrix{n, p, N, n*p}(G0)
     Ω0 = Zonotope(c0_st, G0_st)

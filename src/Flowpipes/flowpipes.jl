@@ -40,6 +40,7 @@ end
 @inline Base.iterate(fp::AbstractFlowpipe) = iterate(array(fp))
 @inline Base.iterate(fp::AbstractFlowpipe, state) = iterate(array(fp), state)
 @inline Base.length(fp::AbstractFlowpipe) = length(array(fp))
+#@inline Base.size(fp::AbstractFlowpipe) = (length(array(fp)),)
 @inline Base.first(fp::AbstractFlowpipe) = getindex(fp, 1)
 @inline Base.last(fp::AbstractFlowpipe) = getindex(fp, lastindex(fp))
 @inline Base.firstindex(fp::AbstractFlowpipe) = 1
@@ -121,6 +122,8 @@ function Flowpipe(Xk::Vector{RT}) where {N, RT<:AbstractReachSet{N}}
 end
 
 Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
+Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
+Base.size(fp::Flowpipe) = (length(fp.Xk),)
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 
@@ -134,7 +137,7 @@ function (fp::AbstractFlowpipe)(t::Number)
             if i < length(Xk) && t ∈ tspan(Xk[i+1])
                 return view(Xk, i:i+1)
             else
-                return fp[i]
+                return X
             end
         end
     end
@@ -303,7 +306,8 @@ end
 """
     HybridFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
 
-Type that wraps a vector of flowpipes of possibly differen types.
+Type that wraps a vector of flowpipes of the same time and such that they are
+contiguous in time.
 
 ### Fields
 
@@ -311,19 +315,111 @@ Type that wraps a vector of flowpipes of possibly differen types.
 - `ext` -- (optional, default: empty) dictionary for extensions
 
 ### Notes
+
+This type assumes that the flowpipes are *contiguous* in time. This means that
+the final time the `i`-th flowpipe matches the start time of the `i+1`-th flowpipe.
 """
-struct HybridFlowpipe{N, D, FT<:AbstractFlowpipe} <: AbstractFlowpipe
-    Fk::VectorOfArray{N, D, Vector{FT}}
+struct HybridFlowpipe{N, RT<:AbstractReachSet{N}, FT<:AbstractFlowpipe} <: AbstractFlowpipe
+    Fk::VectorOfArray{RT, 2, Vector{FT}}
     ext::Dict{Symbol, Any}
 end
 
-array(fp::HybridFlowpipe) = fp.Xk
+function HybridFlowpipe(Fk::Vector{FT}) where {N, RT<:AbstractReachSet{N}, FT<:Flowpipe{N, RT}}
+    voa = VectorOfArray{RT, 2, Vector{FT}}(Fk)
+    ext = Dict{Symbol, Any}()
+    return HybridFlowpipe{N, RT, FT}(voa, ext)
+end
 
-# TODO
+function HybridFlowpipe(Fk::Vector{FT}, ext::Dict{Symbol, Any}) where {N, RT<:AbstractReachSet{N}, FT<:Flowpipe{N, RT}}
+    voa = VectorOfArray{RT, 2, Vector{FT}}(Fk)
+    return HybridFlowpipe{N, RT, FT}(voa, ext)
+end
+
+# interface functions
+array(fp::HybridFlowpipe) = fp.Fk
+flowpipe(fp::HybridFlowpipe) = fp
+setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+
+# indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
+Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
+#Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
+
+# assumes that the flowpipes are contiguous in time
 tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
-# ETC
+
+function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
+    return HybridFlowpipe(Vector{FT}())
+end
+
+# first searches the flowpipe that contains `t` in its time-span, then the
+# corresponding reach-set
+function (fp::HybridFlowpipe)(t::Number)
+    Fk = array(fp)
+    i = 1
+    while t ∉ tspan(Fk[i])
+        i += 1
+    end
+    i > length(Fk) && @goto error_msg
+    F = Fk[i]
+    @inbounds for (j, X) in enumerate(F)
+        if t ∈ tspan(X) # exit on the first occurrence
+            if j < length(F) && t ∈ tspan(F[i+1])
+                return view(Fk, j:j+1, i)
+            else
+                return X
+            end
+        end
+    end
+    @label error_msg
+    throw(ArgumentError("time $t does not belong to the time span, " *
+                        "$(tspan(fp)), of the given flowpipe"))
+end
 
 #=
+function (fp::HybridFlowpipe)(dt::TimeInterval)
+    # here we assume that indices are one-based, ie. form 1 .. n
+    firstidx = 0
+    lastidx = 0
+    α = inf(dt)
+    β = sup(dt)
+    Fk = array(fp)
+
+    # search first intersecting flowpipe
+    i = 1
+    while α ∉ tspan(Fk[i])
+        i += 1
+    end
+    i > length(Fk) && @goto error_msg
+    firstfp = i
+
+    # search last intersecting flowpipe
+    i = 1
+    while t ∉ tspan(Fk[i])
+        i += 1
+    end
+    i > length(Fk) && @goto error_msg
+    firstfp = i
+
+    for (i, X) in enumerate(Xk)
+        if α ∈ tspan(X)
+            firstidx = i
+        end
+        if β ∈ tspan(X)
+            lastidx = i
+        end
+    end
+    if firstidx == 0 || lastidx == 0
+        throw(ArgumentError("the time interval $dt is not contained in the time span, " *
+                            "$(tspan(fp)), of the given flowpipe"))
+    end
+    return view(Xk, firstidx:lastidx)
+end
+=#
+
+#=
+# TODO:
+# dim,
+
 #dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
 # Base.getindex
 =#
@@ -386,7 +482,7 @@ end
 # ============================================
 
 """
-    MixedHybridFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
+    PartitionedFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
 
 Type that wraps a vector of flowpipes of possibly different types.
 
@@ -397,7 +493,7 @@ Type that wraps a vector of flowpipes of possibly different types.
 
 ### Notes
 """
-struct MixedHybridFlowpipe{T, S<:Tuple} <: AbstractFlowpipe # TODO: ask <:AbstractFlowpipe for each element in the tuple..?
+struct PartitionedFlowpipe{T, S<:Tuple} <: AbstractFlowpipe # TODO: ask <:AbstractFlowpipe for each element in the tuple..?
     Fk::ArrayPartition{T, S}
     ext::Dict{Symbol, Any}
 end
