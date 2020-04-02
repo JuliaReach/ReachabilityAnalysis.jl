@@ -7,7 +7,11 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
     T = tend(tspan)
 
     # vector field
-    f! = VectorField(ivp)
+    if islinear(ivp) || isaffine(ivp) # TODO: refactor with inplace_field!
+        f! = inplace_field!(ivp)
+    else
+        f! = VectorField(ivp)
+    end
     n = statedim(ivp)
 
     # initial set
