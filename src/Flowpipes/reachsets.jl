@@ -481,6 +481,8 @@ Taylor model reach-set represented as a vector taylor models in one variable
 ### Notes
 
 The parameter `N` refers to the numerical type of the representation.
+
+In `TMJets`, the space variables are normalized to the interval `[-1, 1]`.
 """
 struct TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
     X::Vector{TaylorModel1{TaylorN{N}, N}}

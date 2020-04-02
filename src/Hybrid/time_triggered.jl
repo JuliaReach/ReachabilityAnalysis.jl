@@ -5,6 +5,8 @@
 abstract type AbstractHybridAutomatonwithClockedLinearDynamics <: AbstractHybridSystem end
 const AHACLD = AbstractHybridAutomatonwithClockedLinearDynamics
 
+import MathematicalSystems: system, statedim, initial_state
+
 """
     HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
 
@@ -23,14 +25,16 @@ This type is parametric in:
 
 - `T`  -- system type
 - `MT` -- type of the reset map
-- `N`  -- numeric type, for the sampling time and jitter
+- `N`  -- numeric type, applies to the sampling time and jitter
 
 The following getter functions are available:
 
-- `system`         -- returns the associated system
+- `initial_state`  -- initial state of the continuous mode
+- `jitter`         -- returns the jitter
 - `reset_map`      -- returns the reset map
 - `sampling_time`  -- retuns the sampling time
-- `jitter`         -- returns the jitter
+- `statedim`       -- dimension of the state-space
+- `system`         -- returns the continuous mode
 """
 struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
     sys::T
@@ -39,13 +43,17 @@ struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
     ζ::N
 end
 
-MathematicalSystems.system(hs::HACLD1) = hs.sys
-MathematicalSystems.statedim(hs::HACLD1) = statedim(hs.sys)
-#MathematicalSystems.initial_state(hs::HACLD1) = hs.x0
+# default constructor without jitter
+function HACLD1(sys::T, rmap::MT, Tsample::N) where {T, MT, N}
+    return HACLD1(sys, rmap, Tsample, zero(N))
+end
+
+initial_state(hs::HACLD1) = initial_state(hs.sys)
+jitter(hs::HACLD1) = hs.ζ
 reset_map(hs::HACLD1) = hs.rmap
 sampling_time(hs::HACLD1) = hs.Tsample
-jitter(hs::HACLD1) = hs.ζ
-#initial_time(hs::HACLD1) = hs.t0
+statedim(hs::HACLD1) = statedim(hs.sys)
+system(hs::HACLD1) = hs.sys
 
 # tstart       Ts-ζ          tend
 # [-------------|-------------]
@@ -107,3 +115,13 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
 
     return HybridFlowpipe(out)
 end
+
+#=
+function reach_HACLD1_no_jitter()
+
+end
+
+function reach_HACLD1_with_jitter()
+
+end
+=#
