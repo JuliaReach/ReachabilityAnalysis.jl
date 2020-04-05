@@ -82,6 +82,8 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
+        # TODO: benchmark wrt other method
+        # .. substitute with doing Rₖ = linear_map(Φ, set(F[k-1]))
         X = set(F[k-1])
         ck = Φ * X.center
         Gk = Φ * X.generators

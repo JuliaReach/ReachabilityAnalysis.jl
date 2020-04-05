@@ -1,7 +1,4 @@
-function post(alg::ASB07,
-              ivp::IVP{<:AbstractContinuousSystem},
-              tspan;
-              kwargs...)
+function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
     @unpack δ, approx_model, max_order = alg
 
@@ -36,7 +33,7 @@ function post(alg::ASB07,
     # x' = Ax, x ∈ X
     got_homogeneous = !hasinput(ivp_discr)
 
-    if haskey(kwargs, :force_static) && kwargs[:force_static]
+    if haskey(kwargs, :static) && kwargs[:static]
         error("no implemented yet")
         n = size(Φ, 1)
         p = size(G0, 2) # number of generators

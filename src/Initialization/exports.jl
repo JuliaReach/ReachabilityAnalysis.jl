@@ -10,6 +10,7 @@ export
     TMJets,
     ASB07,
     INT,
+    BOX,
 
 # Approximation models
     Forward,
