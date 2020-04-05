@@ -1,7 +1,6 @@
-# continuous post for GLGM06 using Zonotope set representation
-function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
+function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model, max_order = alg
+    @unpack δ, approx_model = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -24,9 +23,8 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
     got_homogeneous = !hasinput(ivp_discr)
 
-    # this algorithm requires Ω0 to be a zonotope
-    Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
-    Ω0 = _reduce_order(Ω0, max_order)
+    # this algorithm requires Ω0 to be hyperrectangle
+    Ω0 = overapproximate(Ω0, Hyperrectangle)
 
     # reconvert the set of initial states and state matrix, if needed
     static = haskey(kwargs, :static) ? kwargs[:static] : false
@@ -35,16 +33,17 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
 
     # preallocate output flowpipe
     N = eltype(Ω0)
-    ZT = typeof(Ω0)
-    F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
+    HT = typeof(Ω0)
+    F = Vector{ReachSet{N, HT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X)
+        reach_homog_BOX!(F, Ω0, Φ, NSTEPS, δ, X)
     else
+        error("not implemented yet")
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
-        U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
+        U = overapproximate(U, Hyperrectangle)
+        reach_inhomog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, U)
     end
 
     return Flowpipe(F)

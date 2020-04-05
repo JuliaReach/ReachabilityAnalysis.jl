@@ -1,27 +1,45 @@
-# Extension of some common LazySets operations, but without new allocations.
+# =========================
+# (Re) conversion
+# =========================
 
-function _minkowski_sum(Z1::Zonotope{N}, Z2::Zonotope{N}) where {N}
-    cnew = center(Z1) + center(Z2)
-    Gnew = hcat(genmat(Z1), genmat(Z2))
-    return Zonotope(cnew, Gnew)
+# no-op
+_reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}) where {N} = Ω0
+_reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}) where {N} = Ω0
+
+# convert any zonotope to be represented wih regular arrays
+function _reconvert(Ω0::Zonotope, static::Val{false})
+    Ω0 = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 end
 
-# in-place scale of a zonotope
-function scale!(α::Real, Z::Zonotope)
-    c = Z.center
-    G = Z.generators
-    c .= α .* c
-    G .= α .* G
-    return Z
+# convert any zonotope to be represented with static arrays
+function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}) where {N, VN, MN}
+    n, p = size(Ω0.generators) # dimension and number of generators
+    Ω0 = Zonotope(SVector{n, N}(Ω0.center), SMatrix{n, p, N, n*p}(Ω0.generators))
 end
 
-# in-place linear map of a zonotope
-function linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
-    c = Z.center
-    G = Z.generators
-    Zout.center .= M * c
-    Zout.generators .= M .* G
-    return Zout
+# no-op
+_reconvert(Ω0::Hyperrectangle{N, Vector{N}, Vector{N}}, static::Val{false}) where {N} = Ω0
+_reconvert(Ω0::Hyperrectangle{N, <:SVector, <:SVector}, static::Val{true}) where {N} = Ω0
+
+# convert any Hyperrectangle to be represented wih regular arrays
+function _reconvert(Ω0::Hyperrectangle, static::Val{false})
+    Ω0 = Hyperrectangle(Vector(Ω0.center), Matrix(Ω0.radius), check_bounds=false)
+end
+
+# convert any Hyperrectangle to be represented with static arrays
+function _reconvert(Ω0::Hyperrectangle{N, VNC, VNR}, static::Val{true}) where {N, VNC, VNR}
+    n = length(Ω0.center) # dimension
+    Ω0 = Hyperrectangle(SVector{n, N}(Ω0.center), SVector{n, N}(Ω0.radius), check_bounds=false)
+end
+
+# no-op
+_reconvert(Φ::Matrix{N}, static::Val{false}) where {N} = Φ
+_reconvert(Φ::AbstractMatrix, static::Val{false}) = Matrix(Φ)
+_reconvert(Φ::SMatrix, static::Val{true}) = Φ
+
+function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}) where {N}
+    n = size(Φ, 1)
+    Φ = SMatrix{n, n, N, n*n}(Φ)
 end
 
 # fallback implementation for conversion (if applicable) or overapproximation
@@ -50,6 +68,40 @@ end
 function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
+
+# =========================
+# In-place ops
+# =========================
+
+# Extension of some common LazySets operations, some of them in-place
+
+function _minkowski_sum(Z1::Zonotope{N}, Z2::Zonotope{N}) where {N}
+    cnew = center(Z1) + center(Z2)
+    Gnew = hcat(genmat(Z1), genmat(Z2))
+    return Zonotope(cnew, Gnew)
+end
+
+# in-place scale of a zonotope
+function scale!(α::Real, Z::Zonotope)
+    c = Z.center
+    G = Z.generators
+    c .= α .* c
+    G .= α .* G
+    return Z
+end
+
+# in-place linear map of a zonotope
+function linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
+    c = Z.center
+    G = Z.generators
+    Zout.center .= M * c
+    Zout.generators .= M .* G
+    return Zout
+end
+
+# =========================
+# Projection
+# =========================
 
 # fallback concrete projection
 function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
@@ -148,6 +200,10 @@ end
 function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
     return LazySets.Projection(X, collect(vars))
 end
+
+# ===============================
+# Decompositions and partitions
+# ===============================
 
 #const Partition{}
 

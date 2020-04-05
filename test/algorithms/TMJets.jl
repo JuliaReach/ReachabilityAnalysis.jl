@@ -1,10 +1,4 @@
-@testset "TMJets with a linear IVP" begin
-    prob, tspan = exponential_1d()
-    sol = solve(prob, tspan=tspan, TMJets())
-    @test sol.alg isa TMJets
-end
-
-@testset "TMJets interface" begin
+@testset "TMJets algorithm" begin
     prob, tspan = vanderpol()
 
     # default algorithm for nonlinear systems
@@ -16,6 +10,22 @@ end
     @test sol.alg isa TMJets
 
     # TODO: try different options
+end
+
+@testset "TMJets algorithm: linear IVPs" begin
+    prob, tspan = exponential_1d()
+    sol = solve(prob, tspan=tspan, TMJets())
+    @test sol.alg isa TMJets
+
+    # TODO test higher order system
+#    prob, tspan = linear5D_homog()
+#    sol = solve(prob, tspan=tspan, TMJets())
+#    @test sol.alg isa TMJets
+
+    # TODO test linear system with input
+#    prob, tspan = linear5D()
+#    sol = solve(prob, tspan=tspan, TMJets())
+#    @test sol.alg isa TMJets
 end
 
 #=
