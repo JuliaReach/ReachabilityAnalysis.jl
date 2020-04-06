@@ -20,7 +20,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = linear_map(Φ, set(F[k-1]))
+        Rₖ = _linear_map(Φ, set(F[k-1]))
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -68,6 +68,8 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 end
 =#
 
+#=
+# follows the implementation for the general case
 function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              Ω0::Zonotope{N, VN, MN},
                              Φ::SMatrix,
@@ -89,12 +91,13 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gk = Φ * X.generators
 
         Δt += δ
-        Zk = Zonotope(ck, Gk)
+        Zk = Zonotope(ck, Gk, remove_zero_generators=false)
         F[k] = ReachSet(Zk, Δt)
         k += 1
     end
     return F
 end
+=#
 
 # early termination checking for intersection with the invariant
 # TODO : check stopping criterion

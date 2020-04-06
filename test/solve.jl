@@ -80,6 +80,28 @@ end
     @test _isapprox(tspan(sol), Δt)
 end
 
+@testset "Concrete projection" begin
+    prob, tspan = motor_homog()
+    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=true)
+
+    project(sol, (1, 3))
+    project(sol, [1, 3])
+    project(sol, vars=[1, 3])
+    project(sol, vars=(1, 3))
+
+    F = flowpipe(sol)
+    project(F, (1, 3))
+    project(F, [1, 3])
+    project(F, vars=[1, 3])
+    project(F, vars=(1, 3))
+
+    R = sol[end]
+    project(R, (1, 3))
+    project(R, [1, 3])
+    project(R, vars=(1, 3))
+    project(R, vars=[1, 3])
+end
+
 # TODO:
 # eachindex(F)
 
