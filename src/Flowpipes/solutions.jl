@@ -106,6 +106,6 @@ function project(sol::ReachSolution{<:Flowpipe}, args...)
 end
 
 # convenience alias to match the usage in the plot recipe
-function project(sol::ReachSolution{<:Flowpipe}; vars::NTuple{D, T}) where {D, T}
-    return project(sol.F, vars)
+function project(sol::ReachSolution{<:Flowpipe}; vars)
+    return project(sol.F, Tuple(vars))
 end

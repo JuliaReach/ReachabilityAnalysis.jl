@@ -234,6 +234,11 @@ function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Int
     return project(R, Tuple(vars))
 end
 
+# handle generic kwargs vars
+function project(R::AbstractLazyReachSet; vars)
+    return project(R, Tuple(vars))
+end
+
 # ================================================================
 # Reach set
 # ================================================================
