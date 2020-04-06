@@ -1,5 +1,3 @@
-export LGG09
-
 """
     LGG09 <: AbstractContinuousPost
 
