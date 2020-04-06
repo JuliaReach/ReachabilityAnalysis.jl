@@ -1,3 +1,5 @@
+using LazySets.Approximations: AbstractDirections
+
 """
     LGG09{N, AM} <: AbstractContinuousPost
 
@@ -32,9 +34,10 @@ See [1] and [2].
     Springer, Berlin, Heidelberg.
     [Link](http://www-verimag.imag.fr/~maler/Papers/zonotope.pdf).
 """
-@with_kw struct LGG09{N, AM} <: AbstractContinuousPost
+@with_kw struct LGG09{N, AM, AD<:AbstractDirections} <: AbstractContinuousPost
     δ::N
     approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
+    template::AD
 end
 
 step_size(alg::LGG09) = alg.δ

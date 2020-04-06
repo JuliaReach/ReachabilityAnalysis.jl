@@ -1,6 +1,6 @@
 function post(alg::LGG09, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model, max_order = alg
+    @unpack δ, approx_model = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -34,16 +34,17 @@ function post(alg::LGG09, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
 
     # preallocate output flowpipe
     N = eltype(Ω0)
-    ZT = typeof(Ω0)
-    F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
+    ST = typeof(Ω0)
+    F = Vector{TemplateReachSet{N, ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X)
+        reach_homog_LGG09!(F, Ω0, Φ, NSTEPS, δ, max_order, X)
     else
+        error("not implemented yet")
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
         U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
+        reach_inhomog_LGG09!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
     end
 
     return Flowpipe(F)
