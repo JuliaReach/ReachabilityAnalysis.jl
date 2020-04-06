@@ -99,7 +99,7 @@ function linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
     return Zout
 end
 
-function _linear_map(M::AbstractMatrix, Z::Zonotope)
+@inline function _linear_map(M::AbstractMatrix, Z::Zonotope)
     c = Z.center
     G = Z.generators
     cout = M * c
