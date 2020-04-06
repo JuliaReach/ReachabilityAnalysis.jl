@@ -1,15 +1,25 @@
 """
-    LGG09 <: AbstractContinuousPost
+    LGG09{N, AM} <: AbstractContinuousPost
+
+Implementation of Girard - Le Guernic algorithm for reachability analysis
+using support functions.
 
 ## Fields
 
-- `δ`              -- (optional, default: `1e-2`) step-size of the discretization
-- `discretization` -- (optional, default: `"forward"`)
-- `sih_method`     -- (optional, default: `"concrete"`)
-- `exp_method`     -- (optional, default: `"base"`)
-- `max_order`      -- (optional, default: `10`)
+- `δ`            -- step-size of the discretization
+- `approx_model` -- (optional) approximation model for the discretization of the
+                    ODE; see `Notes` below for details
+
+## Notes
+
+The type fields are:
+
+- `N`  -- number type of the step-size
+- `AM` -- approximation model
 
 ## References
+
+See [1] and [2].
 
 [1] Girard, A. (2005, March). Reachability of uncertain linear systems using zonotopes.
     In International Workshop on Hybrid Systems: Computation and Control (pp. 291-305).
@@ -22,11 +32,12 @@
     Springer, Berlin, Heidelberg.
     [Link](http://www-verimag.imag.fr/~maler/Papers/zonotope.pdf).
 """
-@with_kw struct LGG09 <: AbstractContinuousPost
-    δ::Float64=1e-2
-    discretization::String="forward"
-    sih_method::String="concrete"
-    exp_method::String="base"
+@with_kw struct LGG09{N, AM} <: AbstractContinuousPost
+    δ::N
+    approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
 end
 
+step_size(alg::LGG09) = alg.δ
+
 include("reach.jl")
+include("post.jl")

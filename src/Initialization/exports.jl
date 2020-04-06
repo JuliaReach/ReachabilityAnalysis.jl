@@ -5,12 +5,13 @@ export
     discretize,
 
 # Algorithms
-    GLGM06,
-    BFFPSV18,
-    TMJets,
     ASB07,
-    INT,
+    BFFPSV18,
     BOX,
+    GLGM06,
+    INT,
+    LGG09,
+    TMJets,
 
 # Approximation models
     Forward,
