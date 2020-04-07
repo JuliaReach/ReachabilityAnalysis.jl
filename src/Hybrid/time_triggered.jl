@@ -92,7 +92,6 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
     # preallocate output vector of flowpipes
-    # TODO: use a custom flowpipe type, eg. HybridFlowpipe
     FT = typeof(flowpipe(sol))
     out = Vector{FT}()
     sizehint!(out, max_jumps+1)
