@@ -41,6 +41,7 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     if got_homogeneous
         reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X)
     else
+        error("not implemented yet")
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
         U = _convert_or_overapproximate(Zonotope, U)

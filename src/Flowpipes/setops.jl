@@ -34,12 +34,18 @@ end
 
 # no-op
 _reconvert(Φ::Matrix{N}, static::Val{false}) where {N} = Φ
+_reconvert(Φ::IntervalMatrix{N}, static::Val{false}) where {N} = Φ
 _reconvert(Φ::AbstractMatrix, static::Val{false}) = Matrix(Φ)
 _reconvert(Φ::SMatrix, static::Val{true}) = Φ
 
 function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}) where {N}
     n = size(Φ, 1)
     Φ = SMatrix{n, n, N, n*n}(Φ)
+end
+
+function _reconvert(Φ::IntervalMatrix{N, IN, Matrix{IN}}, static::Val{true}) where {N, IN}
+    n = size(Φ, 1)
+    Φ = IntervalMatrix(SMatrix{n, n, IN, n*n}(Φ))
 end
 
 # fallback implementation for conversion (if applicable) or overapproximation
@@ -104,7 +110,7 @@ end
     G = Z.generators
     cout = M * c
     Gout = M * G
-    return Zonotope(cout, Gout, remove_zero_generators=false)
+    return Zonotope(cout, Gout)
 end
 
 # =========================
@@ -265,7 +271,6 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
         end
     end
     G_oa = hcat(Ggens, Ms * Dv)
-
     return Zonotope(c_oa, G_oa)
 end
 
@@ -329,7 +334,7 @@ function _symmetric_interval_hull(x::Interval)
 end
 
 # TODO: review
-function _reduce_order(Z::Zonotope{N}, r::Union{Integer, Rational}) where {N<:Real}
+function _reduce_order(Z::Zonotope{N, VN, MN}, r::Union{Integer, Rational}) where {N<:Real, VN, MN}
     c = Z.center
     G = Z.generators
     d, p = size(G)
@@ -361,6 +366,44 @@ function _reduce_order(Z::Zonotope{N}, r::Union{Integer, Rational}) where {N<:Re
         Gred = hcat(Gnotred, Gbox)
     else
         Gred = Gbox
+    end
+    return Zonotope(c, Gred)
+end
+
+function _reduce_order(Z::Zonotope{N, VN, MN}, r::Union{Integer, Rational}) where {N<:Real, VN<:SVector, MN<:SMatrix}
+    c = Z.center
+    G = Z.generators
+    d, p = size(G)
+
+    if (r * d >= p) || r < 1
+        # do not reduce
+        return Z
+    end
+
+    # subset of ngens that are reduced
+    m = p - floor(Int, d * (r - 1))
+
+    h = zeros(N, p)
+    @inbounds for i in 1:p
+        Gi = view(G, :, i)
+        h[i] = norm(Gi, 1) - norm(Gi, Inf)
+    end
+    ind = sortperm(h)
+
+    Gbox = zeros(N, d, p)
+    for j in ind[1:m]
+        for i in 1:d
+            @inbounds Gbox[i, j] += abs(G[i, j])
+        end
+    end
+
+    Gbox_st = SMatrix{size(Gbox)..., N}(Gbox)
+    if m < p
+        Gnotred = view(G, :, ind[m+1:end])
+        Gnotred_st = SMatrix{size(Gnotred)..., N}(Gnotred)
+        Gred = hcat(Gnotred_st, Gbox_st)
+    else
+        Gred = Gbox_st
     end
     return Zonotope(c, Gred)
 end

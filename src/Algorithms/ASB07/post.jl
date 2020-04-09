@@ -22,33 +22,20 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     Ω0 = initial_state(ivp_discr)
     X = stateset(ivp_discr)
 
+    # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
+    got_homogeneous = !hasinput(ivp_discr)
+
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
     Ω0 = _reduce_order(Ω0, max_order)
-    c0 = center(Ω0)
-    G0 = genmat(Ω0)
-    N = eltype(Ω0)
 
-    # true <=> there is no input, i.e. the system is of the form
-    # x' = Ax, x ∈ X
-    got_homogeneous = !hasinput(ivp_discr)
-
-    if haskey(kwargs, :static) && kwargs[:static]
-        error("no implemented yet")
-        n = size(Φ, 1)
-        p = size(G0, 2) # number of generators
-        Φ = SMatrix{n, n, N, n*n}(Φ)
-        c0_st = SVector{n, N}(c0)
-        G0_st = SMatrix{n, p, N, n*p}(G0)
-        Ω0 = Zonotope(c0_st, G0_st)
-
-    elseif isa(G0, Diagonal)
-        c0 = Vector(c0)
-        G0 = Matrix(G0)
-        Ω0 = Zonotope(c0, G0)
-    end
+    # reconvert the set of initial states and state matrix, if needed
+    static = haskey(kwargs, :static) ? kwargs[:static] : false
+    Ω0 = _reconvert(Ω0, Val(static))
+    Φ = _reconvert(Φ, Val(static))
 
     # preallocate output flowpipe
+    N = eltype(Ω0)
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
