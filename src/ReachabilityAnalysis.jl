@@ -28,8 +28,9 @@ include("Continuous/discretization.jl")
 # ===========================================================
 # Reachability solver algorithms
 # ===========================================================
+
 # Linear
-#include("Algorithms/GLGM06/LGG09.jl")
+include("Algorithms/LGG09/LGG09.jl")
 include("Algorithms/GLGM06/GLGM06.jl")
 include("Algorithms/INT/INT.jl")
 include("Algorithms/BOX/BOX.jl")
