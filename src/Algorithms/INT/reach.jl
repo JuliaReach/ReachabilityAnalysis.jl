@@ -39,9 +39,7 @@ function reach_homog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
     k = 2
     @inbounds while k <= NSTEPS
         Rₖ = Interval(Φ * set(F[k-1]).dat)
-        if _is_intersection_empty(X, Rₖ)
-            break
-        end
+        _is_intersection_empty(X, Rₖ) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -78,6 +76,7 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
     return F
 end
 
+# check intersection with invariant
 function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
                             Ω0::Interval{N, IA.Interval{N}},
                             Φ::N,
@@ -93,9 +92,13 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
     k = 2
     @inbounds while k <= NSTEPS
         Rₖ = Interval(Φ * set(F[k-1]).dat)
+        _is_intersection_empty(X, Rₖ) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
+    end
+    if k < NSTEPS + 1
+        resize!(F, k-1)
     end
     return F
 end
