@@ -28,8 +28,7 @@ function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     # this algorithm requires Ω0 to be an interval
     Ω0 = overapproximate(Ω0, Interval)
 
-    # true <=> there is no input, i.e. the system is of the form
-    # x' = Ax, x ∈ X
+    # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
     got_homogeneous = !hasinput(ivp_discr)
 
     # preallocate output flowpipe
@@ -40,14 +39,10 @@ function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     if got_homogeneous
         reach_homog_INT!(F, Ω0, Φ, NSTEPS, δ, X)
     else
-        error("not implemented yet")
         U = inputset(ivp_discr)
-        if isa(U, LazySet)
-            U = overapproximate(U, Interval)
-            reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, X, U)
-        else
-            error("inputs of type $(typeof(U)) cannot be handled yet")
-        end
+        @assert isa(U, LazySet)
+        U = overapproximate(U, Interval) # TODO guarantee this on the discretization?
+        reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, X, U)
     end
 
     return Flowpipe(F)

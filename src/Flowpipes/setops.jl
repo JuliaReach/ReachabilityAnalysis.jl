@@ -433,6 +433,13 @@ function _is_intersection_empty(X::Interval{N}, H::HalfSpace{N}) where {N<:Real}
         return !_geq(max(X), b/a)
     end
 end
-
 # symmetric case
 _is_intersection_empty(H::HalfSpace, X::Interval) = _is_intersection_empty(X, H)
+
+# H : {x : ax = b}, one-dimensional with a != 0
+function _is_intersection_empty(X::Interval{N}, H::Hyperplane{N}) where {N<:Real}
+    q = H.b / H.a[1]
+    return !_geq(q, min(X)) || !_leq(q, max(X))
+end
+# symmetric case
+_is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H)
