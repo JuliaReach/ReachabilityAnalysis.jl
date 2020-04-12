@@ -1,5 +1,6 @@
 # method extensions
 import LazySets: dim, overapproximate
+import Base: ∈
 
 # ================================================================
 # Reach set interfaces
@@ -237,6 +238,11 @@ end
 # handle generic kwargs vars
 function project(R::AbstractLazyReachSet; vars)
     return project(R, Tuple(vars))
+end
+
+# membership test
+function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
+    return ∈(x, set(R))
 end
 
 # ================================================================

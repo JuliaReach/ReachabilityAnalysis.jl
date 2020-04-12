@@ -32,7 +32,7 @@ basetype(T::Type{<:AbstractFlowpipe}) = Base.typename(T).wrapper
 LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe) = ρ(d, UnionSetArray(array(R)))
 LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe) = σ(d, UnionSetArray(array(R)))
 function LazySets.dim(fp::AbstractFlowpipe)
-    @assert !iszero(fp) "the dimension is not defined because this flowpipe is empty"
+    @assert !isempty(fp) "the dimension is not defined because this flowpipe is empty"
     return dim(first(fp)) # it is assumed that the sets do not change dimension (!)
 end
 
