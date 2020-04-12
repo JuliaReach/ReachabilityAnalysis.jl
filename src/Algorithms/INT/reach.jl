@@ -44,7 +44,7 @@ function reach_homog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
     end
-    if k < NSTEP S +1
+    if k < NSTEPS +1
         resize!(F, k-1)
     end
     return F
