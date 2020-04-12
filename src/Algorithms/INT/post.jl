@@ -21,7 +21,7 @@ function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
     # discretize system
     ivp_discr = discretize(ivp_norm, δ, approx_model)
-    Φ = state_matrix(ivp_discr)[1, 1]  # can use first(...) in Julia v1.4
+    Φ = state_matrix(ivp_discr)[1, 1]
     Ω0 = initial_state(ivp_discr)
     X = stateset(ivp_discr)
 
@@ -44,7 +44,7 @@ function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
         U = inputset(ivp_discr)
         if isa(U, LazySet)
             U = overapproximate(U, Interval)
-            reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
+            reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, X, U)
         else
             error("inputs of type $(typeof(U)) cannot be handled yet")
         end

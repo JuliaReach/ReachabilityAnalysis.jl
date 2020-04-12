@@ -407,3 +407,32 @@ function _reduce_order(Z::Zonotope{N, VN, MN}, r::Union{Integer, Rational}) wher
     end
     return Zonotope(c, Gred)
 end
+
+# ====================================
+# Intersection
+# ====================================
+
+using LazySets: _geq, _leq
+
+# fallback
+function _is_intersection_empty(X, Y)
+    return LazySets.is_intersection_empty(X, Y)
+end
+
+function _is_intersection_empty(I1::Interval{N}, I2::Interval{N}) where {N<:Real}
+    return !_leq(min(I2), max(I1))  || !_leq(min(I1), max(I2))
+end
+
+# H : {x : ax <= b}, one-dimensional with a != 0
+function _is_intersection_empty(X::Interval{N}, H::HalfSpace{N}) where {N<:Real}
+    a = H.a[1]
+    b = H.b
+    if a > zero(N)
+        return !_leq(min(X), b/a)
+    else
+        return !_geq(max(X), b/a)
+    end
+end
+
+# symmetric case
+_is_intersection_empty(H::HalfSpace, X::Interval) = _is_intersection_empty(X, H)
