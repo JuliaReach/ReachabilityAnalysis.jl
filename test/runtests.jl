@@ -6,6 +6,7 @@ include("models/linear/exponential1D.jl")
 include("models/linear/motor.jl")
 include("models/linear/linear5D.jl")
 include("models/nonlinear/vanderpol.jl")
+include("models/hybrid/embrake.jl")
 
 #include("utils.jl")
 include("solve.jl")
