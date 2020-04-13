@@ -36,7 +36,7 @@ makedocs(
                             #
         "API Reference" => Any["Reach-sets" => "lib/reachsets.md",
                                "Flowpipes" => "lib/flowpipes.md",
-                               "Solution types" => "lib/solution_types.md",
+                               "Solutions" => "lib/solutions.md",
                                "Discretization" => "lib/discretize.md"],
         "References" => "references.md",
         "About" => "about.md"
