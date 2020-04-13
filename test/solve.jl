@@ -120,3 +120,16 @@ tspan(R) == 1.0
 dim(R) == 2
 overapproximate(project(X, [1]), Interval) == Interval(-1, 1)
 =#
+
+@testset "Time-triggered hybrid automaton" begin
+    prob = embrake_no_pv()
+    s = prob.s
+
+    # HACLD1 constructor with default zero jitter
+    q = HACLD1(s.sys, s.rmap, s.Tsample)
+    @test ReachabilityAnalysis.jitter(q) == 0.0
+
+    sol = solve(prob, alg=GLGM06(δ=1e-7), T=1e-3)
+    @test dim(sol) == 4
+    @test flowpipe(sol) isa HybridFlowpipe
+end
