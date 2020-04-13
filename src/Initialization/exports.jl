@@ -25,6 +25,7 @@ export
     ShiftedFlowpipe,
     MappedFlowpipe,
     HybridFlowpipe,
+    MixedFlowpipe,
     MixedHybridFlowpipe,
 
 # Reach-sets
