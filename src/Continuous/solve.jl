@@ -105,13 +105,23 @@ function _get_tspan(args...; kwargs...)
     end
 
     if got_tspan
-        tspan = kwargs[:tspan]
-        tspan = _promote_tspan(tspan)
+        tspan =_promote_tspan(kwargs[:tspan])
+
     elseif got_T
         T = kwargs[:T]
         tspan = (zero(T), T)
+
+    elseif !isempty(args) && (args[1] isa Tuple{Float64, Float64} ||
+                              args[1] isa Vector{Float64}         ||
+                              args[1] isa Interval || args[1] isa IntervalArithmetic.Interval)
+        tspan = _promote_tspan(args[1])
+
+    elseif args[1] isa Float64 # got time horizon as first argument
+        tspan = (zero(args[1]), args[1])
+
     elseif got_NSTEPS
         tspan = (0.0, 0.0) # defined a posteriori
+
     else
         tspan = (0.0, 0.0)
         # TODO: find better solution such that the error message is used

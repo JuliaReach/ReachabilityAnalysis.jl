@@ -35,6 +35,14 @@
 
     # dimension
     @test dim(F) == 1
+
+    # different ways to input the time span or the time horizon
+    sol = solve(p, tspan=(0.0, 1.0))
+    sol = solve(p, (0.0, 1.0))
+    sol = solve(p, tspan=[0.0, 1.0])
+    sol = solve(p, [0.0, 1.0])
+    sol = solve(p, T=1.0)
+    sol = solve(p, 1.0)
 end
 
 @testset "Solution interface: initial states" begin
