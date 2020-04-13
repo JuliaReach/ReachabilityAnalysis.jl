@@ -9,9 +9,15 @@ Pages = ["discretize.md"]
 Depth = 3
 ```
 
-## Linear systems
+## Approximation models
 
-TODO: document ReachabilityAnalysis.discretize
+```@docs
+ReachabilityAnalysis.AbstractApproximationModel
+```
+
+## Discretize API
+
+TODO: document `discretize`.
 
 ## Exponentiation
 

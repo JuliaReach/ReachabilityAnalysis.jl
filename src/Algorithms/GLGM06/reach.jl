@@ -28,7 +28,33 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     return F
 end
 
-#=
+# check interection with invariant on the loop
+function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                             Ω0::Zonotope{N, VN, MN},
+                             Φ::AbstractMatrix,
+                             NSTEPS::Integer,
+                             δ::Float64,
+                             max_order::Integer,
+                             X::LazySet) where {N, VN, MN}
+    # initial reach set
+    Δt = zero(N) .. δ
+    @inbounds F[1] = ReachSet(Ω0, Δt)
+
+    k = 2
+    while k <= NSTEPS
+        Rₖ = linear_map(Φ, set(F[k-1]))
+        is_intersection_empty(X, Rₖ) && break
+        Δt += δ
+        F[k] = ReachSet(Rₖ, Δt)
+        k += 1
+    end
+    if k < NSTEPS + 1
+        resize!(F, k)
+    end
+    return F
+end
+
+#= O L D
 # homogeneous case using StaticArrays
 # it is assumed that the order of Ω0 is at most max_order
 function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
@@ -91,43 +117,13 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gk = Φ * X.generators
 
         Δt += δ
-        Zk = Zonotope(ck, Gk, remove_zero_generators=false)
+        Zk = Zonotope(ck, Gk)
         F[k] = ReachSet(Zk, Δt)
         k += 1
     end
     return F
 end
 =#
-
-# early termination checking for intersection with the invariant
-# TODO : check stopping criterion
-function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                             Ω0::Zonotope{N, VN, MN},
-                             Φ::AbstractMatrix,
-                             NSTEPS::Integer,
-                             δ::Float64,
-                             max_order::Integer,
-                             X::LazySet) where {N, VN, MN}
-    # initial reach set
-    Δt = zero(N) .. δ
-    F[1] = ReachSet(Ω0, Δt)
-
-    k = 2
-    while k <= NSTEPS
-        Rₖ = linear_map(Φ, set(F[k-1]))
-        is_intersection_empty(X, Rₖ) && break
-        Δt += δ
-        F[k] = ReachSet(Rₖ, Δt)
-        k += 1
-    end
-    if k < NSTEPS
-        resize!(F, k)
-    end
-    return F
-end
-
-# TODO: static case with a state invariant
-
 
 # OLD
 #=
@@ -160,7 +156,7 @@ function reach_homog_GLGM06_inplace!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}}
         Gvec[k] = Matrix{N}(undef, n, p)
         mul!(cvec[k], Φ_power_k, c_Ω0)
         mul!(Gvec[k], Φ_power_k, G_Ω0)
-        Rₖ = Zonotope(cvec[k], Gvec[k], remove_zero_generators=false)
+        Rₖ = Zonotope(cvec[k], Gvec[k])
         Δt += δ
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
         copyto!(Φ_power_k, Φ_power_k_cache)
@@ -200,7 +196,7 @@ function reach_homog_GLGM06_inplace_v2!(F::Vector{ReachSet{N, Zonotope{N, VN, MN
         mul!(F[k+1].X.generators, Φ, F[k].X.generators)
         #F[k+1].Δt
         #G_Rₖ = Φ * F[k].X.generators
-        #Rₖ = Zonotope(c_Rₖ, G_Rₖ, remove_zero_generators=false)
+        #Rₖ = Zonotope(c_Rₖ, G_Rₖ)
         Δt += δ
         k += 1
         F[k] = ReachSet(Rₖ, Δt)
@@ -236,12 +232,12 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     while k <= NSTEPS
-        Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊, remove_zero_generators=false)
+        Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order)
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
-        Wk₊ = minkowski_sum(Wk₊, linear_map(Φ_power_k, U), remove_zero_generators=false)
+        Wk₊ = minkowski_sum(Wk₊, linear_map(Φ_power_k, U))
         Wk₊ = _reduce_order(Wk₊, max_order)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)

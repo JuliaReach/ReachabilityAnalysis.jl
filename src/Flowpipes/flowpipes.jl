@@ -28,9 +28,64 @@ The base type of `T`.
 """
 basetype(T::Type{<:AbstractFlowpipe}) = Base.typename(T).wrapper
 
-# LazySets interface: a flowpipe behaves like the union of the reach-sets (UnionSetArray)
-LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe) = ρ(d, UnionSetArray(array(R)))
-LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe) = σ(d, UnionSetArray(array(R)))
+# LazySets interface: fallback behaves like UnionSetArray
+
+"""
+    LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
+
+### Input
+
+- `d`  -- direction
+- `fp` -- flowpipe
+
+### Output
+
+The support function of the flowpipe along the given direction `d`.
+
+### Notes
+
+In this fallback implementation, the flowpipe behaves like the union of the
+reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
+"""
+function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
+    return map(Ri -> ρ(d, set(Ri)), array(fp)) |> maximum
+end
+
+"""
+    LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
+
+### Input
+
+- `d`  -- direction
+- `fp` -- flowpipe
+
+### Output
+
+The support vector of the flowpipe along the given direction `d`.
+
+### Notes
+
+In this fallback implementation, the flowpipe behaves like the union of the
+reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
+"""
+function LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
+    σarray = map(Ri -> σ(d, set(Ri)), array(fp))
+    ρarray = map(vi -> dot(d, vi), σarray)
+    m = argmax(ρarray)
+    return σarray[m]
+end
+
+"""
+    LazySets.dim(fp::AbstractFlowpipe)
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+An integer representing the ambien dimension of the flowpipe.
+"""
 function LazySets.dim(fp::AbstractFlowpipe)
     @assert !isempty(fp) "the dimension is not defined because this flowpipe is empty"
     return dim(first(fp)) # it is assumed that the sets do not change dimension (!)
@@ -48,14 +103,76 @@ end
 @inline Base.eachindex(fp::AbstractFlowpipe) = eachindex(array(fp))
 
 # support abstract reach set interface
+
 set(fp::AbstractFlowpipe) = throw(ArgumentError("to retrieve the array of sets represented by this flowpipe, " *
     "use the `array(...)` function, or use the function `set(...)` at a specific index, i.e. " *
     "`set(F[ind])`, or simply `set(F, ind)`, to get the reach-set with index `ind` of the flowpipe `F`"))
+
+"""
+    set(fp::AbstractFlowpipe, ind::Integer)
+
+Return the geometric set represented by this flowpipe at the given index.
+
+## Input
+
+- `fp`  -- flowpipe
+- `ind` -- index (from `1` to `length(flowpipe)`)
+
+## Output
+
+The set wrapped by the flowpipe at the given index.
+"""
 set(fp::AbstractFlowpipe, ind::Integer) = set(getindex(array(fp), ind))
 
 # time domain interface
+
+"""
+    tstart(fp::AbstractFlowpipe)
+
+Return the initial time of this flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+A float representing the initial time of the given flowpipe. The fallback is
+computed by taking the initial time of the first reach-set.
+"""
 @inline tstart(fp::AbstractFlowpipe) = tstart(first(fp))
+
+"""
+    tend(fp::AbstractFlowpipe)
+
+Return the final time of this flowpipe.
+
+### Input
+
+- `R` -- reach-set
+
+### Output
+
+A float representing the initial time of the given flowpipe. The fallback is
+computed by taking the final time of the last reach-set.
+"""
 @inline tend(fp::AbstractFlowpipe) = tend(last(fp))
+
+"""
+    tspan(fp::AbstractFlowpipe)
+
+Return time span of this flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+The interval representing the time span of the given flowpipe. The fallback
+is computed as `(tstart(fp), tend(fp))`, see `tstart(::AbstractFlowpipe)` and
+`tend(::AbstractFlowpipe)` for details.
+"""
 @inline tspan(fp::AbstractFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
 # support indexing with ranges or with vectors of integers
@@ -309,7 +426,7 @@ end
 """
     HybridFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
 
-Type that wraps a vector of flowpipes of the same time and such that they are
+Type that wraps a vector of flowpipes of the same type, such that they are
 contiguous in time.
 
 ### Fields
@@ -479,6 +596,66 @@ function add_time!(F::Flowpipe{ST}) where {ST}
     return flowpipe_with_time
 end
 =#
+
+# ============================================
+# Flowpipes not contiguous in time
+# ============================================
+
+"""
+    MixedFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
+
+Type that wraps a vector of flowpipes of the same time, such that they are
+not necessarily contiguous in time.
+
+### Fields
+
+- `Fk`  -- vector of flowpipes
+- `ext` -- (optional, default: empty) dictionary for extensions
+
+### Notes
+
+This type does not assume that the flowpipes are contiguous in time.
+"""
+struct MixedFlowpipe{N, RT<:AbstractReachSet{N}, FT<:AbstractFlowpipe} <: AbstractFlowpipe
+    Fk::VectorOfArray{RT, 2, Vector{FT}}
+    ext::Dict{Symbol, Any}
+end
+
+function MixedFlowpipe(Fk::Vector{FT}) where {N, RT<:AbstractReachSet{N}, FT<:Flowpipe{N, RT}}
+    voa = VectorOfArray{RT, 2, Vector{FT}}(Fk)
+    ext = Dict{Symbol, Any}()
+    return MixedFlowpipe{N, RT, FT}(voa, ext)
+end
+
+function MixedFlowpipe(Fk::Vector{FT}, ext::Dict{Symbol, Any}) where {N, RT<:AbstractReachSet{N}, FT<:Flowpipe{N, RT}}
+    voa = VectorOfArray{RT, 2, Vector{FT}}(Fk)
+    return MixedFlowpipe{N, RT, FT}(voa, ext)
+end
+
+# interface functions
+array(fp::MixedFlowpipe) = fp.Fk
+flowpipe(fp::MixedFlowpipe) = fp
+setrep(::Type{MixedFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+
+# indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
+Base.getindex(fp::MixedFlowpipe, I::Int...) = getindex(fp.Fk, I...)
+#Base.getindex(fp::MixedFlowpipe, I::Int...) = getindex(fp.Fk, I...)
+
+# assumes that the flowpipes are contiguous in time
+@inline tspan(fp::MixedFlowpipe) = error("for mixed flowpipes you should specify the index, as in `tspan(fp, i)`")
+@inline tspan(fp::MixedFlowpipe, i::Int) = tspan(fp[i])
+
+function Base.similar(fp::MixedFlowpipe{N, RT, FT}) where {N, RT, FT}
+    return MixedFlowpipe(Vector{FT}())
+end
+
+function (fp::MixedFlowpipe)(t::Number)
+    error("not implemented yet")
+end
+
+function (fp::MixedFlowpipe)(dt::TimeInterval)
+    error("not implemented yet")
+end
 
 # ============================================
 # Hybrid flowpipe of possibly different types

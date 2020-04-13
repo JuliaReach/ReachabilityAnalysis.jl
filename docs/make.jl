@@ -34,7 +34,8 @@ makedocs(
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                             "TMJets" => "lib/algorithms/TMJets.md"],
                             #
-        "API Reference" => Any["Flowpipes" => "lib/flowpipes.md",
+        "API Reference" => Any["Reach-sets" => "lib/reachsets.md",
+                               "Flowpipes" => "lib/flowpipes.md",
                                "Solution types" => "lib/solution_types.md",
                                "Discretization" => "lib/discretize.md"],
         "References" => "references.md",
