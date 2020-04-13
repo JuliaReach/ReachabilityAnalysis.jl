@@ -28,11 +28,46 @@ The base type of `T`.
 """
 basetype(T::Type{<:AbstractFlowpipe}) = Base.typename(T).wrapper
 
-# LazySets interface: a flowpipe behaves like the union of the reach-sets (UnionSetArray)
+# LazySets interface: fallback behaves like UnionSetArray
+
+"""
+    LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
+
+### Input
+
+- `d`  -- direction
+- `fp` -- flowpipe
+
+### Output
+
+The support function of the flowpipe along the given direction `d`.
+
+### Notes
+
+In this fallback implementation, the flowpipe behaves like the union of the
+reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
+"""
 function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
     return map(Ri -> ρ(d, set(Ri)), array(fp)) |> maximum
 end
 
+"""
+    LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
+
+### Input
+
+- `d`  -- direction
+- `fp` -- flowpipe
+
+### Output
+
+The support vector of the flowpipe along the given direction `d`.
+
+### Notes
+
+In this fallback implementation, the flowpipe behaves like the union of the
+reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
+"""
 function LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
     σarray = map(Ri -> σ(d, set(Ri)), array(fp))
     ρarray = map(vi -> dot(d, vi), σarray)
@@ -40,6 +75,17 @@ function LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
     return σarray[m]
 end
 
+"""
+    LazySets.dim(fp::AbstractFlowpipe)
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+An integer representing the ambien dimension of the flowpipe.
+"""
 function LazySets.dim(fp::AbstractFlowpipe)
     @assert !isempty(fp) "the dimension is not defined because this flowpipe is empty"
     return dim(first(fp)) # it is assumed that the sets do not change dimension (!)
@@ -57,14 +103,76 @@ end
 @inline Base.eachindex(fp::AbstractFlowpipe) = eachindex(array(fp))
 
 # support abstract reach set interface
+
 set(fp::AbstractFlowpipe) = throw(ArgumentError("to retrieve the array of sets represented by this flowpipe, " *
     "use the `array(...)` function, or use the function `set(...)` at a specific index, i.e. " *
     "`set(F[ind])`, or simply `set(F, ind)`, to get the reach-set with index `ind` of the flowpipe `F`"))
+
+"""
+    set(fp::AbstractFlowpipe, ind::Integer)
+
+Return the geometric set represented by this flowpipe at the given index.
+
+## Input
+
+- `fp`  -- flowpipe
+- `ind` -- index (from `1` to `length(flowpipe)`)
+
+## Output
+
+The set wrapped by the flowpipe at the given index.
+"""
 set(fp::AbstractFlowpipe, ind::Integer) = set(getindex(array(fp), ind))
 
 # time domain interface
+
+"""
+    tstart(fp::AbstractFlowpipe)
+
+Return the initial time of this flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+A float representing the initial time of the given flowpipe. The fallback is
+computed by taking the initial time of the first reach-set.
+"""
 @inline tstart(fp::AbstractFlowpipe) = tstart(first(fp))
+
+"""
+    tend(fp::AbstractFlowpipe)
+
+Return the final time of this flowpipe.
+
+### Input
+
+- `R` -- reach-set
+
+### Output
+
+A float representing the initial time of the given flowpipe. The fallback is
+computed by taking the final time of the last reach-set.
+"""
 @inline tend(fp::AbstractFlowpipe) = tend(last(fp))
+
+"""
+    tspan(fp::AbstractFlowpipe)
+
+Return time span of this flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+The interval representing the time span of the given flowpipe. The fallback
+is computed as `(tstart(fp), tend(fp))`, see `tstart(::AbstractFlowpipe)` and
+`tend(::AbstractFlowpipe)` for details.
+"""
 @inline tspan(fp::AbstractFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
 # support indexing with ranges or with vectors of integers

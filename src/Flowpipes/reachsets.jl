@@ -57,11 +57,11 @@ basetype(T::Type{<:AbstractReachSet}) = Base.typename(T).wrapper
 
 Return the geometric set represented by this reach-set.
 
-## Input
+### Input
 
 - `R` -- reach-set
 
-## Output
+### Output
 
 The set wrapped by the given reach-set.
 """
@@ -72,41 +72,26 @@ function set(::AbstractReachSet) end
 
 Return the type of the set representation of this reach-set.
 
-## Input
+### Input
 
 - `R` -- reach-set
 
-## Output
+### Output
 
 Type of the set representation of the given reach-set.
 """
 setrep(::AbstractReachSet)
 
 """
-    tspan(R::AbstractReachSet)
-
-Return time span of this reach-set.
-
-## Input
-
-- `R` -- reach-set
-
-## Output
-
-The interval representing the time span of the given reach-set.
-"""
-function tspan(::AbstractReachSet) end
-
-"""
     tstart(R::AbstractReachSet)
 
 Return the initial time of this reach-set.
 
-## Input
+### Input
 
 - `R` -- reach-set
 
-## Output
+### Output
 
 A float representing the initial time of the given reach-set.
 """
@@ -117,26 +102,41 @@ function tstart(::AbstractReachSet) end
 
 Return the final time of this reach-set.
 
-## Input
+### Input
 
 - `R` -- reach-set
 
-## Output
+### Output
 
 A float representing the final time of the given reach-set.
 """
 function tend(::AbstractReachSet) end
 
 """
+    tspan(R::AbstractReachSet)
+
+Return time span of this reach-set.
+
+### Input
+
+- `R` -- reach-set
+
+### Output
+
+The interval representing the time span of the given reach-set.
+"""
+function tspan(::AbstractReachSet) end
+
+"""
     dim(R::AbstractReachSet)
 
 Return the ambient dimension of the reach-set.
 
-## Input
+### Input
 
 - `R` -- reach-set
 
-## Output
+### Output
 
 An integer corresponding to the ambient dimension of the given reach-set.
 """
