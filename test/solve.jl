@@ -32,6 +32,9 @@
     # test that in the border of the time transition we get two reachsets
     F = flowpipe(sol)
     @test F(0.1) == F[1:2]
+
+    # dimension
+    @test dim(F) == 1
 end
 
 @testset "Solution interface: initial states" begin

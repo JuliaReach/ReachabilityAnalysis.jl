@@ -6,10 +6,12 @@
     @test isa(sol.alg, GLGM06)
     @test setrep(sol) <: Zonotope
     @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
+    @test dim(sol) == 1
 
     # higher-dimensional homogeneous
     prob, tspan = linear5D_homog()
     sol = solve(prob, tspan=tspan, GLGM06(δ=0.01))
+    @test dim(sol) == 5
 
     # static option
     sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=true)
