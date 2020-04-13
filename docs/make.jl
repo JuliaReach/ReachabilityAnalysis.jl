@@ -24,10 +24,13 @@ makedocs(
                         # Other topics: Distributed computations. Multithreading.
         "Applications" => Any["Electromechanic break" => "man/applications/embrake.md",
                               "Quadrotor altitude control" => "man/applications/quadrotor.md",
-                              "Transmision line" => "man/applications/transmission_line.md"],
+                              "Transmision line" => "man/applications/transmission_line.md",
+                              "Epidemic disease" => "man/applications/epidemic.md"],
                               # Other topics: car control, power systems stability.
         "Algorithms" => Any["LGG09" => "lib/algorithms/LGG09.md",
                             "GLGM06" => "lib/algorithms/GLGM06.md",
+                            "INT" => "lib/algorithms/INT.md",
+                            "BOX" => "lib/algorithms/BOX.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                             "TMJets" => "lib/algorithms/TMJets.md"],
                             #

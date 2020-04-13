@@ -84,11 +84,11 @@ where ``A`` is a square matrix of order ``n`` and ``δ ∈ \\mathbb{R}_{≥0}``.
 
 ### Input
 
-- `A`           -- coefficient matrix
-- `δ`           -- step size
-- `method`  -- (optional, default: `"base"`) the method used to take the matrix
-                    exponential of the coefficient matrix; see the documentation of
-                    [`exp_Aδ`](@ref) for available options
+- `A`      -- coefficient matrix
+- `δ`      -- step size
+- `method` -- (optional, default: `"base"`) the method used to take the matrix
+              exponential of the coefficient matrix; see the documentation of
+              `_exp_Aδ` for available options
 
 ### Output
 
@@ -152,11 +152,11 @@ where ``A`` is a square matrix of order ``n`` and ``δ ∈ \\mathbb{R}_{≥0}``.
 
 ### Input
 
-- `A`           -- coefficient matrix
-- `δ`           -- step size
-- `method`       -- the method used to take the matrix
-                    exponential of the coefficient matrix; see the documentation of
-                    [`exp_Aδ`](@ref) for available options
+- `A`      -- coefficient matrix
+- `δ`      -- step size
+- `method` -- the method used to take the matrix
+              exponential of the coefficient matrix; see the documentation of
+              `_exp_Aδ` for available options
 
 ### Output
 
