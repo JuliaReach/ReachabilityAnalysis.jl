@@ -109,7 +109,7 @@ function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
-# LazySets interface for those solutions that support it
+# LazySets interface falls back to the associated flowpipe 
 LazySets.dim(sol::ReachSolution) = dim(sol.F)
-LazySets.ρ(d::AbstractVector, sol::ReachSolution{<:Flowpipe}) = ρ(d, sol.F)
-LazySets.σ(d::AbstractVector, sol::ReachSolution{<:Flowpipe}) = σ(d, sol.F)
+LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.F)
+LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.F)

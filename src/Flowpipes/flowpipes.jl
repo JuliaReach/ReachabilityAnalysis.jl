@@ -503,6 +503,15 @@ function project(fp::HybridFlowpipe, args...)
     return [project(F, args...) for F in fp]
 end
 
+# LazySets interface
+function LazySets.ρ(d::AbstractVector, fp::HybridFlowpipe)
+    return maximum(ρ(d, F) for F in array(fp))
+end
+
+function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
+    error("not implemented")
+end
+
 #=
 function (fp::HybridFlowpipe)(dt::TimeInterval)
     # here we assume that indices are one-based, ie. form 1 .. n
@@ -671,6 +680,15 @@ end
 
 function project(fp::MixedFlowpipe, args...)
     return [project(F, args...) for F in fp]
+end
+
+# LazySets interface
+function LazySets.ρ(d::AbstractVector, fp::MixedFlowpipe)
+    return maximum(ρ(d, F) for F in array(fp))
+end
+
+function LazySets.σ(d::AbstractVector, fp::MixedFlowpipe)
+    error("not implemented")
 end
 
 # ============================================
