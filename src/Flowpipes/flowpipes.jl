@@ -495,6 +495,23 @@ function (fp::HybridFlowpipe)(t::Number)
                         "$(tspan(fp)), of the given flowpipe"))
 end
 
+function overapproximate(fp::HybridFlowpipe, args...)
+    return HybridFlowpipe([overapproximate(F, args...) for F in fp])
+end
+
+function project(fp::HybridFlowpipe, args...)
+    return [project(F, args...) for F in fp]
+end
+
+# LazySets interface
+function LazySets.ρ(d::AbstractVector, fp::HybridFlowpipe)
+    return maximum(ρ(d, F) for F in array(fp))
+end
+
+function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
+    error("not implemented")
+end
+
 #=
 function (fp::HybridFlowpipe)(dt::TimeInterval)
     # here we assume that indices are one-based, ie. form 1 .. n
@@ -655,6 +672,23 @@ end
 
 function (fp::MixedFlowpipe)(dt::TimeInterval)
     error("not implemented yet")
+end
+
+function overapproximate(fp::MixedFlowpipe, args...)
+    return MixedFlowpipe([overapproximate(Fi, args...) for Fi in fp])
+end
+
+function project(fp::MixedFlowpipe, args...)
+    return [project(F, args...) for F in fp]
+end
+
+# LazySets interface
+function LazySets.ρ(d::AbstractVector, fp::MixedFlowpipe)
+    return maximum(ρ(d, F) for F in array(fp))
+end
+
+function LazySets.σ(d::AbstractVector, fp::MixedFlowpipe)
+    error("not implemented")
 end
 
 # ============================================

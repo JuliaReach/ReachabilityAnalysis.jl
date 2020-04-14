@@ -172,7 +172,7 @@ end
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
 # of the available options.
-@recipe function plot_list(fp::AbstractFlowpipe;
+@recipe function plot_list(fp::Flowpipe;
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
@@ -253,10 +253,95 @@ end
     end
 end
 
+# compound flowpipes
+@recipe function plot_list(fp::Union{HybridFlowpipe, MixedFlowpipe};
+                           vars=nothing,
+                           ε=Float64(PLOT_PRECISION),
+                           Nφ=PLOT_POLAR_DIRECTIONS,
+                           fast=true
+                          )
+    N = Float64 # TODO: add type parameter to the AbstractFlowpipe ?
+
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+
+    # TODO : try D = 1
+
+    if fast
+        label --> DEFAULT_LABEL
+        grid --> DEFAULT_GRID
+        if DEFAULT_ASPECT_RATIO != :none
+            aspect_ratio --> DEFAULT_ASPECT_RATIO
+        end
+        seriesalpha --> DEFAULT_ALPHA
+        seriescolor --> DEFAULT_COLOR
+        seriestype --> :shape
+
+        first = true
+        x = Vector{N}()
+        y = Vector{N}()
+        for F in fp
+        for Ri in F
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+
+            if Xi isa Intersection
+                res = plot_recipe(Xi, ε, Nφ)
+            else
+                # hard-code overapproximation here to avoid individual
+                # compilations for mixed sets
+                Pi = overapproximate(Xi, ε)
+                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+                if isempty(vlist)
+                    @warn "overapproximation during plotting was empty"
+                    continue
+                end
+                res = vlist[:, 1], vlist[:, 2]
+                # add first vertex to "close" the polygon
+                push!(res[1], vlist[1, 1])
+                push!(res[2], vlist[1, 2])
+            end
+            if isempty(res)
+                continue
+            else
+                x_new, y_new = res
+            end
+            if first
+                first = false
+            else
+                push!(x, N(NaN))
+                push!(y, N(NaN))
+            end
+            append!(x, x_new)
+            append!(y, y_new)
+        end
+        end
+        x, y
+    else
+        for F in fp
+        for Ri in F
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+            if Xi isa Intersection
+                @series Xi, ε, Nφ
+            else
+                @series Xi, ε
+            end
+        end
+        end
+    end
+end
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
 # of the available options.
-@recipe function plot_list(sol::ReachSolution;
+@recipe function plot_list(sol::ReachSolution{<:Flowpipe};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
@@ -334,6 +419,93 @@ end
             else
                 @series Xi, ε
             end
+        end
+    end
+end
+
+# compound solution flowpipes
+@recipe function plot_list(sol::Union{ReachSolution{<:MixedFlowpipe}, ReachSolution{<:HybridFlowpipe}};
+                           vars=nothing,
+                           ε=Float64(PLOT_PRECISION),
+                           Nφ=PLOT_POLAR_DIRECTIONS,
+                           fast=true
+                          )
+
+    N = Float64
+
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+
+    # TODO : try D = 1
+
+    if fast
+        label --> DEFAULT_LABEL
+        grid --> DEFAULT_GRID
+        if DEFAULT_ASPECT_RATIO != :none
+            aspect_ratio --> DEFAULT_ASPECT_RATIO
+        end
+        seriesalpha --> DEFAULT_ALPHA
+        seriescolor --> DEFAULT_COLOR
+        seriestype --> :shape
+
+        first = true
+        x = Vector{N}()
+        y = Vector{N}()
+        for F in flowpipe(sol)
+        for Ri in F
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+
+            if Xi isa Intersection
+                res = plot_recipe(Xi, ε, Nφ)
+            else
+                # hard-code overapproximation here to avoid individual
+                # compilations for mixed sets
+                Pi = overapproximate(Xi, ε)
+                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+                if isempty(vlist)
+                    @warn "overapproximation during plotting was empty"
+                    continue
+                end
+                res = vlist[:, 1], vlist[:, 2]
+                # add first vertex to "close" the polygon
+                push!(res[1], vlist[1, 1])
+                push!(res[2], vlist[1, 2])
+            end
+            if isempty(res)
+                continue
+            else
+                x_new, y_new = res
+            end
+            if first
+                first = false
+            else
+                push!(x, N(NaN))
+                push!(y, N(NaN))
+            end
+            append!(x, x_new)
+            append!(y, y_new)
+        end
+        end
+        x, y
+    else
+        for F in flowpipe(sol)
+        for Ri in F
+            πRi = project(Ri, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+            if Xi isa Intersection
+                @series Xi, ε, Nφ
+            else
+                @series Xi, ε
+            end
+        end
         end
     end
 end
