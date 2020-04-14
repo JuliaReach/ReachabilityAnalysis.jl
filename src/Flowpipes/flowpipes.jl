@@ -553,67 +553,6 @@ function (fp::HybridFlowpipe)(dt::TimeInterval)
 end
 =#
 
-#=
-# TODO:
-# dim,
-
-#dim(fp::Flowpipe{ST, RT}) where {ST, RT<:AbstractReachSet{ST}} = dim(first(fp.Xk))
-# Base.getindex
-=#
-
-#=
-# define the projection lazily?
-# project(fp::Flowpipe, args; kwargs) -> lazy flowpipe with time
-function project(fp::Flowpipe, args...; kwargs...)
-
-    for X in fp.Xk # sets(fp.Xk)
-        project(X, args...; kwargs...)
-    end
-end
-=#
-
-#=
-"""
-    project(Rsets, options)
-
-Projects a sequence of sets according to the settings defined in the options.
-
-### Input
-
-- `Rsets`   -- solution of a reachability problem
-- `options` -- options structure
-
-### Notes
-
-A projection matrix can be given in the options structure, or passed as a
-dictionary entry.
-"""
-function project(Rsets::Vector{<:AbstractReachSet}, options::AbstractOptions)
-    return project_reach(Rsets, options[:plot_vars], options)
-end
-
-TODO:
-
--> project a flowpipe
-
-# helper function to take the cartesian product with the time variable
-#fp::Flowpipe{FT, ST} where {FT, ST}
-
-
-function add_time()
-    flowpipe_with_time = Vector{ReachSet{CartesianProduct{Float64, IT64, ST}}}()
-    add_time!()
-end
-
-function add_time!(F::Flowpipe{ST}) where {ST}
-    @inbounds for X in fp
-        Δt = X.Δt
-        push!(fp, ReachSet(Δt × set(X), Δt))
-    end
-    return flowpipe_with_time
-end
-=#
-
 # ============================================
 # Flowpipes not contiguous in time
 # ============================================
@@ -656,9 +595,7 @@ setrep(::Type{MixedFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::MixedFlowpipe, I::Int...) = getindex(fp.Fk, I...)
-#Base.getindex(fp::MixedFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 
-# assumes that the flowpipes are contiguous in time
 @inline tspan(fp::MixedFlowpipe) = error("for mixed flowpipes you should specify the index, as in `tspan(fp, i)`")
 @inline tspan(fp::MixedFlowpipe, i::Int) = tspan(fp[i])
 
