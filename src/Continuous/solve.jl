@@ -14,23 +14,32 @@ using the algorihm `alg`. If no algorithm is given, a default algorithm is chose
 - `tspan` -- time span for this initial-value problem
 - `alg`   -- reachability algorithm
 
-Additional options are passed as arguments or keyword arguments.
-See the online documentation for examples.
+Additional options are passed as arguments or keyword arguments; see the notes
+below for details. See the online documentation for examples.
 
 ### Output
 
-A solution type.
+The solution of a reachability problem, as an instance of a `ReachSolution`.
 
 ### Notes
 
-- Valid keywords for specifying the algorithm: `alg`, `algorithm` or `opC`.
-- Valid keywords for specifying the time span: `tspan`, which can be:
+- Use the `alg`, `algorithm` or `opC` keyword arguments to specify the algorithm
+  to solve the initial-value problem. Algorithm-specific options should be passed
+  to the algorithm constructor as well.
+
+- Use the `tspan` keyword argument to specifying the time span; it can be:
     - a tuple,
     - an interval, or
     - a vector with two components.
-- Use the keyword argument `T` to specify the time horizon; the initial time is
+
+- Use the `T` keyword argument to specify the time horizon; the initial time is
   then assumed to be zero.
-- Use `static` option to force conversion to static arrays in the algorithm.
+
+- Use the `static` keyword argument to force conversion to static arrays in the
+  algorithm (should be supported by the algorithm).
+
+- Use the `NSTEPS` keyword argument to specify the number of discrete steps
+  solved in the set-based recurrence.
 """
 function solve(ivp::IVP, args...; kwargs...)
     # preliminary checks
@@ -51,7 +60,7 @@ function solve(ivp::IVP, args...; kwargs...)
         @requires DifferentialEquations
         error("saving traces is not implemented yet")
         # compute trajectories, cf. ensemble simulation
-        # traces =
+        # traces = ...
         # sol = ReachSolution(F, cpost, traces) # new solution type?
     else
         # wrap the flowpipe and algorithm in a solution structure
@@ -184,8 +193,6 @@ tend(Δt::TimeInterval) = sup(Δt)
 tspan(Δt::TimeInterval) = Δt
 
 function _get_cpost(ivp, args...; kwargs...)
-    # alg=nothing, algorithm=nothing, opC=nothing,
-    #                              tspan=nothing, T=nothing, static=nothing, NSTEPS=nothing)
     got_alg = haskey(kwargs, :alg)
     got_algorithm = haskey(kwargs, :algorithm)
     got_opC = haskey(kwargs, :opC)
