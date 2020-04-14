@@ -14,6 +14,10 @@
     # check that the following reach-set escapes the invariant
     @test [0.3] ∈ sol[52] && [0.3] ∉ sol[53]
 
+    # check NSTEPS option
+    sol = solve(prob, NSTEPS=10, INT(δ=0.01))
+    @test length(sol) == 10
+
     # doesn't work for higher dimensional systems
     prob, tspan = linear5D_homog()
     @test_throws ArgumentError solve(prob, tspan=tspan, INT(δ=0.01))
