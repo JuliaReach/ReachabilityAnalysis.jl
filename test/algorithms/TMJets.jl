@@ -14,8 +14,8 @@
     # split initial conditions
     X0, S = initial_state(prob), system(prob)
     X0s = split(X0, [2, 1]) # split along direction x
-    probs = solve(IVP(S, X0s), T=0.1)
-    @test flowpipe(probs) isa MixedFlowpipe
+    sols = solve(IVP(S, X0s), T=0.1)
+    @test flowpipe(sols) isa MixedFlowpipe
 end
 
 @testset "TMJets algorithm: linear IVPs" begin
