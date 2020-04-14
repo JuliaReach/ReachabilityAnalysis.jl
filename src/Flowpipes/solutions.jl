@@ -96,16 +96,16 @@ Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
 (sol::ReachSolution)(t::Number) = sol.F(t)
 (sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
 
-function overapproximate(sol::ReachSolution{<:Flowpipe}, args...)
+function overapproximate(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
     return ReachSolution(overapproximate(sol.F, args...), sol.alg, sol.ext)
 end
 
-function project(sol::ReachSolution{<:Flowpipe}, args...)
+function project(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
     return project(sol.F, args...)
 end
 
 # convenience alias to match the usage in the plot recipe
-function project(sol::ReachSolution{<:Flowpipe}; vars)
+function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
