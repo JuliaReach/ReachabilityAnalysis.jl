@@ -20,20 +20,34 @@ See the online documentation for examples.
 ### Output
 
 A solution type.
+
+### Notes
+
+- Valid keywords for specifying the algorithm: `alg`, `algorithm` or `opC`.
+- Valid keywords for specifying the time span: `tspan`, which can be:
+    - a tuple,
+    - an interval, or
+    - a vector with two components.
+- Use the keyword argument `T` to specify the time horizon; the initial time is
+  then assumed to be zero.
+- Use `static` option to force conversion to static arrays in the algorithm.
 """
 function solve(ivp::IVP, args...; kwargs...)
     # preliminary checks
     _check_dim(ivp)
 
     # retrieve time span and continuous post operator algorithm
-    # tspan is of the form (0, 0) if NSTEPS was specified
+    # NOTE: tspan is of the form (0, 0) if NSTEPS was specified
     tspan = _get_tspan(args...; kwargs...)
-    cpost = _get_cpost(ivp, tspan, args...; kwargs...)
+    cpost = _get_cpost(ivp, args...; kwargs...)
+    if cpost == nothing
+        cpost = _default_cpost(ivp, tspan; kwargs...)
+    end
 
     # run the continuous-post operator
     F = post(cpost, ivp, tspan; kwargs...)
 
-    if haskey(kwargs, :save_traces) && (kwargs[:save_traces] == true)
+    if haskey(kwargs, :save_traces) && kwargs[:save_traces]
         @requires DifferentialEquations
         error("saving traces is not implemented yet")
         # compute trajectories, cf. ensemble simulation
@@ -45,6 +59,22 @@ function solve(ivp::IVP, args...; kwargs...)
     end
 
     return sol
+end
+
+# solve for distributed initial conditions
+function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuousSystem,
+                                                            ST<:LazySet, VT<:AbstractVector{ST}}
+    _check_dim(ivp)
+    tspan = _get_tspan(args...; kwargs...)
+    cpost = _get_cpost(ivp, args...; kwargs...)
+    if cpost == nothing
+        cpost = _default_cpost(ivp, tspan; kwargs...)
+    end
+
+    X0 = initial_state(ivp)
+    S = system(ivp)
+    F = [post(cpost, IVP(S, X0i), tspan; kwargs...) for X0i in X0] |> MixedFlowpipe
+    return ReachSolution(F, cpost)
 end
 
 # ==================
@@ -61,8 +91,10 @@ function _check_dim(ivp; throw_error::Bool=true)
     X0 = initial_state(ivp)
     if X0 isa LazySet
         d = dim(X0)
-    elseif X0 isa AbstractVector
+    elseif X0 isa AbstractVector && eltype(X0) <: Number
         d = length(X0)
+    elseif X0 isa AbstractVector && eltype(X0) <: LazySet
+        d = dim(first(X0)) # assumes that first element is representative
     elseif X0 isa Number
         d = 1
     else
@@ -151,24 +183,34 @@ tstart(Δt::TimeInterval) = inf(Δt)
 tend(Δt::TimeInterval) = sup(Δt)
 tspan(Δt::TimeInterval) = Δt
 
-function _get_cpost(ivp, tspan, args...; kwargs...)
+function _get_cpost(ivp, args...; kwargs...)
+    # alg=nothing, algorithm=nothing, opC=nothing,
+    #                              tspan=nothing, T=nothing, static=nothing, NSTEPS=nothing)
     got_alg = haskey(kwargs, :alg)
     got_algorithm = haskey(kwargs, :algorithm)
     got_opC = haskey(kwargs, :opC)
     no_args = isempty(args) || args[1] === nothing
 
-    if got_alg && no_args
-        opC = kwargs[:alg]
-    elseif got_algorithm && no_args
-        opC = kwargs[:algorithm]
-    elseif got_opC && no_args
-        opC = kwargs[:opC]
+    if got_alg
+        cpost = kwargs[:alg]
+    elseif got_algorithm
+        cpost = kwargs[:algorithm]
+    elseif got_opC
+        cpost = kwargs[:opC]
+
+    # check if either args[1] or args[2] are the post
     elseif !no_args && typeof(args[1]) <: AbstractContinuousPost
-        opC = args[1]
+        cpost = args[1]
+    elseif !no_args && length(args) == 2 && typeof(args[2]) <: AbstractContinuousPost
+        cpost = args[2]
+    elseif !no_args && length(args) > 2
+        throw(ArgumentError("the number of arguments, $(length(args)), is not valid"))
+
+    # no algorithm found => compute default
     else
-        opC = _default_cpost(ivp, tspan, args... ; kwargs...)
+        cpost = nothing
     end
-    return opC
+    return cpost
 end
 
 # ===================
@@ -177,9 +219,28 @@ end
 
 const DEFAULT_NSTEPS = 100
 
-# If the system is affine, algorithm `GLGM06` is used.
-# Otherwise, algorithm `TMJets` is used.
-function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan, args...; kwargs...)
+"""
+    _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
+
+### Input
+
+- `ivp`   -- initial-value problem
+- `tspan` -- time-span
+
+### Output
+
+A continuous post-operator that can handle the given initial-value problem.
+
+### Notes
+
+If the system is affine, then:
+
+- If it is one-dimensional, algorithm `INT` is used, otherwise,
+- Algorithm `GLGM06` is used.
+
+If the system is not affine, then the algorithm `TMJets` is used.
+"""
+function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     if isaffine(ivp)
         if haskey(kwargs, :δ)
             δ = kwargs[:δ]
