@@ -58,7 +58,6 @@ system(hs::HACLD1) = hs.sys
 # tstart       Ts-ζ          tend
 # [-------------|-------------]
 function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
-
     X0 = initial_state(ivp)
     ha = system(ivp)
     @unpack sys, rmap, Tsample, ζ = ha
