@@ -608,7 +608,7 @@ end
 using LazySets.Approximations: AbstractDirections
 
 """
-    TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}} <: AbstractReachSet{N}
+    TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}, SN<:AbstractVector{N}} <: AbstractLazyReachSet{N}
 
 Reach set that stores the support function of a set at a give set of directions.
 
@@ -619,6 +619,7 @@ The struct has the following parameters:
 - `N`  -- refers to the numerical type of the representation.
 - `VN` -- refers to the vector type of the template
 - `TN` -- refers to the template type
+- `SN` -- vector type that holds the support function evaluations
 
 Concrete subtypes of `AbstractDirections` are defined in the `LazySets` library.
 
@@ -633,24 +634,35 @@ the following methods are available:
 - `sup_func(R)`    -- return the vector of support function evaluations
 - `sup_func(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
 """
-struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}} <: AbstractReachSet{N}
+struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}, SN<:AbstractVector{N}} <: AbstractLazyReachSet{N}
     dirs::TN
-    sf::Vector{N}
+    sf::SN
     Δt::TimeInterval
+end
+
+# constructor from a given set (may overapproximate)
+function TemplateReachSet(dirs::AbstractDirections, X::LazySet, Δt::TimeInterval)
+    sfunc = [ρ(d, X) for d in dirs]
+    return TemplateReachSet(dirs, sfunc, Δt)
+end
+
+# constructor from a given reach-set (may overapproximate)
+function TemplateReachSet(dirs::AbstractDirections, R::AbstractLazyReachSet)
+    return TemplateReachSet(dirs, set(R), tspan(R))
 end
 
 # implement abstract reachset interface
 # TODO: use HPolyhedron or HPolytope if the set is bounded or not
-set(R::TemplateReachSet) = HPolytope([HalfSpace(R.dirs[i], R.sf[i]) for i in eachindex(R.sf)])
+set(R::TemplateReachSet) = HPolytope([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
 setrep(::Type{TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
 setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
-dim(R::TemplateReachSet) = length(first(R.dirs))
+dim(R::TemplateReachSet) = dim(R.dirs)
 vars_idx(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
 
-directions(R::TemplateReachSet) = R.dirs
+directions(R::TemplateReachSet) = R.dirs # TODO rename to dirs ?
 sup_func(R::TemplateReachSet) = R.sf # TODO rename?
 sup_func(R::TemplateReachSet, i) = R.sf[i]
 
