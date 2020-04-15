@@ -58,7 +58,6 @@ system(hs::HACLD1) = hs.sys
 # tstart       Ts-ζ          tend
 # [-------------|-------------]
 function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
-
     X0 = initial_state(ivp)
     ha = system(ivp)
     @unpack sys, rmap, Tsample, ζ = ha
@@ -89,7 +88,6 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     end
     αhigh = (Tsample + ζ)/δ
     NHIGH = ceil(Int, αhigh)
-    println(NHIGH)
     sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
     # preallocate output vector of flowpipes

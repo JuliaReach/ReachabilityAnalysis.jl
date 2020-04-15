@@ -63,7 +63,6 @@ function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:lazy}
     elseif alg.sih == :lazy
         Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
     end
-
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
     return Ω0
 end

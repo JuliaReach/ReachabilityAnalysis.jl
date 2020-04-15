@@ -157,7 +157,7 @@ function _get_tspan(args...; kwargs...)
                               args[1] isa Interval || args[1] isa IntervalArithmetic.Interval)
         tspan = _promote_tspan(args[1])
 
-    elseif args[1] isa Float64 # got time horizon as first argument
+    elseif !isempty(args) && args[1] isa Real # got time horizon as first argument
         tspan = (zero(args[1]), args[1])
 
     elseif got_NSTEPS

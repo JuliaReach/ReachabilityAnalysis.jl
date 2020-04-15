@@ -392,6 +392,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
                 xTMN[i] = fp_rpa( TaylorModelN(x[i](δtI), rem[i], zbox, symIbox) )
 
                 # If remainder is still too big, do it again
+                # TODO: check if this can be avoided.
                 j = 0
                 while (j < 10) && (mag(rem[i]) > 1.0e-10)
                     j += 1
