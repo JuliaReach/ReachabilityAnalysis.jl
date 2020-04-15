@@ -605,14 +605,23 @@ end
 # Template reach set
 # ================================================================
 
+using LazySets.Approximations: AbstractDirections
+
 """
-    TemplateReachSet{N, VN<:AbstractVector{N}} <: AbstractReachSet{N}
+    TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}} <: AbstractReachSet{N}
 
 Reach set that stores the support function of a set at a give set of directions.
 
 ### Notes
 
-The parameter `N` refers to the numerical type of the representation.
+The struct has the following parameters:
+
+- `N`  -- refers to the numerical type of the representation.
+- `VN` -- refers to the vector type of the template
+- `TN` -- refers to the template type
+
+Concrete subtypes of `AbstractDirections` are defined in the `LazySets` library.
+
 This reach-set implicitly represents a set by a set of directions and support
 functions. `set(R::TemplateReachSet)` returns a polyhedron in half-space
 representation.
@@ -624,8 +633,8 @@ the following methods are available:
 - `sup_func(R)`    -- return the vector of support function evaluations
 - `sup_func(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
 """
-struct TemplateReachSet{N, VN<:AbstractVector{N}} <: AbstractReachSet{N}
-    dirs::Vector{VN} # TODO: consider more general types eg. AbstractDirections ?
+struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}} <: AbstractReachSet{N}
+    dirs::TN
     sf::Vector{N}
     Δt::TimeInterval
 end
@@ -639,14 +648,17 @@ tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = length(first(R.dirs))
-vars_idx(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
+vars_idx(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
 
 directions(R::TemplateReachSet) = R.dirs
-sup_func(R::TemplateReachSet) = R.sf
+sup_func(R::TemplateReachSet) = R.sf # TODO rename?
 sup_func(R::TemplateReachSet, i) = R.sf[i]
 
+# overapproximate a given reach set with the template, concretely
+#= TODO: remove?
 function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
     Δt = tspan(R)
     sup_func = map(d -> ρ(d, R), dirs)
     return TemplateReachSet(dirs, sup_func, Δt)
 end
+=#
