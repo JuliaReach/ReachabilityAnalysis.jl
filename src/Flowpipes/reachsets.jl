@@ -674,3 +674,7 @@ function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
     return TemplateReachSet(dirs, sup_func, Δt)
 end
 =#
+
+# convenience functions to get support directions of a given set
+_getdirs(X::LazySet) = [c.a for c in constraints_list(X)]
+LazySets.CustomDirections(X::LazySet) = CustomDirections(_getdirs(X), dim(X)) # TODO may use isboundedtype trait
