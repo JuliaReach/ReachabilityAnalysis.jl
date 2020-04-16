@@ -30,6 +30,7 @@ in the discretization are done using interval arithmetic.
 end
 
 step_size(alg::INT) = alg.δ
+numtype(::INT{N}) where {N} = N
 
 include("post.jl")
 include("reach.jl")

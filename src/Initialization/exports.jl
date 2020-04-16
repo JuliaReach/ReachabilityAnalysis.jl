@@ -37,12 +37,11 @@ export
 
 # Getter functions
     set,
-    setrep,
     tstart,
     tend,
     tspan,
     vars_idx, # >> call this vars ?
-    sup_func,
+    sup_func, # TODO ?
 
 # Concrete operations
     project,

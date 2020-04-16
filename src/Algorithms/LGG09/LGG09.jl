@@ -41,6 +41,7 @@ See [1] and [2].
 end
 
 step_size(alg::LGG09) = alg.δ
+numtype(::LGG09{N}) where {N} = N
 
 include("reach.jl")
 include("post.jl")
