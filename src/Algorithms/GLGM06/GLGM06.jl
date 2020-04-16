@@ -44,7 +44,7 @@ function rsetrep(alg::GLGM06{N}) where {N}
         # MT = SMatrix{n, p, N, n*p}
         # ZT = Zonotope{N, VT, MT}
         # RT = ReachSet{N, ZT}
-    else
+    end
     return RT
 end
 
