@@ -40,6 +40,9 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
 
 - Use the `NSTEPS` keyword argument to specify the number of discrete steps
   solved in the set-based recurrence.
+
+- Use the `threading` option to use multi-threading parallelism. This option applies
+  for initial-value problems whose initial condition is a vector of sets.
 """
 function solve(ivp::IVP, args...; kwargs...)
     # preliminary checks
@@ -83,7 +86,7 @@ function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuo
     X0 = initial_state(ivp)
     S = system(ivp)
 
-    threading = haskey(kwargs, :threading) ? kwargs[:threading] : true
+    threading = haskey(kwargs, :threading) ? kwargs[:threading] : (Threads.nthreads() > 1)
 
     F = _solve_distributed(cpost, S, X0, tspan, Val(threading); kwargs...)
     return ReachSolution(MixedFlowpipe(F), cpost)
