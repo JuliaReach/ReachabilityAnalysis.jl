@@ -31,6 +31,7 @@ step ``k ∈ \\mathbb{N}``.
 end
 
 step_size(alg::BOX) = alg.δ
+numtype(::BOX{N}) where {N} = N
 
 include("post.jl")
 include("reach.jl")

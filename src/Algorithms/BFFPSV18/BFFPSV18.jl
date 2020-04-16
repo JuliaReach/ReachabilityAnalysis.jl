@@ -26,6 +26,7 @@ TODO
 end
 
 step_size(alg::BFFPSV18) = alg.δ
+numtype(::BFFPSV18{N}) where {N} = N
 
 #const _DEFAULT_APPROX_MODEL_BFFPSV18 =
 

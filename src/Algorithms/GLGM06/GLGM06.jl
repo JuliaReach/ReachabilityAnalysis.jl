@@ -31,6 +31,7 @@ See [xxx] and [yyy]
 end
 
 step_size(alg::GLGM06) = alg.δ
+numtype(::GLGM06{N}) where {N} = N
 
 include("post.jl")
 include("reach.jl")

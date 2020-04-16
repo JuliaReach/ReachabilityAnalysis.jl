@@ -5,6 +5,7 @@
 end
 
 step_size(alg::ASB07) = alg.δ
+numtype(::ASB07{N}) where {N} = N
 
 include("post.jl")
 include("reach.jl")

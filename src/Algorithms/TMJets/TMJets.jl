@@ -25,6 +25,8 @@ end
 using TaylorModels: TaylorModelN
 using TaylorModels: fp_rpa, remainder
 
+numtype(::TMJets{N}) where {N} = N
+
 include("post.jl")
 include("reach.jl")
 include("validated_integ.jl")

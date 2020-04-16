@@ -70,7 +70,7 @@ function solve(ivp::IVP, args...; kwargs...)
     return sol
 end
 
-# solve for distributed initial conditions
+# solve for distributed initial conditions; uses multi-threaded implementation by default
 function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuousSystem,
                                                             ST<:LazySet, VT<:AbstractVector{ST}}
     _check_dim(ivp)
@@ -82,8 +82,27 @@ function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuo
 
     X0 = initial_state(ivp)
     S = system(ivp)
-    F = [post(cpost, IVP(S, X0i), tspan; kwargs...) for X0i in X0] |> MixedFlowpipe
-    return ReachSolution(F, cpost)
+
+    parallel = haskey(kwargs, :threading) ? kwargs[:threading] : true
+
+    F = _solve_distributed(cpost, S, X0, tspan, Val(threading); kwargs...)
+    return ReachSolution(MixedFlowpipe(F), cpost)
+end
+
+function _solve_distributed(cpost, S, X0, tspan, threading::Val{false}; kwargs...)
+    return [post(cpost, IVP(S, X0i), tspan; kwargs...) for X0i in X0]
+end
+
+function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...)
+    nsets = length(X0)
+    FT = Flowipe{numtype(cpost), setrep(cpost)}
+    sol_tot = Vector{FT}(undef, nsets)
+
+    Threads.@threads for i in 1:length(X0)
+        sol_i = ReachabilityAnalysis.post(cpost, IVP(S, X0[i]), tspan; kwargs...)
+        sol_tot[i] = sol_i
+    end
+    return sol_tot
 end
 
 # ==================
