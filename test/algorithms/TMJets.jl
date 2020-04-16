@@ -14,7 +14,7 @@
     # split initial conditions
     X0, S = initial_state(prob), system(prob)
     X0s = split(X0, [2, 1]) # split along direction x
-    sols = solve(IVP(S, X0s), T=0.1)
+    sols = solve(IVP(S, X0s), T=0.1, threading=false) # no threading
     @test flowpipe(sols) isa MixedFlowpipe
 end
 
