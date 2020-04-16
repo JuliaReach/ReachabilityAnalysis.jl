@@ -18,14 +18,13 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
     abs_tol::N=1e-15
     orderT::Int=8
     orderQ::Int=2
-    # setrep::ST=Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
-    # add setrep as a type?
 end
 
 using TaylorModels: TaylorModelN
 using TaylorModels: fp_rpa, remainder
 
 numtype(::TMJets{N}) where {N} = N
+rsetrep(::TMJets{N}) where {N} = TaylorModelReachSet{N}
 
 include("post.jl")
 include("reach.jl")

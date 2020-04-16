@@ -95,7 +95,7 @@ end
 
 function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...)
     nsets = length(X0)
-    FT = Flowipe{numtype(cpost), rsetrep(cpost)}
+    FT = Flowpipe{numtype(cpost), rsetrep(cpost)}
     sol_tot = Vector{FT}(undef, nsets)
 
     Threads.@threads for i in 1:length(X0)
@@ -217,6 +217,7 @@ function _get_cpost(ivp, args...; kwargs...)
     got_opC = haskey(kwargs, :opC)
     no_args = isempty(args) || args[1] === nothing
 
+    # continous post was specified
     if got_alg
         cpost = kwargs[:alg]
     elseif got_algorithm
@@ -285,7 +286,8 @@ function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
         if statedim(ivp) == 1
             opC = INT(δ=δ)
         else
-            opC = GLGM06(δ=δ)
+            static = haskey(kwargs, :static) ? kwargs[:static] : false
+            opC = GLGM06(δ=δ, static=static)
         end
     else
         opC = TMJets()

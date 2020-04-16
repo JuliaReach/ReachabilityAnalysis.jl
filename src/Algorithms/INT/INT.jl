@@ -31,6 +31,7 @@ end
 
 step_size(alg::INT) = alg.δ
 numtype(::INT{N}) where {N} = N
+rsetrep(::INT{N}) where {N} = ReachSet{N, Interval{N, IA.Interval{N}}}
 
 include("post.jl")
 include("reach.jl")

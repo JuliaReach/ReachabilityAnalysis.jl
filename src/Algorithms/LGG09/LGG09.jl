@@ -38,10 +38,20 @@ See [1] and [2].
     δ::N
     approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
     template::AD
+    static::Bool=false
 end
 
 step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
+function rsetrep(alg::LGG09{N}) where {N}
+    if alg.static
+        error("not implemented")
+    else
+        error("not implemented")
+        #RT = TemplateReachSet{...}
+    end
+    return RT
+end
 
 include("reach.jl")
 include("post.jl")

@@ -30,7 +30,7 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     Ω0 = _reduce_order(Ω0, max_order)
 
     # reconvert the set of initial states and state matrix, if needed
-    static = haskey(kwargs, :static) ? kwargs[:static] : false
+    static = haskey(kwargs, :static) ? kwargs[:static] : false # TODO use algorithm's field
     Ω0 = _reconvert(Ω0, Val(static))
     Φ = _reconvert(Φ, Val(static))
 

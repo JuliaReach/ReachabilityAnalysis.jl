@@ -24,14 +24,29 @@ See [xxx] and [yyy]
 """
 @with_kw struct GLGM06{N, AM} <: AbstractContinuousPost
     δ::N
-    # TODO: use set-operations option
-    # nota: la opcion set_operations="zonotope" es ignorada (?)
+    # TODO set_operations="zonotope" used or ignored
     approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
     max_order::Int=10
+    static::Bool=false
 end
 
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
+
+function rsetrep(alg::GLGM06{N}) where {N}
+    if !alg.static
+        RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
+    else
+        error("not implemented")
+        # n : other parameter of GLGM06 / or just a field alg.dim
+        # p : order * dimension eg. alg.max_order * alg.dim
+        # VT = SVector{n, N}
+        # MT = SMatrix{n, p, N, n*p}
+        # ZT = Zonotope{N, VT, MT}
+        # RT = ReachSet{N, ZT}
+    else
+    return RT
+end
 
 include("post.jl")
 include("reach.jl")

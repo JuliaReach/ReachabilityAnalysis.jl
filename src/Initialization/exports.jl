@@ -41,7 +41,9 @@ export
     tend,
     tspan,
     vars_idx, # >> call this vars ?
-    sup_func, # TODO ?
+    sup_func, # TODO keep?
+    setrep,
+    rsetrep,
 
 # Concrete operations
     project,
