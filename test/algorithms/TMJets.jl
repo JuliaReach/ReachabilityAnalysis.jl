@@ -16,6 +16,9 @@
     X0s = split(X0, [2, 1]) # split along direction x
     sols = solve(IVP(S, X0s), T=0.1, threading=false) # no threading
     @test flowpipe(sols) isa MixedFlowpipe
+
+    sols = solve(IVP(S, X0s), T=0.1, threading=true) # with threading (default)
+    @test flowpipe(sols) isa MixedFlowpipe
 end
 
 @testset "TMJets algorithm: linear IVPs" begin

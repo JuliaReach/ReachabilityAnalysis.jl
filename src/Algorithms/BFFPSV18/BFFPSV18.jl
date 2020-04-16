@@ -28,6 +28,10 @@ end
 step_size(alg::BFFPSV18) = alg.δ
 numtype(::BFFPSV18{N}) where {N} = N
 
+function rsetrep(::BFFPSV18{N}) where {N}
+    error("not implemented")
+end
+
 #const _DEFAULT_APPROX_MODEL_BFFPSV18 =
 
 include("post.jl")

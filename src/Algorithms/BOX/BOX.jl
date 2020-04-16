@@ -28,10 +28,19 @@ step ``k ∈ \\mathbb{N}``.
 @with_kw struct BOX{N, AM} <: AbstractContinuousPost
     δ::N
     approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
+    static::Bool=false
 end
 
 step_size(alg::BOX) = alg.δ
 numtype(::BOX{N}) where {N} = N
+function rsetrep(::BOX{N}) where {N}
+    if static
+        error("not implemented")
+    else
+        RT = ReachSet{N, Hyperrectangle{N, Vector{N}, Vector{N}}}
+    end
+    return RT
+end
 
 include("post.jl")
 include("reach.jl")
