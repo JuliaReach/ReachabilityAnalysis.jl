@@ -347,7 +347,7 @@ end
 # interface functions
 set(R::SparseReachSet) = R.X
 setrep(::SparseReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
-setrep(::Type{SparseReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
+setrep(::Type{<:SparseReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
 tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt

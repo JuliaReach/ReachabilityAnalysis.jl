@@ -84,11 +84,11 @@ end
 
 ### Output
 
-An integer representing the ambien dimension of the flowpipe.
+An integer representing the ambient dimension of the flowpipe.
 """
 function LazySets.dim(fp::AbstractFlowpipe)
-    @assert !isempty(fp) "the dimension is not defined because this flowpipe is empty"
-    return dim(first(fp)) # it is assumed that the sets do not change dimension (!)
+    length(fp) > 0 || throw(ArgumentError("the dimension is not defined because this flowpipe is empty"))
+    return dim(first(fp)) # assumes that the first set is representative
 end
 
 # iteration interface
@@ -238,6 +238,20 @@ function Flowpipe(Xk::Vector{RT}) where {N, RT<:AbstractReachSet{N}}
     return Flowpipe(Xk, Dict{Symbol, Any}())
 end
 
+# undef initializer given a set type
+function Flowpipe(::UndefInitializer, ST::Type{<:LazySet{N}}, k::Int) where {N}
+    return Flowpipe(Vector{ReachSet{N, ST}}(undef, k), Dict{Symbol, Any}())
+end
+
+# undef initializer given a reach-set type
+function Flowpipe(::UndefInitializer, RT::Type{<:AbstractReachSet}, k::Int)
+    return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
+end
+
+function Base.similar(fp::Flowpipe{N, RT}) where {N, RT<:AbstractReachSet{N}}
+   return Flowpipe(Vector{RT}())
+end
+
 Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
 Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
 Base.size(fp::Flowpipe) = (length(fp.Xk),)
@@ -301,10 +315,6 @@ end
 project(fp::Flowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 
-function Base.similar(fp::Flowpipe{N, RT}) where {N, RT<:AbstractReachSet{N}}
-   return Flowpipe(Vector{RT}())
-end
-
 """
     shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
 
@@ -334,6 +344,11 @@ end
 function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
     Y = ConvexHullArray([set(X) for X in array(fp)])
     return ReachSet(Y, tspan(fp))
+end
+
+# the dimension of sparse flowpipes is known in the type
+function LazySets.dim(::Flowpipe{N, SparseReachSet{N, ST, D}}) where {N, ST, D}
+    return D
 end
 
 # =======================================
@@ -367,9 +382,6 @@ end
 @inline array(fp::ShiftedFlowpipe) = array(fp.F)
 @inline flowpipe(fp::ShiftedFlowpipe) = fp.F
 @inline time_shift(fp::ShiftedFlowpipe) = fp.t0
-
-# alias
-const Shift = ShiftedFlowpipe
 
 # time domain interface
 @inline tstart(fp::ShiftedFlowpipe) = tstart(first(fp)) + time_shift(fp)
@@ -462,7 +474,6 @@ setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
-#Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 
 # assumes that the flowpipes are contiguous in time
 tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
