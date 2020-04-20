@@ -97,7 +97,7 @@ function scale!(α::Real, Z::Zonotope)
 end
 
 # in-place linear map of a zonotope
-function linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
+function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
     c = Z.center
     G = Z.generators
     Zout.center .= M * c
@@ -333,78 +333,87 @@ function _symmetric_interval_hull(x::Interval)
     return Interval(-bound, bound)
 end
 
-# TODO: review
-function _reduce_order(Z::Zonotope{N, VN, MN}, r::Union{Integer, Rational}) where {N<:Real, VN, MN}
+# ==================================
+# Zonotope order reduction methods
+# ==================================
+
+# algorithm selection
+#_reduce_order(Z::Zonotope, r, alg::Val{:combastel}) = _reduce_order_COMB03(Z, r)
+#_reduce_order(Z::Zonotope, r, alg::Val{:girard}) = _reduce_order_GIR05(Z, r)
+_reduce_order(Z, r) = _reduce_order_COMB03(Z, r) # TEMP default > add option to algorithm structs
+
+# Implements zonotope order reduction method from [...]
+# TODO add refs
+function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
+    r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
-    d, p = size(G)
+    n, p = size(G)
 
-    if (r * d >= p) || r < 1
-        # do not reduce
-        return Z
-    end
+    # r is bigger than that order of Z => don't reduce
+    (r * n >= p) && return Z
 
-    # subset of ngens that are reduced
-    m = p - floor(Int, d * (r - 1))
-
-    h = zeros(N, p)
-    @inbounds for i in 1:p
-        Gi = view(G, :, i)
-        h[i] = norm(Gi, 1) - norm(Gi, Inf)
-    end
-    ind = sortperm(h)
-
-    Gbox = zeros(N, d, p)
-    for j in ind[1:m]
-        for i in 1:d
-            @inbounds Gbox[i, j] += abs(G[i, j])
+    # compute interval hull of L
+    Lred = zeros(N, n, n)
+    @inbounds for i in 1:n
+        for j in 1:p
+            Lred[i, i] += abs(G[i, j])
         end
     end
 
-    if m < p
-        Gnotred = G[:, ind[m+1:end]]
-        Gred = hcat(Gnotred, Gbox)
-    else
-        Gred = Gbox
+    if isone(r)
+        return Zonotope(c, Lred)
     end
+
+    # split Z into K and L
+    # sort generators by decreasing 2-norm
+    weights = zeros(N, p)
+    @inbounds for i in 1:p
+        weights[i] = norm(view(G, :, i), 2)
+    end
+    indices = Vector{Int}(undef, p)
+    sortperm!(indices, weights, rev=true, initialized=false)
+
+    m = floor(Int, n * (r - 1))
+    Gred = hcat(G[:, indices[1:m]], Lred)
     return Zonotope(c, Gred)
 end
 
-function _reduce_order(Z::Zonotope{N, VN, MN}, r::Union{Integer, Rational}) where {N<:Real, VN<:SVector, MN<:SMatrix}
+# Implements zonotope order reduction method from [...]
+# TODO add refs
+function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
+    r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
-    d, p = size(G)
+    n, p = size(G)
 
-    if (r * d >= p) || r < 1
-        # do not reduce
-        return Z
-    end
+    # r is bigger than that order of Z => don't reduce
+    (r * n >= p) && return Z
 
-    # subset of ngens that are reduced
-    m = p - floor(Int, d * (r - 1))
-
-    h = zeros(N, p)
-    @inbounds for i in 1:p
-        Gi = view(G, :, i)
-        h[i] = norm(Gi, 1) - norm(Gi, Inf)
-    end
-    ind = sortperm(h)
-
-    Gbox = zeros(N, d, p)
-    for j in ind[1:m]
-        for i in 1:d
-            @inbounds Gbox[i, j] += abs(G[i, j])
+    # compute interval hull of L
+    Lred = zeros(N, n, n)
+    @inbounds for i in 1:n
+        for j in 1:p
+            Lred[i, i] += abs(G[i, j])
         end
     end
 
-    Gbox_st = SMatrix{size(Gbox)..., N}(Gbox)
-    if m < p
-        Gnotred = view(G, :, ind[m+1:end])
-        Gnotred_st = SMatrix{size(Gnotred)..., N}(Gnotred)
-        Gred = hcat(Gnotred_st, Gbox_st)
-    else
-        Gred = Gbox_st
+    if isone(r)
+        return Zonotope(c, Lred)
     end
+
+    # split Z into K and L
+    # sort generators by decreasing 2-norm
+    weights = zeros(N, p)
+    @inbounds for i in 1:p
+        v = view(G, :, i)
+        weights[i] = norm(v, 1) - norm(v, Inf)
+    end
+    indices = Vector{Int}(undef, p)
+    sortperm!(indices, weights, rev=true, initialized=false)
+
+    m = floor(Int, n * (r - 1))
+    Gred = hcat(G[:, indices[1:m]], Lred)
     return Zonotope(c, Gred)
 end
 
