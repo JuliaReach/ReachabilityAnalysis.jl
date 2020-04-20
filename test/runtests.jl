@@ -11,6 +11,7 @@ include("models/hybrid/embrake.jl")
 #include("utils.jl")
 include("solve.jl")
 include("reachsets.jl")
+include("flowpipes.jl")
 #include("traces.jl")
 
 include("algorithms/INT.jl")
