@@ -20,11 +20,12 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Zk = set(F[k])
         ck = Zk.center
         Gk = Zk.generators
-        Rₖ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
-        Rₖ = _reduce_order(Rₖ, max_order)
+
+        k = k + 1
+        Zₖ₊₁ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
+        Rₖ₊₁ = _reduce_order(Zₖ₊₁, max_order)
         Δt += δ
-        k += 1
-        F[k] = ReachSet(Rₖ, Δt)
+        F[k] = ReachSet(Rₖ₊₁, Δt)
     end
     return F
 end
