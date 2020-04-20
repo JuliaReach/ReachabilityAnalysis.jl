@@ -342,8 +342,8 @@ end
 #_reduce_order(Z::Zonotope, r, alg::Val{:girard}) = _reduce_order_GIR05(Z, r)
 _reduce_order(Z, r) = _reduce_order_COMB03(Z, r) # TEMP default > add option to algorithm structs
 
-# Implements zonotope order reduction method from [...]
-# TODO add refs
+# Implements zonotope order reduction method from [COMB03]
+# We follow the notation from [YS18]
 function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
@@ -379,8 +379,8 @@ function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     return Zonotope(c, Gred)
 end
 
-# Implements zonotope order reduction method from [...]
-# TODO add refs
+# Implements zonotope order reduction method from [GIR05]
+# We follow the notation from [YS18]
 function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
