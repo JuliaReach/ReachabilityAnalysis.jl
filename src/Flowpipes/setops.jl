@@ -258,18 +258,24 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
     c_oa = Mc * c
     Ggens = Mc * G
 
-    Dv = zeros(N, n, n)
-    Gt = transpose(G)
+    dvec = zeros(N, n)
     @inbounds for i in 1:n
-        Dv[i, i] = abs(c[i])
+        dvec[i] = abs(c[i])
         for j in 1:m
-            Dv[i, i] += abs(Gt[j, i])
+            dvec[i] += abs(G[i, j])
         end
     end
-    G_oa = hcat(Ggens, Ms * Dv)
+    DV = zeros(N, n, n)
+    α = Ms * dvec
+    @inbounds for i in 1:n
+        DV[i, i] = α[i]
+    end
+    G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
 end
 
+#=
+TODO : finish
 function _overapproximate_interval_linear_map(Mc::StaticArray{Tuple{q, n}, T, 2},
                                               Ms::StaticArray{Tuple{q, n}, T, 2},
                                               c::AbstractVector{N},
@@ -278,19 +284,23 @@ function _overapproximate_interval_linear_map(Mc::StaticArray{Tuple{q, n}, T, 2}
     c_oa = Mc * c
     Ggens = Mc * G
 
-    Dv = zeros(MMatrix{n, n, N})
-    c_abs = abs.(c)
-    Gt = transpose(G)
+    dvec = zeros(MVector{n, N})
+    # TODO use abs.(c) ?
     @inbounds for i in 1:n
-        Dv[i, i] = c_abs[i]
+        dvec[i] = abs(c[i])
         for j in 1:m
-            Dv[i, i] += abs(Gt[j, i])
+            dvec[i, i] += abs(G[i, j])
         end
     end
-    G_oa = hcat(Ggens, Ms * Dv)
-
+    DV = zeros(MMatrix{n, n, N})
+    α = Ms * dvec
+    @inbounds for i in 1:n
+        DV[i, i] = α[i]
+    end
+    G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
 end
+=#
 
 function _split_fallback!(A::IntervalMatrix{T}, C, S) where {T}
     m, n = size(A)

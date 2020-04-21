@@ -3,6 +3,7 @@
     approx_model::AM=CorrectionHull(order=10, exp=:base)
     max_order::Int=10
     static::Bool=false
+    recursive::Bool=false
 end
 
 step_size(alg::ASB07) = alg.δ
