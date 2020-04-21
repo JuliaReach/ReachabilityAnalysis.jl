@@ -145,15 +145,14 @@ end
 # where F is the correction (interval) matrix
 # if A is an interval matix, the exponential is overapproximated
 function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHull)
-    println("using correction hull")
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
 
     X0z = _convert_or_overapproximate(Zonotope, X0)
     if A isa IntervalMatrix
-        println("A isa IntervalMatrix")
-        Φ = exp_overapproximation(A, δ, alg.order)        
+        Φ = exp_overapproximation(A, δ, alg.order)
+
         #Φ = IntervalMatrices.scale_and_square(A, 10, δ, 10)
         Y = _overapproximate(Φ * X0z, Zonotope)
     else
