@@ -59,6 +59,10 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     end
 end
 
+function _convert_or_overapproximate(::Type{<:Zonotope}, X::AffineMap{N, <:Zonotope{N}, VN}) where {N, VN}
+    return translate(linear_map(LazySets.matrix(X), LazySets.set(X)), LazySets.vector(X))
+end
+
 #=
 # no-op
 function _convert_or_overapproximate2(T::Type{<:Zonotope}, X::Zonotope)
@@ -356,7 +360,7 @@ function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     G = Z.generators
     n, p = size(G)
 
-    # r is bigger than that order of Z => don't reduce
+    # r is bigger than the order of Z => don't reduce
     (r * n >= p) && return Z
 
     # compute interval hull of L
@@ -393,7 +397,7 @@ function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     G = Z.generators
     n, p = size(G)
 
-    # r is bigger than that order of Z => don't reduce
+    # r is bigger than the order of Z => don't reduce
     (r * n >= p) && return Z
 
     # compute interval hull of L
