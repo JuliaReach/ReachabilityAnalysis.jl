@@ -97,19 +97,15 @@ function scale!(α::Real, Z::Zonotope)
 end
 
 # in-place linear map of a zonotope
-function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
-    c = Z.center
-    G = Z.generators
-    Zout.center .= M * c
-    Zout.generators .= M .* G
+@inline function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
+    mul!(Zout.center, M, Z.center)
+    mul!(Zout.generators, M, Z.generators)
     return Zout
 end
 
 @inline function _linear_map(M::AbstractMatrix, Z::Zonotope)
-    c = Z.center
-    G = Z.generators
-    cout = M * c
-    Gout = M * G
+    cout = M * Z.center
+    Gout = M * Z.generators
     return Zonotope(cout, Gout)
 end
 
