@@ -12,7 +12,8 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              NSTEPS::Integer,
                              δ::Float64,
                              max_order::Integer,
-                             X::Universe) where {N, VN, MN}
+                             X::Universe,
+                             preallocate::Val{false}) where {N, VN, MN}
 
     # initial reach set
     Δt = zero(N) .. δ
@@ -28,7 +29,50 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     return F
 end
 
+# version that preallocates the output zonotopes
+function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}},
+                             Ω0::Zonotope{N, Vector{N}, Matrix{N}},
+                             Φ::AbstractMatrix,
+                             NSTEPS::Integer,
+                             δ::Float64,
+                             max_order::Integer,
+                             X::Universe,
+                             preallocate::Val{true}) where {N}
+
+    # initial reach set
+    Δt = zero(N) .. δ
+    @inbounds F[1] = ReachSet(Ω0, Δt)
+
+    n, p = size(Ω0.generators)
+
+    # preallocate output
+    Zout = Vector{Zonotope{N, Vector{N}, Matrix{N}}}(undef, NSTEPS)
+
+    if p == 0
+        Zout[1] = Zonotope(Ω0.center, zeros(N, n, 1))
+        p = 1
+    else
+        Zout[1] = Ω0
+    end
+
+    @inbounds for i in 2:NSTEPS
+        c = Vector{N}(undef, n)
+        G = Matrix{N}(undef, n, p)
+        Zout[i] = Zonotope(c, G)
+    end
+
+    k = 2
+    @inbounds while k <= NSTEPS
+        _linear_map!(Zout[k], Φ, Zout[k-1])
+        Δt += δ
+        F[k] = ReachSet(Zout[k], Δt)
+        k += 1
+    end
+    return F
+end
+
 # check interection with invariant on the loop
+# TODO: add variation with `preallocate` option, so this can be used
 function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              Ω0::Zonotope{N, VN, MN},
                              Φ::AbstractMatrix,

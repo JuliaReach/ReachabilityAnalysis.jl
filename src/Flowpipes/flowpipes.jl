@@ -209,7 +209,7 @@ end
 # ================================
 
 """
-    Flowpipe{N, RT<:AbstractReachSet{N}} <: AbstractFlowpipe
+    Flowpipe{N, RT<:AbstractReachSet{N}, VRT<:AbstractVector{RT}} <: AbstractFlowpipe
 
 Type that wraps a flowpipe.
 
@@ -224,8 +224,8 @@ The dimension of the flowpipe corresponds to the dimension of the underlying
 reach-sets; in this type, it is is assumed that the dimension is the same for
 the different reach-sets.
 """
-struct Flowpipe{N, RT<:AbstractReachSet{N}} <: AbstractFlowpipe
-    Xk::Vector{RT}
+struct Flowpipe{N, RT<:AbstractReachSet{N}, VRT<:AbstractVector{RT}} <: AbstractFlowpipe
+    Xk::VRT
     ext::Dict{Symbol, Any}
 end
 
@@ -234,7 +234,7 @@ end
 @inline flowpipe(fp::Flowpipe) = fp
 
 # constructor from empty extension dictionary
-function Flowpipe(Xk::Vector{RT}) where {N, RT<:AbstractReachSet{N}}
+function Flowpipe(Xk::AbstractVector{RT}) where {N, RT<:AbstractReachSet{N}}
     return Flowpipe(Xk, Dict{Symbol, Any}())
 end
 
@@ -248,15 +248,15 @@ function Flowpipe(::UndefInitializer, RT::Type{<:AbstractReachSet}, k::Int)
     return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
 end
 
-function Base.similar(fp::Flowpipe{N, RT}) where {N, RT<:AbstractReachSet{N}}
-   return Flowpipe(Vector{RT}())
+function Base.similar(fp::Flowpipe{N, RT, VRT}) where {N, RT, VRT}
+   return Flowpipe(VRT())
 end
 
 Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
 Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
 Base.size(fp::Flowpipe) = (length(fp.Xk),)
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
-setrep(::Type{Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
+setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 
 # evaluate a flowpipe at a given time point: gives a reach set
 # here it would be useful to layout the times contiguously in a vector
@@ -341,6 +341,7 @@ end
 # return one reach-set by taking the convex hull of the reach-sets in the
 # given flowpipe. TODO add second argument for number of reach-sets
 # return a flowpipe..?
+# TODO: lazily convexify?
 function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
     Y = ConvexHullArray([set(X) for X in array(fp)])
     return ReachSet(Y, tspan(fp))

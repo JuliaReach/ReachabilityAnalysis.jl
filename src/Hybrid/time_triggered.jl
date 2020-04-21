@@ -91,21 +91,24 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
     # preallocate output vector of flowpipes
-    FT = typeof(flowpipe(sol))
+    N = numtype(alg)
+    RT = rsetrep(alg)
+    # VRT = SubArray{...}
+    FT = Flowpipe{N, RT, Vector{RT}}
     out = Vector{FT}()
     sizehint!(out, max_jumps+1)
 
     @inbounds for k in 1:max_jumps+1
 
-        # add time interval
-        aux = sol[1:NLOW] # Vector(sol(0 .. Tsample-ζ))
+        # add time interval, 0 .. Tsample-ζ
+        aux = view(sol.F.Xk, 1:NLOW)
 
         push!(out, shift(Flowpipe(aux), t0))
 
         t0 += tstart(aux[end])
 
-        # Xend = sol(Tsample-ζ .. Tsample+ζ) |> Vector |> Flowpipe |> Convexify |> set
-        Xend = sol[NLOW:NHIGH] |> Vector |> Flowpipe |> Convexify |> set
+        # Tsample-ζ .. Tsample+ζ
+        Xend = view(sol.F.Xk, NLOW:NHIGH) |> Flowpipe |> Convexify |> set
 
         prob = IVP(sys, rmap(Xend))
         sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
