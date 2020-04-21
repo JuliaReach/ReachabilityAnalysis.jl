@@ -38,6 +38,12 @@
     @test diameter(set(sol1_nonrec[end])) < diameter(set(sol1_rec[end]))
 end
 
+@testset "ASB07 with time-triggered hybrid system" begin
+    prob = embrake_pv_1(ζ=0.0, Tsample=1e-4)
+    sol = solve(prob, alg=ASB07(δ=1e-7, max_order=3), max_jumps=2)
+end
+
+
 # TODO affine ODE: x' = Ax + Bu
 # B = IntervalMatrix(hcat([1.0 ± 0.01; 1.0 ± 0.0]))
 # u = ConstantInput(Interval(-0.05, 0.05))
