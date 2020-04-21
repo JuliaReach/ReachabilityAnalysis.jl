@@ -8,8 +8,8 @@ end
 
 step_size(alg::ASB07) = alg.δ
 numtype(::ASB07{N}) where {N} = N
-function rsetrep(::ASB07{N}) where {N}
-    if static
+function rsetrep(alg::ASB07{N}) where {N}
+    if alg.static
         error("not implemented")
     else
         RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
