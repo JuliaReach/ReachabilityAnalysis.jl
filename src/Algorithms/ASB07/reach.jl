@@ -7,7 +7,8 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             NSTEPS::Integer,
                             δ::Float64,
                             max_order::Integer,
-                            X::Universe) where {N, VN, MN}
+                            X::Universe,
+                            recursive::Val{true}) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -23,9 +24,43 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
         k = k + 1
         Zₖ₊₁ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
-        Rₖ₊₁ = _reduce_order(Zₖ₊₁, max_order)
+        Zₖ₊₁ʳ = _reduce_order(Zₖ₊₁, max_order)
         Δt += δ
-        F[k] = ReachSet(Rₖ₊₁, Δt)
+        F[k] = ReachSet(Zₖ₊₁ʳ, Δt)
+    end
+    return F
+end
+
+# non-recursiv implementation; to get more accurate interval matrix powers Φ^k
+# we use the IntervalMatrices.IntervalMatrixPower interface
+function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                            Ω0::Zonotope{N, VN, MN},
+                            Φ::AbstractMatrix,
+                            NSTEPS::Integer,
+                            δ::Float64,
+                            max_order::Integer,
+                            X::Universe,
+                            recursive::Val{false}) where {N, VN, MN}
+    # initial reach set
+    Δt = zero(N) .. δ
+    @inbounds F[1] = ReachSet(Ω0, Δt)
+    Z0 = Ω0
+    c0 = Z0.center
+    G0 = Z0.generators
+
+    Φpow = IntervalMatrixPower(Φ) # lazy interval matrix power
+
+    k = 2
+    @inbounds while k <= NSTEPS
+        Φ_power_k = get(Φpow)
+        Φc, Φs = _split(Φ_power_k)
+        Zₖ = _overapproximate_interval_linear_map(Φc, Φs, c0, G0)
+        Zₖʳ = _reduce_order(Zₖ, max_order)
+        Δt += δ
+        F[k] = ReachSet(Zₖʳ, Δt)
+
+        increment!(Φpow)
+        k += 1
     end
     return F
 end

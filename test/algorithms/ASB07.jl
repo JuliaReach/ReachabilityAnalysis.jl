@@ -1,5 +1,5 @@
 @testset "ASB07 algorithm" begin
-    # example 1 from
+    # Example 1 from
     # "Reachability analysis of linear systems with uncertain parameters and inputs"
 
     # initial set
@@ -11,6 +11,7 @@
     P_lin = @ivp(x' = Ax, x(0) ∈ X0)
 
     sol1 = solve(P_lin, tspan=(0.0, 1.0), alg=ASB07(δ=0.04));
+    @test sol1.alg.recursive == false # default is non-recursive
     @test dim(sol1)==2
     @test isa(sol1.alg, ASB07)
     @test sol1.alg.δ==0.04
@@ -31,6 +32,10 @@
     @test setrep(sol2) <: Zonotope
     @test setrep(sol2)==Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
 
+    # compare recursive option
+    sol1_rec = solve(P_lin, tspan=(0.0, 1.0), alg=ASB07(δ=0.04, recursive=true))
+    sol1_nonrec = solve(P_lin, tspan=(0.0, 1.0), alg=ASB07(δ=0.04, recursive=false))
+    @test diameter(set(sol1_nonrec[end])) < diameter(set(sol1_rec[end]))
 end
 
 # TODO affine ODE: x' = Ax + Bu

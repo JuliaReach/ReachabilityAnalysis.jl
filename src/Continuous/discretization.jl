@@ -152,6 +152,8 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHul
     X0z = _convert_or_overapproximate(Zonotope, X0)
     if A isa IntervalMatrix
         Φ = exp_overapproximation(A, δ, alg.order)
+
+        #Φ = IntervalMatrices.scale_and_square(A, 10, δ, 10)
         Y = _overapproximate(Φ * X0z, Zonotope)
     else
         Φ = _exp(A, δ, alg.exp)
@@ -160,7 +162,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHul
 
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
-    R = _overapproximate(F*X0z, Zonotope)
+    R = _overapproximate(F * X0z, Zonotope)
     Ω0 = _minkowski_sum(H, R)
 
     ivp_discr = ConstrainedLinearDiscreteSystem(Φ, X)

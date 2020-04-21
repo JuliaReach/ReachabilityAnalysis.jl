@@ -40,7 +40,7 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X)
+        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, Val(alg.recursive))
     else
         error("not implemented yet")
         U = inputset(ivp_discr)
