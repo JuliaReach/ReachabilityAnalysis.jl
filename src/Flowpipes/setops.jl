@@ -59,6 +59,7 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     end
 end
 
+# TODO: use https://github.com/JuliaReach/LazySets.jl/pull/2136
 function _convert_or_overapproximate(::Type{<:Zonotope}, X::AffineMap{N, <:Zonotope{N}, VN}) where {N, VN}
     return translate(linear_map(LazySets.matrix(X), LazySets.set(X)), LazySets.vector(X))
 end
@@ -350,7 +351,7 @@ end
 # algorithm selection
 #_reduce_order(Z::Zonotope, r, alg::Val{:combastel}) = _reduce_order_COMB03(Z, r)
 #_reduce_order(Z::Zonotope, r, alg::Val{:girard}) = _reduce_order_GIR05(Z, r)
-_reduce_order(Z, r) = _reduce_order_COMB03(Z, r) # TEMP default > add option to algorithm structs
+_reduce_order(Z, r) = _reduce_order_GIR05(Z, r) # TEMP default > add option to algorithm structs
 
 # Implements zonotope order reduction method from [COMB03]
 # We follow the notation from [YS18]
@@ -363,10 +364,24 @@ function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     # r is bigger than the order of Z => don't reduce
     (r * n >= p) && return Z
 
+    # split Z into K and L, where K contains the most "representative" generators
+    # and L contains the generators that are reduced, Lred
+
+    # this algorithm sort generators by decreasing 2-norm
+    weights = zeros(N, p)
+    @inbounds for i in 1:p
+        weights[i] = norm(view(G, :, i), 2)
+    end
+    indices = Vector{Int}(undef, p)
+    sortperm!(indices, weights, rev=true, initialized=false)
+
+    # the first m generators with greatest weight
+    m = floor(Int, n * (r - 1))
+
     # compute interval hull of L
     Lred = zeros(N, n, n)
     @inbounds for i in 1:n
-        for j in 1:p
+        for j in indices[m+1:end]
             Lred[i, i] += abs(G[i, j])
         end
     end
@@ -375,17 +390,8 @@ function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
         return Zonotope(c, Lred)
     end
 
-    # split Z into K and L
-    # sort generators by decreasing 2-norm
-    weights = zeros(N, p)
-    @inbounds for i in 1:p
-        weights[i] = norm(view(G, :, i), 2)
-    end
-    indices = Vector{Int}(undef, p)
-    sortperm!(indices, weights, rev=true, initialized=false)
-
-    m = floor(Int, n * (r - 1))
-    Gred = hcat(G[:, indices[1:m]], Lred)
+    K = G[:, indices[1:m]]
+    Gred = hcat(K, Lred)
     return Zonotope(c, Gred)
 end
 
@@ -400,20 +406,10 @@ function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     # r is bigger than the order of Z => don't reduce
     (r * n >= p) && return Z
 
-    # compute interval hull of L
-    Lred = zeros(N, n, n)
-    @inbounds for i in 1:n
-        for j in 1:p
-            Lred[i, i] += abs(G[i, j])
-        end
-    end
+    # split Z into K and L, where K contains the most "representative" generators
+    # and L contains the generators that are reduced, Lred
 
-    if isone(r)
-        return Zonotope(c, Lred)
-    end
-
-    # split Z into K and L
-    # sort generators by decreasing 2-norm
+    # this algorithm sort generators by ||⋅||₁ - ||⋅||∞ difference
     weights = zeros(N, p)
     @inbounds for i in 1:p
         v = view(G, :, i)
@@ -422,8 +418,23 @@ function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     indices = Vector{Int}(undef, p)
     sortperm!(indices, weights, rev=true, initialized=false)
 
+    # the first m generators with greatest weight
     m = floor(Int, n * (r - 1))
-    Gred = hcat(G[:, indices[1:m]], Lred)
+
+    # compute interval hull of L
+    Lred = zeros(N, n, n)
+    @inbounds for i in 1:n
+        for j in indices[m+1:end]
+            Lred[i, i] += abs(G[i, j])
+        end
+    end
+
+    if isone(r)
+        return Zonotope(c, Lred)
+    end
+
+    K = G[:, indices[1:m]]
+    Gred = hcat(K, Lred)
     return Zonotope(c, Gred)
 end
 

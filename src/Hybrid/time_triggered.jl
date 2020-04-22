@@ -109,7 +109,6 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
 
         # Tsample-ζ .. Tsample+ζ
         Xend = view(sol.F.Xk, NLOW:NHIGH) |> Flowpipe |> Convexify |> set
-
         prob = IVP(sys, rmap(Xend))
         sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
     end
