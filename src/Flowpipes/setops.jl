@@ -348,10 +348,15 @@ end
 # Zonotope order reduction methods
 # ==================================
 
+abstract type AbstractReductionMethod end
+
+struct GIR05 <: AbstractReductionMethod end
+struct COMB03 <: AbstractReductionMethod end
+
 # algorithm selection
-#_reduce_order(Z::Zonotope, r, alg::Val{:combastel}) = _reduce_order_COMB03(Z, r)
-#_reduce_order(Z::Zonotope, r, alg::Val{:girard}) = _reduce_order_GIR05(Z, r)
-_reduce_order(Z, r) = _reduce_order_GIR05(Z, r) # TEMP default > add option to algorithm structs
+_reduce_order(Z::Zonotope, r::Number) = _reduce_order_GIR05(Z, r) # default
+_reduce_order(Z::Zonotope, r::Number, ::GIR05) = _reduce_order_GIR05(Z, r)
+_reduce_order(Z::Zonotope, r::Number, ::COMB03) = _reduce_order_COMB03(Z, r)
 
 # Implements zonotope order reduction method from [COMB03]
 # We follow the notation from [YS18]

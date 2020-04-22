@@ -5,10 +5,11 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             Ω0::Zonotope{N, VN, MN},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
-                            δ::Float64,
+                            δ::N,
                             max_order::Integer,
                             X::Universe,
-                            recursive::Val{true}) where {N, VN, MN}
+                            recursive::Val{true},
+                            reduction_method::AbstractReductionMethod) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -23,7 +24,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gk = Zk.generators
 
         Zₖ₊₁ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
-        Zₖ₊₁ʳ = _reduce_order(Zₖ₊₁, max_order)
+        Zₖ₊₁ʳ = _reduce_order(Zₖ₊₁, max_order, reduction_method)
 
         k += 1
         Δt += δ
@@ -38,10 +39,11 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             Ω0::Zonotope{N, VN, MN},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
-                            δ::Float64,
+                            δ::N,
                             max_order::Integer,
                             X::Universe,
-                            recursive::Val{false}) where {N, VN, MN}
+                            recursive::Val{false},
+                            reduction_method::AbstractReductionMethod) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -57,7 +59,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Φc, Φs = _split(Φ_power_k)
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, c0, G0)
-        Zₖʳ = _reduce_order(Zₖ, max_order)
+        Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
 
         Δt += δ
         F[k] = ReachSet(Zₖʳ, Δt)

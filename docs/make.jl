@@ -27,11 +27,12 @@ makedocs(
                               "Transmision line" => "man/applications/transmission_line.md",
                               "Epidemic disease" => "man/applications/epidemic.md"],
                               # Other topics: car control, power systems stability.
-        "Algorithms" => Any["LGG09" => "lib/algorithms/LGG09.md",
+        "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
+                            "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
+                            "BOX" => "lib/algorithms/BOX.md",
                             "GLGM06" => "lib/algorithms/GLGM06.md",
                             "INT" => "lib/algorithms/INT.md",
-                            "BOX" => "lib/algorithms/BOX.md",
-                            "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
+                            "LGG09" => "lib/algorithms/LGG09.md",
                             "TMJets" => "lib/algorithms/TMJets.md"],
                             #
         "API Reference" => Any["Reach-sets" => "lib/reachsets.md",

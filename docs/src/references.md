@@ -51,6 +51,25 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [ASB07]
+
+- M. Althoff, O. Stursberg, and M. Buss. *Reachability analysis of linear systems with uncertain parameters and inputs.*
+  In Proc. of the 46th IEEE Conference on Decision
+  and Control, pages 726–732, 2007.
+
+```
+@inproceedings{althoff2007reachability,
+  title={Reachability analysis of linear systems with uncertain parameters and inputs},
+  author={Althoff, Matthias and Stursberg, Olaf and Buss, Martin},
+  booktitle={2007 46th IEEE Conference on Decision and Control},
+  pages={726--732},
+  year={2007},
+  organization={IEEE}
+}
+```
+
+---
+
 #### [BFFPSV18]
 
 - Bogomolov, S., Forets, M., Frehse, G., Viry, F., Podelski, A., & Schilling, C. (2018, April).
@@ -127,7 +146,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 #### [FRE16]
 
 - Frehse, G. (2016). [*Scalable verification of hybrid systems.*](https://hal.archives-ouvertes.fr/tel-01714428/document).
- (Habilitation á diriger des recherches, Univ. Grenoble Alpes).
+  (Habilitation á diriger des recherches, Univ. Grenoble Alpes).
 
 ```
 @phdthesis{frehse2016scalable,
@@ -251,6 +270,45 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
   author={Kekatos, Nikolaos},
   year={2018},
   school={Grenoble Alpes}
+}
+```
+
+---
+
+#### [LGG09]
+
+- Le Guernic, Colas, and Antoine Girard. [*Reachability analysis of linear systems using support functions.*](https://viterbi-web.usc.edu/~jdeshmuk/teaching/cs699-fm-for-cps/Papers/A3.pdf).
+  Nonlinear Analysis: Hybrid Systems 4.2 (2010): 250-262.
+
+```
+@article{le2010reachability,
+  title={Reachability analysis of linear systems using support functions},
+  author={Le Guernic, Colas and Girard, Antoine},
+  journal={Nonlinear Analysis: Hybrid Systems},
+  volume={4},
+  number={2},
+  pages={250--262},
+  year={2010},
+  publisher={Elsevier}
+}
+```
+
+---
+
+#### [LGG09b]
+
+- Le Guernic, Colas, and Antoine Girard.
+  [*Reachability analysis of hybrid systems using support functions.*](https://link.springer.com/content/pdf/10.1007/978-3-642-02658-4_40.pdf)
+  International Conference on Computer Aided Verification. Springer, Berlin, Heidelberg, 2009.
+
+```
+@inproceedings{le2009reachability,
+  title={Reachability analysis of hybrid systems using support functions},
+  author={Le Guernic, Colas and Girard, Antoine},
+  booktitle={International Conference on Computer Aided Verification},
+  pages={540--554},
+  year={2009},
+  organization={Springer}
 }
 ```
 

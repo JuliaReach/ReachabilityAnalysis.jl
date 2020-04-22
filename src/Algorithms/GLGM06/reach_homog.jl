@@ -178,10 +178,11 @@ function reach_homog_GLGM06_inplace!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}}
                                      NSTEPS::Integer,
                                      δ::Float64,
                                      max_order::Integer,
-                                     X::Universe) where {N, VN, MN}
+                                     X::Universe,
+                                     reduction_method::AbstractReductionMethod) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
-    Ω0red = reduce_order(Ω0, max_order)
+    Ω0red = reduce_order(Ω0, max_order, reduction_method)
     F[1] = ReachSet(Ω0red, Δt)
     c_Ω0 = center(Ω0red)
     G_Ω0 = genmat(Ω0red)
@@ -219,10 +220,11 @@ function reach_homog_GLGM06_inplace_v2!(F::Vector{ReachSet{N, Zonotope{N, VN, MN
                                      NSTEPS::Integer,
                                      δ::Float64,
                                      max_order::Integer,
-                                     X::Universe) where {N, VN, MN}
+                                     X::Universe,
+                                     reduction_method::AbstractReductionMethod) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
-    Ω0red = reduce_order(Ω0, max_order) # may not preserve SArrays
+    Ω0red = reduce_order(Ω0, max_order, reduction_method) # may not preserve SArrays
 
     c_Ω0 = center(Ω0red)
     G_Ω0 = genmat(Ω0red)
@@ -248,45 +250,3 @@ function reach_homog_GLGM06_inplace_v2!(F::Vector{ReachSet{N, Zonotope{N, VN, MN
     return F
 end
 =#
-
-# ==================
-# Inhomogeneous case
-# ==================
-
-# TODO: add case with invariant information
-# TODO: check stopping criterion
-
-function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                               Ω0::Zonotope{N, VN, MN},
-                               Φ::AbstractMatrix,
-                               NSTEPS::Integer,
-                               δ::Float64,
-                               max_order::Integer,
-                               X::LazySet,
-                               U::LazySet) where {N, VN, MN}
-
-    @warn "this function is still WIP"
-    # initial reach set
-    Δt = zero(N) .. δ
-    F[1] = ReachSet(Ω0, Δt)
-
-    Wk₊ = U
-    Φ_power_k = copy(Φ)
-    Φ_power_k_cache = similar(Φ)
-
-    k = 2
-    while k <= NSTEPS
-        Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊)
-        Rₖ = _reduce_order(Rₖ, max_order)
-        Δt += δ
-        F[k] = ReachSet(Rₖ, Δt)
-
-        Wk₊ = minkowski_sum(Wk₊, linear_map(Φ_power_k, U))
-        Wk₊ = _reduce_order(Wk₊, max_order)
-
-        mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
-        k += 1
-    end
-    return F
-end

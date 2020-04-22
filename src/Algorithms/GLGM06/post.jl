@@ -1,7 +1,7 @@
 # continuous post for GLGM06 using Zonotope set representation
 function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model, max_order = alg
+    @unpack δ, approx_model, max_order, static, dim, ngens, preallocate, reduction_method = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -13,6 +13,8 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     end
 
     # normalize system to canonical form
+    # x' = Ax, x in X, or
+    # x' = Ax + u, x in X, u in U
     ivp_norm = _normalize(ivp)
 
     # discretize system
@@ -26,7 +28,7 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
 
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
-    Ω0 = _reduce_order(Ω0, max_order)
+    Ω0 = _reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
     static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
@@ -50,11 +52,10 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
         end
         reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate)
     else
-        error("not implemented yet")
         U = inputset(ivp_discr)
-        @assert isa(U, LazySet)
+        @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
+        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method)
     end
 
     return Flowpipe(F)
