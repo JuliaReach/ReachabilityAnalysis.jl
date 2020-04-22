@@ -1,6 +1,6 @@
 function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model = alg
+    @unpack δ, approx_model, static, dim, recursive = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -37,13 +37,13 @@ function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     F = Vector{ReachSet{N, HT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_BOX!(F, Ω0, Φ, NSTEPS, δ, X)
+        reach_homog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, Val(recursive))
     else
-        error("not implemented yet")
         U = inputset(ivp_discr)
-        @assert isa(U, LazySet)
+        @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
+        # TODO: can we use support function evaluations for the input set?
         U = overapproximate(U, Hyperrectangle)
-        reach_inhomog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, U)
+        reach_inhomog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, U, Val(recursive))
     end
 
     return Flowpipe(F)

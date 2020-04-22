@@ -1,7 +1,7 @@
 using LazySets.Approximations: AbstractDirections
 
 """
-    LGG09{N, AM} <: AbstractContinuousPost
+    LGG09{N, AM, TN<:AbstractDirections} <: AbstractContinuousPost
 
 Implementation of Girard - Le Guernic algorithm for reachability analysis
 using support functions.
@@ -9,49 +9,45 @@ using support functions.
 ## Fields
 
 - `δ`            -- step-size of the discretization
-- `approx_model` -- (optional) approximation model for the discretization of the
-                    ODE; see `Notes` below for details
+- `approx_model` -- (optional, default: `Forward`) approximation model;
+                    see `Notes` below for possible options
+- `template`     -- struct that holds the directions (either lazily or concretely)
+                    for each support function evaluation defining the template
+- `static`       -- (optional, default: `false`) if `true`, use statically sized arrays
+- `threaded`     -- (optional, default: `true`) if `true`, use multi-threading parallelism
+                    to compute the support function along each direction
 
 ## Notes
 
 The type fields are:
 
-- `N`  -- number type of the step-size
-- `AM` -- approximation model
+- `N`        -- number type of the step-size
+- `AM`       -- type of the approximation model
+- `TN`       -- type of the abstract directions that define the template
 
 ## References
 
-See [1] and [2].
+The is an implementation of the algorithm from [[LGG09]](@ref).
 
-[1] Girard, A. (2005, March). Reachability of uncertain linear systems using zonotopes.
-    In International Workshop on Hybrid Systems: Computation and Control (pp. 291-305).
-    Springer, Berlin, Heidelberg.
-    [Link](http://www-ljk.imag.fr/membres/Antoine.Girard/Publications/hscc2005.pdf)
-
-[2] Girard, A., Le Guernic, C., & Maler, O. (2006, March).
-    Efficient computation of reachable sets of linear time-invariant systems with inputs.
-    In International Workshop on Hybrid Systems: Computation and Control (pp. 257-271).
-    Springer, Berlin, Heidelberg.
-    [Link](http://www-verimag.imag.fr/~maler/Papers/zonotope.pdf).
+These methods are described at length in the dissertation [[LG09]](@ref).
 """
-@with_kw struct LGG09{N, AM, AD<:AbstractDirections} <: AbstractContinuousPost
+@with_kw struct LGG09{N, AM, TN<:AbstractDirections} <: AbstractContinuousPost
     δ::N
     approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
-    template::AD
+    template::TN
     static::Bool=false
+    threaded::Bool=true
 end
 
 step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
-function rsetrep(alg::LGG09{N}) where {N}
-    if alg.static
-        error("not implemented")
-    else
-        error("not implemented")
-        #RT = TemplateReachSet{...}
-    end
+
+function rsetrep(alg::LGG09{N, AM, TN}) where {N, AM, TN}
+    RT = TemplateReachSet{N, eltype(TN), TN, Vector{N}}
+    # TODO: SN is also Vector{N} or SVector ? if alg.static = true ?
     return RT
 end
 
-include("reach.jl")
+include("reach_homog.jl")
+include("reach_inhomog.jl")
 include("post.jl")

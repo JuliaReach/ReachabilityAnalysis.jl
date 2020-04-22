@@ -1,13 +1,14 @@
 """
     INT{N, AM} <: AbstractContinuousPost
 
-Implementation of an interval-based integrator for one-dimensional systems.
+Implementation of a reachability method for linear one-dimensional systems
+interval arithmetic.
 
 ## Fields
 
 - `δ`            -- step-size of the discretization
-- `approx_model` -- (optional) approximation model for the discretization of the
-                    continuous ODE; see the `Notes` below for available options
+- `approx_model` -- (optional, default: `Forward`) approximation model;
+                    see `Notes` below for possible options
 
 ## Notes
 
@@ -21,8 +22,23 @@ The default approximation model used in this algorithm is:
 ```julia
 Forward(sih=:concrete, exp=:base, phi2=:base, setops=:Interval)
 ```
+
 In particular, the `setops=:Interval` flag specifies that intermediate computations
-in the discretization are done using interval arithmetic.
+in the discretization are done using interval arithmetic. This allows for some
+optimizations.
+
+## References
+
+This algorithm is essentially a non-decomposed version of the method in [[BFFPSV18]](@ref),
+using intervals as set representation. For a general introduction we refer
+to the dissertation [[LG09]](@ref).
+
+Regarding the approximation model, by default we use an adaptation of the method
+presented in [[FRE11]](@ref).
+
+Interval arithmetic operations are performed using the `IntervalArithmetic.jl`
+package. Hence, the results are guaranteed to comply to the IEE754 standard with
+respect to the floating-point operations using intervals.
 """
 @with_kw struct INT{N, AM} <: AbstractContinuousPost
     δ::N
@@ -34,4 +50,5 @@ numtype(::INT{N}) where {N} = N
 rsetrep(::INT{N}) where {N} = ReachSet{N, Interval{N, IA.Interval{N}}}
 
 include("post.jl")
-include("reach.jl")
+include("reach_homog.jl")
+include("reach_inhomog.jl")

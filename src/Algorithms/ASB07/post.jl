@@ -1,6 +1,6 @@
 function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model, max_order = alg
+    @unpack δ, approx_model, max_order, static, recursive, reduction_method = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -12,7 +12,7 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     end
 
     # normalize system to canonical form
-    # x' = Ax, x in X
+    # x' = Ax, x in X, or
     # x' = Ax + u, x in X, u in U
     ivp_norm = _normalize(ivp)
 
@@ -27,10 +27,10 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
 
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
-    Ω0 = _reduce_order(Ω0, max_order)
+    Ω0 = _reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
-    static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
+    static = haskey(kwargs, :static) ? kwargs[:static] : static # TODO review kwargs vs alg args precedence
     Ω0 = _reconvert(Ω0, Val(static))
     Φ = _reconvert(Φ, Val(static))
 
@@ -39,17 +39,16 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
+    # recursive implementation
+    recursive = Val(recursive)
+
     if got_homogeneous
-        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, Val(alg.recursive))
+        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, recursive, reduction_method)
     else
-        error("not implemented yet")
         U = inputset(ivp_discr)
-        if isa(U, LazySet)
-            U = _convert_or_overapproximate(Zonotope, U)
-            reach_inhomog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U)
-        else
-            error("inputs of type $(typeof(U)) cannot be handled yet")
-        end
+        @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
+        U = _convert_or_overapproximate(Zonotope, U)
+        reach_inhomog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method)
     end
 
     return Flowpipe(F)
