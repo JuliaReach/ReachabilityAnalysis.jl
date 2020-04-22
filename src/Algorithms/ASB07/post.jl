@@ -26,7 +26,6 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     got_homogeneous = !hasinput(ivp_discr)
 
     # this algorithm requires Ω0 to be a zonotope
-    println(order(Ω0))
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
     Ω0 = _reduce_order(Ω0, max_order)
 
