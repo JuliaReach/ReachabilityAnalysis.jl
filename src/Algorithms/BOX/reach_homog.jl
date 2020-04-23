@@ -20,10 +20,22 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                           δ::N,
                           X::Universe,
                           recursive::Val{false}) where {N, VNC, VNR}
-
+#=
+    println("initial center: $(Ω0.center)")
+    println("initial radius: $(Ω0.radius)")
+    println("matrix: $Φ")
+    println("NSTEPS = $NSTEPS")
+=#
     # initial reach set
     Δt = zero(N) .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
+
+    # preallocations
+    c = Vector{VNC}(undef, NSTEPS)
+    r = Vector{VNR}(undef, NSTEPS)
+
+    c[1] = Ω0.center
+    r[1] = Ω0.radius
 
     # cache for powers of Φ
     Φ_power_k = _get_cache(Φ)
@@ -31,9 +43,13 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
+        # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
+        c[k] = Φ_power_k * c[1]
+        r[k] = abs.(Φ_power_k) * r[1]
+        Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
+
         Δt += δ
-        F[k] = ReachSet(Rₖ, Δt)
+        F[k] = ReachSet(Hₖ, Δt)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
         copyto!(Φ_power_k, Φ_power_k_cache)
@@ -97,24 +113,4 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 end
 
 # homogeneous case with an invariant, recursive implementation
-function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
-                          Ω0::Hyperrectangle{N, VNC, VNR},
-                          Φ::AbstractMatrix,
-                          NSTEPS::Integer,
-                          δ::N,
-                          X::LazySet,
-                          recursive::Val{true}) where {N, VNC, VNR}
-
-    # initial reach set
-    Δt = zero(N) .. δ
-    @inbounds F[1] = ReachSet(Ω0, Δt)
-
-    k = 2
-    @inbounds while k <= NSTEPS
-        Rₖ = overapproximate(Φ * set(F[k-1]), Hyperrectangle)
-        Δt += δ
-        F[k] = ReachSet(Rₖ, Δt)
-        k += 1
-    end
-    return F
-end
+# not implemented

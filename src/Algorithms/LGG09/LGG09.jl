@@ -31,12 +31,21 @@ The is an implementation of the algorithm from [[LGG09]](@ref).
 
 These methods are described at length in the dissertation [[LG09]](@ref).
 """
-@with_kw struct LGG09{N, AM, TN<:AbstractDirections} <: AbstractContinuousPost
+struct LGG09{N, AM, TN<:AbstractDirections, S} <: AbstractContinuousPost
     δ::N
-    approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
+    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy)
     template::TN
-    static::Bool=false
-    threaded::Bool=true
+    static::S
+    threaded::Bool
+end
+
+# convenience constructor using symbols
+function LGG09(; δ::N,
+               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
+               template::TN,
+               static::Bool=false,
+               threaded::Bool=true) where {N, AM, TM}
+    return LGG09(δ, approx_model, template, Val(static), threaded)
 end
 
 step_size(alg::LGG09) = alg.δ

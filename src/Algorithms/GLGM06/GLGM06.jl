@@ -38,7 +38,7 @@ is not necessarily fixed.
 The default approximation model is
 
 ```julia
-approx_model=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
+approx_model=Forward(sih=:concrete, exp=:base, setops=:lazy)
 ```
 Here, `Forward` refers to the forward-time adaptation of the approximation model
 from Lemma 3 in [[FRE11]](@ref). Some of the options to compute this approximation can be specified,
@@ -54,16 +54,30 @@ Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 
 Regarding the approximation model, we use an adaptation of a result in [[FRE11]](@ref).
 """
-@with_kw struct GLGM06{N, AM, D, NG, RM} <: AbstractContinuousPost
+struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
     δ::N
-    # TODO review setops "zonotope" / "lazy" options, used or ignored
-    approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
-    max_order::Int=5
-    static::Bool=false
-    dim::D=missing
-    ngens::NG=missing
-    preallocate::Bool=true
-    reduction_method::RM=GIR05()
+    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy)     # TODO review setops "zonotope" / "lazy" options, used or ignored
+    max_order::Int
+    static::S
+    dim::D
+    ngens::NG
+    preallocate::P
+    reduction_method::RM
+end
+
+# convenience constructor using symbols
+function GLGM06(; δ::N,
+               approx_model::AM=CorrectionHull(order=10, exp=:base),
+               max_order::Int=5,
+               static::Bool=false,
+               dim::Union{Int, Missing}=missing,
+               ngens::Union{Int, Missing}=missing,
+               preallocate::Bool=true,
+               reduction_method::RM=GIR05()) where {N, AM, RM}
+    n = ismissing(dim) ? missing : Val(dim)
+    p = ismissing(ngens) ? missing : Val(ngens)
+    return GLGM06(δ, approx_model, max_order, Val(static),
+                  Val(n), Val(p), Val(preallocate), reduction_method)
 end
 
 step_size(alg::GLGM06) = alg.δ

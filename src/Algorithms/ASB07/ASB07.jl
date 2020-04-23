@@ -47,13 +47,24 @@ These methods are discussed at length in the dissertation [[ALT10]](@ref).
 Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 [[GIR05]](@ref) and the review article [[YS18]](@ref).
 """
-@with_kw struct ASB07{N, AM, RM} <: AbstractContinuousPost
+struct ASB07{N, AM, RM, S, R} <: AbstractContinuousPost
     δ::N
-    approx_model::AM=CorrectionHull(order=10, exp=:base)
-    max_order::Int=5
-    static::Bool=false
-    recursive::Bool=true
-    reduction_method::RM=GIR05()
+    approx_model::AM
+    max_order::Int
+    reduction_method::RM
+    static::S=false
+    recursive::R=trues
+end
+
+# convenience constructor using symbols
+function ASB07(; δ::N,
+               approx_model::AM=CorrectionHull(order=10, exp=:base),
+               max_order::Int=5,
+               reduction_method::RM=GIR05(),
+               static::Bool=false,
+               recursive::Bool=false) where {N, AM, RM}
+    #n = !ismissing(dim) ? Val(dim) : dim
+    return ASB07(δ, approx_model, max_order, reduction_method, Val(static), Val(recursive))
 end
 
 step_size(alg::ASB07) = alg.δ

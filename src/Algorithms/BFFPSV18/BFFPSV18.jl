@@ -1,23 +1,48 @@
 """
-    BFFPSV18{N, ST, NI, IDX, BLK, RBLK CBLK} <: AbstractContinuousPost
+    BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK, PT} <: AbstractContinuousPost
 
-Implementation of .... TODO
+Implementation of reachability method for linear systems using block decompositions.
 
 ## Fields
 
-TODO
+- `δ`            -- step-size of the discretization
+- `approx_model` -- (optional, default: `Forward`) approximation model;
+                    see `Notes` below for possible options
+- `dim`          -- (optional default: `missing`) ambient dimension
+- TODO: fix
 
 ## Notes
 
-## References
+The type fields are:
 
-TODO
+- `N`         -- number type of the step-size
+- `AM`        -- approximation model
+- TODO: fix
 
+The default approximation model is:
+
+```julia
+Forward(sih=:concrete, exp=:base, setops=:lazy)
+```
+
+This algorithm solves the set-based recurrence equation ``X_{k+1} = ΦX_k ⊕ V_k``
+by using block decompositions. The algorithm was introduced in [[BFFPSV18]](@ref).
+
+### References
+
+This algorithm is essentially an extension of the method in [[BFFPSV18]](@ref).
+Blocks can have different dimensions and the set represenation can be different
+for each block.
+
+For a general introduction we refer to the dissertation [[SCHI18]](@ref).
+
+Regarding the approximation model, by default we use an adaptation of the method
+presented in [[FRE11]](@ref).
 """
 @with_kw struct BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK, PT} <: AbstractContinuousPost
     δ::N
     setrep::ST  # remove ?
-    approx_model::AM=ForwardApproximation(sih=:concrete, exp=:base, phi2=:base)
+    approx_model::AM=ForwardApproximation(sih=:concrete, exp=:base)
     vars::IDX
     block_indices::BLK
     row_blocks::RBLK
