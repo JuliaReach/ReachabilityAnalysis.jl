@@ -31,9 +31,9 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     Ω0 = _reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
-    static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
-    Ω0 = _reconvert(Ω0, Val(static))
-    Φ = _reconvert(Φ, Val(static))
+    #static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
+    Ω0 = _reconvert(Ω0, static, dim, ngens)
+    Φ = _reconvert(Φ, static, dim)
 
     # preallocate output flowpipe
     N = eltype(Ω0)
@@ -41,15 +41,17 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-        if static
-            # NOTE: static + with preallocation not implemented
-            if alg.preallocate
+
+        #=
+        # TEMP: static + with preallocation not implemented
+        if static == Val(true)
+            if alg.preallocate == Val(true)
                 @warn "preallocate option is being ignored"
             end
             preallocate = Val(false)
-        else
-            preallocate = Val(alg.preallocate)
         end
+        =#
+
         reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate)
     else
         U = inputset(ivp_discr)

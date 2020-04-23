@@ -11,12 +11,12 @@
     P_lin = @ivp(x' = Ax, x(0) ∈ X0)
 
     sol1 = solve(P_lin, tspan=(0.0, 1.0), alg=ASB07(δ=0.04));
-    @test sol1.alg.recursive == true # default is recursive
+    @test sol1.alg.recursive == Val(true) # default is recursive TODO add isrecursive ?
     @test dim(sol1) == 2
     @test isa(sol1.alg, ASB07)
     @test sol1.alg.δ == 0.04
     @test sol1.alg.max_order == 5
-    @test typeof(sol1.alg.approx_model) == CorrectionHull
+    @test typeof(sol1.alg.approx_model) == CorrectionHull{Val{:base}}
     @test sol1.alg.approx_model.order == 10
     @test setrep(sol1) <: Zonotope
     @test setrep(sol1) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
@@ -28,7 +28,7 @@
     @test isa(sol2.alg, ASB07)
     @test sol2.alg.δ == 0.01
     @test sol2.alg.max_order == 7
-    @test typeof(sol2.alg.approx_model) == CorrectionHull
+    @test typeof(sol2.alg.approx_model) == CorrectionHull{Val{:base}}
     @test sol2.alg.approx_model.order == 9
     @test setrep(sol2) <: Zonotope
     @test setrep(sol2) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}

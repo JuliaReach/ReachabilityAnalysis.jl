@@ -24,12 +24,13 @@ function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     got_homogeneous = !hasinput(ivp_discr)
 
     # this algorithm requires Ω0 to be hyperrectangle
-    Ω0 = overapproximate(Ω0, Hyperrectangle)
+    Ω0 = _overapproximate(Ω0, Hyperrectangle)
 
     # reconvert the set of initial states and state matrix, if needed
-    static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
-    Ω0 = _reconvert(Ω0, Val(static))
-    Φ = _reconvert(Φ, Val(static))
+    #static = haskey(kwargs, :static) ? kwargs[:static] : alg.stati
+
+    Ω0 = _reconvert(Ω0, static, alg.dim)
+    Φ = _reconvert(Φ, static, alg.dim)
 
     # preallocate output flowpipe
     N = eltype(Ω0)
@@ -37,13 +38,13 @@ function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     F = Vector{ReachSet{N, HT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, Val(recursive))
+        reach_homog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, recursive)
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
         # TODO: can we use support function evaluations for the input set?
         U = overapproximate(U, Hyperrectangle)
-        reach_inhomog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, U, Val(recursive))
+        reach_inhomog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, U, recursive)
     end
 
     return Flowpipe(F)

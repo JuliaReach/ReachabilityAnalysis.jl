@@ -1,5 +1,5 @@
 """
-    GLGM06{N, AM, D, NG, RM} <: AbstractContinuousPost
+    GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
 
 Implementation of Girard - Le Guernic - Maler algorithm for reachability of
 linear systems using zonotopes.
@@ -24,8 +24,10 @@ The type fields are:
 
 - `N`  -- number type of the step-size
 - `AM` -- approximation model
-- `D`  -- refers to the dimension of the system
-- `NG` -- refers to the number of generators
+- `S`  -- value type associated to the `static` option
+- `D`  -- value type associated to the dimension of the system
+- `NG` -- value type associated to the number of generators
+- `P`  -- value type associated to the `preallocate` option
 - `RM` -- type associated to the reduction method
 
 The sole parameter which doesn't have a default value is the step-size,
@@ -38,7 +40,7 @@ is not necessarily fixed.
 The default approximation model is
 
 ```julia
-approx_model=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
+approx_model=Forward(sih=:concrete, exp=:base, setops=:lazy)
 ```
 Here, `Forward` refers to the forward-time adaptation of the approximation model
 from Lemma 3 in [[FRE11]](@ref). Some of the options to compute this approximation can be specified,
@@ -54,23 +56,44 @@ Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 
 Regarding the approximation model, we use an adaptation of a result in [[FRE11]](@ref).
 """
-@with_kw struct GLGM06{N, AM, D, NG, RM} <: AbstractContinuousPost
+struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
     δ::N
-    # TODO review setops "zonotope" / "lazy" options, used or ignored
-    approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
-    max_order::Int=5
-    static::Bool=false
-    dim::D=missing
-    ngens::NG=missing
-    preallocate::Bool=true
-    reduction_method::RM=GIR05()
+    approx_model::AM
+    max_order::Int
+    static::S
+    dim::D
+    ngens::NG
+    preallocate::P
+    reduction_method::RM
+end
+
+# TODO review setops "zonotope" / "lazy" options, used or ignored
+
+# convenience constructor using symbols
+function GLGM06(; δ::N,
+               approx_model::AM=CorrectionHull(order=10, exp=:base),
+               max_order::Int=5,
+               static::Bool=false,
+               dim::Union{Int, Missing}=missing,
+               ngens::Union{Int, Missing}=missing,
+               preallocate::Bool=true,
+               reduction_method::RM=GIR05()) where {N, AM, RM}
+    n = ismissing(dim) ? missing : Val(dim)
+    p = ismissing(ngens) ? missing : Val(ngens)
+    return GLGM06(δ, approx_model, max_order, Val(static), n, p,
+                  Val(preallocate), reduction_method)
 end
 
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
 
-function rsetrep(alg::GLGM06{N, AM, D}) where {N, AM, D}
-    if !alg.static
+function rsetrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
+    RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
+end
+
+# TODO add rsetrep for static case
+#=
+    if alg.static == Val{false} # TODO use type param
         RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
     else
         @assert !ismissing(alg.dim) "the `static` option requires that the dimension " *
@@ -88,6 +111,7 @@ function rsetrep(alg::GLGM06{N, AM, D}) where {N, AM, D}
     end
     return RT
 end
+=#
 
 include("post.jl")
 include("reach_homog.jl")

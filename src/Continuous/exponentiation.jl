@@ -5,23 +5,39 @@ using LazySets.Arrays: isinvertible
 # Exponentiation functions
 # ==========================
 
+# abstract supertype for all exponentiation methods
+#abstract type AbstractExpMethod end
+
+# matrix exponential using the scaling and squaring algorithim implemented in Julia Base
+# :base
+#struct BaseExp <: AbstractExpMethod end
+
+# lazy wrapper for the matrix exponential, operations defined in LazySets.jl
+# :lazy
+#struct LazyExp <: AbstractExpMethod end
+
+# matrix exponential for sparse matrices using Pade approximants, requires Expokit.jl
+# :pade
+#struct PadeExp <: AbstractExpMethod end
+
 # general case: convert to Matrix
-@inline _exp(A::AbstractMatrix) = exp(Matrix(A))
+@inline _exp(A::AbstractMatrix, ::Val{:base}) = exp(Matrix(A))
+@inline _exp(A::Matrix, ::Val{:base}) = exp(A)
 
 # static arrays have their own exp method
-@inline _exp(A::StaticArray) = exp(A)
+@inline _exp(A::StaticArray, ::Val{:base}) = exp(A)
+
+# exponential of an identity multiple, defined in MathematicalSystems.jl
+@inline _exp(A::IdentityMultiple, ::Val{:base}) = exp(A)
 
 # lazy wrapper (defined in LazySets)
-@inline _exp_lazy(A::AbstractMatrix) = SparseMatrixExp(A)
+@inline _exp(A::AbstractMatrix, ::Val{:lazy}) = SparseMatrixExp(A)
 
 # pade approximants (requires Expokit.jl)
-@inline _exp_pade(A::SparseMatrixCSC) = padm(A)
-
-# exponential of an identity multiple, defined in MathematicalSystems
-@inline _exp(A::IdentityMultiple) = exp(A)
+@inline _exp(A::SparseMatrixCSC, ::Val{:pade}) = padm(A)
 
 """
-    _exp(A::AbstractMatrix, δ::Float64, method::Symbol)
+    _exp(A::AbstractMatrix, δ, method)
 
 Compute the matrix exponential ``e^{Aδ}``.
 
@@ -29,7 +45,7 @@ Compute the matrix exponential ``e^{Aδ}``.
 
 - `A`       -- matrix
 - `δ`       -- step size
-- `method`  -- symbol with the method used to take the matrix exponential of `A`;
+- `method`  -- the method used to take the matrix exponential of `A`;
                possible options are:
 
     - `:base` -- use the scaling and squaring method implemented in Julia standard
@@ -49,27 +65,30 @@ If the algorithm `"lazy"` is used, evaluations of the action of the matrix
 exponential are done with the `expmv` implementation from `Expokit`
 (but see `LazySets#1312` for the planned generalization to other backends).
 """
-function _exp(A::AbstractMatrix, δ::Float64, method::Symbol)
+function _exp(A::AbstractMatrix, δ, method)
     n = checksquare(A)
-    if method == :base
-        return _exp(A * δ) # TODO use dots ? (requires MathematicalSystems#189 for IdentityMultiple)
-
-    elseif method == :lazy
-        return _exp_lazy(A * δ)
-
-    elseif method == :pade
-        @requires Expokit
-        return _exp_pade(A * δ)
-
-    else
-       throw(ArgumentError("the exponentiation method $method is unknown"))
-    end
+    return _exp(A * δ, method)
 end
 
-@inline function _Aδ_3n(A::AbstractMatrix, δ::Float64, n::Int)
-    return [A*δ     sparse(δ*I, n, n)  spzeros(n, n)    ;
-            spzeros(n, 2*n          )  sparse(δ*I, n, n);
-            spzeros(n, 3*n          )                   ]
+function _exp(A::AbstractMatrix, δ, method::Val{:pade})
+    n = checksquare(A)
+    @requires Expokit
+    return _exp(A * δ, method)
+end
+
+# default
+_exp(A::AbstractMatrix, δ) = _exp(A, δ, Val(:base))
+
+@inline function _Aδ_3n(A::AbstractMatrix{N}, δ, n) where {N}
+    return [Matrix(A*δ)     Matrix(δ*I, n, n)  zeros(n, n)    ;
+            zeros(n, 2*n          )  Matrix(δ*I, n, n)        ;
+            zeros(n, 3*n          )                           ]::Matrix{N}
+end
+
+@inline function _Aδ_3n(A::SparseMatrixCSC{N, M}, δ, n) where {N, M}
+    return [sparse(A*δ)     sparse(δ*I, n, n)  spzeros(n, n) ;
+            spzeros(n, 2*n          )  sparse(δ*I, n, n)     ;
+            spzeros(n, 3*n          )                        ]::SparseMatrixCSC{N, M}
 end
 
 """
@@ -96,7 +115,7 @@ A matrix.
 
 ### Algorithm
 
-We use the method from [1]. If ``A`` is invertible, ``Φ₁`` can be computed as
+If ``A`` is invertible, ``Φ₁`` can be computed as
 
 ```math
 Φ₁(A, δ) = A^{-1}(e^{δA} - I_n),
@@ -114,34 +133,21 @@ Aδ && δI_n && 0 \\\\
 \\end{pmatrix}.
 ```
 It can be shown that `Φ₁(A, δ) = P[1:n, (n+1):2*n]`.
-
-[1] Frehse, Goran, et al. "SpaceEx: Scalable verification of hybrid systems."
-International Conference on Computer Aided Verification. Springer, Berlin,
-Heidelberg, 2011.
+We refer to [[FRE11]] for details.
 """
-function Φ₁(A::AbstractMatrix, δ::Float64, method::String)
+function Φ₁(A::AbstractMatrix, δ, method)
     n = checksquare(A)
     B = _Aδ_3n(A, δ, n)
-
-    if method == :base
-        P = _exp(B)
-        return P[1:n, (n+1):2*n]
-
-    elseif method == :lazy
-        P = _exp_lazy(B)
-        return sparse(get_columns(P, (n+1):2*n)[1:n, :])
-
-    elseif method == :pade
-        P = _exp_pade(B)
-        return P[1:n, (n+1):2*n]
-
-    else
-        throw(ArgumentError("the exponentiation method $method is unknown"))
-    end
+    P = _exp(B, method)
+    return _Φ₁(P, n, method)
 end
 
+@inline _Φ₁(P, n, ::Val{:base}) = P[1:n, (n+1):2*n]
+@inline _Φ₁(P, n, ::Val{:lazy}) = sparse(get_columns(P, (n+1):2*n)[1:n, :])
+@inline _Φ₁(P, n, ::Val{:pade}) = P[1:n, (n+1):2*n]
+
 """
-    Φ₂(A, δ, method)
+    Φ₂(A::AbstractMatrix, δ, method)
 
 Compute the series
 
@@ -154,9 +160,8 @@ where ``A`` is a square matrix of order ``n`` and ``δ ∈ \\mathbb{R}_{≥0}``.
 
 - `A`      -- coefficient matrix
 - `δ`      -- step size
-- `method` -- the method used to take the matrix
-              exponential of the coefficient matrix; see the documentation of
-              `_exp_Aδ` for available options
+- `method` -- the method used to take the matrix exponential of `A`; see the
+              documentation of `_exp_Aδ` for available options
 
 ### Output
 
@@ -164,7 +169,7 @@ A matrix.
 
 ### Algorithm
 
-We use the method from [1]. If ``A`` is invertible, ``Φ₂`` can be computed as
+If ``A`` is invertible, ``Φ₂`` can be computed as
 
 ```math
 Φ₂(A, δ) = A^{-2}(e^{δA} - I_n - δA).
@@ -181,35 +186,25 @@ Aδ && δI_n && 0 \\\\
 \\end{pmatrix}.
 ```
 It can be shown that `Φ₂(A, δ) = P[1:n, (2*n+1):3*n]`.
-
-[1] Frehse, Goran, et al. "SpaceEx: Scalable verification of hybrid systems."
-International Conference on Computer Aided Verification. Springer, Berlin,
-Heidelberg, 2011.
+We refer to [[FRE11]] for details.
 """
-function Φ₂(A::AbstractMatrix, δ::Float64, method::Symbol)
-    if method == :inverse
-        return _Φ₂_inverse(A, δ)
-    end
-
+function Φ₂(A::AbstractMatrix, δ, method)
     n = checksquare(A)
     B = _Aδ_3n(A, δ, n)
-
-    if method == :base
-        P = _exp(B)
-        return P[1:n, (2*n+1):3*n]
-
-    elseif method == :lazy
-        P = _exp_lazy(B)
-        return sparse(get_columns(P, (2*n+1):3*n)[1:n, :])
-
-    elseif method == :pade
-        P = _exp_pade(B)
-        return P[1:n, (2*n+1):3*n]
-
-    else
-       throw(ArgumentError("the exponentiation method $exp_method is unknown"))
-    end
+    P = _exp(B, method)
+    return _Φ₂(P, n, method)
 end
+
+@inline _Φ₂(P, n, ::Val{:base}) = P[1:n, (2*n+1):3*n]
+@inline _Φ₂(P, n, ::Val{:lazy}) = sparse(get_columns(P, (2*n+1):3*n)[1:n, :])
+@inline _Φ₂(P, n, ::Val{:pade}) = P[1:n, (2*n+1):3*n]
+
+#=
+TODO define and use inverse method
+if method == :inverse
+    return _Φ₂_inverse(A, δ)
+end
+=#
 
 @inline function _Φ₂_inverse(A::IdentityMultiple, δ::Float64)
     λ = A.M.λ

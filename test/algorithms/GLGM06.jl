@@ -13,10 +13,10 @@
     sol = solve(prob, tspan=tspan, GLGM06(δ=0.01))
     @test dim(sol) == 5
 
-    # static option
-    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=true)
-    ZS = Zonotope{Float64,StaticArrays.SArray{Tuple{5},Float64,1,5},StaticArrays.SArray{Tuple{5,5},Float64,2,25}}
-    @test setrep(sol) == ZS
+    # static option TODO
+    #sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=true)
+    #ZS = Zonotope{Float64,StaticArrays.SArray{Tuple{5},Float64,1,5},StaticArrays.SArray{Tuple{5,5},Float64,2,25}}
+    #@test setrep(sol) == ZS
 
     # TODO higher-dimensional with input
     #prob, tspan = linear5D()

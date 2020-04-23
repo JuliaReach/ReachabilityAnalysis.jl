@@ -7,28 +7,43 @@ Abstract supertype for all approximation models.
 """
 abstract type AbstractApproximationModel end
 
-@with_kw struct Forward <: AbstractApproximationModel
-    exp::Symbol=:base
-    setops::Symbol=:lazy
-    sih::Symbol=:concrete
-    phi2::Symbol=:base
+# "forward" algorithm, uses E⁺
+struct Forward{EM, SO, SI} <: AbstractApproximationModel
+    exp::EM
+    setops::SO
+    sih::SI
 end
 
-@with_kw struct Backward <: AbstractApproximationModel
-    exp::Symbol=:base
-    set::Symbol=:lazy
-    sih::Symbol=:concrete
-    phi2::Symbol=:base
+# convenience constructor using symbols
+function Forward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concrete)
+    Forward(Val(exp), Val(setops), Val(sih))
 end
 
-# no bloating
+# TODO: improve display of Forward()
+
+struct Backward{EM, SO, SI} <: AbstractApproximationModel
+    exp::EM
+    setops::SO
+    sih::SI
+end
+
+# convenience constructor using symbols
+function Backward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concrete)
+    Backward(Val(exp), Val(setops), Val(sih))
+end
+
 struct Discrete <: AbstractApproximationModel
 #
 end
 
-@with_kw struct CorrectionHull <: AbstractApproximationModel
-   order::Int=10
-   exp::Symbol=:base
+struct CorrectionHull{EM} <: AbstractApproximationModel
+   order::Int
+   exp::EM
+end
+
+# convenience constructor using symbols
+function CorrectionHull(; order::Int=10, exp::Symbol=:base)
+    CorrectionHull(order, Val(exp))
 end
 
 function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
@@ -39,49 +54,44 @@ end
 # Forward Approximation: Homogeneous case
 # ============================================================
 
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::Forward)
+sih(X, ::Val{:lazy}) where {EM, SO} = SymmetricIntervalHull(X)
+sih(X, ::Val{:concrete}) where {EM, SO} = _symmetric_interval_hull(X)
+
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
     Φ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
-    P2A_abs = Φ₂(A_abs, δ, alg.phi2)
+    P2A_abs = Φ₂(A_abs, δ, alg.exp)
 
-    Ω0 = _discretize(A, X0, Φ, A_abs, P2A_abs, alg, Val(alg.setops))
+    Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
 end
 
-# change set_operations / setrep to -> ConvexHull (?)
-function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:lazy})
-
-    # "forward" algorithm, uses E⁺
-    if alg.sih == :concrete
-        # here the arguments to each symmetric_interval_hull are lazy
-        Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
-    elseif alg.sih == :lazy
-        Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
-    end
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
-    return Ω0
+#=
+TODO remove
+function _get_Einit(A, X0, P2A_abs, ::Forward{EM, Val{:lazy}, Val{:lazy}}) where {EM}
+    Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
 end
 
-function _discretize(A, X0, Φ, A_abs, P2A_abs, alg::Forward, setops::Val{:Interval})
-
-    # "forward" algorithm, uses E⁺
-    if alg.sih == :concrete
-        # here the arguments to each symmetric_interval_hull are lazy
-        Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
-    elseif alg.sih == :lazy
-        Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
-    end
-
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
-    return Ω0
+function _get_Einit(A, X0, P2A_abs, ::Forward{EM, Val{:lazy}, Val{:concrete}}) where {EM}
+    Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
 end
 
-function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ::Float64, alg::Forward) where {N}
+function _discretize(A, X0, P2A_abs, alg::Forward{EM, Val{:interval}, Val{:concrete}}) where {EM}
+    Einit = symmetric_interval_hull(P2A_abs * symmetric_interval_hull((A * A) * X0))
+end
+
+function _discretize(A, X0, P2A_abs, alg::Forward{EM, Val{:interval}, Val{:lazy}}) where {EM}
+    Einit = SymmetricIntervalHull(P2A_abs * SymmetricIntervalHull((A * A) * X0))
+end
+=#
+
+function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ, alg::Forward) where {N}
     A = state_matrix(ivp)
     @assert size(A, 1) == 1
     #@assert alg.setops == :Interval
@@ -113,20 +123,20 @@ end
 # Forward Approximation: Inhomogeneous case
 # ============================================================
 
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ::Float64, alg::Forward)
+# TODO update
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
-    U = next_set(inputset(ivp), 1)
+    U = next_set(inputset(ivp), 1) # TODO use LazySet?
     ϕ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
-    Phi2A_abs = Φ₂(A_abs, δ, alg.phi2)
+    Phi2A_abs = Φ₂(A_abs, δ, alg.exp)
 
-    @assert alg.sih == :concrete
     # TODO : specialize, add option to compute the concrete linear map
-    Einit = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull((A * A) * X0))
 
-    Eψ0 = symmetric_interval_hull(Phi2A_abs * symmetric_interval_hull(A * U))
+    Einit = sih(Phi2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+    Eψ0 = sih(Phi2A_abs * sih(A * U, alg.sih), alg.sih)
 
     Ω0 = ConvexHull(X0, ϕ * X0 ⊕ δ*U ⊕ Eψ0 ⊕ Einit)
     Ud = δ*U ⊕ Eψ0
@@ -144,7 +154,7 @@ end
 # implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
 # where F is the correction (interval) matrix
 # if A is an interval matix, the exponential is overapproximated
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ::Float64, alg::CorrectionHull)
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)

@@ -1,5 +1,5 @@
 """
-    BOX{N, AM, D} <: AbstractContinuousPost
+    BOX{N, AM, S, D, R} <: AbstractContinuousPost
 
 Implementation of a reachability method for linear systems using box approximations.
 
@@ -8,23 +8,26 @@ Implementation of a reachability method for linear systems using box approximati
 - `δ`            -- step-size of the discretization
 - `approx_model` -- (optional, default: `Forward`) approximation model;
                     see `Notes` below for possible options
+- `static`
 - `dim`          -- (optional default: `missing`) ambient dimension
+- `recursive`    -- (optional default: `false`) if `true`, use the implementation that
+                    recursively computes each reach-set; otherwise, use the implementation
+                    that unwraps the sequence until the initial set
 
 ## Notes
 
 The type fields are:
 
-- `N`         -- number type of the step-size
-- `AM`        -- approximation model
-- `D`         -- refers to the dimension of the system
-- `recursive` -- (optional default: `false`) if `true`, use the implementation that
-                 recursively computes each reach-set; otherwise, use the implementation
-                 that unwraps the sequence until the initial set
+- `N`  -- number type of the step-size
+- `AM` -- approximation model
+- `S`  -- value type for the static option
+- `D`  -- value type for the dimension
+- `R`  -- value type for the recursive option
 
 The default approximation model is:
 
 ```julia
-Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
+Forward(sih=:concrete, exp=:base, setops=:lazy)
 ```
 
 This algorithm solves the set-based recurrence equation ``X_{k+1} = ΦX_k ⊕ V_k``
@@ -44,12 +47,22 @@ to the dissertation [[LG09]](@ref).
 Regarding the approximation model, by default we use an adaptation of the method
 presented in [[FRE11]](@ref).
 """
-@with_kw struct BOX{N, AM, D} <: AbstractContinuousPost
+struct BOX{N, AM, S, D, R} <: AbstractContinuousPost
     δ::N
-    approx_model::AM=Forward(sih=:concrete, exp=:base, phi2=:base, setops=:lazy)
-    static::Bool=false
-    dim::D=missing
-    recursive::Bool=false
+    approx_model::AM
+    static::S
+    dim::D
+    recursive::R
+end
+
+# convenience constructor using symbols
+function BOX(; δ::N,
+               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
+               static::Bool=false,
+               dim::Union{Int, Missing}=missing,
+               recursive::Bool=false) where {N, AM}
+    n = !ismissing(dim) ? Val(dim) : dim
+    return BOX(δ, approx_model, Val(static), n, Val(recursive))
 end
 
 step_size(alg::BOX) = alg.δ

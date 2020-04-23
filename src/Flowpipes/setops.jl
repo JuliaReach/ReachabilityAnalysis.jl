@@ -1,50 +1,54 @@
 # =========================
-# (Re) conversion
+# Conversion
 # =========================
 
+@inline nodim_msg() = throw(ArgumentError("to use the `static` option you should pass " *
+                                          "the system's dimension argument `dim=...`"))
+
 # no-op
-_reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}) where {N} = Ω0
-_reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}) where {N} = Ω0
+_reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}, dim, ngens) where {N} = Ω0
+_reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}, dim) where {N} = Ω0
 
 # convert any zonotope to be represented wih regular arrays
-function _reconvert(Ω0::Zonotope, static::Val{false})
-    Ω0 = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
-end
+_reconvert(Ω0::Zonotope, static::Val{false}, dim) = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 
 # convert any zonotope to be represented with static arrays
-function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}) where {N, VN, MN}
-    n, p = size(Ω0.generators) # dimension and number of generators
+function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
+    #n, p = size(Ω0.generators) # dimension and number of generators
     Ω0 = Zonotope(SVector{n, N}(Ω0.center), SMatrix{n, p, N, n*p}(Ω0.generators))
 end
 
 # no-op
-_reconvert(Ω0::Hyperrectangle{N, Vector{N}, Vector{N}}, static::Val{false}) where {N} = Ω0
-_reconvert(Ω0::Hyperrectangle{N, <:SVector, <:SVector}, static::Val{true}) where {N} = Ω0
+_reconvert(Ω0::Hyperrectangle{N, Vector{N}, Vector{N}}, static::Val{false}, dim::Missing) where {N} = Ω0
+_reconvert(Ω0::Hyperrectangle{N, Vector{N}, Vector{N}}, static::Val{true}, dim::Missing) where {N} = nodim_msg()
+_reconvert(Ω0::Hyperrectangle{N, <:SVector, <:SVector}, static::Val{true}, dim) where {N} = Ω0
 
 # convert any Hyperrectangle to be represented wih regular arrays
-function _reconvert(Ω0::Hyperrectangle, static::Val{false})
+function _reconvert(Ω0::Hyperrectangle, static::Val{false}, dim::Missing)
     Ω0 = Hyperrectangle(Vector(Ω0.center), Matrix(Ω0.radius), check_bounds=false)
 end
 
 # convert any Hyperrectangle to be represented with static arrays
-function _reconvert(Ω0::Hyperrectangle{N, VNC, VNR}, static::Val{true}) where {N, VNC, VNR}
-    n = length(Ω0.center) # dimension
+function _reconvert(Ω0::Hyperrectangle{N, VNC, VNR}, static::Val{true}, dim::Val{n}) where {N, VNC, VNR, n}
+    #n = length(Ω0.center) # dimension
     Ω0 = Hyperrectangle(SVector{n, N}(Ω0.center), SVector{n, N}(Ω0.radius), check_bounds=false)
 end
 
 # no-op
-_reconvert(Φ::Matrix{N}, static::Val{false}) where {N} = Φ
-_reconvert(Φ::IntervalMatrix{N}, static::Val{false}) where {N} = Φ
-_reconvert(Φ::AbstractMatrix, static::Val{false}) = Matrix(Φ)
-_reconvert(Φ::SMatrix, static::Val{true}) = Φ
+_reconvert(Φ::Matrix{N}, static::Val{false}, dim) where {N} = Φ
+_reconvert(Φ::IntervalMatrix{N}, static::Val{false}, dim) where {N} = Φ
+_reconvert(Φ::AbstractMatrix, static::Val{false}, dim) = Matrix(Φ)
+_reconvert(Φ::SMatrix, static::Val{true}, dim) = Φ
+_reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing) = nodim_msg()
 
-function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}) where {N}
-    n = size(Φ, 1)
+function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}, dim::Val{n}) where {N, n}
+    #n = size(Φ, 1)
     Φ = SMatrix{n, n, N, n*n}(Φ)
 end
 
-function _reconvert(Φ::IntervalMatrix{N, IN, Matrix{IN}}, static::Val{true}) where {N, IN}
-    n = size(Φ, 1)
+
+function _reconvert(Φ::IntervalMatrix{N, IN, Matrix{IN}}, static::Val{true}, dim::Val{n}) where {N, IN, n}
+    #n = size(Φ, 1)
     Φ = IntervalMatrix(SMatrix{n, n, IN, n*n}(Φ))
 end
 
@@ -337,12 +341,33 @@ function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, ST, MT<:StaticArray{
     return SMatrix{m, n, T}(C), SMatrix{m, n, T}(S)
 end
 
+# attempts type-stability
 function _symmetric_interval_hull(x::Interval)
     abs_inf = abs(min(x))
     abs_sup = abs(max(x))
     bound = max(abs_sup, abs_inf)
     return Interval(-bound, bound)
 end
+
+# attempts type-stability
+function _symmetric_interval_hull(S::LazySet{N}) where {N<:Real}
+    # fallback returns a hyperrectangular set
+    (c, r) = LazySets.Approximations.box_approximation_helper(S)
+    #if r[1] < 0
+    #    return EmptySet{N}(dim(S))
+    #end
+    return Hyperrectangle(zeros(N, length(c)), abs.(c) .+ r)
+end
+
+# attemp type stability
+function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Real}
+    c, r = LazySets.Approximations.box_approximation_helper(S)
+    #if r[1] < 0
+    #    return EmptySet{N}(dim(S))
+    #end
+    return Hyperrectangle(c, r)
+end
+
 
 # ==================================
 # Zonotope order reduction methods
