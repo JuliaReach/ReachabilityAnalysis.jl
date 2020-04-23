@@ -16,7 +16,7 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 ## Resources
 
 - [Reference manual](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
-- [Citation](#citation)
+- [Citing](#citing)
 
 ## Features
 
@@ -49,16 +49,6 @@ and to leave it, type `<backspace>`), and enter:
 pkg> add ReachabilityAnalysis
 ```
 
-## Citation
+## Citing
 
-If you use this package for your research, we kindly ask you to consider citing the following paper.
-
-```
-@inproceedings{bogomolov2019juliareach,
-  title={JuliaReach: a toolbox for set-based reachability},
-  author={Bogomolov, Sergiy and Forets, Marcelo and Frehse, Goran and Potomkin, Kostiantyn and Schilling, Christian},
-  booktitle={Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control},
-  pages={39--44},
-  year={2019}
-}
-```
+If you use this package for your research, we kindly ask you to consider citing the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib).
