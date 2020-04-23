@@ -461,11 +461,13 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractLinearC
     S = system(ivp)
     S_norm = normalize(S)
 
+    #=
     if S_norm === S && X0_norm === X0
         ivp_norm = ivp
     else
         ivp_norm = IVP(S_norm, X0_norm)
     end
-
+    =#
+    ivp_norm = IVP(S_norm, X0_norm)
     return ivp_norm
 end
