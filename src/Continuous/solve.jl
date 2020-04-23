@@ -2,6 +2,15 @@
 # Solve function for continuous systems
 # ======================================
 
+abstract type AbstractPost end
+
+"""
+    AbstractContinuousPost
+
+Abstract supertype of all continuous post operators.
+"""
+abstract type AbstractContinuousPost <: AbstractPost end
+
 """
     solve(ivp::IVP, tspan, alg; kwargs...)
 
@@ -44,31 +53,81 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
 - Use the `threading` option to use multi-threading parallelism. This option applies
   for initial-value problems whose initial condition is a vector of sets.
 """
-function solve(ivp::IVP, args...; kwargs...)
+solve(ivp::IVP, args...; kwargs...) = _solve(ivp, args...; kwargs...)
+
+# no tspan => error
+_solve(ivp::IVP) = error("please specify the time-span with the argument `tspan=...`")
+
+# no cpost => compute default
+#_solve(ivp::IVP, tspan) = _solve_continuous(ivp, tspan, _default_cpost(ivp, tspan))
+#_solve(ivp::IVP; tspan) = _solve_continuous(ivp, tspan, _default_cpost(ivp, tspan))
+
+# got cpost
+function _solve(ivp::IVP, tspan; alg::Union{AbstractContinuousPost, Nothing}=nothing)
+    if alg === nothing
+        alg = _default_cpost(ivp, tspan)
+    end
+    _solve_continuous(ivp, tspan, alg)
+end
+
+#_solve(ivp::IVP,  tspan; cpost::AbstractContinuousPost) = _solve_continuous(ivp, tspan, cpost)
+#_solve(ivp::IVP, cpost::AbstractContinuousPost; tspan) = _solve_continuous(ivp, tspan, cpost)
+_solve(ivp::IVP; tspan, alg::AbstractContinuousPost) = _solve_continuous(ivp, tspan, alg)
+
+function _solve_continuous(ivp, tspan, cpost)
     # preliminary checks
     _check_dim(ivp)
 
-    # retrieve time span and continuous post operator algorithm
+    # retrieve time span
     # NOTE: tspan is of the form (0, 0) if NSTEPS was specified
-    tspan = _get_tspan(args...; kwargs...)
+    #tspan = _get_tspan(args...; kwargs...)
+tspan = TimeInterval(tspan[1], tspan[2])
+#=
+    TODO: refactor
     cpost = _get_cpost(ivp, args...; kwargs...)
     if cpost == nothing
         cpost = _default_cpost(ivp, tspan; kwargs...)
     end
+=#
+
+#=
+    # retrieve continuous post operator algorithm
+    got_alg = haskey(kwargs, :alg)
+    got_algorithm = haskey(kwargs, :algorithm)
+    got_opC = haskey(kwargs, :opC)
+    no_args = isempty(args) || args[1] === nothing
+
+    if got_alg
+        cpost = kwargs[:alg]
+    elseif got_algorithm
+        cpost = kwargs[:algorithm]
+    elseif got_opC
+        cpost = kwargs[:opC]
+    # check if either args[1] or args[2] are the post
+    elseif !no_args && typeof(args[1]) <: AbstractContinuousPost
+        cpost = args[1]
+    elseif !no_args && length(args) == 2 && typeof(args[2]) <: AbstractContinuousPost
+        cpost = args[2]
+    elseif !no_args && length(args) > 2
+        throw(ArgumentError("the number of arguments, $(length(args)), is not valid"))
+    else
+        cpost = _default_cpost(ivp, tspan; kwargs...)
+    end
+=#
 
     # run the continuous-post operator
-    F = post(cpost, ivp, tspan; kwargs...)
+    F = post(cpost, ivp, tspan) #; kwargs...)
 
-    if haskey(kwargs, :save_traces) && kwargs[:save_traces]
-        @requires DifferentialEquations
-        error("saving traces is not implemented yet")
+    #if haskey(kwargs, :save_traces) && kwargs[:save_traces]
+    #    @requires DifferentialEquations
+    #    error("saving traces is not implemented yet")
         # compute trajectories, cf. ensemble simulation
         # traces = ...
         # sol = ReachSolution(F, cpost, traces) # new solution type?
-    else
+    #else
         # wrap the flowpipe and algorithm in a solution structure
+        #end
         sol = ReachSolution(F, cpost)
-    end
 
     return sol
 end
@@ -78,8 +137,33 @@ function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuo
                                                             ST<:LazySet, VT<:AbstractVector{ST}}
     _check_dim(ivp)
     tspan = _get_tspan(args...; kwargs...)
+
+#= TODO refactor
     cpost = _get_cpost(ivp, args...; kwargs...)
     if cpost == nothing
+        cpost = _default_cpost(ivp, tspan; kwargs...)
+    end
+=#
+    # retrieve continuous post operator algorithm
+    got_alg = haskey(kwargs, :alg)
+    got_algorithm = haskey(kwargs, :algorithm)
+    got_opC = haskey(kwargs, :opC)
+    no_args = isempty(args) || args[1] === nothing
+
+    if got_alg
+        cpost = kwargs[:alg]
+    elseif got_algorithm
+        cpost = kwargs[:algorithm]
+    elseif got_opC
+        cpost = kwargs[:opC]
+    # check if either args[1] or args[2] are the post
+    elseif !no_args && typeof(args[1]) <: AbstractContinuousPost
+        cpost = args[1]
+    elseif !no_args && length(args) == 2 && typeof(args[2]) <: AbstractContinuousPost
+        cpost = args[2]
+    elseif !no_args && length(args) > 2
+        throw(ArgumentError("the number of arguments, $(length(args)), is not valid"))
+    else
         cpost = _default_cpost(ivp, tspan; kwargs...)
     end
 
@@ -214,27 +298,36 @@ tstart(Δt::TimeInterval) = inf(Δt)
 tend(Δt::TimeInterval) = sup(Δt)
 tspan(Δt::TimeInterval) = Δt
 
+#=
 function _get_cpost(ivp, args...; kwargs...)
     got_alg = haskey(kwargs, :alg)
     got_algorithm = haskey(kwargs, :algorithm)
     got_opC = haskey(kwargs, :opC)
     no_args = isempty(args) || args[1] === nothing
+    got_post = false
 
     # continous post was specified
     if got_alg
+        got_post = true
         cpost = kwargs[:alg]
     elseif got_algorithm
+        got_post = true
         cpost = kwargs[:algorithm]
     elseif got_opC
+        got_post = true
         cpost = kwargs[:opC]
 
     # check if either args[1] or args[2] are the post
     elseif !no_args && typeof(args[1]) <: AbstractContinuousPost
+        got_post = true
         cpost = args[1]
     elseif !no_args && length(args) == 2 && typeof(args[2]) <: AbstractContinuousPost
+        got_post = true
         cpost = args[2]
+
     elseif !no_args && length(args) > 2
         throw(ArgumentError("the number of arguments, $(length(args)), is not valid"))
+    end
 
     # no algorithm found => compute default
     else
@@ -242,6 +335,7 @@ function _get_cpost(ivp, args...; kwargs...)
     end
     return cpost
 end
+=#
 
 # ===================
 # Algorithm defaults
@@ -289,8 +383,9 @@ function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
         if statedim(ivp) == 1
             opC = INT(δ=δ)
         else
-            static = haskey(kwargs, :static) ? kwargs[:static] : false
-            opC = GLGM06(δ=δ, static=static)
+            #static = haskey(kwargs, :static) ? kwargs[:static] : false
+            #opC = GLGM06(δ=δ, static=static)
+            opC = GLGM06(δ=δ)
         end
     else
         opC = TMJets()
