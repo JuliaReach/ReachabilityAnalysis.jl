@@ -30,17 +30,14 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
     Ω0 = _reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
-    static = haskey(kwargs, :static) ? kwargs[:static] : static # TODO review kwargs vs alg args precedence
-    Ω0 = _reconvert(Ω0, Val(static))
-    Φ = _reconvert(Φ, Val(static))
+    #static = haskey(kwargs, :static) ? kwargs[:static] : static # TODO review kwargs vs alg args precedence
+    Ω0 = _reconvert(Ω0, static, dim, ngens) # TODO: add dim + generators to the type
+    Φ = _reconvert(Φ, static, dim)
 
     # preallocate output flowpipe
     N = eltype(Ω0)
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
-
-    # recursive implementation
-    recursive = Val(recursive)
 
     if got_homogeneous
         reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, recursive, reduction_method)

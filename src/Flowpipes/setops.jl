@@ -6,7 +6,7 @@
                                           "the system's dimension argument `dim=...`"))
 
 # no-op
-_reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}, dim) where {N} = Ω0
+_reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}, dim, ngens) where {N} = Ω0
 _reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}, dim) where {N} = Ω0
 
 # convert any zonotope to be represented wih regular arrays

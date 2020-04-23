@@ -93,7 +93,7 @@ end
 
 @testset "Concrete projection" begin
     prob, tspan = motor_homog()
-    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=true)
+    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=false) # TODO: add static=true as well
 
     project(sol, (1, 3))
     project(sol, [1, 3])

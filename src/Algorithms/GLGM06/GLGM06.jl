@@ -1,5 +1,5 @@
 """
-    GLGM06{N, AM, D, NG, RM} <: AbstractContinuousPost
+    GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
 
 Implementation of Girard - Le Guernic - Maler algorithm for reachability of
 linear systems using zonotopes.
@@ -24,8 +24,10 @@ The type fields are:
 
 - `N`  -- number type of the step-size
 - `AM` -- approximation model
-- `D`  -- refers to the dimension of the system
-- `NG` -- refers to the number of generators
+- `S`  -- value type associated to the `static` option
+- `D`  -- value type associated to the dimension of the system
+- `NG` -- value type associated to the number of generators
+- `P`  -- value type associated to the `preallocate` option
 - `RM` -- type associated to the reduction method
 
 The sole parameter which doesn't have a default value is the step-size,
@@ -56,7 +58,7 @@ Regarding the approximation model, we use an adaptation of a result in [[FRE11]]
 """
 struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
     δ::N
-    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy)     # TODO review setops "zonotope" / "lazy" options, used or ignored
+    approx_model::AM
     max_order::Int
     static::S
     dim::D
@@ -64,6 +66,8 @@ struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
     preallocate::P
     reduction_method::RM
 end
+
+# TODO review setops "zonotope" / "lazy" options, used or ignored
 
 # convenience constructor using symbols
 function GLGM06(; δ::N,
@@ -76,15 +80,20 @@ function GLGM06(; δ::N,
                reduction_method::RM=GIR05()) where {N, AM, RM}
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
-    return GLGM06(δ, approx_model, max_order, Val(static),
-                  Val(n), Val(p), Val(preallocate), reduction_method)
+    return GLGM06(δ, approx_model, max_order, Val(static), n, p,
+                  Val(preallocate), reduction_method)
 end
 
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
 
-function rsetrep(alg::GLGM06{N, AM, D}) where {N, AM, D}
-    if !alg.static
+function rsetrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
+    RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
+end
+
+# TODO add rsetrep for static case
+#=
+    if alg.static == Val{false} # TODO use type param
         RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
     else
         @assert !ismissing(alg.dim) "the `static` option requires that the dimension " *
@@ -102,6 +111,7 @@ function rsetrep(alg::GLGM06{N, AM, D}) where {N, AM, D}
     end
     return RT
 end
+=#
 
 include("post.jl")
 include("reach_homog.jl")

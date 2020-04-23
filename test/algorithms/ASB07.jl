@@ -11,7 +11,7 @@
     P_lin = @ivp(x' = Ax, x(0) ∈ X0)
 
     sol1 = solve(P_lin, tspan=(0.0, 1.0), alg=ASB07(δ=0.04));
-    @test sol1.alg.recursive == true # default is recursive
+    @test sol1.alg.recursive == Val(true) # default is recursive TODO add isrecursive ?
     @test dim(sol1) == 2
     @test isa(sol1.alg, ASB07)
     @test sol1.alg.δ == 0.04

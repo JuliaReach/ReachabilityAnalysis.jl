@@ -42,7 +42,7 @@ respect to the floating-point operations using intervals.
 """
 struct INT{N, AM} <: AbstractContinuousPost
     δ::N
-    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:interval)
+    approx_model::AM
 end
 
 # convenience constructor using symbols

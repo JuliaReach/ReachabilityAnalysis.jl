@@ -33,7 +33,7 @@ These methods are described at length in the dissertation [[LG09]](@ref).
 """
 struct LGG09{N, AM, TN<:AbstractDirections, S} <: AbstractContinuousPost
     δ::N
-    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy)
+    approx_model::AM
     template::TN
     static::S
     threaded::Bool
@@ -44,7 +44,7 @@ function LGG09(; δ::N,
                approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
                template::TN,
                static::Bool=false,
-               threaded::Bool=true) where {N, AM, TM}
+               threaded::Bool=true) where {N, AM, TN}
     return LGG09(δ, approx_model, template, Val(static), threaded)
 end
 
