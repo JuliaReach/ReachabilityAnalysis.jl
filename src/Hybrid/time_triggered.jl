@@ -36,11 +36,18 @@ The following getter functions are available:
 - `statedim`       -- dimension of the state-space
 - `system`         -- returns the continuous mode
 """
-struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
+#struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
+#    sys::T
+#    rmap::MT
+#    Tsample::N
+#    ζ::N
+#end
+
+struct HACLD1{T<:AbstractSystem, MT, N, J} <: AHACLD
     sys::T
     rmap::MT
     Tsample::N
-    ζ::N
+    ζ::J
 end
 
 # default constructor without jitter
@@ -48,6 +55,7 @@ function HACLD1(sys::T, rmap::MT, Tsample::N) where {T, MT, N}
     return HACLD1(sys, rmap, Tsample, zero(N))
 end
 
+# getter functions:
 initial_state(hs::HACLD1) = initial_state(hs.sys)
 jitter(hs::HACLD1) = hs.ζ
 reset_map(hs::HACLD1) = hs.rmap
@@ -64,29 +72,42 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     t0 = tstart(tspan)
     δ = step_size(alg)
 
+    if length(ζ)==1
+        ζ₋ = ζ
+        ζ₊ = ζ
+    else
+        ζ₋ = ζ[1]
+        ζ₊ = ζ[2]
+    end
+
     if haskey(kwargs, :max_jumps)
         max_jumps = kwargs[:max_jumps]
     else
         # define max_jumps using the time horizon tspan
         T = tend(tspan)
         # TODO: double check
-        α = T / (Tsample - ζ)
+        #α = T / (Tsample - ζ)
+        α = T / (Tsample - ζ₋)
         if α <= 0
-            error("inconsistent choice of parameters: T / (Tsample - ζ) = $α, " *
+            #error("inconsistent choice of parameters: T / (Tsample - ζ) = $α, " *
+            error("inconsistent choice of parameters: T / (Tsample - ζ₋) = $α, " *
                   "but it should be positive")
-        end
+            end
         max_jumps = ceil(Int, α)
     end
 
     # solve first interval
     prob = IVP(sys, X0)
-    αlow = (Tsample - ζ)/δ
+    #αlow = (Tsample - ζ)/δ
+    αlow = (Tsample - ζ₋)/δ
     NLOW = ceil(Int, αlow)
     if NLOW == 0
-        error("inconsistent choice of parameters: (Tsample - ζ)/δ = $αlow " *
+        #error("inconsistent choice of parameters: T / (Tsample - ζ) = $α, " *
+        error("inconsistent choice of parameters: T / (Tsample - ζ₋) = $α, " *
               "but it should be positive")
     end
-    αhigh = (Tsample + ζ)/δ
+    #αhigh = (Tsample + ζ)/δ
+    αhigh = (Tsample + ζ₊)/δ
     NHIGH = ceil(Int, αhigh)
     sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
@@ -100,14 +121,14 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
 
     @inbounds for k in 1:max_jumps+1
 
-        # add time interval, 0 .. Tsample-ζ
+        # add time interval, 0 .. Tsample-ζ₋
         aux = view(sol.F.Xk, 1:NLOW)
 
         push!(out, shift(Flowpipe(aux), t0))
 
         t0 += tstart(aux[end])
 
-        # Tsample-ζ .. Tsample+ζ
+        # Tsample-ζ₋ .. Tsample+ζ₊
         Xend = view(sol.F.Xk, NLOW:NHIGH) |> Flowpipe |> Convexify |> set
         prob = IVP(sys, rmap(Xend))
         sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
