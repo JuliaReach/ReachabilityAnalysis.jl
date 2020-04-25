@@ -8,9 +8,9 @@ const AHACLD = AbstractHybridAutomatonwithClockedLinearDynamics
 import MathematicalSystems: system, statedim, initial_state
 
 """
-    HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
+    HACLD1{T<:AbstractSystem, MT, N, J} <: AHACLD
 
-Single-mode hybrid automaton with clocked linear dynamic.
+Single-mode hybrid automaton with clocked linear dynamics.
 
 ### Fields
 
@@ -26,6 +26,15 @@ This type is parametric in:
 - `T`  -- system type
 - `MT` -- type of the reset map
 - `N`  -- numeric type, applies to the sampling time and jitter
+- `J`  -- type associated to the jiter
+
+The type associated to the jitter can be one of the following:
+
+- `Missing`     -- no jitter, i.e. switchings are deterministic
+- `Number`      -- symetric jitter, i.e. switchings occure in the
+                   intervals `[Tsample - ζ, Tsample + ζ]`
+- `IA.Interval` -- nonsymetric jitter, i.e. switchings occur in the intervals
+                   intervals `[Tsample - inf(ζ), Tsample + sup(ζ)]`
 
 The following getter functions are available:
 
@@ -36,20 +45,21 @@ The following getter functions are available:
 - `statedim`       -- dimension of the state-space
 - `system`         -- returns the continuous mode
 """
-struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
+struct HACLD1{T<:AbstractSystem, MT, N, J} <: AHACLD
     sys::T
     rmap::MT
     Tsample::N
-    ζ::N
+    ζ::J
 end
 
 # default constructor without jitter
 function HACLD1(sys::T, rmap::MT, Tsample::N) where {T, MT, N}
-    return HACLD1(sys, rmap, Tsample, zero(N))
+    return HACLD1(sys, rmap, Tsample, missing)
 end
 
 initial_state(hs::HACLD1) = initial_state(hs.sys)
-jitter(hs::HACLD1) = hs.ζ
+jitter(hs::HACLD1{T, MT, N, Missing}) where {T, MT, N} = zero(N)
+jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J}  = hs.ζ
 reset_map(hs::HACLD1) = hs.rmap
 sampling_time(hs::HACLD1) = hs.Tsample
 statedim(hs::HACLD1) = statedim(hs.sys)
@@ -82,12 +92,17 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     prob = IVP(sys, X0)
     αlow = (Tsample - ζ)/δ
     NLOW = ceil(Int, αlow)
+
+
+    αhigh = (Tsample + ζ)/δ
+
+
+    NLOW, NHIGH = ()
+
     if NLOW == 0
         error("inconsistent choice of parameters: (Tsample - ζ)/δ = $αlow " *
               "but it should be positive")
-    end
-    αhigh = (Tsample + ζ)/δ
-    NHIGH = ceil(Int, αhigh)
+
     sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
 
     # preallocate output vector of flowpipes
@@ -116,12 +131,32 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     return HybridFlowpipe(out)
 end
 
+function _get_steps(Tsample, ζ::Number)
+
+    αlow = (Tsample - ζ)/δ
+    NLOW = ceil(Int, αlow)
+
+    αhigh = (Tsample + ζ)/δ
+    NHIGH = ceil(Int, αhigh)
+    return NLOW, NHIGH
+end
+
+function _get_steps(Tsample, ζ)
+    ζ = TimeInterval(_promote_tspan(ζ))
+    αlow = (Tsample - ζ)/δ
+    NLOW = ceil(Int, αlow)
+
+    αhigh = (Tsample + ζ)/δ
+    NHIGH = ceil(Int, αhigh)
+    return NLOW, NHIGH
+end
+
 #=
-function reach_HACLD1_no_jitter()
+function _reach_HACLD1_no_jitter()
 
 end
 
-function reach_HACLD1_with_jitter()
+function _reach_HACLD1_with_jitter()
 
 end
 =#
