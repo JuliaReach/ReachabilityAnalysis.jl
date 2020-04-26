@@ -48,9 +48,10 @@ function solve(ivp::IVP, args...; kwargs...)
     # preliminary checks
     _check_dim(ivp)
 
-    # retrieve time span and continuous post operator algorithm
-    # NOTE: tspan is of the form (0, 0) if NSTEPS was specified
+    # get time span (or the emptyset if NSTEPS was specified)
     tspan = _get_tspan(args...; kwargs...)
+
+    # get the continuous post or find a default one
     cpost = _get_cpost(ivp, args...; kwargs...)
     if cpost == nothing
         cpost = _default_cpost(ivp, tspan; kwargs...)
@@ -142,19 +143,24 @@ function _check_dim(ivp; throw_error::Bool=true)
     end
 end
 
-@inline _promote_tspan((t1, t2)::Tuple{T, T}) where {T} = (t1, t2)
-@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = promote(t1, t2)
-@inline _promote_tspan(tspan::Number) = (zero(tspan), tspan)
-@inline _promote_tspan(tspan::IA.Interval) = (inf(tspan), sup(tspan))
-@inline _promote_tspan(tspan::Interval) = (min(tspan), max(tspan))
+# promotion from tuple-like arguments
+@inline _promote_tspan((t1, t2)::Tuple{T, T}) where {T} = TimeInterval(t1, t2)
+@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = TimeInterval(promote(t1, t2))
+
+# no-op, corresponds to (inf(tspan), sup(tspan))
+@inline _promote_tspan(tspan::IA.Interval) = tspan
+
+# no-op, takes interval wrapped data; corresponds to (min(tspan), max(tspan))
+@inline _promote_tspan(tspan::Interval) = tspan.dat
+
+# number T defaults to a time interval of the form [0, T]
+@inline _promote_tspan(tspan::Number) = TimeInterval(zero(tspan), tspan)
+
+# catch-all array like tspan
 @inline function _promote_tspan(tspan::AbstractArray)
-    if length(tspan) == 2
-        return (first(tspan), last(tspan))
-    else
-        throw(ArgumentError("the length of tspan must be two (and preferably, " *
-                            "`tspan` should be a tuple, i.e. (0.0, 1.0)), but " *
-                            "it is of length $(length(tspan))"))
-    end
+    @assert length(tspan) == 2 throw(ArgumentError("the length of `tspan` must be two, but " *
+                                                   "it is of length $(length(tspan))"))
+    return TimeInterval(tspan[1], tspan[2])
 end
 
 function _get_tspan(args...; kwargs...)
@@ -162,37 +168,51 @@ function _get_tspan(args...; kwargs...)
     got_T = haskey(kwargs, :T)
     got_NSTEPS = haskey(kwargs, :NSTEPS)
 
+    # throw error for repeated arguments
     if got_tspan && got_T
         throw(ArgumentError("cannot parse the time horizon `T` and the " *
             "time span `tspan` simultaneously; use one or the other"))
+    elseif got_tspan && got_NSTEPS
+        throw(ArgumentError("cannot parse the time span `tspan` and the " *
+            "number of steps `NSTEPS` simultaneously; use one or the other"))
+    elseif got_T && got_NSTEPS
+        throw(ArgumentError("cannot parse the time horizon `T` and the " *
+            "number of steps `NSTEPS` simultaneously; use one or the other"))
     end
 
+    # parse time span
     if got_tspan
         tspan =_promote_tspan(kwargs[:tspan])
 
     elseif got_T
-        T = kwargs[:T]
-        tspan = (zero(T), T)
-
-    elseif !isempty(args) && (args[1] isa Tuple{Float64, Float64} ||
-                              args[1] isa Vector{Float64}         ||
-                              args[1] isa Interval || args[1] isa IntervalArithmetic.Interval)
-        tspan = _promote_tspan(args[1])
-
-    elseif !isempty(args) && args[1] isa Real # got time horizon as first argument
-        tspan = (zero(args[1]), args[1])
+        tspan = _promote_tspan(kwargs[:T])
 
     elseif got_NSTEPS
-        tspan = (0.0, 0.0) # defined a posteriori
+        tspan = emptyinterval() # defined a posteriori
+
+    elseif !isempty(args) && applicable(_promote_tspan, args[1])
+        # applies to tuples, vectors, LazySets.Interval, IA.Interval, and numbers
+        tspan = _promote_tspan(args[1])
+#=
+        (args[1] isa Tuple{Float64, Float64} || # time span given as tuple
+                              args[1] isa Vector{Float64}         || # time span given as vector
+                              args[1] isa Interval ||  # time span given as LazySets.Interval
+                              args[1] isa IntervalArithmetic.Interval || # time span given as IA.Interval
+                              args[1] isa Real) # got time horizon as first argument
+=#
+
+    elseif  haskey(kwargs, :max_jumps)
+        # got maximum number of jumps, applicable to hybrid systems
+        tspan = emptyinterval()
 
     else
-        tspan = (0.0, 0.0)
-        # TODO: find better solution such that the error message is used
-        #throw(ArgumentError("the time span has not been specified, " *
-        #    "but is required for `solve`; you should specify either the time horizon " *
-        #    "`T=...` or the time span `tspan=...`"))
+
+        # couldn't find time span => error
+        throw(ArgumentError("the time span has not been specified, but is required " *
+                            "for `solve`; you should specify either the time horizon " *
+                            "`T=...`, the time span `tspan=...`, or the number of steps, `NSTEPS=...`"))
     end
-    return TimeInterval(tspan[1], tspan[2])
+    return tspan
 end
 
 # return the time horizon given a time span
