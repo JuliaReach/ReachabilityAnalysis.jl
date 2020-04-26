@@ -3,6 +3,7 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
 
     @unpack δ, approx_model, max_order, static, dim, ngens, preallocate, reduction_method = alg
 
+    # TODO move up to main solve function
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
         T = NSTEPS * δ
