@@ -55,9 +55,26 @@ sampling_time(hs::HACLD1) = hs.Tsample
 statedim(hs::HACLD1) = statedim(hs.sys)
 system(hs::HACLD1) = hs.sys
 
-# tstart       Ts-ζ          tend
+# Non-deterministic switching diagram:
+#
+# tstart       Ts-ζ⁻         tend
 # [-------------|-------------]
-function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
+#
+# Similarly we compute tstart and tend for the supremum part Ts-ζ⁺
+function solve(ivp::IVP{<:HACLD1}, args...; kwargs...) # post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
+
+    # preliminary checks
+    _check_dim(ivp)
+
+    # get time span (or the emptyset if NSTEPS was specified)
+    tspan = _get_tspan(args...; kwargs...)
+
+    # get the continuous post or find a default one
+    alg = _get_cpost(ivp, args...; kwargs...)
+    if alg == nothing
+        alg = _default_cpost(ivp, tspan; kwargs...)
+    end
+
     X0 = initial_state(ivp)
     ha = system(ivp)
     @unpack sys, rmap, Tsample, ζ = ha
@@ -66,10 +83,13 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
 
     if haskey(kwargs, :max_jumps)
         max_jumps = kwargs[:max_jumps]
+
     else
+        @assert tspan ≠ emptyinterval() "either the time span `tspan` or the maximum number " *
+                                        "of jumps `max_jumps` should be specified"
+
         # define max_jumps using the time horizon tspan
         T = tend(tspan)
-        # TODO: double check
         α = T / (Tsample - ζ)
         if α <= 0
             error("inconsistent choice of parameters: T / (Tsample - ζ) = $α, " *
@@ -88,7 +108,7 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     end
     αhigh = (Tsample + ζ)/δ
     NHIGH = ceil(Int, αhigh)
-    sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
+    sol = post(alg, prob, ∅; NSTEPS=NHIGH)
 
     # preallocate output vector of flowpipes
     N = numtype(alg)
@@ -101,19 +121,19 @@ function post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
     @inbounds for k in 1:max_jumps+1
 
         # add time interval, 0 .. Tsample-ζ
-        aux = view(sol.F.Xk, 1:NLOW)
+        aux = view(array(sol), 1:NLOW)
 
         push!(out, shift(Flowpipe(aux), t0))
 
         t0 += tstart(aux[end])
 
         # Tsample-ζ .. Tsample+ζ
-        Xend = view(sol.F.Xk, NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+        Xend = view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
         prob = IVP(sys, rmap(Xend))
-        sol = solve(prob, NSTEPS=NHIGH, alg=alg; kwargs...)
+        sol = post(alg, prob, ∅; NSTEPS=NHIGH)
     end
 
-    return HybridFlowpipe(out)
+    return ReachSolution(HybridFlowpipe(out), alg)
 end
 
 #=
