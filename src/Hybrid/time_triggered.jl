@@ -240,10 +240,8 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
     t0 += tstart(sol[NLOW])
-    println(t0)
+
     # adjust integer bounds for subsequent jumps
-    println("NLOW = $NLOW")
-    println("NHIGH = $NHIGH")
     NLOW += 1
     NHIGH += 1
 
