@@ -7,7 +7,7 @@ using SparseArrays
 
 # adapt default LazySets tolerances
 set_rtol(Float64, 1e-12)
-set_ztol(Float64, 1e-12)
+set_ztol(Float64, 1e-13)
 
 # model without parameter variation
 function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
