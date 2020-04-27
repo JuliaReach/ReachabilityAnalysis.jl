@@ -54,4 +54,8 @@ export
     Shift,
 
 # Hybrid types
-    HACLD1
+    HACLD1,
+
+# Getter functions for hybrid systems
+    jitter,
+    switching

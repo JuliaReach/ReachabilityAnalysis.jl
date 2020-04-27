@@ -244,6 +244,23 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [HG19]
+
+- el Hakim, Viktorio S., and Marco JG Bekooij. [*Reachability Analysis of Hybrid Automata with Clocked Linear Dynamics.*](https://dl.acm.org/doi/abs/10.1145/3323439.3323980).
+  Proceedings of the 22nd International Workshop on Software and Compilers for Embedded Systems. 2019.
+
+```
+@inproceedings{el2019reachability,
+  title={Reachability Analysis of Hybrid Automata with Clocked Linear Dynamics},
+  author={el Hakim, Viktorio S and Bekooij, Marco JG},
+  booktitle={Proceedings of the 22nd International Workshop on Software and Compilers for Embedded Systems},
+  pages={27--36},
+  year={2019}
+}
+```
+
+---
+
 #### [JOL]
 
 - Joldes, M. M. (2011). [*Approximations polynomiales rigoureuses et applications*](https://www.theses.fr/2011ENSL0655/document).

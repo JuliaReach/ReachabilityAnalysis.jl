@@ -47,13 +47,15 @@ These methods are discussed at length in the dissertation [[ALT10]](@ref).
 Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 [[GIR05]](@ref) and the review article [[YS18]](@ref).
 """
-struct ASB07{N, AM, RM, S, R} <: AbstractContinuousPost
+struct ASB07{N, AM, RM, S, R, D, NG} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     max_order::Int
     reduction_method::RM
     static::S
     recursive::R
+    dim::D
+    ngens::NG
 end
 
 # convenience constructor using symbols
@@ -62,9 +64,13 @@ function ASB07(; δ::N,
                max_order::Int=5,
                reduction_method::RM=GIR05(),
                static::Bool=false,
-               recursive::Bool=true) where {N, AM, RM}
-    #n = !ismissing(dim) ? Val(dim) : dim
-    return ASB07(δ, approx_model, max_order, reduction_method, Val(static), Val(recursive))
+               recursive::Bool=true,
+               dim::Union{Int, Missing}=missing,
+               ngens::Union{Int, Missing}=missing) where {N, AM, RM}
+
+    n = ismissing(dim) ? missing : Val(dim)
+    p = ismissing(ngens) ? missing : Val(ngens)
+    return ASB07(δ, approx_model, max_order, reduction_method, Val(static), Val(recursive), n, p)
 end
 
 step_size(alg::ASB07) = alg.δ
@@ -74,7 +80,7 @@ function rsetrep(alg::ASB07{N, AM, RM, Val{false}}) where {N, AM, RM}
     RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
 end
 
-# TODO add stati case
+# TODO add static case
 #=
 function rsetrep(alg::ASB07{N}) where {N}
     if alg.static == Val{false} # TODO use type param

@@ -78,6 +78,7 @@ function GLGM06(; δ::N,
                ngens::Union{Int, Missing}=missing,
                preallocate::Bool=true,
                reduction_method::RM=GIR05()) where {N, AM, RM}
+
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return GLGM06(δ, approx_model, max_order, Val(static), n, p,

@@ -10,7 +10,7 @@ _reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}, dim, ngen
 _reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}, dim) where {N} = Ω0
 
 # convert any zonotope to be represented wih regular arrays
-_reconvert(Ω0::Zonotope, static::Val{false}, dim) = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
+_reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens) = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 
 # convert any zonotope to be represented with static arrays
 function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
@@ -45,7 +45,6 @@ function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}, dim::Val{n}) where
     #n = size(Φ, 1)
     Φ = SMatrix{n, n, N, n*n}(Φ)
 end
-
 
 function _reconvert(Φ::IntervalMatrix{N, IN, Matrix{IN}}, static::Val{true}, dim::Val{n}) where {N, IN, n}
     #n = size(Φ, 1)
