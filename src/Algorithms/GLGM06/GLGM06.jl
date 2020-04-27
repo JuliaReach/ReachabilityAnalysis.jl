@@ -92,7 +92,13 @@ function rsetrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
     RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
 end
 
-# TODO add rsetrep for static case
+function rsetrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n, p}
+    VT = SVector{n, N}
+    MT = SMatrix{n, p, N, n*p}
+    ZT = Zonotope{N, VT, MT}
+    RT = ReachSet{N, ZT}
+end
+
 #=
     if alg.static == Val{false} # TODO use type param
         RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}

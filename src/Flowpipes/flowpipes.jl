@@ -389,6 +389,10 @@ end
 @inline tend(fp::ShiftedFlowpipe) = tend(last(fp)) + time_shift(fp)
 @inline tspan(fp::ShiftedFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
+#@inline tstart(fp::ShiftedFlowpipe, i::Int) = tstart(fp.F[i]) + fp.t0
+#@inline tend(fp::ShiftedFlowpipe, i::Int) = tend(fp.F[i]) + time_shift(fp)
+#@inline tspan(fp::ShiftedFlowpipe, i::Int) = TimeInterval(tstart(fp), tend(fp))
+
 # =====================================
 # Flowpipe composition with a lazy map
 # =====================================

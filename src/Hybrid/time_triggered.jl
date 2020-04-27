@@ -17,13 +17,13 @@ abstract type AbstractSwitching end
 # deterministic switchings occur at prescribed time stamps, i.e. there is no jitter
 struct DeterministicSwitching <: AbstractSwitching end
 
-const deterministic_switching = DeterministicSwitching()
+#const deterministic_switching = DeterministicSwitching()
 
 # non-deterministic switchings may occur at any time between a prescribed interval,
 # i.e. there jitter is represented by an interval
 struct NonDeterministicSwitching <: AbstractSwitching end
 
-const nondeterministic_switching() = DeterministicSwitching()
+#const nondeterministic_switching() = DeterministicSwitching()
 
 """
     HACLD1{T<:AbstractSystem, MT, N, J} <: AHACLD
@@ -131,6 +131,12 @@ function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J}
     return HACLD1(sys, rmap, Tsample, ζint, switching)
 end
 
+function _get_numsteps(Tsample, δ, ζ, ::DeterministicSwitching)
+    αlow = Tsample / δ
+    NLOW = ceil(Int, αlow)
+    return NLOW, NLOW
+end
+
 function _get_numsteps(Tsample, δ, ζ, ::NonDeterministicSwitching)
     ζ⁻ = inf(ζ)
     αlow = (Tsample + ζ⁻)/δ
@@ -143,29 +149,27 @@ function _get_numsteps(Tsample, δ, ζ, ::NonDeterministicSwitching)
     return NLOW, NHIGH
 end
 
-function _get_numsteps(Tsample, δ, ζ, ::DeterministicSwitching)
-    αlow = Tsample / δ
+function _get_max_jumps(tspan, Tsample, δ, ζ, ::DeterministicSwitching)
+    NLOW = ceil(Tsample / δ)
+    T = tend(tspan)
+    aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
+                           "be positive but it is $max_jumps"
+    max_jumps = ceil(Int, aux)
+end
+
+function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
+    ζ⁻ = inf(ζ)
+    αlow = (Tsample + ζ⁻)/δ
     NLOW = ceil(Int, αlow)
-    return NLOW, NLOW
+    T = tend(tspan)
+    aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
+                           "be positive but it is $max_jumps"
+    max_jumps = ceil(Int, aux)
 end
 
-function _get_max_jumps(tspan, Tsample, ζ, ::NonDeterministicSwitching)
-    # define max_jumps using the time horizon tspan
-    T = tend(tspan)
-    ζ⁺ = sup(ζ)
-    α = T / (Tsample - ζ⁺)
-    if α <= 0
-        error("inconsistent choice of parameters: T / (Tsample - ζ⁺) = $α, " *
-              "but it should be positive")
-    end
-    max_jumps = ceil(Int, α)
-end
-
-function _get_max_jumps(tspan, Tsample, ζ, ::DeterministicSwitching)
-    T = tend(tspan)
-    α = T / Tsample
-    max_jumps = ceil(Int, α)
-end
+const no_tspan = emptyinterval()
 
 function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 
@@ -193,7 +197,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     else
         tspan ≠ emptyinterval() || throw(ArgumentError("either the time span `tspan` or the maximum number " *
                                                        "of jumps `max_jumps` should be specified"))
-        max_jumps = _get_max_jumps(tspan, ζ, switching)
+        max_jumps = _get_max_jumps(tspan, ζ, δ, switching)
     end
 
     # number of steps for the continuous post
@@ -205,33 +209,59 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     N = numtype(alg)
     RT = rsetrep(alg)
 
-    # VRT = SubArray{...}
     FT = Flowpipe{N, RT, Vector{RT}}
     out = Vector{FT}()
     sizehint!(out, max_jumps+1)
 
-    @inbounds for k in 1:max_jumps+1
-        # solve next chunk
-        sol = post(alg, prob, emptyinterval(); NSTEPS=NHIGH)
+    # aux: preallocate subarrays
+    #VRT = SubArray{...}
+    #RT = ReachSet{Float64,Hyperrectangle{Float64,StaticArrays.SArray{Tuple{4},Float64,1,4},StaticArrays.SArray{Tuple{4},Float64,1,4}}}
+    #VRT = Vector{RT}
+    #VRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
+    #out = Vector{Flowpipe{N, RT, VRT}}()
 
-        # store flowpipe until first intersection with the guard
-        aux = view(array(sol), 1:NLOW)
-        push!(out, shift(Flowpipe(aux), t0))
+    # solve first flowpipe
+    sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
+    push!(out, Flowpipe(sol[1:NLOW]))
 
-        # adjust initial time for next jump
-        t0 += tstart(aux[end])
+    if max_jumps == 0
+        return ReachSolution(HybridFlowpipe(out), alg)
+    end
 
-        # get successors after discrete jump from Tsample - ζ⁻ .. Tsample + ζ⁺
-        Xend = _transition_successors(sol, NLOW, NHIGH, switching)
+    # prepare successor for next jump
+    aux = view(array(sol), 1:NLOW)
+    Xend = _transition_successors(sol, NLOW, NHIGH, switching)
+
+    # adjust integer bounds for subsequent jumps
+    NLOW += 1
+    NHIGH += 1
+
+    @inbounds for k in 2:max_jumps+1
 
         # apply reset map and instantiate new initial-value problem
         prob = IVP(sys, rmap(Xend))
+
+        # solve next chunk
+        sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
+
+        push!(out, shift(Flowpipe(aux), t0))
+        #push!(out, Flowpipe(aux))
+        #push!(out, ShiftedFlowpipe(aux, t0))
+
+        # adjust initial time for next jump
+        t0 += tstart(aux[end]) # NOTE: with ShiftedFlowpipe we should use something like: tstart(aux, end)
+
+        # get successors after discrete jump from Tsample + ζ⁻ .. Tsample + ζ⁺
+        Xend = _transition_successors(sol, NLOW, NHIGH, switching)
+
+        # store flowpipe until first intersection with the guard
+        aux = view(array(sol), 1:NLOW)
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
 end
 
-# deeterministic switching
+# deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::DeterministicSwitching)
     # in this scenario, NLOW == NHIGH
     sol[NLOW] |> set
