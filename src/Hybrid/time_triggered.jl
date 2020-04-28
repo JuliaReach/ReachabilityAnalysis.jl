@@ -201,7 +201,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     else
         tsp ≠ emptyinterval() || throw(ArgumentError("either the time span `tspan` or the maximum number " *
                                                        "of jumps `max_jumps` should be specified"))
-        max_jumps = _get_max_jumps(tsp, Tsampl, δ, ζ, switching)
+        max_jumps = _get_max_jumps(tsp, Tsample, δ, ζ, switching)
     end
 
     # number of steps for the continuous post
