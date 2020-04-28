@@ -205,40 +205,25 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
     @assert NLOW > 0 throw(ArgumentError("inconsistent choice of parameters"))
 
-    # preallocate output vector of flowpipes
-    N = numtype(alg)
-    RT = rsetrep(alg)
-
-    FT = Flowpipe{N, RT, Vector{RT}}
-    out = Vector{FT}()
-    sizehint!(out, max_jumps+1)
-
-    # aux: preallocate subarrays
-    #VRT = SubArray{...}
-    #RT = ReachSet{Float64,Hyperrectangle{Float64,StaticArrays.SArray{Tuple{4},Float64,1,4},StaticArrays.SArray{Tuple{4},Float64,1,4}}}
-    #VRT = Vector{RT}
-    #VRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
-    #out = Vector{Flowpipe{N, RT, VRT}}()
-
     # solve first flowpipe
     sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
-    #R = _convert_or_overapproximate(ConvexHull(set(sol[NLOW]), Xend), RT)
-    #Rend = ReachSet(R, tspan(sol[NLOW]))
-    #push!(out, Flowpipe(vcat(sol[1:NLOW-1], Rend)))
     if max_jumps == 0
-        push!(out, Flowpipe(sol[1:NLOW-1]))
-        return ReachSolution(HybridFlowpipe(out), alg)
+        return ReachSolution(Flowpipe(sol[1:NLOW-1]), alg)
     end
 
-    push!(out, Flowpipe(sol[1:NLOW]))
-    # ?? we put NLOW-1 because that is the last set that is computed entirely (before the jump);
-    # note that sol[NLOW] contains points that make the jump
-    #
+    # preallocate output vector of flowpipes
+    N = numtype(alg)
+    RT = rsetrep(alg)
+    SRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
+    FT = Flowpipe{N, RT, SRT}
+    out = Vector{ShiftedFlowpipe{FT, N}}()
+    sizehint!(out, max_jumps+1)
+
+    push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NLOW)), t0))
 
     # prepare successor for next jump
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
-
     t0 += tstart(sol[NLOW])
 
     # adjust integer bounds for subsequent jumps
@@ -256,7 +241,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         # store flowpipe until first intersection with the guard
         aux = view(array(sol), 1:NLOW)
 
-        push!(out, shift(Flowpipe(aux), t0)) # push!(out, Flowpipe(aux)) ; push!(out, ShiftedFlowpipe(aux, t0))
+        push!(out, ShiftedFlowpipe(Flowpipe(aux), t0))
 
         # get successors after discrete jump from Tsample + ζ⁻ .. Tsample + ζ⁺
         Xend = _transition_successors(sol, NLOW, NHIGH, switching)

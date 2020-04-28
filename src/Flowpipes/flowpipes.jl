@@ -472,6 +472,12 @@ function HybridFlowpipe(Fk::Vector{FT}, ext::Dict{Symbol, Any}) where {N, RT<:Ab
     return HybridFlowpipe{N, RT, FT}(voa, ext)
 end
 
+function HybridFlowpipe(Fk::Vector{SFT}) where {N, RT, FT<:Flowpipe{N, RT}, NT<:Number, SFT<:ShiftedFlowpipe{FT, NT}}
+    voa = VectorOfArray{RT, 2, Vector{SFT}}(Fk)
+    ext = Dict{Symbol, Any}()
+    return HybridFlowpipe{N, RT, SFT}(voa, ext)
+end
+
 # interface functions
 array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
