@@ -79,6 +79,8 @@ function GLGM06(; δ::N,
                preallocate::Bool=true,
                reduction_method::RM=GIR05()) where {N, AM, RM}
 
+    # algorithm with "preallocation" is only defined for the non-static case
+    preallocate = !static
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return GLGM06(δ, approx_model, max_order, Val(static), n, p,
