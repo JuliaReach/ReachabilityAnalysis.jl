@@ -14,8 +14,22 @@ _reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens) = Zonotope(Vector(Ω0.
 
 # convert any zonotope to be represented with static arrays
 function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
-    #n, p = size(Ω0.generators) # dimension and number of generators
-    Ω0 = Zonotope(SVector{n, N}(Ω0.center), SMatrix{n, p, N, n*p}(Ω0.generators))
+    G = Ω0.generators
+    m = size(G, 2)
+    c = SVector{n, N}(Ω0.center)
+
+    if m == p
+        return Zonotope(c, SMatrix{n, p}(G))
+
+    elseif m < p
+        # extend with zeros
+        Gext = hcat(SMatrix{n, m}(G), zeros(MMatrix{n, p-n, N}))
+        return Zonotope(c, Gext)
+
+    else
+        throw(ArgumentError("can't reconvert a zontope with $m generators to a " *
+                            "zonotope with $p generators; you should reduce it first"))
+    end
 end
 
 # no-op
