@@ -386,13 +386,13 @@ end
 @inline time_shift(fp::ShiftedFlowpipe) = fp.t0
 
 # time domain interface
-@inline tstart(fp::ShiftedFlowpipe) = tstart(first(fp)) + time_shift(fp)
-@inline tend(fp::ShiftedFlowpipe) = tend(last(fp)) + time_shift(fp)
+@inline tstart(fp::ShiftedFlowpipe) = tstart(first(fp)) + fp.t0
+@inline tend(fp::ShiftedFlowpipe) = tend(last(fp)) + fp.t0
 @inline tspan(fp::ShiftedFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
-#@inline tstart(fp::ShiftedFlowpipe, i::Int) = tstart(fp.F[i]) + fp.t0
-#@inline tend(fp::ShiftedFlowpipe, i::Int) = tend(fp.F[i]) + time_shift(fp)
-#@inline tspan(fp::ShiftedFlowpipe, i::Int) = TimeInterval(tstart(fp), tend(fp))
+@inline tstart(fp::ShiftedFlowpipe, i::Int) = tstart(fp.F[i]) + fp.t0
+@inline tend(fp::ShiftedFlowpipe, i::Int) = tend(fp.F[i]) + fp.t0
+@inline tspan(fp::ShiftedFlowpipe, i::Int) = TimeInterval(tstart(fp), tend(fp))
 
 # TODO use interface?
 project(fp::ShiftedFlowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
