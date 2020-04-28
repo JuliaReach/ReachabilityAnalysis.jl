@@ -262,7 +262,12 @@ end
     # in this scenario, NLOW == NHIGH most of the time
     # sol[NLOW] |> set
     # however, it may happen that NHIGH = NLOW + 1 if Tsample is a multiple of δ
-    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+    if NLOW == NHIGH
+        # TODO: can we use dispach and remove this branch?
+        sol[NLOW] |> set
+    else
+        view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+    end
 end
 
 # non-deterministic switching
