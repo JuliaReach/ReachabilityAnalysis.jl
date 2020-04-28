@@ -153,9 +153,11 @@ function _get_max_jumps(tspan, Tsample, δ, ζ, ::DeterministicSwitching)
     NLOW = ceil(Tsample / δ)
     T = tend(tspan)
     aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    max_jumps = ceil(Int, aux)
     @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
                            "be positive but it is $max_jumps"
-    max_jumps = ceil(Int, aux)
+
+    return max_jumps
 end
 
 function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
@@ -164,9 +166,11 @@ function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
     NLOW = ceil(Int, αlow)
     T = tend(tspan)
     aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    max_jumps = ceil(Int, aux)
     @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
                            "be positive but it is $max_jumps"
-    max_jumps = ceil(Int, aux)
+
+    return max_jumps
 end
 
 const no_tspan = emptyinterval()
@@ -197,7 +201,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     else
         tsp ≠ emptyinterval() || throw(ArgumentError("either the time span `tspan` or the maximum number " *
                                                        "of jumps `max_jumps` should be specified"))
-        max_jumps = _get_max_jumps(tsp, ζ, δ, switching)
+        max_jumps = _get_max_jumps(tsp, Tsampl, δ, ζ, switching)
     end
 
     # number of steps for the continuous post
@@ -247,7 +251,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
         # adjust initial time for next jump
-        t0 += tstart(aux[NLOW]) # NOTE: with ShiftedFlowpipe we should use something like: tstart(aux, end)
+        t0 += tstart(aux[NLOW])
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
@@ -255,9 +259,10 @@ end
 
 # deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::DeterministicSwitching)
-    # in this scenario, NLOW == NHIGH
+    # in this scenario, NLOW == NHIGH most of the time
     # sol[NLOW] |> set
-    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set # it may happen that NHIGH = NLOW + 1
+    # however, it may happen that NHIGH = NLOW + 1 if Tsample is a multiple of δ
+    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
 end
 
 # non-deterministic switching
