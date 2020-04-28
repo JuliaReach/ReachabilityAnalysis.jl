@@ -40,8 +40,10 @@
 end
 
 @testset "ASB07 with time-triggered hybrid system" begin
-    prob = embrake_pv_1(ζ=0.0, Tsample=1e-4)
+    prob = embrake_pv_1(ζ=[-1e-8, 1e-7], Tsample=1e-4)
     sol = solve(prob, alg=ASB07(δ=1e-7, max_order=3), max_jumps=2)
+    @test dim(sol) == 4
+    @test flowpipe(sol) isa HybridFlowpipe
 end
 
 

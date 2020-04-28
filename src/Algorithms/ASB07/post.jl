@@ -1,6 +1,6 @@
 function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model, max_order, static, recursive, reduction_method = alg
+    @unpack δ, approx_model, max_order, static, recursive, reduction_method, dim, ngens = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -31,7 +31,7 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...
 
     # reconvert the set of initial states and state matrix, if needed
     #static = haskey(kwargs, :static) ? kwargs[:static] : static # TODO review kwargs vs alg args precedence
-    Ω0 = _reconvert(Ω0, static, dim, ngens) # TODO: add dim + generators to the type
+    Ω0 = _reconvert(Ω0, static, dim, ngens)
     Φ = _reconvert(Φ, static, dim)
 
     # preallocate output flowpipe

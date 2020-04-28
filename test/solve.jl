@@ -132,15 +132,56 @@ dim(R) == 2
 overapproximate(project(X, [1]), Interval) == Interval(-1, 1)
 =#
 
-@testset "Time-triggered hybrid automaton" begin
+@testset "Time-triggered hybrid automaton (HACLD1)" begin
+    # HACLD1 constructors
+    idsys = @system(x' = Matrix(1.0I, 2, 2) * x)
+    idmap = x -> x
+    Ts = 1e-3
+
+    # jitter is not defined => no jitter
+    A = HACLD1(idsys, idmap, Ts)
+    @inferred HACLD1(idsys, idmap, Ts)
+    @test jitter(A) == 0.0 .. 0.0
+    @test switching(A) == DeterministicSwitching
+
+    # jitter is zero => no jitter
+    A = HACLD1(idsys, idmap, Ts, 0.0)
+    @test_broken @inferred HACLD1(idsys, idmap, Ts, 0.0)
+    @test jitter(A) == 0.0 .. 0.0
+    @test switching(A) == DeterministicSwitching
+
+    # jitter is a number => symmetric jitter, [-ζ, ζ]
+    A = HACLD1(idsys, idmap, Ts, 1e-8)
+    @test_broken @inferred HACLD1(idsys, idmap, Ts, 1e-8)
+    @test jitter(A) == -1e-8 .. 1e-8
+    @test switching(A) == NonDeterministicSwitching
+
+    # jitter is an interval [ζ⁻, ζ⁺]
+    A = HACLD1(idsys, idmap, Ts, -1e-8 .. 1e-7)
+    @inferred HACLD1(idsys, idmap, Ts, -1e-8 .. 1e-7)
+    @test jitter(A) == -1e-8 .. 1e-7
+    @test switching(A) == NonDeterministicSwitching
+
+    # jitter is a vector [ζ⁻, ζ⁺], it is converted to an interval
+    A = HACLD1(idsys, idmap, Ts, [-1e-8, 1e-7])
+    @test_broken @inferred HACLD1(idsys, idmap, Ts, [-1e-8, 1e-7])
+    @test _isapprox(jitter(A), -1e-8 .. 1e-7)
+    @test switching(A) == NonDeterministicSwitching
+
+    # jitter is a tuple (ζ⁻, ζ⁺), it is converted to an interval
+    A = HACLD1(idsys, idmap, Ts, (-1e-8, 1e-7))
+    @test_broken @inferred HACLD1(idsys, idmap, Ts, (-1e-8, 1e-7))
+    @test _isapprox(jitter(A), -1e-8 .. 1e-7)
+    @test switching(A) == NonDeterministicSwitching
+end
+
+@testset "Time-triggered solve (EMBrake)" begin
+    # scenario without parameter variation
     prob = embrake_no_pv()
-    s = prob.s
-
-    # HACLD1 constructor with default zero jitter
-    q = HACLD1(s.sys, s.rmap, s.Tsample)
-    @test ReachabilityAnalysis.jitter(q) == 0.0
-
-    sol = solve(prob, alg=GLGM06(δ=1e-7), T=1e-3)
+    sol = solve(prob, alg=GLGM06(δ=1e-7), max_jumps=1)
     @test dim(sol) == 4
     @test flowpipe(sol) isa HybridFlowpipe
+
+    # scenario with parameter variation
+    # tested in test/algorithms/ASB07.jl
 end

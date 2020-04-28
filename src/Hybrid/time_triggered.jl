@@ -2,22 +2,41 @@
 # Hybrid systems with time-triggered transitions
 # ===============================================
 
-abstract type AbstractHybridAutomatonwithClockedLinearDynamics <: AbstractHybridSystem end
-const AHACLD = AbstractHybridAutomatonwithClockedLinearDynamics
-
 import MathematicalSystems: system, statedim, initial_state
 
-"""
-    HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
+# particular HA where transitions are only time-triggered
+abstract type AbstractHybridAutomatonwithClockedLinearDynamics <: AbstractHybridSystem end
 
-Single-mode hybrid automaton with clocked linear dynamic.
+# type alias
+const AHACLD = AbstractHybridAutomatonwithClockedLinearDynamics
+
+# abstarct supertype for the types of switching between discrete modes that are
+# handled by hybrid systems with time-triggeerd transitions
+abstract type AbstractSwitching end
+
+# deterministic switchings occur at prescribed time stamps, i.e. there is no jitter
+struct DeterministicSwitching <: AbstractSwitching end
+
+#const deterministic_switching = DeterministicSwitching()
+
+# non-deterministic switchings may occur at any time between a prescribed interval,
+# i.e. there jitter is represented by an interval
+struct NonDeterministicSwitching <: AbstractSwitching end
+
+#const nondeterministic_switching() = DeterministicSwitching()
+
+"""
+    HACLD1{T<:AbstractSystem, MT, N, J} <: AHACLD
+
+Single-mode hybrid automaton with clocked linear dynamics.
 
 ### Fields
 
-- `sys`     -- system
-- `rmap`    -- reset map
-- `Tsample` -- sampling time
-- `ζ`       -- jitter
+- `sys`       -- system
+- `rmap`      -- reset map
+- `Tsample`   -- sampling time
+- `ζ`         -- jitter
+- `switching` -- (optional) value that
 
 ### Notes
 
@@ -26,122 +45,237 @@ This type is parametric in:
 - `T`  -- system type
 - `MT` -- type of the reset map
 - `N`  -- numeric type, applies to the sampling time and jitter
+- `J`  -- type associated to the jitter
+
+The type associated to the jitter, `J`, can be one of the following:
+
+- `Missing`     -- no jitter, i.e. switchings are deterministic
+- `Number`      -- symetric jitter, i.e. non-deterministic switchings occur in the
+                   intervals `[Tsample - ζ, Tsample + ζ]`
+- `IA.Interval` -- nonsymetric jitter, i.e. non-deterministic switchings occur in the
+                   intervals `[Tsample - inf(ζ), Tsample + sup(ζ)]`
 
 The following getter functions are available:
 
 - `initial_state`  -- initial state of the continuous mode
-- `jitter`         -- returns the jitter
-- `reset_map`      -- returns the reset map
-- `sampling_time`  -- retuns the sampling time
+- `jitter`         -- return the jitter
+- `reset_map`      -- return the reset map
+- `sampling_time`  -- return the sampling time
 - `statedim`       -- dimension of the state-space
-- `system`         -- returns the continuous mode
+- `system`         -- return the continuous mode
+- `switching`      -- return the type of switching
+
+Non-deterministic switching:
+
+ tstart       Ts-ζ⁻         tend
+ [-------------|-------------]
+
+In the following, suppose that the continuous post-operator has fixed step-size
+`δ > 0`. If `F` denotes the flowpipe, then
+
+  F[1]    F[2]    F[3]    F[4]    F[5]        F[k]
+[------][------][------][------][------]  ⋅ ⋅ ⋅ ⋅ ⋅ ⋅ ⋅ ⋅  [------]
+
+ `R = array(F)` denote the array of reach-sets time-span for reach reach-set is of the form:
+
+Similarly we compute tstart and tend for the supremum part Ts-ζ⁺
 """
-struct HACLD1{T<:AbstractSystem, MT, N} <: AHACLD
+struct HACLD1{T<:AbstractSystem, MT, N, J, S<:AbstractSwitching} <: AHACLD
     sys::T
     rmap::MT
     Tsample::N
-    ζ::N
+    ζ::J
+    switching::S
 end
 
-# default constructor without jitter
-function HACLD1(sys::T, rmap::MT, Tsample::N) where {T, MT, N}
-    return HACLD1(sys, rmap, Tsample, zero(N))
-end
-
-initial_state(hs::HACLD1) = initial_state(hs.sys)
-jitter(hs::HACLD1) = hs.ζ
+# getter functions
+system(hs::HACLD1) = hs.sys
 reset_map(hs::HACLD1) = hs.rmap
 sampling_time(hs::HACLD1) = hs.Tsample
 statedim(hs::HACLD1) = statedim(hs.sys)
-system(hs::HACLD1) = hs.sys
+initial_state(hs::HACLD1) = initial_state(hs.sys)
+jitter(hs::HACLD1{T, MT, N, Missing}) where {T, MT, N} = TimeInterval(zero(N), zero(N))
+jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J}  = hs.ζ
+# TODO cleanup
+#jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J<:Real} = TimeInterval(-ζ, ζ)
+#jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J}  = _promote_tspan(hs.ζ)
+switching(::HACLD1{T, MT, N, J, S}) where {T, MT, N, J, S} = S
 
-# Non-deterministic switching diagram:
-#
-# tstart       Ts-ζ⁻         tend
-# [-------------|-------------]
-#
-# Similarly we compute tstart and tend for the supremum part Ts-ζ⁺
-function solve(ivp::IVP{<:HACLD1}, args...; kwargs...) # post(alg::AbstractContinuousPost, ivp::IVP{<:HACLD1}, tspan; kwargs...)
+# default constructor without jitter
+function HACLD1(sys::T, rmap::MT, Tsample::N) where {T, MT, N}
+    return HACLD1(sys, rmap, Tsample, missing, DeterministicSwitching())
+end
+
+# constructor when jitter is a real number
+function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J<:Real}
+    if iszero(ζ)
+        switching = DeterministicSwitching()
+        ζint = TimeInterval(ζ, ζ)
+    else
+        switching = NonDeterministicSwitching()
+        ζint = TimeInterval(-ζ, ζ)
+    end
+    return HACLD1(sys, rmap, Tsample, ζint, switching)
+end
+
+# should be treated separately because IA.Interval <: Number
+function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J<:IA.Interval}
+    return HACLD1(sys, rmap, Tsample, ζ, NonDeterministicSwitching())
+end
+
+# constructor when jitter is an inteval: check whether its diameter is zero or not
+# we promote ζ to accept tspan-like inputs (tuples, vectors, etc.)
+function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J}
+    ζint = _promote_tspan(ζ)
+    switching = diam(ζint) > zero(N) ? NonDeterministicSwitching() : DeterministicSwitching()
+    return HACLD1(sys, rmap, Tsample, ζint, switching)
+end
+
+function _get_numsteps(Tsample, δ, ζ, ::DeterministicSwitching)
+    αlow = Tsample / δ
+    NLOW = ceil(Int, αlow)
+    return NLOW, NLOW
+end
+
+function _get_numsteps(Tsample, δ, ζ, ::NonDeterministicSwitching)
+    ζ⁻ = inf(ζ)
+    αlow = (Tsample + ζ⁻)/δ
+    NLOW = ceil(Int, αlow)
+
+    ζ⁺ = sup(ζ)
+    αhigh = (Tsample + ζ⁺)/δ
+    NHIGH = ceil(Int, αhigh)
+
+    return NLOW, NHIGH
+end
+
+function _get_max_jumps(tspan, Tsample, δ, ζ, ::DeterministicSwitching)
+    NLOW = ceil(Tsample / δ)
+    T = tend(tspan)
+    aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
+                           "be positive but it is $max_jumps"
+    max_jumps = ceil(Int, aux)
+end
+
+function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
+    ζ⁻ = inf(ζ)
+    αlow = (Tsample + ζ⁻)/δ
+    NLOW = ceil(Int, αlow)
+    T = tend(tspan)
+    aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
+                           "be positive but it is $max_jumps"
+    max_jumps = ceil(Int, aux)
+end
+
+const no_tspan = emptyinterval()
+
+function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 
     # preliminary checks
     _check_dim(ivp)
 
     # get time span (or the emptyset if NSTEPS was specified)
-    tspan = _get_tspan(args...; kwargs...)
+    tsp = _get_tspan(args...; kwargs...)
 
     # get the continuous post or find a default one
     alg = _get_cpost(ivp, args...; kwargs...)
     if alg == nothing
-        alg = _default_cpost(ivp, tspan; kwargs...)
+        alg = _default_cpost(ivp, tsp; kwargs...)
     end
 
     X0 = initial_state(ivp)
     ha = system(ivp)
-    @unpack sys, rmap, Tsample, ζ = ha
-    t0 = tstart(tspan)
+    @unpack sys, rmap, Tsample, ζ, switching = ha
+    t0 = isempty(tsp) ? 0.0 : tstart(tsp)
     δ = step_size(alg)
 
+    # get maximum number of jumps
     if haskey(kwargs, :max_jumps)
         max_jumps = kwargs[:max_jumps]
-
     else
-        @assert tspan ≠ emptyinterval() "either the time span `tspan` or the maximum number " *
-                                        "of jumps `max_jumps` should be specified"
-
-        # define max_jumps using the time horizon tspan
-        T = tend(tspan)
-        α = T / (Tsample - ζ)
-        if α <= 0
-            error("inconsistent choice of parameters: T / (Tsample - ζ) = $α, " *
-                  "but it should be positive")
-        end
-        max_jumps = ceil(Int, α)
+        tsp ≠ emptyinterval() || throw(ArgumentError("either the time span `tspan` or the maximum number " *
+                                                       "of jumps `max_jumps` should be specified"))
+        max_jumps = _get_max_jumps(tsp, ζ, δ, switching)
     end
 
-    # solve first interval
+    # number of steps for the continuous post
     prob = IVP(sys, X0)
-    αlow = (Tsample - ζ)/δ
-    NLOW = ceil(Int, αlow)
-    if NLOW == 0
-        error("inconsistent choice of parameters: (Tsample - ζ)/δ = $αlow " *
-              "but it should be positive")
-    end
-    αhigh = (Tsample + ζ)/δ
-    NHIGH = ceil(Int, αhigh)
-    sol = post(alg, prob, ∅; NSTEPS=NHIGH)
+    NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
+    @assert NLOW > 0 throw(ArgumentError("inconsistent choice of parameters"))
 
     # preallocate output vector of flowpipes
     N = numtype(alg)
     RT = rsetrep(alg)
-    # VRT = SubArray{...}
+
     FT = Flowpipe{N, RT, Vector{RT}}
     out = Vector{FT}()
     sizehint!(out, max_jumps+1)
 
-    @inbounds for k in 1:max_jumps+1
+    # aux: preallocate subarrays
+    #VRT = SubArray{...}
+    #RT = ReachSet{Float64,Hyperrectangle{Float64,StaticArrays.SArray{Tuple{4},Float64,1,4},StaticArrays.SArray{Tuple{4},Float64,1,4}}}
+    #VRT = Vector{RT}
+    #VRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
+    #out = Vector{Flowpipe{N, RT, VRT}}()
 
-        # add time interval, 0 .. Tsample-ζ
+    # solve first flowpipe
+    sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
+
+    #R = _convert_or_overapproximate(ConvexHull(set(sol[NLOW]), Xend), RT)
+    #Rend = ReachSet(R, tspan(sol[NLOW]))
+    #push!(out, Flowpipe(vcat(sol[1:NLOW-1], Rend)))
+    if max_jumps == 0
+        push!(out, Flowpipe(sol[1:NLOW-1]))
+        return ReachSolution(HybridFlowpipe(out), alg)
+    end
+
+    push!(out, Flowpipe(sol[1:NLOW]))
+    # ?? we put NLOW-1 because that is the last set that is computed entirely (before the jump);
+    # note that sol[NLOW] contains points that make the jump
+    #
+
+    # prepare successor for next jump
+    Xend = _transition_successors(sol, NLOW, NHIGH, switching)
+
+    t0 += tstart(sol[NLOW])
+
+    # adjust integer bounds for subsequent jumps
+    NLOW += 1
+    NHIGH += 1
+
+    @inbounds for k in 2:max_jumps+1
+
+        # apply reset map and instantiate new initial-value problem
+        prob = IVP(sys, rmap(Xend))
+
+        # solve next chunk
+        sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
+
+        # store flowpipe until first intersection with the guard
         aux = view(array(sol), 1:NLOW)
 
-        push!(out, shift(Flowpipe(aux), t0))
+        push!(out, shift(Flowpipe(aux), t0)) # push!(out, Flowpipe(aux)) ; push!(out, ShiftedFlowpipe(aux, t0))
 
-        t0 += tstart(aux[end])
+        # get successors after discrete jump from Tsample + ζ⁻ .. Tsample + ζ⁺
+        Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
-        # Tsample-ζ .. Tsample+ζ
-        Xend = view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
-        prob = IVP(sys, rmap(Xend))
-        sol = post(alg, prob, ∅; NSTEPS=NHIGH)
+        # adjust initial time for next jump
+        t0 += tstart(aux[NLOW]) # NOTE: with ShiftedFlowpipe we should use something like: tstart(aux, end)
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
 end
 
-#=
-function reach_HACLD1_no_jitter()
-
+# deterministic switching
+@inline function _transition_successors(sol, NLOW, NHIGH, ::DeterministicSwitching)
+    # in this scenario, NLOW == NHIGH
+    # sol[NLOW] |> set
+    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set # it may happen that NHIGH = NLOW + 1
 end
 
-function reach_HACLD1_with_jitter()
-
+# non-deterministic switching
+@inline function _transition_successors(sol, NLOW, NHIGH, ::NonDeterministicSwitching)
+    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
 end
-=#
