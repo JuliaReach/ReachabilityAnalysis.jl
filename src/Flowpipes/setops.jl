@@ -23,7 +23,7 @@ function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ng
 
     elseif m < p
         # extend with zeros
-        Gext = hcat(SMatrix{n, m}(G), zeros(MMatrix{n, p-n, N}))
+        Gext = hcat(SMatrix{n, m}(G), zeros(MMatrix{n, p-m, N}))
         return Zonotope(c, Gext)
 
     else
