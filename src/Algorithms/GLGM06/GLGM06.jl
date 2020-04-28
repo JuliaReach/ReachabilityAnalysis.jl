@@ -79,6 +79,8 @@ function GLGM06(; δ::N,
                preallocate::Bool=true,
                reduction_method::RM=GIR05()) where {N, AM, RM}
 
+    # algorithm with "preallocation" is only defined for the non-static case
+    preallocate = !static
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return GLGM06(δ, approx_model, max_order, Val(static), n, p,
@@ -98,27 +100,6 @@ function rsetrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n,
     ZT = Zonotope{N, VT, MT}
     RT = ReachSet{N, ZT}
 end
-
-#=
-    if alg.static == Val{false} # TODO use type param
-        RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
-    else
-        @assert !ismissing(alg.dim) "the `static` option requires that the dimension " *
-        "field of this algorithm is given, but it is $(alg.dim)"
-
-        @assert !ismissing(alg.ngens) "the `static` option requires that the number of " *
-        "generators is known, but it is $(alg.ngens)"
-
-        n = alg.dim # dimension
-        p = alg.ngens # number of generators
-        VT = SVector{n, N}
-        MT = SMatrix{n, p, N, n*p}
-        ZT = Zonotope{N, VT, MT}
-        RT = ReachSet{N, ZT}
-    end
-    return RT
-end
-=#
 
 include("post.jl")
 include("reach_homog.jl")

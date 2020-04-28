@@ -14,8 +14,22 @@ _reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens) = Zonotope(Vector(Ω0.
 
 # convert any zonotope to be represented with static arrays
 function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
-    #n, p = size(Ω0.generators) # dimension and number of generators
-    Ω0 = Zonotope(SVector{n, N}(Ω0.center), SMatrix{n, p, N, n*p}(Ω0.generators))
+    G = Ω0.generators
+    m = size(G, 2)
+    c = SVector{n, N}(Ω0.center)
+
+    if m == p
+        return Zonotope(c, SMatrix{n, p}(G))
+
+    elseif m < p
+        # extend with zeros
+        Gext = hcat(SMatrix{n, m}(G), zeros(MMatrix{n, p-m, N}))
+        return Zonotope(c, Gext)
+
+    else
+        throw(ArgumentError("can't reconvert a zontope with $m generators to a " *
+                            "zonotope with $p generators; you should reduce it first"))
+    end
 end
 
 # no-op
@@ -282,25 +296,21 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
     return Zonotope(c_oa, G_oa)
 end
 
-#=
-TODO : finish
-function _overapproximate_interval_linear_map(Mc::StaticArray{Tuple{q, n}, T, 2},
-                                              Ms::StaticArray{Tuple{q, n}, T, 2},
-                                              c::AbstractVector{N},
-                                              G::AbstractMatrix{N}) where {N, q, n, T}
-    m = size(G, 2) # number of generators
+function _overapproximate_interval_linear_map(Mc::SMatrix{n, n, N, LM},
+                                              Ms::SMatrix{n, n, N, LM},
+                                              c::SVector{n, N},
+                                              G::SMatrix{n, m, N, LG}) where {n, N, LM, m, LG}
     c_oa = Mc * c
     Ggens = Mc * G
 
-    dvec = zeros(MVector{n, N})
-    # TODO use abs.(c) ?
+    dvec = zeros(N, n)
     @inbounds for i in 1:n
         dvec[i] = abs(c[i])
         for j in 1:m
-            dvec[i, i] += abs(G[i, j])
+            dvec[i] += abs(G[i, j])
         end
     end
-    DV = zeros(MMatrix{n, n, N})
+    DV = zeros(MMatrix{n, n, N}) # NOTE: sole difference with regular arrays, may refactor
     α = Ms * dvec
     @inbounds for i in 1:n
         DV[i, i] = α[i]
@@ -308,7 +318,6 @@ function _overapproximate_interval_linear_map(Mc::StaticArray{Tuple{q, n}, T, 2}
     G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
 end
-=#
 
 function _split_fallback!(A::IntervalMatrix{T}, C, S) where {T}
     m, n = size(A)
@@ -384,7 +393,7 @@ _reduce_order(Z::Zonotope, r::Number, ::COMB03) = _reduce_order_COMB03(Z, r)
 
 # Implements zonotope order reduction method from [COMB03]
 # We follow the notation from [YS18]
-function _reduce_order_COMB03(Z::Zonotope{N, MN}, r::Number) where {N, MN}
+function _reduce_order_COMB03(Z::Zonotope{N}, r::Number) where {N}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
@@ -426,7 +435,7 @@ end
 
 # Implements zonotope order reduction method from [GIR05]
 # We follow the notation from [YS18]
-function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
+function _reduce_order_GIR05(Z::Zonotope{N}, r::Number) where {N}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
@@ -463,6 +472,47 @@ function _reduce_order_GIR05(Z::Zonotope{N, MN}, r::Number) where {N, MN}
     end
 
     K = G[:, indices[1:m]]
+    Gred = hcat(K, Lred)
+    return Zonotope(c, Gred)
+end
+
+# implementation for zonotopes using static arrays
+function _reduce_order_GIR05(Z::Zonotope{N, SVector{n, N}, SMatrix{n, p, N, LM}}, r::Number) where {N, n, p, LM}
+    r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
+    c = Z.center
+    G = Z.generators
+
+    # r is bigger than the order of Z => don't reduce
+    (r * n >= p) && return Z
+
+    # split Z into K and L, where K contains the most "representative" generators
+    # and L contains the generators that are reduced, Lred
+
+    # this algorithm sort generators by ||⋅||₁ - ||⋅||∞ difference
+    weights = zeros(N, p)
+    @inbounds for i in 1:p
+        v = view(G, :, i)
+        weights[i] = norm(v, 1) - norm(v, Inf)
+    end
+    indices = Vector{Int}(undef, p)
+    sortperm!(indices, weights, rev=true, initialized=false)
+
+    # the first m generators with greatest weight
+    m = floor(Int, n * (r - 1))
+
+    # compute interval hull of L
+    Lred = zeros(MMatrix{n, n, N})
+    @inbounds for i in 1:n
+        for j in indices[m+1:end]
+            Lred[i, i] += abs(G[i, j])
+        end
+    end
+
+    if isone(r)
+        return Zonotope(c, SMatrix{n, n}(Lred))
+    end
+
+    K = SMatrix{n, m}(view(G, :, indices[1:m]))
     Gred = hcat(K, Lred)
     return Zonotope(c, Gred)
 end

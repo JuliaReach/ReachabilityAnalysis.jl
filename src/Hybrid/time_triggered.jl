@@ -153,9 +153,11 @@ function _get_max_jumps(tspan, Tsample, δ, ζ, ::DeterministicSwitching)
     NLOW = ceil(Tsample / δ)
     T = tend(tspan)
     aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    max_jumps = ceil(Int, aux)
     @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
                            "be positive but it is $max_jumps"
-    max_jumps = ceil(Int, aux)
+
+    return max_jumps
 end
 
 function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
@@ -164,9 +166,11 @@ function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
     NLOW = ceil(Int, αlow)
     T = tend(tspan)
     aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
+    max_jumps = ceil(Int, aux)
     @assert max_jumps >= 0 "inconsistent choice of parameters, `max_jumps` should " *
                            "be positive but it is $max_jumps"
-    max_jumps = ceil(Int, aux)
+
+    return max_jumps
 end
 
 const no_tspan = emptyinterval()
@@ -197,7 +201,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     else
         tsp ≠ emptyinterval() || throw(ArgumentError("either the time span `tspan` or the maximum number " *
                                                        "of jumps `max_jumps` should be specified"))
-        max_jumps = _get_max_jumps(tsp, ζ, δ, switching)
+        max_jumps = _get_max_jumps(tsp, Tsample, δ, ζ, switching)
     end
 
     # number of steps for the continuous post
@@ -205,40 +209,25 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
     @assert NLOW > 0 throw(ArgumentError("inconsistent choice of parameters"))
 
-    # preallocate output vector of flowpipes
-    N = numtype(alg)
-    RT = rsetrep(alg)
-
-    FT = Flowpipe{N, RT, Vector{RT}}
-    out = Vector{FT}()
-    sizehint!(out, max_jumps+1)
-
-    # aux: preallocate subarrays
-    #VRT = SubArray{...}
-    #RT = ReachSet{Float64,Hyperrectangle{Float64,StaticArrays.SArray{Tuple{4},Float64,1,4},StaticArrays.SArray{Tuple{4},Float64,1,4}}}
-    #VRT = Vector{RT}
-    #VRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
-    #out = Vector{Flowpipe{N, RT, VRT}}()
-
     # solve first flowpipe
     sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
-    #R = _convert_or_overapproximate(ConvexHull(set(sol[NLOW]), Xend), RT)
-    #Rend = ReachSet(R, tspan(sol[NLOW]))
-    #push!(out, Flowpipe(vcat(sol[1:NLOW-1], Rend)))
     if max_jumps == 0
-        push!(out, Flowpipe(sol[1:NLOW-1]))
-        return ReachSolution(HybridFlowpipe(out), alg)
+        return ReachSolution(Flowpipe(sol[1:NLOW-1]), alg)
     end
 
-    push!(out, Flowpipe(sol[1:NLOW]))
-    # ?? we put NLOW-1 because that is the last set that is computed entirely (before the jump);
-    # note that sol[NLOW] contains points that make the jump
-    #
+    # preallocate output vector of flowpipes
+    N = numtype(alg)
+    RT = rsetrep(alg)
+    SRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
+    FT = Flowpipe{N, RT, SRT}
+    out = Vector{ShiftedFlowpipe{FT, N}}()
+    sizehint!(out, max_jumps+1)
+
+    push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NLOW)), t0))
 
     # prepare successor for next jump
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
-
     t0 += tstart(sol[NLOW])
 
     # adjust integer bounds for subsequent jumps
@@ -256,13 +245,13 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         # store flowpipe until first intersection with the guard
         aux = view(array(sol), 1:NLOW)
 
-        push!(out, shift(Flowpipe(aux), t0)) # push!(out, Flowpipe(aux)) ; push!(out, ShiftedFlowpipe(aux, t0))
+        push!(out, ShiftedFlowpipe(Flowpipe(aux), t0))
 
         # get successors after discrete jump from Tsample + ζ⁻ .. Tsample + ζ⁺
         Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
         # adjust initial time for next jump
-        t0 += tstart(aux[NLOW]) # NOTE: with ShiftedFlowpipe we should use something like: tstart(aux, end)
+        t0 += tstart(aux[NLOW])
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
@@ -270,9 +259,15 @@ end
 
 # deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::DeterministicSwitching)
-    # in this scenario, NLOW == NHIGH
+    # in this scenario, NLOW == NHIGH most of the time
     # sol[NLOW] |> set
-    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set # it may happen that NHIGH = NLOW + 1
+    # however, it may happen that NHIGH = NLOW + 1 if Tsample is a multiple of δ
+    if NLOW == NHIGH
+        # TODO: can we use dispach and remove this branch?
+        sol[NLOW] |> set
+    else
+        view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+    end
 end
 
 # non-deterministic switching

@@ -80,31 +80,12 @@ function rsetrep(alg::ASB07{N, AM, RM, Val{false}}) where {N, AM, RM}
     RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
 end
 
-# TODO add static case
-#=
-function rsetrep(alg::ASB07{N}) where {N}
-    if alg.static == Val{false} # TODO use type param
-        RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
-    else
-        error("not implemented yet")
-        #=
-        @assert !ismissing(alg.dim) "the `static` option requires that the dimension " *
-        "field of this algorithm is given, but it is $(alg.dim)"
-
-        @assert !ismissing(alg.ngens) "the `static` option requires that the number of " *
-        "generators is known, but it is $(alg.ngens)"
-
-        n = alg.dim # dimension
-        p = alg.ngens # number of generators
-        VT = SVector{n, N}
-        MT = SMatrix{n, p, N, n*p}
-        ZT = Zonotope{N, VT, MT}
-        RT = ReachSet{N, ZT}
-        =#
-    end
-    return RT
+function rsetrep(alg::ASB07{N, AM, RM, S, R, Val{n}, Val{p}}) where {N, AM, RM, S, R, n, p}
+    VT = SVector{n, N}
+    MT = SMatrix{n, p, N, n*p}
+    ZT = Zonotope{N, VT, MT}
+    RT = ReachSet{N, ZT}
 end
-=#
 
 include("post.jl")
 include("reach_homog.jl")
