@@ -314,6 +314,7 @@ end
 
 project(fp::Flowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
+project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
 
 """
     shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
@@ -392,6 +393,42 @@ end
 #@inline tstart(fp::ShiftedFlowpipe, i::Int) = tstart(fp.F[i]) + fp.t0
 #@inline tend(fp::ShiftedFlowpipe, i::Int) = tend(fp.F[i]) + time_shift(fp)
 #@inline tspan(fp::ShiftedFlowpipe, i::Int) = TimeInterval(tstart(fp), tend(fp))
+
+# TODO use interface?
+project(fp::ShiftedFlowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
+project(fp::ShiftedFlowpipe; vars) = project(fp, Tuple(vars))
+
+function project(fp::ShiftedFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Xk = array(fp)
+    # TODO: use projection of the reachsets
+    if 0 ∈ vars # projection includes "time"
+        # we shift the vars indices by one as we take the Cartesian prod with the time spans
+        aux = vars .+ 1
+        t0 = time_shift(fp)
+        return map(X -> _project(convert(Interval, tspan(X) + t0) × set(X), aux), Xk)
+    else
+        return map(X -> _project(set(X), vars), Xk)
+    end
+end
+
+# this method is analogue to project(::AbstractLazyReachSet, vars; check_vars=true)
+# TODO add check_vars ?
+function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:Integer}
+    t0 = time_shift(fp)
+    R = fp[i]
+    if 0 ∈ vars
+        # if the projection involves "time", we shift the vars indices by one as
+        # we will take the Cartesian product of the reach-set with the time interval
+        aux = vars .+ 1
+
+        Δt = convert(Interval, tspan(R) + t0)
+        proj =  _project(Δt × set(R), aux)
+    else
+        proj = _project(set(R), vars)
+    end
+
+    return SparseReachSet(proj, tspan(R) + t0, vars)
+end
 
 # =====================================
 # Flowpipe composition with a lazy map

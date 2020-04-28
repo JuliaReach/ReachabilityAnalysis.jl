@@ -459,8 +459,10 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for F in flowpipe(sol)
-        for Ri in F
-            πRi = project(Ri, vars) # project the reach-set
+        for (i, Ri) in enumerate(F)
+            # NOTE: the following is needed to support ShiftedFlowpipe
+            # otherwise we would just to project(Ri, vars)
+            πRi = project(F, i, vars) # project the reach-set
             Xi = set(πRi) # extract the set representation
 
             if Xi isa Intersection

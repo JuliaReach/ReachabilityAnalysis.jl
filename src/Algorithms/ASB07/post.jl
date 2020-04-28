@@ -1,6 +1,6 @@
 function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
-    @unpack δ, approx_model, max_order, static, recursive, reduction_method, dim, ngens = alg
+    @unpack δ, approx_model, max_order, reduction_method, static, recursive, dim, ngens = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]

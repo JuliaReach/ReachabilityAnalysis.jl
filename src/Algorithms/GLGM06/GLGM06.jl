@@ -99,27 +99,6 @@ function rsetrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n,
     RT = ReachSet{N, ZT}
 end
 
-#=
-    if alg.static == Val{false} # TODO use type param
-        RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
-    else
-        @assert !ismissing(alg.dim) "the `static` option requires that the dimension " *
-        "field of this algorithm is given, but it is $(alg.dim)"
-
-        @assert !ismissing(alg.ngens) "the `static` option requires that the number of " *
-        "generators is known, but it is $(alg.ngens)"
-
-        n = alg.dim # dimension
-        p = alg.ngens # number of generators
-        VT = SVector{n, N}
-        MT = SMatrix{n, p, N, n*p}
-        ZT = Zonotope{N, VT, MT}
-        RT = ReachSet{N, ZT}
-    end
-    return RT
-end
-=#
-
 include("post.jl")
 include("reach_homog.jl")
 include("reach_inhomog.jl")
