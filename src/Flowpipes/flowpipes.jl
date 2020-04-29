@@ -392,7 +392,7 @@ end
 
 @inline tstart(fp::ShiftedFlowpipe, i::Int) = tstart(fp.F[i]) + fp.t0
 @inline tend(fp::ShiftedFlowpipe, i::Int) = tend(fp.F[i]) + fp.t0
-@inline tspan(fp::ShiftedFlowpipe, i::Int) = TimeInterval(tstart(fp), tend(fp))
+@inline tspan(fp::ShiftedFlowpipe, i::Int) = TimeInterval(tstart(fp, i), tend(fp, i))
 
 # TODO use interface?
 project(fp::ShiftedFlowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
