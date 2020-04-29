@@ -133,14 +133,15 @@ end
 
 function _get_numsteps(Tsample, δ, ζ, ::DeterministicSwitching)
     αlow = Tsample / δ
-    NLOW = ceil(Int, αlow)
-    return NLOW, NLOW
+    NLOW = floor(Int, αlow)
+    NHIGH = ceil(Int, αlow)
+    return NLOW, NHIGH
 end
 
 function _get_numsteps(Tsample, δ, ζ, ::NonDeterministicSwitching)
     ζ⁻ = inf(ζ)
     αlow = (Tsample + ζ⁻)/δ
-    NLOW = ceil(Int, αlow)
+    NLOW = floor(Int, αlow)
 
     ζ⁺ = sup(ζ)
     αhigh = (Tsample + ζ⁺)/δ
