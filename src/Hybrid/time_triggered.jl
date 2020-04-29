@@ -224,7 +224,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     out = Vector{ShiftedFlowpipe{FT, N}}()
     sizehint!(out, max_jumps+1)
 
-    push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NLOW)), t0))
+    push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NHIGH)), t0))
 
     # prepare successor for next jump
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
@@ -243,7 +243,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
         # store flowpipe until first intersection with the guard
-        aux = view(array(sol), 1:NLOW)
+        aux = view(array(sol), 1:NHIGH)
 
         push!(out, ShiftedFlowpipe(Flowpipe(aux), t0))
 
