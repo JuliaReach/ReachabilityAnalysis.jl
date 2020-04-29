@@ -207,6 +207,9 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     # number of steps for the continuous post
     prob = IVP(sys, X0)
     NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
+    ζint = jitter(ha)
+    ζ⁻ = inf(ζint)
+    ζ⁺ = sup(ζint)
     @assert NLOW > 0 throw(ArgumentError("inconsistent choice of parameters"))
 
     # solve first flowpipe
@@ -228,11 +231,11 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 
     # prepare successor for next jump
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
-    t0 += tstart(sol[NLOW])
+    t0 += Tsample + ζ⁻ # tstart(sol[NLOW])
 
     # adjust integer bounds for subsequent jumps
-    NLOW += 1
-    NHIGH += 1
+    #NLOW += 1
+    NHIGH += NHIGH - ceil(Int, Tsample / δ)
 
     @inbounds for k in 2:max_jumps+1
 
@@ -251,7 +254,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
         # adjust initial time for next jump
-        t0 += tstart(aux[NLOW])
+        t0 += Tsample  # tstart(aux[NLOW])
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
