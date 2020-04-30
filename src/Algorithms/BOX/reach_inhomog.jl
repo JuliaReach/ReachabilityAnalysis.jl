@@ -2,6 +2,8 @@
 # Inhomogeneous case
 # ===================
 
+#using LinearAlgebra.BLAS
+
 # inhomogeneous case without invariant, non-recursive implementation
 function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                             Ω0::Hyperrectangle{N, VNC, VNR},
@@ -33,15 +35,20 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     k = 2
     @inbounds while k <= NSTEPS
         # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
+        abs_Φ_power_k = abs.(Φ_power_k)
         c[k] = Φ_power_k * c[1] + Wk₊.center
-        r[k] = abs.(Φ_power_k) * r[1] + Wk₊.radius
+        r[k] = abs_Φ_power_k * r[1] + Wk₊.radius
         Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
 
         Δt += δ
         F[k] = ReachSet(Hₖ, Δt)
 
+        # in-place computation of Wk₊ <- Wk₊ + Φ_power_k * U,
+        # by overapproximating the second term with a hyperrectangle
         Wk₊.center .+= Φ_power_k * U.center
-        Wk₊.radius .+= Φ_power_k * U.radius
+        Wk₊.radius .+= abs_Φ_power_k * U.radius
+        #gemv!('N', 1.0, Φ_power_k, U.center, 1.0, Wk₊.center)
+        #gemv!('N', 1.0, abs_Φ_power_k, U.radius, 1.0, Wk₊.radius)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
         copyto!(Φ_power_k, Φ_power_k_cache)
@@ -81,6 +88,7 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     k = 2
     @inbounds while k <= NSTEPS
       # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
+      abs_Φ_power_k = abs.(Φ_power_k)
       c[k] = Φ_power_k * c[1] + Wk₊.center
       r[k] = abs.(Φ_power_k) * r[1] + Wk₊.radius
       Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
@@ -90,8 +98,10 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
       Δt += δ
       F[k] = ReachSet(Hₖ, Δt)
 
+      # in-place computation of Wk₊ <- Wk₊ + Φ_power_k * U,
+      # by overapproximating the second term with a hyperrectangle
       Wk₊.center .+= Φ_power_k * U.center
-      Wk₊.radius .+= Φ_power_k * U.radius
+      Wk₊.radius .+= abs_Φ_power_k * U.radius
 
       mul!(Φ_power_k_cache, Φ_power_k, Φ)
       copyto!(Φ_power_k, Φ_power_k_cache)
