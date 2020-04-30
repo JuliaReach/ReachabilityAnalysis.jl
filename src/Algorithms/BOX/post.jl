@@ -29,8 +29,8 @@ function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
     # reconvert the set of initial states and state matrix, if needed
     #static = haskey(kwargs, :static) ? kwargs[:static] : alg.stati
 
-    Ω0 = _reconvert(Ω0, static, alg.dim)
-    Φ = _reconvert(Φ, static, alg.dim)
+    Ω0 = _reconvert(Ω0, static, dim)
+    Φ = _reconvert(Φ, static, dim)
 
     # preallocate output flowpipe
     N = eltype(Ω0)
