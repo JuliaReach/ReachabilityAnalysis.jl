@@ -123,27 +123,27 @@ end
 # Forward Approximation: Inhomogeneous case
 # ============================================================
 
-# TODO update
+# TODO : specialize, add option to compute the concrete linear map
 function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
-    X = stateset(ivp)
-    U = next_set(inputset(ivp), 1) # TODO use LazySet?
-    ϕ = _exp(A, δ, alg.exp)
+
+    Φ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
     Phi2A_abs = Φ₂(A_abs, δ, alg.exp)
 
-    # TODO : specialize, add option to compute the concrete linear map
-
     Einit = sih(Phi2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+
+    U = next_set(inputset(ivp), 1) # inputset(ivp)
     Eψ0 = sih(Phi2A_abs * sih(A * U, alg.sih), alg.sih)
 
-    Ω0 = ConvexHull(X0, ϕ * X0 ⊕ δ*U ⊕ Eψ0 ⊕ Einit)
     Ud = δ*U ⊕ Eψ0
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
-    S_discr = ConstrainedLinearControlDiscreteSystem(ϕ, In, X, Ud)
 
-    return InitialValueProblem(S_discr, Ω0)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)
+    X = stateset(ivp)
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    return InitialValueProblem(Sdiscr, Ω0)
 end
 
 # ===================================================
