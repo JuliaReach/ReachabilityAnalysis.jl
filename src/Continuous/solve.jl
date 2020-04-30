@@ -129,6 +129,8 @@ function _check_dim(ivp; throw_error::Bool=true)
         d = dim(first(X0)) # assumes that first element is representative
     elseif X0 isa Number
         d = 1
+    elseif X0 isa IntervalBox
+        d = length(X0)
     else
         throw(ArgumentError("the type of the initial condition, $(typeof(X0)), cannot be handled"))
     end

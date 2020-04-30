@@ -376,6 +376,8 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Rea
     return Hyperrectangle(c, r)
 end
 
+_box_approximation(X::LazySet) = box_approximation(X)
+_box_approximation(X::IntervalBox) = box_approximation(convert(Hyperrectangle, X))
 
 # ==================================
 # Zonotope order reduction methods

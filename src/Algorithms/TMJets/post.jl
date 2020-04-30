@@ -16,7 +16,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
 
     # initial set
     X0 = initial_state(ivp)
-    box_x0 = box_approximation(X0)
+    box_x0 = _box_approximation(X0)
     q0 = center(box_x0)
     δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
 
