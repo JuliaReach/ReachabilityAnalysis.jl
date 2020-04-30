@@ -231,11 +231,10 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 
     # prepare successor for next jump
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
-    t0 += Tsample + ζ⁻ # tstart(sol[NLOW])
+    t0 += Tsample + ζ⁻
 
     # adjust integer bounds for subsequent jumps
-    #NLOW += 1
-    NHIGH += NHIGH - ceil(Int, Tsample / δ)
+    NHIGH += ceil(Int, abs(ζ⁻) / δ)
 
     @inbounds for k in 2:max_jumps+1
 
@@ -254,7 +253,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
         # adjust initial time for next jump
-        t0 += Tsample  # tstart(aux[NLOW])
+        t0 += Tsample
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
