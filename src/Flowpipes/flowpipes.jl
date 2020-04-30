@@ -308,13 +308,19 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
         aux = vars .+ 1
         return map(X -> _project(convert(Interval, tspan(X)) × set(X), aux), Xk)
     else
-        return map(X -> _project(set(X), vars), Xk)
+        return map(X -> _project(set(X), vars), Xk) # TODO return Flowpipe ?
     end
 end
 
 project(fp::Flowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
+
+# concrete projection of a flowpipe for a given matrix
+function project(fp::Flowpipe, M::AbstractMatrix)
+    Xk = array(fp)
+    return Flowpipe(map(X -> linear_map(M, X), Xk))
+end
 
 """
     shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
