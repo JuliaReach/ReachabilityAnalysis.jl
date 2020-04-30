@@ -15,14 +15,14 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     # initial reach set
     Δt = zero(N) .. δ
-    F[1] = ReachSet(Ω0, Δt)
+    @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
     Φ_power_k = copy(Φ)
     Φ_power_k_cache = similar(Φ)
 
     k = 2
-    while k <= NSTEPS
+    @inbounds while k <= NSTEPS
         Rₖ = _minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
         Δt += δ
@@ -51,16 +51,17 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     # initial reach set
     Δt = zero(N) .. δ
-    F[1] = ReachSet(Ω0, Δt)
+    @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
     Φ_power_k = copy(Φ)
     Φ_power_k_cache = similar(Φ)
 
     k = 2
-    while k <= NSTEPS
+    @inbounds while k <= NSTEPS
         Rₖ = _minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
+        _is_intersection_empty(X, Rₖ) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
@@ -70,6 +71,9 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
         copyto!(Φ_power_k, Φ_power_k_cache)
         k += 1
+    end
+    if k < NSTEPS + 1
+        resize!(F, k-1)
     end
     return F
 end

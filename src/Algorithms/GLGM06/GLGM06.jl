@@ -71,7 +71,7 @@ end
 
 # convenience constructor using symbols
 function GLGM06(; δ::N,
-               approx_model::AM=CorrectionHull(order=10, exp=:base),
+               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy), #CorrectionHull(order=10, exp=:base),
                max_order::Int=5,
                static::Bool=false,
                dim::Union{Int, Missing}=missing,

@@ -72,14 +72,14 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
 end
 
 # check interection with invariant on the loop
-# TODO: add variation with `preallocate` option, so this can be used
 function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              Ω0::Zonotope{N, VN, MN},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
                              max_order::Integer,
-                             X::LazySet) where {N, VN, MN}
+                             X::LazySet,
+                             preallocate::Val{false}) where {N, VN, MN}
     # initial reach set
     Δt = zero(N) .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -87,16 +87,62 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     k = 2
     while k <= NSTEPS
         Rₖ = linear_map(Φ, set(F[k-1]))
-        is_intersection_empty(X, Rₖ) && break
+        _is_intersection_empty(X, Rₖ) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k)
+        resize!(F, k-1)
     end
     return F
 end
+
+# check interection with invariant on the loop, implementation with zonotope preallocation
+function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}},
+                             Ω0::Zonotope{N, Vector{N}, Matrix{N}},
+                             Φ::AbstractMatrix,
+                             NSTEPS::Integer,
+                             δ::Float64,
+                             max_order::Integer,
+                             X::LazySet,
+                             preallocate::Val{true}) where {N, VN, MN}
+    # initial reach set
+    Δt = zero(N) .. δ
+    @inbounds F[1] = ReachSet(Ω0, Δt)
+
+    n, p = size(Ω0.generators)
+
+    # preallocate output
+    Zout = Vector{Zonotope{N, Vector{N}, Matrix{N}}}(undef, NSTEPS)
+
+    if p == 0
+        Zout[1] = Zonotope(Ω0.center, zeros(N, n, 1))
+        p = 1
+    else
+        Zout[1] = Ω0
+    end
+
+    @inbounds for i in 2:NSTEPS
+        c = Vector{N}(undef, n)
+        G = Matrix{N}(undef, n, p)
+        Zout[i] = Zonotope(c, G)
+    end
+
+    k = 2
+    while k <= NSTEPS
+        _linear_map!(Zout[k], Φ, Zout[k-1])
+        _is_intersection_empty(X, Zout[k]) && break
+        Δt += δ
+        F[k] = ReachSet(Zout[k], Δt)
+        k += 1
+    end
+    if k < NSTEPS + 1
+        resize!(F, k-1)
+    end
+    return F
+end
+
 
 #= O L D
 # homogeneous case using StaticArrays
