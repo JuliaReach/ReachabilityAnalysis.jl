@@ -31,7 +31,7 @@ The is an implementation of the algorithm from [[LGG09]](@ref).
 
 These methods are described at length in the dissertation [[LG09]](@ref).
 """
-struct LGG09{N, AM, TN<:AbstractDirections, S} <: AbstractContinuousPost
+struct LGG09{N, AM, VN, TN<:AbstractDirections{N, VN}, S} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     template::TN

@@ -55,6 +55,7 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
 
         reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate)
     else
+        # TODO: implement preallocate option for this scenario
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
