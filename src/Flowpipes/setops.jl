@@ -376,6 +376,56 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Rea
     return Hyperrectangle(c, r)
 end
 
+# ==================================
+# Zonotope splitting methods
+# ==================================
+
+function _split(Z::Zonotope{N, Vector{N}, Matrix{N}}, j::Int) where {N}
+    c, G = Z.center, Z.generators
+    n, p = size(G)
+    @assert 1 <= j <= p "cannot split a zonotope with $p generators along index $j"
+
+    c₁ = Vector{N}(undef, n)
+    c₂ = Vector{N}(undef, n)
+
+    G₁ = copy(G)
+    G₂ = copy(G)
+
+    @inbounds for i in 1:n
+        α = G[i, j] / 2
+        c₁[i] = c[i] - α
+        c₂[i] = c[i] + α
+        G₁[i, j] = α
+        G₁[i, j] = α
+    end
+
+    Z₁ = Zonotope(c₁, G₁)
+    Z₂ = Zonotope(c₂, G₂)
+    return Z₁, Z₂
+end
+
+function _split(Z::Zonotope{N, SVector{n, N}, <:SMatrix{n, p, N}}, j::Int) where {N, n, p}
+    @assert 1 <= j <= p "cannot split a zonotope with $p generators along index $j"
+    c, G = Z.center, Z.generators
+
+    c₁ = MVector{n, N}(undef)
+    c₂ = MVector{n, N}(undef)
+
+    G₁ = MMatrix{n, p}(G)
+    G₂ = MMatrix{n, p}(G)
+
+    @inbounds for i in 1:n
+        α = G[i, j] / 2
+        c₁[i] = c[i] - α
+        c₂[i] = c[i] + α
+        G₁[i, j] = α
+        G₁[i, j] = α
+    end
+
+    Z₁ = Zonotope(SVector{n}(c₁), SMatrix{n, p}(G₁))
+    Z₂ = Zonotope(SVector{n}(c₂), SMatrix{n, p}(G₂))
+    return Z₁, Z₂
+end
 
 # ==================================
 # Zonotope order reduction methods
