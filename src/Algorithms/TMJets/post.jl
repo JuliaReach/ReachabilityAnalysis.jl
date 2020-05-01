@@ -13,9 +13,11 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
         f! = VectorField(ivp)
     end
     n = statedim(ivp)
+    ivp_norm = _normalize(ivp)
+    X = stateset(ivp_norm)
 
     # initial set
-    X0 = initial_state(ivp)
+    X0 = initial_state(ivp_norm)
     box_x0 = box_approximation(X0)
     q0 = center(box_x0)
     δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
@@ -28,7 +30,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, max_steps)
 
-    F, tv, xv, xTM1v = validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps)
+    F, tv, xv, xTM1v = validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X)
 
     ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v) # keep Any or add the type param?
     return Flowpipe(F, ext)

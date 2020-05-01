@@ -423,7 +423,6 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     return δt
 end
 
-
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, params=nothing;
         parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
@@ -494,8 +493,14 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
             t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
             nsteps, orderT, abstol, params, parse_eqs, check_property)
 
+        # construct the taylor model reach-set
+        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0, t0 + δt))
+
+        # check intersction with invariant
+        _is_intersection_empty(Ri, X) && break
+
         # update output flowpipe
-        push!(F, TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0, t0 + δt)))
+        push!(F, Ri)
 
         # New initial conditions and time
         nsteps += 1
