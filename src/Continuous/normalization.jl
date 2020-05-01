@@ -435,9 +435,14 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem})
 end
 
 function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonlinearContinuousSystem})
-    throw(ArgumentError("can't normalize a nonlinear initial-value problem; in particular " *
-                        "one of type $(typeof(ivp))"))
+    throw(ArgumentError("can't normalize this nonlinear initial-value problemof type $(typeof(ivp))"))
 end
+
+function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonlinearContinuousSystem})
+    throw(ArgumentError("can't normalize this nonlinear initial-value problemof type $(typeof(ivp))"))
+end
+
+
 
 const CanonicalLinearContinuousSystem = Union{CLCS, CLCCS}
 
