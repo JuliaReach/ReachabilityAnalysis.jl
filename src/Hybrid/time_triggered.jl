@@ -207,6 +207,9 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     # number of steps for the continuous post
     prob = IVP(sys, X0)
     NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
+    ζint = jitter(ha)
+    ζ⁻ = inf(ζint)
+    ζ⁺ = sup(ζint)
     @assert NLOW > 0 throw(ArgumentError("inconsistent choice of parameters"))
 
     # solve first flowpipe
@@ -224,15 +227,14 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     out = Vector{ShiftedFlowpipe{FT, N}}()
     sizehint!(out, max_jumps+1)
 
-    push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NLOW)), t0))
+    push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NHIGH)), t0))
 
     # prepare successor for next jump
     Xend = _transition_successors(sol, NLOW, NHIGH, switching)
-    t0 += tstart(sol[NLOW])
+    t0 += Tsample + ζ⁻
 
     # adjust integer bounds for subsequent jumps
-    NLOW += 1
-    NHIGH += 1
+    NHIGH += ceil(Int, abs(ζ⁻) / δ)
 
     @inbounds for k in 2:max_jumps+1
 
@@ -243,7 +245,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
         # store flowpipe until first intersection with the guard
-        aux = view(array(sol), 1:NLOW)
+        aux = view(array(sol), 1:NHIGH)
 
         push!(out, ShiftedFlowpipe(Flowpipe(aux), t0))
 
@@ -251,7 +253,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         Xend = _transition_successors(sol, NLOW, NHIGH, switching)
 
         # adjust initial time for next jump
-        t0 += tstart(aux[NLOW])
+        t0 += Tsample
     end
 
     return ReachSolution(HybridFlowpipe(out), alg)
