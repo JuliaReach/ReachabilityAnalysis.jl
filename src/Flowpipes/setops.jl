@@ -481,8 +481,8 @@ function _weighted_gens!(indices, G::AbstractMatrix{N}, ::GIR05) where {N}
     return indices
 end
 
-# compute interval hull of the generators of G (= columns) corresponding to indices
-function _interval_hull(G::Matrix{N}, indices) where {N}
+# compute interval hull of the generators of G (= columns) corresponding to `indices`
+function _interval_hull(G::AbstractMatrix{N}, indices) where {N}
     n, p = size(G)
     Lred = zeros(N, n, n)
     @inbounds for i in 1:n
@@ -506,13 +506,13 @@ end
 
 # given an n x p matrix G and a vector of m integer indices with m <= p,
 # concatenate the columns of G given by `indices` with the matrix Lred
-function _hcat_KLred(G::AbstractMatrix, Lred::AbstractMatrix, indices)
+function _hcat_KLred(G::AbstractMatrix, indices, Lred::AbstractMatrix)
     K = view(G, :, indices)
     return hcat(K, Lred)
 end
 
 # implementation for static arrays
-function _hcat_KLred(G::SMatrix{n, p, N, L1}, Lred::SMatrix{n, n, N, L2}, indices) where {n, p, N, L1, L2}
+function _hcat_KLred(G::SMatrix{n, p, N, L1}, indices, Lred::SMatrix{n, n, N, L2}) where {n, p, N, L1, L2}
     m = length(indices)
     K = SMatrix{n, m}(view(G, :, indices))
     return hcat(K, Lred)
@@ -541,7 +541,7 @@ function _reduce_order_COMB03(Z::Zonotope{N}, r::Number) where {N}
 
     isone(r) && return Zonotope(c, Lred)
 
-    Gred = _hcat_KLred(G, Lred, view(indices, 1:m))
+    Gred = _hcat_KLred(G, view(indices, 1:m), Lred)
     return Zonotope(c, Gred)
 end
 
@@ -568,7 +568,7 @@ function _reduce_order_GIR05(Z::Zonotope{N}, r::Number) where {N}
 
     isone(r) && return Zonotope(c, Lred)
 
-    Gred = _hcat_KLred(G, Lred, view(indices, 1:m))
+    Gred = _hcat_KLred(G, view(indices, 1:m), Lred)
     return Zonotope(c, Gred)
 end
 
