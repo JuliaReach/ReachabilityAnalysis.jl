@@ -1,7 +1,7 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
 authors = ["mforets <mforets@gmail.com>", "schillic <christian.schilling@ist.ac.at>"]
-version = "0.3.0"
+version = "0.4.0"
 
 [deps]
 HybridSystems = "2207ec0c-686c-5054-b4d2-543502888820"
