@@ -571,7 +571,7 @@ end
 # Disjointness checks
 # ====================================
 
-abstract type AbstractDisjMethod end
+abstract type AbstractDisjointnessMethod end
 
 using LazySets: _geq, _leq
 
@@ -585,17 +585,17 @@ end
 # -----------------------------------------------
 
 # disjointness methods interface for taylor models
-abstract type AbstractTMDisjMethod <: AbstractDisjMethod end
+#abstract type AbstractTaylorModelDisjointnessMethod <: AbstractDisjointnessMethods end
 
 # in this method we overapproximate the tayor model reach-set with a zonotope,
 # then make the disjointness check
-struct ZonotopeEnclosure <: AbstractTMDisjMethod
+struct ZonotopeEnclosure <: AbstractDisjointnessMethods
 #
 end
 
 # in this method we overapproximate the tayor model reach-set with a hyperrectangle,
 # then make the disjointness check
-struct BoxEnclosure <: AbstractTMDisjMethod
+struct BoxEnclosure <: AbstractDisjointnessMethodss
 #
 end
 
