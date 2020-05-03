@@ -216,7 +216,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
     if max_jumps == 0
-        return ReachSolution(Flowpipe(sol[1:NLOW-1]), alg)
+        return ReachSolution(Flowpipe(sol), alg)
     end
 
     # preallocate output vector of flowpipes
