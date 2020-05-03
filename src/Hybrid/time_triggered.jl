@@ -207,6 +207,8 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     # number of steps for the continuous post
     prob = IVP(sys, X0)
     NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
+    println("NLOW=$NLOW")
+    println("NHIGH=$NHIGH")
     ζint = jitter(ha)
     ζ⁻ = inf(ζint)
     ζ⁺ = sup(ζint)
@@ -235,7 +237,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 
     # adjust integer bounds for subsequent jumps
     NHIGH += ceil(Int, abs(ζ⁻) / δ)
-
+    println("after update, NHIGH=$NHIGH")
     @inbounds for k in 2:max_jumps+1
 
         # apply reset map and instantiate new initial-value problem
@@ -272,7 +274,19 @@ end
     end
 end
 
+using Polyhedra, CDDLib   # TEMP
 # non-deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::NonDeterministicSwitching)
     view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+
+#=
+    # TEMP zonotopic convexification in 3 steps:
+    # 1) Compute vertex representation for each set.
+    # 2) Take the convex hull.
+    # 3) Overapproximate the resulting VPolytope with a zonotope.
+    vlist = vcat([vertices_list(set(Ri)) for Ri in sol[NLOW:NHIGH]]...)
+    ch = convex_hull(vlist, backend=CDDLib.Library())
+    X = overapproximate(VPolytope(ch), Zonotope, OctDirections(4))
+    _reduce_order(X, 2) # use max_order
+    =#
 end
