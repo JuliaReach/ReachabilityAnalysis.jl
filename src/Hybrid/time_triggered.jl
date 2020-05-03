@@ -244,7 +244,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         # solve next chunk
         sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
-        # store flowpipe until first intersection with the guard
+        # store flowpipe until last intersection with the guard
         aux = view(array(sol), 1:NHIGH)
 
         push!(out, ShiftedFlowpipe(Flowpipe(aux), t0))
