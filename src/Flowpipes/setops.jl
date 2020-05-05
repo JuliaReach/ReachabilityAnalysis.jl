@@ -376,6 +376,16 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Rea
     return Hyperrectangle(c, r)
 end
 
+# TEMP
+function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interval)
+    return convert(Hyperrectangle, Interval(x))
+end
+
+# TEMP
+function LazySets.Approximations.box_approximation(x::IntervalArithmetic.IntervalBox)
+    return convert(Hyperrectangle, x)
+end
+
 # ==================================
 # Zonotope splitting methods
 # ==================================

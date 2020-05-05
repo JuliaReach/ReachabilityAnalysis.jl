@@ -14,7 +14,13 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
     end
     n = statedim(ivp)
     ivp_norm = _normalize(ivp)
-    X = stateset(ivp_norm)
+
+    # TEMP should be handled by the normalization
+    if ivp_norm isa ConstrainedBlackBoxContinuousSystem
+        X = stateset(ivp_norm)
+    else
+        X = Universe(n)
+    end
 
     # initial set
     X0 = initial_state(ivp_norm)

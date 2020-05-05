@@ -434,8 +434,12 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem})
     end
 end
 
-function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonlinearContinuousSystem})
-    throw(ArgumentError("can't normalize this nonlinear initial-value problemof type $(typeof(ivp))"))
+function _normalize(ivp::IVP{<:BBCS}, ::Type{AbstractNonlinearContinuousSystem})
+    return IVP(ivp.s, Universe(dim(ivp.x0)))
+end
+
+function _normalize(ivp::IVP{<:CBBCS}, ::Type{AbstractNonlinearContinuousSystem})
+    return ivp
 end
 
 function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonlinearContinuousSystem})
