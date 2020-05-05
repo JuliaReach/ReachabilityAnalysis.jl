@@ -274,19 +274,28 @@ end
     end
 end
 
-using Polyhedra, CDDLib   # TEMP
+using Polyhedra, QHull   # TEMP
+using LazySets.Arrays: nonzero_columns
+
 # non-deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::NonDeterministicSwitching)
-    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+#    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
 
-#=
     # TEMP zonotopic convexification in 3 steps:
     # 1) Compute vertex representation for each set.
     # 2) Take the convex hull.
     # 3) Overapproximate the resulting VPolytope with a zonotope.
     vlist = vcat([vertices_list(set(Ri)) for Ri in sol[NLOW:NHIGH]]...)
-    ch = convex_hull(vlist, backend=CDDLib.Library())
-    X = overapproximate(VPolytope(ch), Zonotope, OctDirections(4))
-    _reduce_order(X, 2) # use max_order
-    =#
+    ch = convex_hull(vlist, backend=QHull.Library())
+
+    Gall = hcat([hcat(set(Ri).generators) for Ri in sol[NLOW:NHIGH]]...)
+    nzgens = nonzero_columns(Gall)
+    if isempty(nzgens)
+        dirs = BoxDirections(4)
+    else
+        dirs = CustomDirections([Gall[:, i] for i in nzgens]);
+    end
+    X = overapproximate(VPolytope(ch), Zonotope, dirs)
+#    _reduce_order(X, 2) # use max_order
+
 end
