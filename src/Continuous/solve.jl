@@ -121,7 +121,7 @@ function _check_dim(ivp; throw_error::Bool=true)
     S = system(ivp)
     n = statedim(S)
     X0 = initial_state(ivp)
-    if X0 isa LazySet
+    if X0 isa LazySet || X0 isa IA.Interval || X0 isa IA.IntervalBox
         d = dim(X0)
     elseif X0 isa AbstractVector && eltype(X0) <: Number
         d = length(X0)

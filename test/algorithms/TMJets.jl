@@ -26,6 +26,14 @@ end
     sol = solve(prob, tspan=tspan, TMJets())
     @test sol.alg isa TMJets
 
+    # test intersection with invariant
+    prob, tspan = exponential_1d(invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
+    sol_inv = solve(prob, tspan=tspan, TMJets())
+    @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
+    m = length(sol_inv)
+    # check that the following reach-set escapes the invariant
+    @test [0.3] ∉ overapproximate(sol[m+1], Zonotope)
+
     # TODO test higher order system
 #    prob, tspan = linear5D_homog()
 #    sol = solve(prob, tspan=tspan, TMJets())

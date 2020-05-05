@@ -371,6 +371,16 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Rea
     return Hyperrectangle(c, r)
 end
 
+# TEMP
+function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interval)
+    return convert(Hyperrectangle, Interval(x))
+end
+
+# TEMP
+function LazySets.Approximations.box_approximation(x::IntervalArithmetic.IntervalBox)
+    return convert(Hyperrectangle, x)
+end
+
 # ==================================
 # Zonotope splitting methods
 # ==================================
@@ -568,18 +578,61 @@ function _reduce_order_GIR05(Z::Zonotope{N}, r::Number) where {N}
 end
 
 # ====================================
-# Intersection
+# Disjointness checks
 # ====================================
 
+abstract type AbstractDisjointnessMethod end
+
 using LazySets: _geq, _leq
+
+abstract type AbstractDisjointnessMethod end
 
 # fallback
 function _is_intersection_empty(X, Y)
     return LazySets.is_intersection_empty(X, Y)
 end
 
+# -----------------------------------------------
+# Disjointness checks for taylor model flowpipes
+# -----------------------------------------------
+
+# disjointness methods interface for taylor models
+abstract type AbstractTMDisjointnessMethod <: AbstractDisjointnessMethod end
+
+# in this method we overapproximate the tayor model reach-set with a zonotope,
+# then make the disjointness check
+struct ZonotopeEnclosure <: AbstractTMDisjointnessMethod
+#
+end
+
+# in this method we overapproximate the tayor model reach-set with a hyperrectangle,
+# then make the disjointness check
+struct BoxEnclosure <: AbstractTMDisjointnessMethod
+#
+end
+
+function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::ZonotopeEnclosure)
+    Z = overapproximate(X, Zonotope)
+    return _is_intersection_empty(set(Z), Y)
+end
+
+function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::BoxEnclosure)
+    H = overapproximate(X, Hyperrectangle)
+    return _is_intersection_empty(set(H), Y)
+end
+
+# fallback implementation: overapproximate Ri with a zonotope
+function _is_intersection_empty(Ri::TaylorModelReachSet, X::LazySet)
+    _is_intersection_empty(Ri, X, ZonotopeEnclosure())
+end
+
+# -----------------------------------------------
+# Disjointness checks between specific set types
+# NOTE: should be moved to LazySets.jl
+# -----------------------------------------------
+
 function _is_intersection_empty(I1::Interval{N}, I2::Interval{N}) where {N<:Real}
-    return !_leq(min(I2), max(I1))  || !_leq(min(I1), max(I2))
+    return !_leq(min(I2), max(I1)) || !_leq(min(I1), max(I2))
 end
 
 # H : {x : ax <= b}, one-dimensional with a != 0
@@ -602,3 +655,7 @@ function _is_intersection_empty(X::Interval{N}, H::Hyperplane{N}) where {N<:Real
 end
 # symmetric case
 _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H)
+
+# ==================================
+# Concrete intersection
+# ==================================
