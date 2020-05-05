@@ -612,19 +612,18 @@ struct BoxEnclosure <: AbstractTMDisjointnessMethod
 end
 
 function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::ZonotopeEnclosure)
-    Z = overapproximate(set(X), Zonotope)
-    return _is_intersection_empty(Z, Y)
+    Z = overapproximate(X, Zonotope)
+    return _is_intersection_empty(set(Z), Y)
 end
 
 function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::BoxEnclosure)
-    H = overapproximate(set(X), Hyperrectangle)
-    return _is_intersection_empty(Z, Y)
+    H = overapproximate(X, Hyperrectangle)
+    return _is_intersection_empty(set(H), Y)
 end
 
-# default implementation: overapproximate Ri with a zonotope
+# fallback implementation: overapproximate Ri with a zonotope
 function _is_intersection_empty(Ri::TaylorModelReachSet, X::LazySet)
-    Zi = overapproximate(Ri, Zonotope) |> set
-    _is_intersection_empty(Zi, X)
+    _is_intersection_empty(Ri, X, ZonotopeEnclosure())
 end
 
 # -----------------------------------------------

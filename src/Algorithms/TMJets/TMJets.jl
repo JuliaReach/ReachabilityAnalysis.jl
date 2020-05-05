@@ -12,8 +12,8 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
 - `orderT`    -- (optional, default: `8`) order of the Taylor model in time
 - `orderQ`    -- (optional, default: `2`) order of the Taylor models for jet
                  transport variales
-- `disj`      -- (optional, default: `ZonotopeEnclosure()`) defines the method to
-                 compute the intersection of the taylor model flowpipe with the invariant
+- `intersection_method` -- (optional, default: `ZonotopeEnclosure()`) defines the method to
+                           compute the intersection of the taylor model flowpipe with the invariant
 
 ### Notes
 
@@ -24,7 +24,7 @@ TODO: Add references.
     abs_tol::N=1e-15
     orderT::Int=8
     orderQ::Int=2
-    disj::DM=ZonotopeEnclosure()
+    intersection_method::DM=ZonotopeEnclosure()
 end
 
 using TaylorModels: TaylorModelN

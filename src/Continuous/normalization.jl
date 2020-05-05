@@ -435,7 +435,10 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem})
 end
 
 function _normalize(ivp::IVP{<:BBCS}, ::Type{AbstractNonlinearContinuousSystem})
-    return IVP(ivp.s, Universe(dim(ivp.x0)))
+    f = ivp.s.f # TODO add getter function in MathematicalSystems
+    n = statedim(ivp)
+    X = Universe(n)
+    return IVP(CBBCS(f, n, X), initial_state(ivp))
 end
 
 function _normalize(ivp::IVP{<:CBBCS}, ::Type{AbstractNonlinearContinuousSystem})

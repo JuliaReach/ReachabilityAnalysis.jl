@@ -1,6 +1,6 @@
 function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...) where {N}
 
-    @unpack max_steps, abs_tol, orderT, orderQ = alg
+    @unpack max_steps, abs_tol, orderT, orderQ, intersection_method = alg
 
     # initial time and final tim
     t0 = tstart(tspan)
@@ -14,13 +14,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
     end
     n = statedim(ivp)
     ivp_norm = _normalize(ivp)
-
-    # TEMP should be handled by the normalization
-    if ivp_norm isa ConstrainedBlackBoxContinuousSystem
-        X = stateset(ivp_norm)
-    else
-        X = Universe(n)
-    end
+    X = stateset(ivp_norm)
 
     # initial set
     X0 = initial_state(ivp_norm)
@@ -36,7 +30,8 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwarg
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, max_steps)
 
-    F, tv, xv, xTM1v = validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X)
+    F, tv, xv, xTM1v = _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT,
+                                         abs_tol, max_steps, X, intersection_method)
 
     ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v) # keep Any or add the type param?
     return Flowpipe(F, ext)

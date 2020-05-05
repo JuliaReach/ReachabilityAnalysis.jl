@@ -1,17 +1,21 @@
-# case without invariant
-function validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe)
+# case without invariant: this is the same as in TaylorModels.jl but
+# we wrap the each taylor model reach-set in the main loop
+# TODO: do this a posteriri? then we can use `validated_integ!` directly
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, intersection_method)
     validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps)
 end
 
 # case with an invariant
-function validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet)
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, intersection_method)
+    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, intersection_method)
 end
 
 # this function is the same as validated_integ! but with the addition that
 # we consider an intersection with an invariant X in the main loop
+# moreover we passs
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
-        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet, params=nothing;
+        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet,
+        intersection_method::AbstractDisjointnessMethod, params=nothing;
         parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
     # Set proper parameters for jet transport
@@ -80,16 +84,6 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
             t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
             nsteps, orderT, abstol, params, parse_eqs, check_property)
 
-        # construct the taylor model reach-set
-        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0, t0 + δt))
-
-        # check intersction with invariant
-        _is_intersection_empty(Ri, X) && break
-
-        # update output flowpipe
-        # note that F may have 1 less element than xTM1v and xv
-        push!(F, Ri)
-
         # New initial conditions and time
         nsteps += 1
         t0 += δt
@@ -106,6 +100,16 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
             xI[i] = Taylor1( auxI, orderT+1 )
             dxI[i] = xI[i]
         end
+
+        # construct the taylor model reach-set
+        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0))
+
+        # check intersction with invariant
+        _is_intersection_empty(Ri, X) && break
+
+        # update output flowpipe
+        # note that F may have 1 less element than xTM1v and xv
+        push!(F, Ri)
 
         if nsteps > max_steps
             @warn("""

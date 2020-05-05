@@ -493,15 +493,6 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
             t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
             nsteps, orderT, abstol, params, parse_eqs, check_property)
 
-        # construct the taylor model reach-set
-        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0, t0 + δt))
-
-        # check intersction with invariant
-        _is_intersection_empty(Ri, X) && break
-
-        # update output flowpipe
-        push!(F, Ri)
-
         # New initial conditions and time
         nsteps += 1
         t0 += δt
@@ -518,6 +509,12 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
             xI[i] = Taylor1( auxI, orderT+1 )
             dxI[i] = xI[i]
         end
+
+        # construct the taylor model reach-set
+        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0))
+
+        # update output flowpipe
+        push!(F, Ri)
 
         if nsteps > max_steps
             @warn("""
