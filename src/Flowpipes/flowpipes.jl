@@ -354,6 +354,13 @@ function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
     return ReachSet(Y, tspan(fp))
 end
 
+function Convexify(fp::AbstractVector{ReachSet{N, ST}}) where {N, ST}
+    Y = ConvexHullArray([set(X) for X in fp])
+    ti = tstart(fp[1])
+    tf = tend(fp[end])
+    return ReachSet(Y, TimeInterval(ti, tf))
+end
+
 # the dimension of sparse flowpipes is known in the type
 function LazySets.dim(::Flowpipe{N, SparseReachSet{N, ST, D}}) where {N, ST, D}
     return D
@@ -384,6 +391,10 @@ A convenience constructor alias `Shift` is given.
 struct ShiftedFlowpipe{FT<:AbstractFlowpipe, NT<:Number} <: AbstractFlowpipe
     F::FT
     t0::NT
+end
+
+function ShiftedFlowpipe(vec::AbstractVector{<:AbstractLazyReachSet}, t0::Number)
+    return ShiftedFlowpipe(Flowpipe(vec), t0)
 end
 
 # getter functions
