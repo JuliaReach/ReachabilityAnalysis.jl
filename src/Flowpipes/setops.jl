@@ -590,9 +590,12 @@ using LazySets: _geq, _leq
 
 abstract type AbstractDisjointnessMethod end
 
+# identity TODO refactor
+set(X::LazySet) = X
+
 # fallback
-function _is_intersection_empty(X, Y)
-    return LazySets.is_intersection_empty(X, Y)
+function _is_intersection_empty(X::Union{LazySet, AbstractLazyReachSet}, Y::Union{LazySet, AbstractLazyReachSet})
+    LazySets.is_intersection_empty(set(X), set(Y))
 end
 
 # -----------------------------------------------
