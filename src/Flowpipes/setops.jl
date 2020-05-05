@@ -126,6 +126,9 @@ end
     return Zout
 end
 
+# TEMP
+@inline _linear_map(M, X) = LazySets.linear_map(M, X)
+
 # =========================
 # Projection
 # =========================
