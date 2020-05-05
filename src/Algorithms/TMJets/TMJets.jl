@@ -19,7 +19,7 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
 
 TODO: Add references.
 """
-@with_kw struct TMJets{N, DM<:AbstractDisjointnessMethods} <: AbstractContinuousPost
+@with_kw struct TMJets{N, DM<:AbstractTMDisjointnessMethod} <: AbstractContinuousPost
     max_steps::Int=2000
     abs_tol::N=1e-15
     orderT::Int=8

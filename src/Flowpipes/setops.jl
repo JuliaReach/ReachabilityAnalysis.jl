@@ -575,6 +575,8 @@ abstract type AbstractDisjointnessMethod end
 
 using LazySets: _geq, _leq
 
+abstract type AbstractDisjointnessMethod end
+
 # fallback
 function _is_intersection_empty(X, Y)
     return LazySets.is_intersection_empty(X, Y)
@@ -585,17 +587,17 @@ end
 # -----------------------------------------------
 
 # disjointness methods interface for taylor models
-#abstract type AbstractTaylorModelDisjointnessMethod <: AbstractDisjointnessMethods end
+abstract type AbstractTMDisjointnessMethod <: AbstractDisjointnessMethod end
 
 # in this method we overapproximate the tayor model reach-set with a zonotope,
 # then make the disjointness check
-struct ZonotopeEnclosure <: AbstractDisjointnessMethods
+struct ZonotopeEnclosure <: AbstractTMDisjointnessMethod
 #
 end
 
 # in this method we overapproximate the tayor model reach-set with a hyperrectangle,
 # then make the disjointness check
-struct BoxEnclosure <: AbstractDisjointnessMethodss
+struct BoxEnclosure <: AbstractTMDisjointnessMethod
 #
 end
 
