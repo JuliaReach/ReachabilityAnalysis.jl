@@ -103,6 +103,7 @@ end
 
 # Extension of some common LazySets operations, some of them in-place
 
+# TODO: remove
 function _minkowski_sum(Z1::Zonotope{N}, Z2::Zonotope{N}) where {N}
     cnew = center(Z1) + center(Z2)
     Gnew = hcat(genmat(Z1), genmat(Z2))
@@ -123,12 +124,6 @@ end
     mul!(Zout.center, M, Z.center)
     mul!(Zout.generators, M, Z.generators)
     return Zout
-end
-
-@inline function _linear_map(M::AbstractMatrix, Z::Zonotope)
-    cout = M * Z.center
-    Gout = M * Z.generators
-    return Zonotope(cout, Gout)
 end
 
 # =========================
