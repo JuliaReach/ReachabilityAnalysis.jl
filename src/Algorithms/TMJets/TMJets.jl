@@ -8,12 +8,13 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
 
 - `max_steps` -- (optional, default: `2000`) maximum number of steps in the
                  validated integration ``x' = f(x)``
-- `abs_tol`   -- (optional, default: `1e-15`) absolute tolerance
+- `abs_tol`   -- (optional, default: `1e-10`) absolute tolerance
 - `orderT`    -- (optional, default: `8`) order of the Taylor model in time
-- `orderQ`    -- (optional, default: `2`) order of the Taylor models for jet
-                 transport variales
+- `orderQ`    -- (optional, default: `2`) order of the Taylor models for jet transport variables
 - `intersection_method` -- (optional, default: `ZonotopeEnclosure()`) defines the method to
                            compute the intersection of the taylor model flowpipe with the invariant
+- `adaptive`  -- (optional, default: `true`) if `true`, try decreasing the absolute
+                 tolerance each time step validation fails, until `min_abs_tol` is reached
 
 ### Notes
 
@@ -21,10 +22,12 @@ TODO: Add references.
 """
 @with_kw struct TMJets{N, DM<:AbstractTMDisjointnessMethod} <: AbstractContinuousPost
     max_steps::Int=2000
-    abs_tol::N=1e-15
+    abs_tol::N=1e-10
     orderT::Int=8
     orderQ::Int=2
     intersection_method::DM=ZonotopeEnclosure()
+    adaptive::Bool=true
+    min_abs_tol::N=1e-29
 end
 
 using TaylorModels: TaylorModelN
