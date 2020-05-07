@@ -230,7 +230,8 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NHIGH)), t0))
 
     # prepare successor for next jump
-    Xend = _transition_successors(sol, NLOW, NHIGH, switching)
+    Φ = exp(state_matrix(sys) * Tsample)
+    Xend = _transition_successors(ivp, X0, Φ)
     t0 += Tsample + ζ⁻
 
     # adjust integer bounds for subsequent jumps
@@ -239,7 +240,8 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     @inbounds for k in 2:max_jumps+1
 
         # apply reset map and instantiate new initial-value problem
-        prob = IVP(sys, rmap(Xend))
+        X0_new = rmap(Xend)
+        prob = IVP(sys, X0_new)
 
         # solve next chunk
         sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
@@ -250,7 +252,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
         push!(out, ShiftedFlowpipe(Flowpipe(aux), t0))
 
         # get successors after discrete jump from Tsample + ζ⁻ .. Tsample + ζ⁺
-        Xend = _transition_successors(sol, NLOW, NHIGH, switching)
+        Xend = _transition_successors(ivp, X0_new, Φ)
 
         # adjust initial time for next jump
         t0 += Tsample
@@ -260,16 +262,8 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 end
 
 # deterministic switching
-@inline function _transition_successors(sol, NLOW, NHIGH, ::DeterministicSwitching)
-    # in this scenario, NLOW == NHIGH most of the time
-    # sol[NLOW] |> set
-    # however, it may happen that NHIGH = NLOW + 1 if Tsample is a multiple of δ
-    if NLOW == NHIGH
-        # TODO: can we use dispach and remove this branch?
-        sol[NLOW] |> set
-    else
-        view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
-    end
+@inline function _transition_successors(ivp, X0, Φ)
+    return linear_map(Φ, X0)
 end
 
 # non-deterministic switching
