@@ -175,6 +175,9 @@ is computed as `(tstart(fp), tend(fp))`, see `tstart(::AbstractFlowpipe)` and
 """
 @inline tspan(fp::AbstractFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
+# assumes first set is representative
+vars(fp::AbstractFlowpipe) = vars(first(fp))
+
 # support indexing with ranges or with vectors of integers
 # TODO add bounds checks?
 Base.getindex(fp::AbstractFlowpipe, i::Int) = getindex(array(fp), i)

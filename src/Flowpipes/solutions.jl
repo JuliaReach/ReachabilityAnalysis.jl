@@ -74,6 +74,7 @@ tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
 setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT) # sol.alg should work in most cases too
 rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(sol.alg)
+vars(sol::ReachSolution) = vars(sol.F)
 
 # iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
