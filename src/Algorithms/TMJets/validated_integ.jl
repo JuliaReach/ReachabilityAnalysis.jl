@@ -46,7 +46,7 @@ The TaylorModels.jl package is licensed under the MIT "Expat" License:
 =#
 
 """
-    remainder_taylorstep!(f!, t, x, dx, xI, dxI, δI, δt, params)
+    remainder_taylorstep!(f!, t, x, dx, xI, dxI, δI, δt, params, adaptive)
 
 Returns a remainder for the integration step for the dependent variables (`x`)
 checking that the solution satisfies the criteria for existence and uniqueness.
@@ -54,7 +54,7 @@ checking that the solution satisfies the criteria for existence and uniqueness.
 function remainder_taylorstep!(f!::Function, t::Taylor1{T},
         x::Vector{Taylor1{TaylorN{T}}}, dx::Vector{Taylor1{TaylorN{T}}},
         xI::Vector{Taylor1{IA.Interval{T}}}, dxI::Vector{Taylor1{IA.Interval{T}}},
-        δI::IntervalBox{N,T}, δt::IA.Interval{T}, params) where {N,T}
+        δI::IntervalBox{N,T}, δt::IA.Interval{T}, params, adaptive::Bool) where {N,T}
 
     orderT = get_order(dx[1])
     aux = δt^(orderT+1)
@@ -65,7 +65,7 @@ function remainder_taylorstep!(f!::Function, t::Taylor1{T},
     Δxold = Δx
 
     # Checking existence and uniqueness
-    iscontractive(Δ, Δx) && return Δx
+    iscontractive(Δ, Δx) && return (true, Δx, t[0])
 
     # If the check didn't work, compute new remainders. A new Δx is proposed,
     # and the corresponding Δdx is computed
@@ -77,7 +77,7 @@ function remainder_taylorstep!(f!::Function, t::Taylor1{T},
         Δ = picard_remainder!(f!, t, x, dx, xxI, dxxI, δI, δt, Δx, Δ0, params)
 
         # Checking existence and uniqueness
-        iscontractive(Δ, Δx) && return Δx
+        iscontractive(Δ, Δx) && return (true, Δx, t[0])
         # iscontractive(Δ, Δx) && return _contract_iteration!(f!, t, x, dx, xxI, dxxI, δI, δt, Δx, Δdx, Δ0, params)
 
         # Expand Δx in the directions needed
@@ -96,17 +96,20 @@ function remainder_taylorstep!(f!::Function, t::Taylor1{T},
         Δx = Δ
     end
 
-    # If it didn't work, throw an error
-    @format full
-    error("""
-    Error: it cannot prove existence and unicity of the solution:
-        t0 = $(t[0])
-        δt = $(δt)
-        Δ  = $(Δ)
-        Δxo = $(Δxold)
-        Δx = $(Δx)
-        $(Δ .⊆ Δxold)
-    """)
+    if adaptive
+        return (false, Δx, t[0])
+    else
+        @format full
+        error("""
+        Error: cannot prove existence and unicity of the solution:
+            t0 = $(t[0])
+            δt = $(δt)
+            Δ  = $(Δ)
+            Δxo = $(Δxold)
+            Δx = $(Δx)
+            $(Δ .⊆ Δxold)
+        """)
+    end
 end
 
 
@@ -357,7 +360,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
         xTMN::Vector{TaylorModelN{N,T,T}}, xv::Vector{IntervalBox{N,T}},
         rem::Vector{IA.Interval{T}}, zbox::IntervalBox{N,T}, symIbox::IntervalBox{N,T},
         nsteps::Int, orderT::Int, abstol::T, params, parse_eqs::Bool,
-        check_property::Function=(t, x)->true) where {N,T}
+        check_property::Function=(t, x)->true, adaptive::Bool=true) where {N,T}
 
     # One step integration (non-validated)
     # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, t, x, dx, xaux, params)
@@ -380,10 +383,16 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     nsteps += 1
     issatisfied = false
     rem_old = copy(rem)
+    local success, _t0
+
     for nchecks = 1:25
         # Validate the solution: remainder consistent with Schauder thm
         δtI = sign_tstep * IA.Interval(0, sign_tstep*δt)
-        Δ = remainder_taylorstep!(f!, t, x, dx, xI, dxI, symIbox, δtI, params)
+        (success, Δ, _t0) = remainder_taylorstep!(f!, t, x, dx, xI, dxI, symIbox, δtI, params, adaptive)
+        if adaptive && !success
+            break
+        end
+
         rem .= rem_old .+ Δ
 
         # Create TaylorModelN to store remainders and evaluation
@@ -412,7 +421,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
         break
     end
 
-    if !issatisfied
+    if !issatisfied && !adaptive # TEMP do not return the error msg if adaptive is true
         error("""
             `check_property` is not satisfied:
             $t0 $nsteps $δt
@@ -420,11 +429,11 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
             $(check_property(t0+δt, xv[nsteps]))""")
     end
 
-    return δt
+    return (success, δt, _t0)
 end
 
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
-        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, params=nothing;
+        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, adaptive::Bool=true, params=nothing;
         parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
     # Set proper parameters for jet transport
@@ -484,14 +493,21 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
         end
     end
 
+    local success # if true, the validation step succeeded
+    local _t0 # represents how much the integration could advance until validation failed
+
     # Integration
     nsteps = 1
     while sign_tstep*t0 < sign_tstep*tmax
 
         # Validated step of the integration
-        δt = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
-            t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
-            nsteps, orderT, abstol, params, parse_eqs, check_property)
+        (success, δt, _t0) = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
+                                             t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
+                                             nsteps, orderT, abstol, params, parse_eqs, check_property, adaptive)
+
+        if adaptive && !success
+            break
+        end
 
         # New initial conditions and time
         nsteps += 1
@@ -525,5 +541,5 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
 
     end
 
-    return F, view(tv,1:nsteps), view(xv,1:nsteps), view(xTM1v, :, 1:nsteps)
+    return F, view(tv,1:nsteps), view(xv,1:nsteps), view(xTM1v, :, 1:nsteps), success, _t0
 end

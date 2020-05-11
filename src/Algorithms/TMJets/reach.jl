@@ -1,13 +1,13 @@
 # case without invariant: this is the same as in TaylorModels.jl but
 # we wrap the each taylor model reach-set in the main loop
 # TODO: do this a posteriri? then we can use `validated_integ!` directly
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, intersection_method)
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, intersection_method, adaptive)
+    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, adaptive)
 end
 
 # case with an invariant
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, intersection_method)
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, intersection_method)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, intersection_method, adaptive)
+    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, intersection_method, adaptive)
 end
 
 # this function is the same as validated_integ! but with the addition that
@@ -15,7 +15,7 @@ end
 # moreover we passs
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet,
-        intersection_method::AbstractDisjointnessMethod, params=nothing;
+        intersection_method::AbstractDisjointnessMethod, adaptive::Bool=true, params=nothing;
         parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
     # Set proper parameters for jet transport
@@ -75,14 +75,21 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
         end
     end
 
+    local success # if true, the validation step succeeded
+    local _t0 # represents how much the integration could advance until validation failed
+
     # Integration
     nsteps = 1
     while sign_tstep*t0 < sign_tstep*tmax
 
         # Validated step of the integration
-        δt = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
-            t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
-            nsteps, orderT, abstol, params, parse_eqs, check_property)
+        (success, δt, _t0) = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
+                                             t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
+                                             nsteps, orderT, abstol, params, parse_eqs, check_property, adaptive)
+
+         if adaptive && !success
+             break
+         end
 
         # New initial conditions and time
         nsteps += 1
@@ -120,5 +127,5 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
 
     end
 
-    return F, view(tv,1:nsteps), view(xv,1:nsteps), view(xTM1v, :, 1:nsteps)
+    return F, view(tv,1:nsteps), view(xv,1:nsteps), view(xTM1v, :, 1:nsteps), success, _t0
 end
