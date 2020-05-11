@@ -52,6 +52,7 @@ export
 # Lazy operations
     Projection,
     Shift,
+    Convexify,
 
 # Hybrid types
     HACLD1,
