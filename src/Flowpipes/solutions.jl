@@ -72,7 +72,8 @@ flowpipe(sol::ReachSolution) = flowpipe(sol.F)
 tstart(sol::ReachSolution) = tstart(sol.F)
 tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
-setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
+setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT) # sol.alg should work in most cases too
+rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(sol.alg)
 
 # iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
@@ -109,7 +110,7 @@ function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
-# LazySets interface falls back to the associated flowpipe 
+# LazySets interface falls back to the associated flowpipe
 LazySets.dim(sol::ReachSolution) = dim(sol.F)
 LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.F)
 LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.F)

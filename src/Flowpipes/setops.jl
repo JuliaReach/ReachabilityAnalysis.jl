@@ -243,14 +243,14 @@ end
 #const Partition{N, VT} = AbstractVector{VT} where {VT<:AbstractVector{Int}}
 
 function _decompose(X::LazySet{N},
-                    partition::AbstractVector{<:AbstractVector{Int}},
+                    blocks, # ::AbstractVector{<:AbstractVector{Int}}
                     set_type::Type{ST}) where {N, ST<:LazySet}
     n = dim(X)
-    result = Vector{ST}(undef, length(partition))
+    result = Vector{ST}(undef, length(blocks))
 
-    @inbounds for (i, block) in enumerate(partition)
-        πS = Projection(S, block)
-        result[i] = overapproximate(πS, X)
+    @inbounds for (i, bi) in enumerate(blocks)
+        πX = _Projection(X, bi)
+        result[i] = overapproximate(πX, ST)
     end
     return CartesianProductArray(result)
 end
