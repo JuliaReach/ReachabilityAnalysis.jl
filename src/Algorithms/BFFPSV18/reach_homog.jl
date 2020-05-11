@@ -1,119 +1,119 @@
-# ====================
+# =======================
 # x' = Ax
-# (no input)
-# ====================
+# =======================
 
 # Set representation: Interval
 # Matrix operations: Dense
 # Invariant: No
-function reach_homog!(F, Xhat0, Φ, NSTEPS, δ, ::Universe, vars, block_indices,
-                      row_blocks, column_blocks, N, ST::Type{<:Interval})
+function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
+                               setrep::Type{<:Interval{N}}, vars, block_indices,
+                               row_blocks, column_blocks) where {NM, N}
 
-    # store first element
-    R0 = CartesianProductArray(Xhat0[block_indices])
+    # initial reach set
     Δt = zero(N) .. δ
-    res[1] = SparseReachSet(R0, Δt, vars) # TODO : use view?
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[collect(block_indices)]), Δt, vars)
 
     # cache matrix
-    ϕpowerk = copy(ϕ)
-    ϕpowerk_cache = similar(ϕ)
+    Φpowerk = copy(Φ)
+    Φpowerk_cache = similar(Φ)
 
-    # preallocate overapproximated Minkowski sum for each row-block
-    Xhatk = Vector{ST}(undef, length(row_blocks))
+    # buffer for overapproximated Minkowski sum of each row-block
+    Xhatk = Vector{setrep}(undef, length(row_blocks))
     zero_int = Interval(zero(N), zero(N))
 
-    @inbounds for k in 2:N
+    @inbounds for k in 2:NSTEPS
         for (i, bi) in enumerate(row_blocks) # loop over row-blocks of interest
             Xhatk[i] = zero_int
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
                 # concrete interval-interval Minkowski sum
-                aux = ϕpowerk[bi[1], bj[1]] * Xhat0[j].dat # TODO : concrete linear_map from LazySets ?
-                Xhatk[i] = minkowski_sum(Xhatk[i], Interval(aux))
+                aux = Φpowerk[bi[1], bj[1]] * Xhat0.array[j].dat
+                Xhatk[i] = Interval(Xhatk[i].dat + aux)
             end
         end
         Δt += δ
-        Rk = CartesianProductArray(copy(Xhatk))
-        res[k] = SparseReachSet(Rk, Δt, vars)
+        Xk = CartesianProductArray(copy(Xhatk))
+        F[k] = SparseReachSet(Xk, Δt, vars)
 
-        mul!(ϕpowerk_cache, ϕpowerk, ϕ)
-        copyto!(ϕpowerk, ϕpowerk_cache)
+        mul!(Φpowerk_cache, Φpowerk, Φ)
+        copyto!(Φpowerk, Φpowerk_cache)
     end
-    return res
+    return F
 end
 
-# generic setrep, no input
-# assuming that Xhat0 Xhat0 is already decomposed
-function _reach_homog!(res, ϕ, Xhat0, δ, N, vars, block_indices, row_blocks, column_blocks, NUM, ST)
+# Set representation: Generic
+# Matrix operations: Dense
+# Invariant: No
+function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
+                               setrep, vars, block_indices, row_blocks, column_blocks) where {NM, N}
 
-    # store first reachset
-    ti, tf = 0.0, δ
-    dt = 0 .. δ
-    R0 = ReachSet(CartesianProductArray(Xhat0[block_indices]), ti, tf)
-    res[1] = SparseReachSet(R0, vars)
+    # initial reach-set
+    Δt = zero(δ) .. δ
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0[block_indices]), Δt, vars)
 
     # cache matrix
-    ϕpowerk = copy(ϕ)
-    ϕpowerk_cache = similar(ϕ)
+    Φpowerk = copy(Φ)
+    Φpowerk_cache = similar(Φ)
 
     # preallocate buffer for each row-block
-    buffer = Vector{LazySets.LinearMap{NUM, ST, NUM, Matrix{NUM}}}(undef, length(column_blocks))
+    buffer = Vector{LazySets.LinearMap{N, ST, N, Matrix{N}}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
 
-    @inbounds for k in 2:N
+    @inbounds for k in 2:NSTEPS
         for (i, bi) in enumerate(row_blocks) # loop over row-blocks of interest
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
-                buffer[j] = ϕpowerk[bi, bj] * Xhat0[j]
+                buffer[j] = Φpowerk[bi, bj] * Xhat0[j]
             end
             Xhatk[i] = overapproximate(MinkowskiSumArray(buffer), ST)
         end
-        ti = tf
-        tf += δ
-        Rk = ReachSet(CartesianProductArray(copy(Xhatk)), ti, tf)
-        res[k] = SparseReachSet(Rk, vars)
+        Δt += δ
+        Xk = CartesianProductArray(copy(Xhatk))
+        F[k] = SparseReachSet(Xk, Δt, vars)
 
-        mul!(ϕpowerk_cache, ϕpowerk, ϕ)
-        copyto!(ϕpowerk, ϕpowerk_cache)
+        mul!(Φpowerk_cache, Φpowerk, Φ)
+        copyto!(Φpowerk, Φpowerk_cache)
     end
-    return res
+    return F
 end
 
-# generic setrep, no input, sparse
-function _reach_homog_sparse!(res, ϕ, Xhat0, δ, N, vars, block_indices, row_blocks, column_blocks, NUM, ST)
+# Set representation: Generic
+# Matrix operations: Sparse
+# Invariant: No
+function reach_homog_BFFPSV18!(F, Xhat0, Φ::SparseMatrixCSC{NM, IM}, NSTEPS, δ::N, X::Universe,
+                               setrep, vars, block_indices,
+                               row_blocks, column_blocks) where {NM, IM, N}
 
     # store first element
-    ti, tf = 0.0, δ
-    R0 = ReachSet(CartesianProductArray(Xhat0[block_indices]), ti, tf)
-    res[1] = SparseReachSet(R0, vars)
+    Δt = zero(N) .. δ
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0[block_indices]), Δt, vars)
 
     # cache matrix
-    ϕpowerk = copy(ϕ)
-    ϕpowerk_cache = similar(ϕ)
+    Φpowerk = copy(Φ)
+    Φpowerk_cache = similar(Φ)
 
     # preallocate buffer for each row-block
-    buffer = Vector{LazySets.LinearMap{NUM, ST, NUM, Matrix{NUM}}}(undef, length(column_blocks))
+    buffer = Vector{LazySets.LinearMap{N, ST, NM, SparseMatrixCSC{NM, IM}}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
 
-    @inbounds for k in 2:N
+    @inbounds for k in 2:NSTEPS
         for (i, bi) in enumerate(row_blocks) # loop over row-blocks of interest
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
-                ϕpowerk_bi_bj = ϕpowerk
-                if !iszero(ϕpowerk_bi_bj)
-                    buffer[j] = ϕpowerk[bi, bj] * Xhat0[j]
+                Φpowerk_bi_bj = Φpowerk
+                if !iszero(Φpowerk_bi_bj)
+                    buffer[j] = Φpowerk[bi, bj] * Xhat0[j]
                 end
             end
             Xhatk[i] = overapproximate(MinkowskiSumArray(buffer), ST)
         end
-        ti = tf
-        tf += δ
-        Rk = ReachSet(CartesianProductArray(copy(Xhatk)), ti, tf)
-        res[k] = SparseReachSet(Rk, vars)
+        Δt += δ
+        Xk = CartesianProductArray(copy(Xhatk))
+        F[k] = SparseReachSet(Xk, Δt, vars)
 
-        mul!(ϕpowerk_cache, ϕpowerk, ϕ)
-        copyto!(ϕpowerk, ϕpowerk_cache)
+        mul!(Φpowerk_cache, Φpowerk, Φ)
+        copyto!(Φpowerk, Φpowerk_cache)
     end
-    return res
+    return F
 end
