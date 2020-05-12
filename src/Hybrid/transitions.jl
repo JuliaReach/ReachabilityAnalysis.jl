@@ -1,9 +1,5 @@
 abstract type AbstractTransition end
 
-struct Exact <: AbstractTMDisjointnessMethod
-#
-end
-
 """
     DiscreteTransition{RT, GT, IT⁻, IT⁺, WT} <: AbstractTransition
 
