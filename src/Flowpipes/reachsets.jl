@@ -205,7 +205,7 @@ are available:
 
 - `project`  -- projection of a reach-set
 - `shift`    -- time-shift of a reach-set
-- `vars_idx` -- tuple of integers associated to the variables of the given reach-set
+- `vars`     -- tuple of integers associated to the variables of the given reach-set
 """
 abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
@@ -217,6 +217,13 @@ LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
 LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
+Base.:⊆(R::AbstractLazyReachSet, X::LazySet) = ⊆(set(R), X)
+Base.:⊆(X::LazySet, R::AbstractLazyReachSet) = ⊆(X, set(R))
+Base.:⊆(R::AbstractLazyReachSet, S::AbstractLazyReachSet) = ⊆(set(R), set(S))
+LazySets.area(R::AbstractLazyReachSet) = area(set(R))
+LazySets.volume(R::AbstractLazyReachSet) = volume(set(R))
+Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(ST, set(R))
+Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalBox, set(R))
 
 function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
@@ -266,7 +273,7 @@ for a given time interval. The type of the representation is `ST`, which may be
 any subtype LazySet. For efficiency reasons, `ST` should be concretely typed.
 
 By assumption the coordinates in this reach-set are associated to the integers
-`1, …, n`. The function `vars_idx` returns such tuple.
+`1, …, n`. The function `vars` returns such tuple.
 """
 struct ReachSet{N, ST<:LazySet{N}} <: AbstractLazyReachSet{N}
     X::ST
@@ -281,7 +288,7 @@ tstart(R::ReachSet) = inf(R.Δt)
 tend(R::ReachSet) = sup(R.Δt)
 tspan(R::ReachSet) = R.Δt
 dim(R::ReachSet) = dim(R.X)
-vars_idx(R::ReachSet) = Tuple(Base.OneTo(dim(R.X)),)
+vars(R::ReachSet) = Tuple(Base.OneTo(dim(R.X)),)
 
 # no-op
 function Base.convert(T::Type{ReachSet{N, ST}}, R::ReachSet{N, ST}) where {N, ST<:LazySet{N}}
@@ -316,7 +323,7 @@ together with a tuple of variables associated to this reach-set.
 
 - `X`        -- set
 - `Δt`       -- time interval
-- `vars_idx` -- tuple of variable indices represented by the set `X`
+- `vars` -- tuple of variable indices represented by the set `X`
 
 ### Notes
 
@@ -352,7 +359,7 @@ tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt
 dim(R::SparseReachSet{N, ST, D}) where {N, ST<:LazySet{N}, D} = D
-vars_idx(R::SparseReachSet) = R.vars
+vars(R::SparseReachSet) = R.vars
 
 # constructor from vector of dimensions
 function SparseReachSet(X::ST, Δt::IA.Interval{Float64},
@@ -361,15 +368,15 @@ function SparseReachSet(X::ST, Δt::IA.Interval{Float64},
 end
 
 function shift(R::SparseReachSet, t0::Number)
-    return SparseReachSet(set(R), tspan(R) + t0, vars_idx(R))
+    return SparseReachSet(set(R), tspan(R) + t0, vars(R))
 end
 
 function reconstruct(R::SparseReachSet, Y::LazySet)
-    return SparseReachSet(Y, tspan(R), vars_idx(R))
+    return SparseReachSet(Y, tspan(R), vars(R))
 end
 
 """
-    project(R::Union{ReachSet, SparseReachSet}, vars::NTuple{D, Int};
+    project(R::Union{ReachSet, SparseReachSet}, variables::NTuple{D, Int};
             [check_vars]::Bool=true) where {D}
 
 Projects a reach-set onto the subspace spanned by the given variables.
@@ -403,49 +410,49 @@ associated with the given variables `vars`.
 To project onto the time variable, use the index `0`. For instance, `(0, 1)` projects
 onto the time variable and the first variable in `R`.
 """
-function project(R::AbstractLazyReachSet, vars::NTuple{D, M};
+function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
                  check_vars::Bool=true) where {D, M<:Integer}
 
     # TODO: make vars check faster, specific for ReachSets and number of vars D
-    if check_vars && !(setdiff(vars, 0) ⊆ vars_idx(R))
+    if check_vars && !(setdiff(variables, 0) ⊆ vars(R))
         throw(ArgumentError("the variables $vars do not belong to the variables " *
-                            " of this reach-set, $(vars_idx(R))"))
+                            " of this reach-set, $(vars(R))"))
     end
 
-    if 0 ∈ vars
+    if 0 ∈ variables
         # if the projection involves "time", we shift the vars indices by one as
         # we will take the Cartesian product of the reach-set with the time interval
-        aux = vars .+ 1
+        aux = variables .+ 1
         Δt = convert(Interval, tspan(R))
         proj =  _project(Δt × set(R), aux)
     else
-        proj = _project(set(R), vars)
+        proj = _project(set(R), variables)
     end
 
-    return SparseReachSet(proj, tspan(R), vars)
+    return SparseReachSet(proj, tspan(R), variables)
 end
 
 # lazy projection of a reach-set
-function Projection(R::AbstractLazyReachSet, vars::NTuple{D, M},
+function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
                     check_vars::Bool=true) where {D, M<:Integer}
 
     # TODO: make vars check faster, specific for ReachSets and number of vars D
-    if check_vars && !(setdiff(vars, 0) ⊆ vars_idx(R))
-        throw(ArgumentError("the variables $vars do not belong to the variables " *
-                            " of this reach-set, $(vars_idx(R))"))
+    if check_vars && !(setdiff(variables, 0) ⊆ vars(R))
+        throw(ArgumentError("the variables $variables do not belong to the variables " *
+                            " of this reach-set, $(vars(R))"))
     end
 
-    if 0 ∈ vars
+    if 0 ∈ variables
         # if the projection involves "time", we shift the vars indices by one as
         # we will take the Cartesian product of the reach-set with the time interval
-        aux = vars .+ 1
+        aux = variables .+ 1
         Δt = convert(Interval, tspan(R))
         proj =  _Projection(Δt × set(R), aux)
     else
-        proj = _Projection(set(R), vars)
+        proj = _Projection(set(R), variables)
     end
 
-    return SparseReachSet(proj, tspan(R), vars)
+    return SparseReachSet(proj, tspan(R), variables)
 end
 
 # ================================================================
@@ -508,7 +515,7 @@ end
 @inline tend(R::TaylorModelReachSet) = sup(R.Δt)
 @inline tspan(R::TaylorModelReachSet) = R.Δt
 @inline dim(R::TaylorModelReachSet) = get_numvars()
-@inline vars_idx(R::TaylorModelReachSet) = Tuple(Base.OneTo(R.dim),)
+@inline vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)),)
 
 # useful constants
 @inline zeroBox(m) = IntervalBox(zeroI, m)
@@ -660,7 +667,7 @@ tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
-vars_idx(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
+vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
 
 directions(R::TemplateReachSet) = R.dirs # TODO rename to dirs ?
 sup_func(R::TemplateReachSet) = R.sf # TODO rename?

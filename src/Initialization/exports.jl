@@ -40,7 +40,7 @@ export
     tstart,
     tend,
     tspan,
-    vars_idx, # >> call this vars ?
+    vars,
     sup_func, # TODO keep?
     setrep,
     rsetrep,
