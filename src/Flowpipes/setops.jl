@@ -384,6 +384,61 @@ function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interva
     return convert(Hyperrectangle, x)
 end
 
+function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:AbstractPolyhedron{N}}
+    clist = constraints_list(CX.X)
+    out = similar(clist)
+    for (i, ci) in enumerate(clist)
+        out[i] = LinearConstraint(-ci.a, -ci.b)
+    end
+    return out
+end
+
+# concrete set complement for polyhedral sets
+complement(X::LazySet) = UnionSetArray(constraints_list(Complement(X)))
+
+# list of constraints of the set complement of a polyhedral set
+function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:AbstractPolyhedron{N}}
+    clist = constraints_list(CX.X)
+    out = similar(clist)
+    for (i, ci) in enumerate(clist)
+        out[i] = LinearConstraint(-ci.a, -ci.b)
+    end
+    return out
+end
+
+function _overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
+    c, r = box_approximation_helper(S)
+    if r[1] < 0
+        return EmptySet{N}(dim(S))
+    end
+    return Hyperrectangle(c, r)
+end
+
+@inline function box_approximation_helper(S::UnionSetArray{N}) where {N}
+    zero_N = zero(N)
+    one_N = one(N)
+    n = dim(S)
+    c = Vector{N}(undef, n)
+    r = Vector{N}(undef, n)
+    d = zeros(N, n)
+    @inbounds for i in 1:n
+        d[i] = one_N
+        htop = ρ(d, S)
+        d[i] = -one_N
+        hbottom = -ρ(d, S)
+        d[i] = zero_N
+        c[i] = (htop + hbottom) / 2
+        r[i] = (htop - hbottom) / 2
+        if r[i] < 0
+            # contradicting bounds => set is empty
+            # terminate with first radius entry being negative
+            r[1] = r[i]
+            break
+        end
+    end
+    return c, r
+end
+
 # ==================================
 # Zonotope splitting methods
 # ==================================
