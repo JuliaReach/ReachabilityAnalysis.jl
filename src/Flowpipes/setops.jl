@@ -672,6 +672,10 @@ struct BoxEnclosure <: AbstractTMDisjointnessMethod
 #
 end
 
+struct Exact <: AbstractTMDisjointnessMethod
+#
+end
+
 function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::ZonotopeEnclosure)
     Z = overapproximate(X, Zonotope)
     return _is_intersection_empty(set(Z), Y)
