@@ -77,7 +77,7 @@ end
 # the source invariant is the set union of half-spaces, the other sets are polyhedral
 function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
                 X::AbstractPolyhedron{N},
-                ::Exact) where {N
+                ::Exact) where {N,
                                 GT<:AbstractPolyhedron{N},
                                 VN,
                                 IT⁻<:UnionSetArray{N, LinearConstraint{N, VN}},
