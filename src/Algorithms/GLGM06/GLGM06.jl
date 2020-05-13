@@ -90,14 +90,23 @@ end
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
 
-function rsetrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
-    RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
+@inline function setrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
+    ST = Zonotope{N, Vector{N}, Matrix{N}}
 end
 
-function rsetrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n, p}
+@inline function rsetrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
+    ST = setrep(alg)
+    RT = ReachSet{N, ST}
+end
+
+@inline function setrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n, p}
     VT = SVector{n, N}
     MT = SMatrix{n, p, N, n*p}
     ZT = Zonotope{N, VT, MT}
+end
+
+@inline function rsetrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n, p}
+    ZT = setrep(alg)
     RT = ReachSet{N, ZT}
 end
 

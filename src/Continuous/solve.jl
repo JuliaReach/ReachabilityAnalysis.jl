@@ -3,7 +3,7 @@
 # ======================================
 
 """
-    solve(ivp::IVP, tspan, alg; kwargs...)
+    solve(ivp::IVP{<:AbstractContinuousSystem}, tspan, alg; kwargs...)
 
 Solves the initial-value problem defined by `ivp` over the time span `tspan`,
 using the algorihm `alg`. If no algorithm is given, a default algorithm is chosen.
@@ -44,7 +44,7 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
 - Use the `threading` option to use multi-threading parallelism. This option applies
   for initial-value problems whose initial condition is a vector of sets.
 """
-function solve(ivp::IVP, args...; kwargs...)
+function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # preliminary checks
     _check_dim(ivp)
 
