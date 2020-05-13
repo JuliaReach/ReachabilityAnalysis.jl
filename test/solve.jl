@@ -1,6 +1,7 @@
 @testset "Flowpipe interface" begin
     p = @ivp(x' = -x, x(0) ∈ 0..1)
-    sol = solve(p, tspan=(0.0, 1.0), GLGM06(δ=0.1))
+    δ = 0.1
+    sol = solve(p, tspan=(0.0, 1.0), GLGM06(δ=δ))
     F = flowpipe(sol)
 
     # iteration
@@ -15,6 +16,19 @@
     @test tend(F[1]) ≈ 0.1
     @test tstart(F[end]) ≈ 0.9
     @test tend(F[end]) ≈ 1.0
+
+    # time span for flowpipe slices
+    @test tstart(F[1:3]) ≈ 0.0
+    @test tend(F[1:3]) ≈ 3δ
+    @test tspan(F[1:3]) ≈ 0.0 .. 3δ
+
+    @test tstart(F, 1:3) ≈ 0.0  # same, more efficient
+    @test tend(F, 1:3) ≈ 3δ
+    @test tspan(F, 1:3) ≈ 0.0 .. 3δ
+
+    @test tstart(sol[1:3]) ≈ 0.0
+    @test tend(sol[1:3]) ≈ 3δ
+    @test tspan(sol[1:3]) ≈ 0.0 .. 3δ
 
     # set representation
     #@test setrep(F) isa Zonotope
