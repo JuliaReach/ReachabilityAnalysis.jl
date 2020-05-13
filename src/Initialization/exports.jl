@@ -44,6 +44,10 @@ export
     sup_func, # TODO keep?
     setrep,
     rsetrep,
+    reset_map,
+    guard,
+    source_invariant,
+    target_invariant,
 
 # Concrete operations
     project,

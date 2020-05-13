@@ -6,20 +6,20 @@ by Luis Benet and David Sanders in `TalorModels.jl`.
 
 ### Fields
 
-- `max_steps` -- (optional, default: `2000`) maximum number of steps in the
-                 validated integration ``x' = f(x)``
-- `abs_tol`   -- (optional, default: `1e-10`) absolute tolerance
-- `orderT`    -- (optional, default: `8`) order of the Taylor model in time
-- `orderQ`    -- (optional, default: `2`) order of the Taylor models for jet transport variables
-- `disjointness_method` -- (optional, default: `ZonotopeEnclosure()`) defines the method to
-                           perform the disjointness check between the taylor model flowpipe and the invariant
-- `adaptive`  -- (optional, default: `true`) if `true`, try decreasing the absolute
-                 tolerance each time step validation fails, until `min_abs_tol` is reached
-- `min_abs_tol` -- (optional, default: `1e-29`) minimum absolute tolerance for the adaptive algorithm
+- `max_steps`    -- (optional, default: `2000`) maximum number of steps in the
+                    validated integration ``x' = f(x)``
+- `abs_tol`      -- (optional, default: `1e-10`) absolute tolerance
+- `orderT`       -- (optional, default: `8`) order of the Taylor model in time
+- `orderQ`       -- (optional, default: `2`) order of the Taylor models for jet transport variables
+- `disjointness` -- (optional, default: `ZonotopeEnclosure()`) defines the method to
+                    perform the disjointness check between the taylor model flowpipe and the invariant
+- `adaptive`     -- (optional, default: `true`) if `true`, try decreasing the absolute
+                    tolerance each time step validation fails, until `min_abs_tol` is reached
+- `min_abs_tol`  -- (optional, default: `1e-29`) minimum absolute tolerance for the adaptive algorithm
 
 ### Notes
 
-The argument `disjointness_method` allows to control how are disjointness checks
+The argument `disjointness` allows to control how are disjointness checks
 computed, in the case where the invariant is not universal. In particular,
 `ZonotopeEnclosure()` pre-processes the taylor model with a zonotopic overapproximation,
 then performs the disjointness check with that zonotope and the invariant.
@@ -30,7 +30,7 @@ For other options, see the documentation of `AbstractDisjointnessMethod`.
     abs_tol::N=1e-10
     orderT::Int=8
     orderQ::Int=2
-    disjointness_method::AbstractDisjointnessMethod=ZonotopeEnclosure()
+    disjointness::AbstractDisjointnessMethod=ZonotopeEnclosure()
     adaptive::Bool=true
     min_abs_tol::N=1e-29
 end

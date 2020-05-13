@@ -380,6 +380,12 @@ function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:Abstract
     return out
 end
 
+# TODO pass backend
+function LazySets.vertices_list(X::ConvexHullArray{N, PT}) where {N, PT<:AbstractPolytope{N}}
+    vlist = [vertices_list(Xi) for Xi in array(X)]
+    return convex_hull(vcat(vlist...))
+end
+
 function _overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
     c, r = box_approximation_helper(S)
     if r[1] < 0
@@ -615,35 +621,36 @@ end
 
 abstract type AbstractDisjointnessMethod end
 
-struct ZonotopeEnclosure <: AbstractDisjointnessMethod
 # we overapproximate the reach-set with a zonotope, then make the disjointness check
-end
+struct ZonotopeEnclosure <: AbstractDisjointnessMethod end
 
-struct BoxEnclosure <: AbstractDisjointnessMethod
 # we overapproximate the reach-set with a hyperrectangle, then make the disjointness check
-end
+struct BoxEnclosure <: AbstractDisjointnessMethod end
 
-struct Exact <: AbstractDisjointnessMethod
-# we pass the sets to is_intersection_empty without pre-processing
-end
+# we pass the sets to the disjointness check algorithm without pre-processing
+struct NoEnclosure <: AbstractDisjointnessMethod end
 
 # fallback
 _is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
 
 # symmetric case
-_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=Exact()) = _is_intersection_empty(R, X, method)
+_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
 
 # --------------------------------------------------------------------
 # Methods to evaluate disjointness between a reach-set and a lazy set
 # --------------------------------------------------------------------
 
-function _is_intersection_empty(X::AbstractReachSet, Y::LazySet, ::ZonotopeEnclosure)
-    Z = overapproximate(X, Zonotope)
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::NoEnclosure)
+    return _is_intersection_empty(set(R), Y)
+end
+
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::ZonotopeEnclosure)
+    Z = overapproximate(R, Zonotope)
     return _is_intersection_empty(set(Z), Y)
 end
 
-function _is_intersection_empty(X::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
-    H = overapproximate(X, Hyperrectangle)
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
+    H = overapproximate(R, Hyperrectangle)
     return _is_intersection_empty(set(H), Y)
 end
 
@@ -688,10 +695,57 @@ _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H
 
 abstract type AbstractIntersectionMethod end
 
-struct BoxEnclosure <: AbstractIntersectionMethod
+# evaluate X ∩ Y exactly using the constraint representation of X and Y
+# evaluate X₁ ∩ ⋯ ∩ Xₖ using the constraint representation of each Xᵢ
+struct HRepIntersection <: AbstractIntersectionMethod
 #
 end
 
-struct Exact <: AbstractIntersectionMethod
+# evaluate X ∩ Y approximately using support function evaluations, through the
+# property that the support function of X ∩ Y along direction d is not greater
+# min(ρ(d, X), ρ(d, Y))
+# by the same token, compute X₁ ∩ ⋯ ∩ Xₖ approximately using the same property
+struct SupportFunctionIntersection <: AbstractIntersectionMethod
 #
+end
+
+# = METHODS WITH TYPE ANNOTATION
+#=
+struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod
+#
+end
+
+setrep(int_method::HRepIntersection{SX<:AbstractPolytope}, SY<:AbstractPolyhedron}) = SX
+
+struct SupportFunctionIntersection <: AbstractIntersectionMethod
+
+end
+=#
+
+# TODO use LazySets intersection
+function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+    out = vcat(X, Y)
+    success = remove_redundant_constraints!(out)
+    return (success, out)
+end
+
+function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::AbstractPolyhedron, ::HRepIntersection)
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+    clist_Z = constraints_list(Z)
+    out = vcat(X, Y, Z)
+    success = remove_redundant_constraints!(out)
+    return (success, out)
+end
+
+function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::AbstractPolyhedron, W::AbstractPolyhedron, ::HRepIntersection)
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+    clist_Z = constraints_list(Z)
+    clist_W = constraints_list(W)
+    out = vcat(X, Y, Z, W)
+    success = remove_redundant_constraints!(out)
+    return (success, out)
 end

@@ -42,95 +42,81 @@ function DiscreteTransition(; guard::GT, source_invariant::IT⁻, target_invaria
     return DiscreteTransition(IdentityMap(n), ZeroSet(n), guard, source_invariant, target_invariant)
 end
 
-apply(f::DiscreteTransition,
+# we assume that the reach-set is bounded: it's either a polytopic set
+# or a union of polytopic sets
+# => the return type is either the empty set or an HPolytope unless otherwise stated
+# for examples in cases involving unions this method may return a union of polytopes
+apply(tr::DiscreteTransition,
       R::AbstractLazyReachSet,
-      method::AbstractIntersectionMethod) = _apply(f, set(R), method)
+      method::AbstractIntersectionMethod) = _apply(tr, set(R), method)
 
 # ==========================================
 # Cases where the reset map is the identity
 # ==========================================
 
-# ---------------------------
-# Intersection method: Exact
-# ---------------------------
+# ----------------------------------------
+# Intersection method: HRepIntersection
+# ----------------------------------------
 
 # all sets are polyhedral
-function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
-                X::AbstractPolyhedron{N},
-                ::Exact) where {N,
+function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+                X::AbstractPolytope{N},
+                method::HRepIntersection) where {N,
                                 GT<:AbstractPolyhedron{N},
                                 IT⁻<:AbstractPolyhedron{N},
                                 IT⁺<:AbstractPolyhedron{N}}
 
-    clist_G = constraints_list(tr.G)
-    clist_I⁻ = constraints_list(tr.I⁻)
-    clist_I⁺ = constraints_list(tr.I⁺)
-    clist_X = constraints_list(X)
-    out = vcat(clist_G, clist_I⁻, clist_I⁺, clist_X)
-    flag = remove_redundant_constraints!(out)
-    if flag
-        return HPolyhedron(out)
-    else
-        return EmptySet(dim(X))
-    end
+    success, out = _intersection(X, tr.G, tr.I⁻, tr.I⁺, method)
+    return success ? HPolytope(out) : EmptySet(dim(X))
 end
 
 # the source invariant is the set union of half-spaces, the other sets are polyhedral
-function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
-                X::AbstractPolyhedron{N},
-                ::Exact) where {N,
+function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+                X::AbstractPolytope{N},
+                method::HRepIntersection) where {N,
                                 GT<:AbstractPolyhedron{N},
                                 VN,
                                 IT⁻<:UnionSetArray{N, LinearConstraint{N, VN}},
                                 IT⁺<:AbstractPolyhedron{N}}
 
-    clist_G = constraints_list(tr.G)
-    clist_I⁺ = constraints_list(tr.I⁺)
-    clist_X = constraints_list(X)
-    aux = vcat(clist_G, clist_I⁺, clist_X)
-    flag = remove_redundant_constraints!(aux)
-    !flag && return EmptySet(dim(X))
+    success, out = _intersection(X, tr.G, tr.I⁺, method)
+    !success && return EmptySet(dim(X))
 
     clist_I⁻ = tr.I⁻.array
-    out = Vector{HPolyhedron{N, Vector{N}}}()
+    out = Vector{HPolytope{N, Vector{N}}}()
 
+    # intersect Y := X ∩ G ∩ I⁺ with each half-space ci in I⁻
+    # only store those polytpes for which Y ∩ ci is non-empty
     for ci in clist_I⁻
-        aux2 = vcat(aux, ci)
-        flag = remove_redundant_constraints!(aux2)
-        if !flag
-            continue
-        else
-            push!(out, HPolyhedron(copy(aux2)))
-        end
+        Y_ci = vcat(aux, ci)
+        success = remove_redundant_constraints!(Y_ci)
+        !success && continue
+        push!(out, HPolytope(copy(Y_ci)))
     end
 
-    if isempty(out)
-        return EmptySet(dim(X))
-    else
-        return UnionSetArray(out)
-    end
+    return !isempty(out) ? UnionSetArray(out) : EmptySet(dim(X))
 end
 
 # the source invariant is the set union of half-spaces, the other sets are polyhedral
-function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
+function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
                 X::ConvexHullArray{N, PT},
-                ::Exact) where {N,
-                                PT<:AbstractPolyhedron{N},
+                method::HRepIntersection) where {N,
+                                PT<:AbstractPolytope{N},
                                 GT<:AbstractPolyhedron{N},
                                 IT⁻<:AbstractPolyhedron{N},
                                 IT⁺<:AbstractPolyhedron{N}}
 
-    vlist = [vertices_list(Xi) for Xi in array(X)]
-    vlist_ch = convex_hull(vcat(vlist...)) # TODO pass the backend as an option
-    Xhrep = tohrep(vlist_ch)
-    out = _apply(tr, Xhrep, Exact())
-    return HPolyhedron(out)
+    vlist = vertices_list(X) # TODO pass the backend as an option
+    Xhrep = tohrep(vlist)
+    return  _apply(tr, Xhrep, method)
 end
 
 # ---------------------------------
 # Intersection method: BoxEnclosure
 # ---------------------------------
-
+#
+#= TODO: use SupportFunctionIntersection instead
+#
 function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
                 X::ConvexHullArray{N, PT},
                 ::BoxEnclosure) where {N,
@@ -140,7 +126,7 @@ function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
                                        IT⁻<:UnionSetArray{N, LinearConstraint{N, VN}},
                                        IT⁺<:AbstractPolyhedron{N}}
     Xbox = overapproximate(X, Hyperrectangle)
-    out = _apply(tr, Xbox, Exact())
+    out = _apply(tr, Xbox, HRepIntersection())
     return overapproximate(out, Hyperrectangle)
 end
 
@@ -151,7 +137,7 @@ function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
                                        IT⁻<:AbstractPolyhedron{N},
                                        IT⁺<:AbstractPolyhedron{N}}
 
-    out = _apply(tr, X, Exact())
+    out = _apply(tr, X, HRepIntersection())
     return overapproximate(out, Hyperrectangle)
 end
 
@@ -162,7 +148,7 @@ function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
                                        VN,
                                        IT⁻<:UnionSetArray{N, LinearConstraint{N, VN}},
                                        IT⁺<:AbstractPolyhedron{N}}
-    out = _apply(tr, X, Exact())
+    out = _apply(tr, X, HRepIntersection())
     return overapproximate(out, Hyperrectangle)
 end
 
@@ -175,6 +161,8 @@ function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
                                        IT⁺<:AbstractPolyhedron{N}}
 
     Xbox = overapproximate(X, Hyperrectangle)
-    out = _apply(tr, Xbox, Exact())
+    out = _apply(tr, Xbox, HRepIntersection())
     return overapproximate(out, Hyperrectangle)
 end
+
+=#

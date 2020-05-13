@@ -530,11 +530,12 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
         Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0))
 
         # update output flowpipe
+        # note that F has 1 less element than xTM1v and xv (we don't store the initial set)
         push!(F, Ri)
 
         if nsteps > max_steps
             @warn("""
-            Maximum number of integration steps reached; exiting.
+            Maximum number of integration steps reached; exiting. Try increasing `max_steps`.
             """)
             break
         end
