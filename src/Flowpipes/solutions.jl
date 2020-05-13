@@ -72,7 +72,10 @@ flowpipe(sol::ReachSolution) = flowpipe(sol.F)
 tstart(sol::ReachSolution) = tstart(sol.F)
 tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
-setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT) # sol.alg should work in most cases too
+tstart(sol::ReachSolution, arr::AbstractVector) = tstart(sol.F, arr)
+tend(sol::ReachSolution, arr::AbstractVector) = tend(sol.F, arr)
+tspan(sol::ReachSolution, arr::AbstractVector) = tspan(sol.F, arr)
+setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT) # NOTE sol.alg should work in most cases too
 rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(sol.alg)
 vars(sol::ReachSolution) = vars(sol.F)
 

@@ -369,6 +369,13 @@ function LazySets.dim(::Flowpipe{N, SparseReachSet{N, ST, D}}) where {N, ST, D}
     return D
 end
 
+tstart(F::Flowpipe, arr::UnitRange) = tstart(view(array(F), arr), contiguous=true)
+tstart(F::Flowpipe, arr::AbstractVector) = tstart(view(array(F), arr))
+tend(F::Flowpipe, arr::UnitRange) = tend(view(array(F), arr), contiguous=true)
+tend(F::Flowpipe, arr::AbstractVector) = tend(view(array(F), arr))
+tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr), contiguous=true)
+tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
+
 # =======================================
 # Flowpipe composition with a time-shift
 # =======================================

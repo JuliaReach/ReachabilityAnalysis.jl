@@ -127,6 +127,41 @@ The interval representing the time span of the given reach-set.
 """
 function tspan(::AbstractReachSet) end
 
+# if `contiguous` is true, we assume that the time span of each reach-set in this slice
+# is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
+function tstart(F::VRT; contiguous=false) where {RT<:AbstractReachSet, VRT<:AbstractVector{RT}}
+    if contiguous
+        t0 = tstart(first(F))
+    else
+        t0 = minimum(tstart, F)
+    end
+    return t0
+end
+
+# if `contiguous` is true, we assume that the time span of each reach-set in this slice
+# is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
+function tend(F::VRT; contiguous=false) where {RT<:AbstractReachSet, VRT<:AbstractVector{RT}}
+    if contiguous
+        tf = tend(last(F))
+    else
+        tf = maximum(tend, F)
+    end
+    return tf
+end
+
+# if `contiguous` is true, we assume that the time span of each reach-set in this slice
+# is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
+function tspan(F::VRT; contiguous=false) where {RT<:AbstractReachSet, VRT<:AbstractVector{RT}}
+    if contiguous
+        t0 = tstart(first(F))
+        tf = tend(last(F))
+    else
+        t0 = minimum(tstart, F)
+        tf = maximum(tend, F)
+    end
+    return TimeInterval(t0, tf)
+end
+
 """
     dim(R::AbstractReachSet)
 
