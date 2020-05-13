@@ -386,7 +386,7 @@ function LazySets.vertices_list(X::ConvexHullArray{N, PT}) where {N, PT<:Abstrac
     return convex_hull(vcat(vlist...))
 end
 
-function _overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
+function LazySets.overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
     c, r = box_approximation_helper(S)
     if r[1] < 0
         return EmptySet{N}(dim(S))
@@ -630,8 +630,9 @@ struct BoxEnclosure <: AbstractDisjointnessMethod end
 # we pass the sets to the disjointness check algorithm without pre-processing
 struct NoEnclosure <: AbstractDisjointnessMethod end
 
-# fallback
+# fallbacks
 _is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
 
 # symmetric case
 _is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
@@ -709,6 +710,10 @@ struct SupportFunctionIntersection <: AbstractIntersectionMethod
 #
 end
 
+#
+# TODO: add some "Fallback" implementation that uses LazySets intersection(X, Y)
+#
+
 # = METHODS WITH TYPE ANNOTATION
 #=
 struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod
@@ -726,7 +731,7 @@ end
 function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
     clist_X = constraints_list(X)
     clist_Y = constraints_list(Y)
-    out = vcat(X, Y)
+    out = vcat(clist_X, clist_Y)
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
@@ -735,7 +740,7 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     clist_X = constraints_list(X)
     clist_Y = constraints_list(Y)
     clist_Z = constraints_list(Z)
-    out = vcat(X, Y, Z)
+    out = vcat(clist_X, clist_Y, clist_Z)
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
@@ -745,7 +750,7 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     clist_Y = constraints_list(Y)
     clist_Z = constraints_list(Z)
     clist_W = constraints_list(W)
-    out = vcat(X, Y, Z, W)
+    out = vcat(clist_X, clist_Y, clist_Z, clist_W)
     success = remove_redundant_constraints!(out)
     return (success, out)
 end

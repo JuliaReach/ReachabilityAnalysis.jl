@@ -48,7 +48,7 @@ end
 # for examples in cases involving unions this method may return a union of polytopes
 apply(tr::DiscreteTransition,
       R::AbstractLazyReachSet,
-      method::AbstractIntersectionMethod) = _apply(tr, set(R), method)
+      method::AbstractIntersectionMethod) = apply(tr, set(R), method)
 
 # ==========================================
 # Cases where the reset map is the identity
@@ -59,7 +59,7 @@ apply(tr::DiscreteTransition,
 # ----------------------------------------
 
 # all sets are polyhedral
-function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+function  apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
                 X::AbstractPolytope{N},
                 method::HRepIntersection) where {N,
                                 GT<:AbstractPolyhedron{N},
@@ -71,15 +71,15 @@ function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT�
 end
 
 # the source invariant is the set union of half-spaces, the other sets are polyhedral
-function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
-                X::AbstractPolytope{N},
-                method::HRepIntersection) where {N,
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::AbstractPolytope{N},
+               method::HRepIntersection) where {N,
                                 GT<:AbstractPolyhedron{N},
                                 VN,
                                 IT⁻<:UnionSetArray{N, LinearConstraint{N, VN}},
                                 IT⁺<:AbstractPolyhedron{N}}
 
-    success, out = _intersection(X, tr.G, tr.I⁺, method)
+    success, aux = _intersection(X, tr.G, tr.I⁺, method)
     !success && return EmptySet(dim(X))
 
     clist_I⁻ = tr.I⁻.array
@@ -98,9 +98,9 @@ function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT�
 end
 
 # the source invariant is the set union of half-spaces, the other sets are polyhedral
-function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
-                X::ConvexHullArray{N, PT},
-                method::HRepIntersection) where {N,
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::ConvexHullArray{N, PT},
+               method::HRepIntersection) where {N,
                                 PT<:AbstractPolytope{N},
                                 GT<:AbstractPolyhedron{N},
                                 IT⁻<:AbstractPolyhedron{N},
@@ -108,7 +108,7 @@ function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT�
 
     vlist = vertices_list(X) # TODO pass the backend as an option
     Xhrep = tohrep(vlist)
-    return  _apply(tr, Xhrep, method)
+    return  apply(tr, Xhrep, method)
 end
 
 # ---------------------------------

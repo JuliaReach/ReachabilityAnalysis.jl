@@ -30,7 +30,7 @@ For other options, see the documentation of `AbstractDisjointnessMethod`.
     abs_tol::N=1e-10
     orderT::Int=8
     orderQ::Int=2
-    disjointness::AbstractDisjointnessMethod=ZonotopeEnclosure()
+    disjointness::DM=ZonotopeEnclosure()
     adaptive::Bool=true
     min_abs_tol::N=1e-29
 end
