@@ -386,6 +386,8 @@ function LazySets.vertices_list(X::ConvexHullArray{N, PT}) where {N, PT<:Abstrac
     return convex_hull(vcat(vlist...))
 end
 
+LazySets.box_approximation(S::UnionSetArray) = overapproximate(S, Hyperrectangle)
+
 function LazySets.overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
     c, r = box_approximation_helper(S)
     if r[1] < 0
@@ -727,11 +729,19 @@ struct SupportFunctionIntersection <: AbstractIntersectionMethod
 end
 =#
 
+# concatenate with "promotion"
+const VECH{N, VT} = Vector{HalfSpace{N, VT}}
+
+_vcat(x::VECH{N, VT}, y::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y)
+_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z)
+_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}, w::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z, w)
+_vcat(x::VECH{N, SingleEntryVector{N}}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat([HalfSpace(Vector(c.a), c.b) for c in x], y, z)
+
 # TODO use LazySets intersection
 function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
     clist_X = constraints_list(X)
     clist_Y = constraints_list(Y)
-    out = vcat(clist_X, clist_Y)
+    out = _vcat(clist_X, clist_Y)
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
@@ -740,7 +750,7 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     clist_X = constraints_list(X)
     clist_Y = constraints_list(Y)
     clist_Z = constraints_list(Z)
-    out = vcat(clist_X, clist_Y, clist_Z)
+    out = _vcat(clist_X, clist_Y, clist_Z)
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
@@ -750,7 +760,7 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     clist_Y = constraints_list(Y)
     clist_Z = constraints_list(Z)
     clist_W = constraints_list(W)
-    out = vcat(clist_X, clist_Y, clist_Z, clist_W)
+    out = _vcat(clist_X, clist_Y, clist_Z, clist_W)
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
