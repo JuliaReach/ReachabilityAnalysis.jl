@@ -37,7 +37,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [ALT10]
 
-- Althoff, Matthias. [*Reachability analysis and its application to the safety assessment of autonomous cars.*](https://mediatum.ub.tum.de/doc963752/642175.pdf).
+- Althoff, Matthias. [*Reachability analysis and its application to the safety assessment of autonomous cars*](https://mediatum.ub.tum.de/doc963752/642175.pdf).
   Diss. Technische Universität München, 2010.
 
 ```
@@ -73,7 +73,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 #### [BFFPSV18]
 
 - Bogomolov, S., Forets, M., Frehse, G., Viry, F., Podelski, A., & Schilling, C. (2018, April).
-  [*Reach set approximation through decomposition with low-dimensional sets and high-dimensional matrices.*](https://dl.acm.org/doi/10.1145/3178126.3178128).
+  [*Reach set approximation through decomposition with low-dimensional sets and high-dimensional matrices*](https://dl.acm.org/doi/10.1145/3178126.3178128).
   In Proceedings of the 21st International Conference on Hybrid Systems:
   Computation and Control (part of CPS Week) (pp. 41-50).
 
@@ -91,7 +91,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [CHEN15]
 
-- Chen, Xin. [*Reachability Analysis of Non-Linear Hybrid Systems Using Taylor Models.*](https://www.cs.colorado.edu/~xich8622/papers/thesis.pdf).
+- Chen, Xin. [*Reachability Analysis of Non-Linear Hybrid Systems Using Taylor Models*](https://www.cs.colorado.edu/~xich8622/papers/thesis.pdf).
   Diss. Fachgruppe Informatik, RWTH Aachen University, 2015.
 
 ```
@@ -127,7 +127,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 - Frehse, G., Le Guernic, C., Donzé, A., Cotton, S., Ray, R., Lebeltel,
   O., ... & Maler, O. (2011, July).
-  [*SpaceEx: Scalable verification of hybrid systems.*](https://link.springer.com/content/pdf/10.1007/978-3-642-22110-1_30.pdf)
+  [*SpaceEx: Scalable verification of hybrid systems*](https://link.springer.com/content/pdf/10.1007/978-3-642-22110-1_30.pdf).
   In International Conference on Computer Aided Verification (pp. 379-395). Springer, Berlin, Heidelberg.
 
 ```
@@ -145,7 +145,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [FRE16]
 
-- Frehse, G. (2016). [*Scalable verification of hybrid systems.*](https://hal.archives-ouvertes.fr/tel-01714428/document).
+- Frehse, G. (2016). [*Scalable verification of hybrid systems*](https://hal.archives-ouvertes.fr/tel-01714428/document).
   (Habilitation á diriger des recherches, Univ. Grenoble Alpes).
 
 ```
@@ -176,7 +176,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [GIR04]
 
-- Girard, Antoine. [*Analyse algorithmique des systemes hybrides.*](https://tel.archives-ouvertes.fr/tel-00007064/document).
+- Girard, Antoine. [*Analyse algorithmique des systemes hybrides*](https://tel.archives-ouvertes.fr/tel-00007064/document).
   Diss. Institut National Polytechnique de Grenoble-INPG, 2004.
 
 ```
@@ -211,7 +211,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [GIR13]
 
-- Girard, Antoine. [*Computational approaches to analysis and control of hybrid systems.*](https://tel.archives-ouvertes.fr/tel-00908913/file/hdr-manuscript.pdf).
+- Girard, Antoine. [*Computational approaches to analysis and control of hybrid systems*](https://tel.archives-ouvertes.fr/tel-00908913/file/hdr-manuscript.pdf).
   Diss. 2013.
 
 ```
@@ -246,7 +246,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [HG19]
 
-- el Hakim, Viktorio S., and Marco JG Bekooij. [*Reachability Analysis of Hybrid Automata with Clocked Linear Dynamics.*](https://dl.acm.org/doi/abs/10.1145/3323439.3323980).
+- el Hakim, Viktorio S., and Marco JG Bekooij. [*Reachability Analysis of Hybrid Automata with Clocked Linear Dynamics*](https://dl.acm.org/doi/abs/10.1145/3323439.3323980).
   Proceedings of the 22nd International Workshop on Software and Compilers for Embedded Systems. 2019.
 
 ```
@@ -264,7 +264,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 #### [JOL]
 
 - Joldes, M. M. (2011). [*Approximations polynomiales rigoureuses et applications*](https://www.theses.fr/2011ENSL0655/document).
- (Doctoral dissertation, Lyon, École normale supérieure).
+  (Doctoral dissertation, Lyon, École normale supérieure).
 
 ```
 @phdthesis{joldes2011approximations,
@@ -278,8 +278,8 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [KEK18]
 
-- Kekatos, Nikolaos. [*Vérification formelle des systèmes cyber-physiques dans le processus industriel de la conception basée sur modèle.*](https://tel.archives-ouvertes.fr/tel-02091471).
- Diss. Grenoble Alpes, 2018.
+- Kekatos, Nikolaos. [*Vérification formelle des systèmes cyber-physiques dans le processus industriel de la conception basée sur modèle*](https://tel.archives-ouvertes.fr/tel-02091471).
+  Diss. Grenoble Alpes, 2018.
 
 ```
 @phdthesis{kekatos2018verification,
@@ -294,7 +294,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [LGG09]
 
-- Le Guernic, Colas, and Antoine Girard. [*Reachability analysis of linear systems using support functions.*](https://viterbi-web.usc.edu/~jdeshmuk/teaching/cs699-fm-for-cps/Papers/A3.pdf).
+- Le Guernic, Colas, and Antoine Girard. [*Reachability analysis of linear systems using support functions*](https://viterbi-web.usc.edu/~jdeshmuk/teaching/cs699-fm-for-cps/Papers/A3.pdf).
   Nonlinear Analysis: Hybrid Systems 4.2 (2010): 250-262.
 
 ```
@@ -315,7 +315,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 #### [LGG09b]
 
 - Le Guernic, Colas, and Antoine Girard.
-  [*Reachability analysis of hybrid systems using support functions.*](https://link.springer.com/content/pdf/10.1007/978-3-642-02658-4_40.pdf)
+  [*Reachability analysis of hybrid systems using support functions*](https://link.springer.com/content/pdf/10.1007/978-3-642-02658-4_40.pdf).
   International Conference on Computer Aided Verification. Springer, Berlin, Heidelberg, 2009.
 
 ```
@@ -333,7 +333,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [LG09]
 
-- Le Guernic, Colas. [*Calcul d’Atteignabilité des Systemes Hybrides a Partie Continue Linéaire.*](https://tel.archives-ouvertes.fr/tel-00422569v2).
+- Le Guernic, Colas. [*Calcul d’Atteignabilité des Systemes Hybrides a Partie Continue Linéaire*](https://tel.archives-ouvertes.fr/tel-00422569v2).
   Diss. PhD thesis, Université Grenoble I, 2009.
 
 ```
@@ -364,7 +364,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [ROC18]
 
-- Rocca, Alexandre. [*Formal methods for modelling and validation of biological models.*](https://www.theses.fr/2018GREAM028/document).
+- Rocca, Alexandre. [*Formal methods for modelling and validation of biological models*](https://www.theses.fr/2018GREAM028/document).
   Diss. Grenoble Alpes, 2018.
 
 ```
@@ -380,7 +380,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [SCHI18]
 
-- Schilling, Christian-Matthias. [*Fundamental techniques for the scalable analysis of systems.*](https://freidok.uni-freiburg.de/data/16396).
+- Schilling, Christian-Matthias. [*Fundamental techniques for the scalable analysis of systems*](https://freidok.uni-freiburg.de/data/16396).
   Diss. University of Freiburg, Freiburg im Breisgau, Germany, 2018.
 
 ```
@@ -396,7 +396,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [SCHU19]
 
-- Schupp, Stefan. [*State set representations and their usage in the reachability analysis of hybrid systems.*](http://publications.rwth-aachen.de/record/767529/files/767529.pdf).
+- Schupp, Stefan. [*State set representations and their usage in the reachability analysis of hybrid systems*](http://publications.rwth-aachen.de/record/767529/files/767529.pdf).
   No. RWTH-2019-08875. Fachgruppe Informatik, 2019.
 
 ```
@@ -412,7 +412,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 #### [YS18]
 
-- Yang, Xuejiao, and Joseph K. Scott. [*A comparison of zonotope order reduction techniques.*](https://www.sciencedirect.com/science/article/pii/S000510981830298X). Automatica 95 (2018): 378-384.
+- Yang, Xuejiao, and Joseph K. Scott. [*A comparison of zonotope order reduction techniques*](https://www.sciencedirect.com/science/article/pii/S000510981830298X). Automatica 95 (2018): 378-384.
 
 ```
 @article{yang2018comparison,
