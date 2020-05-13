@@ -24,7 +24,7 @@ using LazySets: LinearMap, AffineMap, ResetMap
 using LazySets: Interval, isdisjoint, radius, sample, ∅, dim
 
 # LazySets internal functions frequently used
-using LazySets.Arrays: projection_matrix
+using LazySets.Arrays: projection_matrix, SingleEntryVector
 
 # aliases for intervals
 const IM = IntervalMatrices

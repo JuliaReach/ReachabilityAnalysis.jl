@@ -47,6 +47,7 @@ include("Algorithms/TMJets/TMJets.jl")
 # ===========================================================
 # Discrete post-operators for hybrid systems
 # ===========================================================
+include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
 #include("DiscretePost/concrete.jl")
 #include("DiscretePost/decomposed.jl")
