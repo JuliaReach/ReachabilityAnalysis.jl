@@ -48,6 +48,7 @@ export
 # Concrete operations
     project,
     shift,
+    complement,
 
 # Lazy operations
     Projection,
@@ -56,6 +57,7 @@ export
 
 # Hybrid types
     HACLD1,
+    DiscreteTransition,
 
 # Getter functions for hybrid systems
     jitter,

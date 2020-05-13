@@ -111,8 +111,8 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
         # construct the taylor model reach-set
         Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0))
 
-        # check intersction with invariant
-        _is_intersection_empty(Ri, X) && break
+        # check intersection with invariant
+        _is_intersection_empty(Ri, X, intersection_method) && break
 
         # update output flowpipe
         # note that F may have 1 less element than xTM1v and xv

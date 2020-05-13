@@ -3,16 +3,16 @@ abstract type AbstractTransition end
 """
     DiscreteTransition{RT, GT, IT⁻, IT⁺, WT} <: AbstractTransition
 
-Type that encodes the discrete transition:
+Type that encodes a discrete transition with an affine assignment of the form:
 
 ```math
     post_d(X) = (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺
 ```
 where ``I⁻`` and ``I⁺``  are invariants at the source and the target locations
-respectively, the assignment is of the form ``x^+ := Rx + w``, ``w ∈ W``,
-``x^+ ∈ \\mathbb{R}^m`` are the values after the transition,
-``R ∈ \\mathbb{R}^{m\\times n}`` is the assignment map and
-``W ⊆ \\mathbb{R}^m`` is a closed and bounded convex set of non-deterministic inputs.
+respectively, ``G ⊆ \\mathbb{R}^n`` is the guard set of the transition, the assignment
+is of the form ``x^+ := Rx + w``, ``w ∈ W``, ``x^+ ∈ \\mathbb{R}^m`` are the values after
+the transition, ``R ∈ \\mathbb{R}^{m\\times n}`` is the assignment map (or reset map)
+and ``W ⊆ \\mathbb{R}^m`` is a closed and bounded convex set of non-deterministic inputs.
 
 ### Fields
 
@@ -30,20 +30,21 @@ struct DiscreteTransition{RT, WT, GT, IT⁻, IT⁺} <: AbstractTransition
     I⁺::IT⁺
 end
 
-reset_map(DT::DiscreteTransition) = ConstrainedAffineMap(R, W)
-guard(DT::DiscreteTransition) = DT.G
-source_invariant(DT::DiscreteTransition) = DT.I⁻
-target_invariant(DT::DiscreteTransition) = DT.I⁺
+reset_map(tr::DiscreteTransition{<:AbstractMatrix})  = ConstrainedAffineMap(tr.R, tr.W)
+reset_map(tr::DiscreteTransition{<:IdentityMap}) = ConstrainedIdentityMap(dim(tr.W), tr.W)
+guard(tr::DiscreteTransition) = tr.G
+source_invariant(tr::DiscreteTransition) = tr.I⁻
+target_invariant(tr::DiscreteTransition) = tr.I⁺
 
 # constructor when the reset map is the identity
 function DiscreteTransition(; guard::GT, source_invariant::IT⁻, target_invariant::IT⁺) where {GT, IT⁻, IT⁺}
     n = dim(source_invariant)
-    return DiscreteTransition(Universe(n), ZeroSet(n), guard, source_invariant, target_invariant)
+    return DiscreteTransition(IdentityMap(n), ZeroSet(n), guard, source_invariant, target_invariant)
 end
 
 apply(f::DiscreteTransition,
       R::AbstractLazyReachSet,
-      method::AbstractTMDisjointnessMethod) = _apply(f, set(R), method)
+      method::AbstractIntersectionMethod) = _apply(f, set(R), method)
 
 # ==========================================
 # Cases where the reset map is the identity

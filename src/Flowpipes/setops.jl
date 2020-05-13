@@ -76,23 +76,6 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     end
 end
 
-# TODO: use https://github.com/JuliaReach/LazySets.jl/pull/2136
-function _convert_or_overapproximate(::Type{<:Zonotope}, X::AffineMap{N, <:Zonotope{N}, VN}) where {N, VN}
-    return translate(linear_map(LazySets.matrix(X), LazySets.set(X)), LazySets.vector(X))
-end
-
-#=
-# no-op
-function _convert_or_overapproximate2(T::Type{<:Zonotope}, X::Zonotope)
-     return X
-end
-=#
-#=
-function _convert_or_overapproximate2(T::Type{Zonotope}, X::Interval)
-    return convert(T, X)
-end
-=#
-
 function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
@@ -632,60 +615,43 @@ end
 
 abstract type AbstractDisjointnessMethod end
 
-using LazySets: _geq, _leq
+struct ZonotopeEnclosure <: AbstractDisjointnessMethod
+# we overapproximate the reach-set with a zonotope, then make the disjointness check
+end
 
-abstract type AbstractDisjointnessMethod end
+struct BoxEnclosure <: AbstractDisjointnessMethod
+# we overapproximate the reach-set with a hyperrectangle, then make the disjointness check
+end
 
-# identity TODO refactor
-set(X::LazySet) = X
+struct Exact <: AbstractDisjointnessMethod
+# we pass the sets to is_intersection_empty without pre-processing
+end
 
 # fallback
-function _is_intersection_empty(X::Union{LazySet, AbstractLazyReachSet}, Y::Union{LazySet, AbstractLazyReachSet})
-    LazySets.is_intersection_empty(set(X), set(Y))
-end
+_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
 
-# -----------------------------------------------
-# Disjointness checks for taylor model flowpipes
-# -----------------------------------------------
+# symmetric case
+_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=Exact()) = _is_intersection_empty(R, X, method)
 
-# disjointness methods interface for taylor models
-abstract type AbstractTMDisjointnessMethod <: AbstractDisjointnessMethod end
+# --------------------------------------------------------------------
+# Methods to evaluate disjointness between a reach-set and a lazy set
+# --------------------------------------------------------------------
 
-# in this method we overapproximate the tayor model reach-set with a zonotope,
-# then make the disjointness check
-struct ZonotopeEnclosure <: AbstractTMDisjointnessMethod
-#
-end
-
-# in this method we overapproximate the tayor model reach-set with a hyperrectangle,
-# then make the disjointness check
-struct BoxEnclosure <: AbstractTMDisjointnessMethod
-#
-end
-
-struct Exact <: AbstractTMDisjointnessMethod
-#
-end
-
-function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::ZonotopeEnclosure)
+function _is_intersection_empty(X::AbstractReachSet, Y::LazySet, ::ZonotopeEnclosure)
     Z = overapproximate(X, Zonotope)
     return _is_intersection_empty(set(Z), Y)
 end
 
-function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::BoxEnclosure)
+function _is_intersection_empty(X::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
     H = overapproximate(X, Hyperrectangle)
     return _is_intersection_empty(set(H), Y)
 end
 
-# fallback implementation: overapproximate Ri with a zonotope
-function _is_intersection_empty(Ri::TaylorModelReachSet, X::LazySet)
-    _is_intersection_empty(Ri, X, ZonotopeEnclosure())
-end
-
 # -----------------------------------------------
 # Disjointness checks between specific set types
-# NOTE: should be moved to LazySets.jl
 # -----------------------------------------------
+
+using LazySets: _geq, _leq
 
 function _is_intersection_empty(I1::Interval{N}, I2::Interval{N}) where {N<:Real}
     return !_leq(min(I2), max(I1)) || !_leq(min(I1), max(I2))
@@ -715,3 +681,17 @@ _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H
 # ==================================
 # Concrete intersection
 # ==================================
+
+# ---------------------------------------------------------
+# Methods to evaluate intersection between a pair of sets
+# ---------------------------------------------------------
+
+abstract type AbstractIntersectionMethod end
+
+struct BoxEnclosure <: AbstractIntersectionMethod
+#
+end
+
+struct Exact <: AbstractIntersectionMethod
+#
+end
