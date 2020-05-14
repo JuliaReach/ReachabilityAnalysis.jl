@@ -1,13 +1,14 @@
 # case without invariant: this is the same as in TaylorModels.jl but
 # we wrap the each taylor model reach-set in the main loop
 # TODO: do this a posteriri? then we can use `validated_integ!` directly
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, intersection_method, adaptive)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, disjointness, adaptive)
+    # the disjointness method option is ignored
     validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, adaptive)
 end
 
 # case with an invariant
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, intersection_method, adaptive)
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, intersection_method, adaptive)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, adaptive)
+    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, adaptive)
 end
 
 # this function is the same as validated_integ! but with the addition that
@@ -15,7 +16,7 @@ end
 # moreover we passs
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet,
-        intersection_method::AbstractDisjointnessMethod, adaptive::Bool=true, params=nothing;
+        disjointness::AbstractDisjointnessMethod, adaptive::Bool=true, params=nothing;
         parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
     # Set proper parameters for jet transport
@@ -111,16 +112,16 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
         # construct the taylor model reach-set
         Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0))
 
-        # check intersction with invariant
-        _is_intersection_empty(Ri, X) && break
+        # check intersection with invariant
+        _is_intersection_empty(Ri, X, disjointness) && break
 
         # update output flowpipe
-        # note that F may have 1 less element than xTM1v and xv
+        # note that F has 1 less element than xTM1v and xv (we don't store the initial set)
         push!(F, Ri)
 
         if nsteps > max_steps
             @warn("""
-            Maximum number of integration steps reached; exiting.
+            Maximum number of integration steps reached; exiting. Try increasing `max_steps`.
             """)
             break
         end

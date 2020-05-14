@@ -67,6 +67,9 @@ The set wrapped by the given reach-set.
 """
 function set(::AbstractReachSet) end
 
+# no-op
+set(X::LazySet) = X
+
 """
     setrep(R::AbstractReachSet)
 
@@ -259,6 +262,7 @@ LazySets.area(R::AbstractLazyReachSet) = area(set(R))
 LazySets.volume(R::AbstractLazyReachSet) = volume(set(R))
 Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(ST, set(R))
 Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalBox, set(R))
+complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 
 function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))

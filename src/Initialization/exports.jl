@@ -44,10 +44,15 @@ export
     sup_func, # TODO keep?
     setrep,
     rsetrep,
+    reset_map,
+    guard,
+    source_invariant,
+    target_invariant,
 
 # Concrete operations
     project,
     shift,
+    complement,
 
 # Lazy operations
     Projection,
@@ -56,6 +61,7 @@ export
 
 # Hybrid types
     HACLD1,
+    DiscreteTransition,
 
 # Getter functions for hybrid systems
     jitter,

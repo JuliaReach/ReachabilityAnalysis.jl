@@ -76,23 +76,6 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     end
 end
 
-# TODO: use https://github.com/JuliaReach/LazySets.jl/pull/2136
-function _convert_or_overapproximate(::Type{<:Zonotope}, X::AffineMap{N, <:Zonotope{N}, VN}) where {N, VN}
-    return translate(linear_map(LazySets.matrix(X), LazySets.set(X)), LazySets.vector(X))
-end
-
-#=
-# no-op
-function _convert_or_overapproximate2(T::Type{<:Zonotope}, X::Zonotope)
-     return X
-end
-=#
-#=
-function _convert_or_overapproximate2(T::Type{Zonotope}, X::Interval)
-    return convert(T, X)
-end
-=#
-
 function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
@@ -397,7 +380,15 @@ function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:Abstract
     return out
 end
 
-function _overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
+# TODO pass backend
+function LazySets.vertices_list(X::ConvexHullArray{N, PT}) where {N, PT<:AbstractPolytope{N}}
+    vlist = [vertices_list(Xi) for Xi in array(X)]
+    return convex_hull(vcat(vlist...))
+end
+
+LazySets.box_approximation(S::UnionSetArray) = overapproximate(S, Hyperrectangle)
+
+function LazySets.overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
     c, r = box_approximation_helper(S)
     if r[1] < 0
         return EmptySet{N}(dim(S))
@@ -632,60 +623,45 @@ end
 
 abstract type AbstractDisjointnessMethod end
 
-using LazySets: _geq, _leq
+# we overapproximate the reach-set with a zonotope, then make the disjointness check
+struct ZonotopeEnclosure <: AbstractDisjointnessMethod end
 
-abstract type AbstractDisjointnessMethod end
+# we overapproximate the reach-set with a hyperrectangle, then make the disjointness check
+struct BoxEnclosure <: AbstractDisjointnessMethod end
 
-# identity TODO refactor
-set(X::LazySet) = X
+# we pass the sets to the disjointness check algorithm without pre-processing
+struct NoEnclosure <: AbstractDisjointnessMethod end
 
-# fallback
-function _is_intersection_empty(X::Union{LazySet, AbstractLazyReachSet}, Y::Union{LazySet, AbstractLazyReachSet})
-    LazySets.is_intersection_empty(set(X), set(Y))
+# fallbacks
+_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
+
+# symmetric case
+_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
+
+# --------------------------------------------------------------------
+# Methods to evaluate disjointness between a reach-set and a lazy set
+# --------------------------------------------------------------------
+
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::NoEnclosure)
+    return _is_intersection_empty(set(R), Y)
 end
 
-# -----------------------------------------------
-# Disjointness checks for taylor model flowpipes
-# -----------------------------------------------
-
-# disjointness methods interface for taylor models
-abstract type AbstractTMDisjointnessMethod <: AbstractDisjointnessMethod end
-
-# in this method we overapproximate the tayor model reach-set with a zonotope,
-# then make the disjointness check
-struct ZonotopeEnclosure <: AbstractTMDisjointnessMethod
-#
-end
-
-# in this method we overapproximate the tayor model reach-set with a hyperrectangle,
-# then make the disjointness check
-struct BoxEnclosure <: AbstractTMDisjointnessMethod
-#
-end
-
-struct Exact <: AbstractTMDisjointnessMethod
-#
-end
-
-function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::ZonotopeEnclosure)
-    Z = overapproximate(X, Zonotope)
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::ZonotopeEnclosure)
+    Z = overapproximate(R, Zonotope)
     return _is_intersection_empty(set(Z), Y)
 end
 
-function _is_intersection_empty(X::AbstractTaylorModelReachSet, Y::LazySet, ::BoxEnclosure)
-    H = overapproximate(X, Hyperrectangle)
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
+    H = overapproximate(R, Hyperrectangle)
     return _is_intersection_empty(set(H), Y)
-end
-
-# fallback implementation: overapproximate Ri with a zonotope
-function _is_intersection_empty(Ri::TaylorModelReachSet, X::LazySet)
-    _is_intersection_empty(Ri, X, ZonotopeEnclosure())
 end
 
 # -----------------------------------------------
 # Disjointness checks between specific set types
-# NOTE: should be moved to LazySets.jl
 # -----------------------------------------------
+
+using LazySets: _geq, _leq
 
 function _is_intersection_empty(I1::Interval{N}, I2::Interval{N}) where {N<:Real}
     return !_leq(min(I2), max(I1)) || !_leq(min(I1), max(I2))
@@ -715,3 +691,76 @@ _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H
 # ==================================
 # Concrete intersection
 # ==================================
+
+# ---------------------------------------------------------
+# Methods to evaluate intersection between a pair of sets
+# ---------------------------------------------------------
+
+abstract type AbstractIntersectionMethod end
+
+# evaluate X ∩ Y exactly using the constraint representation of X and Y
+# evaluate X₁ ∩ ⋯ ∩ Xₖ using the constraint representation of each Xᵢ
+struct HRepIntersection <: AbstractIntersectionMethod
+#
+end
+
+# evaluate X ∩ Y approximately using support function evaluations, through the
+# property that the support function of X ∩ Y along direction d is not greater
+# min(ρ(d, X), ρ(d, Y))
+# by the same token, compute X₁ ∩ ⋯ ∩ Xₖ approximately using the same property
+struct SupportFunctionIntersection <: AbstractIntersectionMethod
+#
+end
+
+#
+# TODO: add some "Fallback" implementation that uses LazySets intersection(X, Y)
+#
+
+# = METHODS WITH TYPE ANNOTATION
+#=
+struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod
+#
+end
+
+setrep(int_method::HRepIntersection{SX<:AbstractPolytope}, SY<:AbstractPolyhedron}) = SX
+
+struct SupportFunctionIntersection <: AbstractIntersectionMethod
+
+end
+=#
+
+# concatenate with "promotion"
+const VECH{N, VT} = Vector{HalfSpace{N, VT}}
+
+_vcat(x::VECH{N, VT}, y::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y)
+_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z)
+_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}, w::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z, w)
+_vcat(x::VECH{N, SingleEntryVector{N}}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat([HalfSpace(Vector(c.a), c.b) for c in x], y, z)
+
+# TODO use LazySets intersection
+function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+    out = _vcat(clist_X, clist_Y)
+    success = remove_redundant_constraints!(out)
+    return (success, out)
+end
+
+function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::AbstractPolyhedron, ::HRepIntersection)
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+    clist_Z = constraints_list(Z)
+    out = _vcat(clist_X, clist_Y, clist_Z)
+    success = remove_redundant_constraints!(out)
+    return (success, out)
+end
+
+function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::AbstractPolyhedron, W::AbstractPolyhedron, ::HRepIntersection)
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+    clist_Z = constraints_list(Z)
+    clist_W = constraints_list(W)
+    out = _vcat(clist_X, clist_Y, clist_Z, clist_W)
+    success = remove_redundant_constraints!(out)
+    return (success, out)
+end
