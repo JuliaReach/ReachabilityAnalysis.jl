@@ -9,9 +9,10 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             max_order::Integer,
                             X::Universe,
                             recursive::Val{true},
-                            reduction_method::AbstractReductionMethod) where {N, VN, MN}
+                            reduction_method::AbstractReductionMethod,
+                            t0) where {N, VN, MN}
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # split the interval matrix into center and radius
@@ -43,9 +44,10 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             max_order::Integer,
                             X::Universe,
                             recursive::Val{false},
-                            reduction_method::AbstractReductionMethod) where {N, VN, MN}
+                            reduction_method::AbstractReductionMethod,
+                            t0) where {N, VN, MN}
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
     Z0 = Ω0
     c0 = Z0.center
@@ -78,9 +80,10 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             max_order::Integer,
                             X::LazySet,
                             recursive::Val{true},
-                            reduction_method::AbstractReductionMethod) where {N, VN, MN}
+                            reduction_method::AbstractReductionMethod,
+                            t0) where {N, VN, MN}
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # split the interval matrix into center and radius

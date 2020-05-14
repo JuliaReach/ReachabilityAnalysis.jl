@@ -13,10 +13,11 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              δ::Float64,
                              max_order::Integer,
                              X::Universe,
-                             preallocate::Val{false}) where {N, VN, MN}
+                             preallocate::Val{false},
+                             t0) where {N, VN, MN}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -37,10 +38,11 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
                              δ::Float64,
                              max_order::Integer,
                              X::Universe,
-                             preallocate::Val{true}) where {N}
+                             preallocate::Val{true},
+                             t0) where {N}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)
@@ -79,9 +81,10 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              δ::Float64,
                              max_order::Integer,
                              X::LazySet,
-                             preallocate::Val{false}) where {N, VN, MN}
+                             preallocate::Val{false},
+                             t0) where {N, VN, MN}
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -106,9 +109,10 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
                              δ::Float64,
                              max_order::Integer,
                              X::LazySet,
-                             preallocate::Val{true}) where {N, VN, MN}
+                             preallocate::Val{true},
+                             t0) where {N, VN, MN}
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)

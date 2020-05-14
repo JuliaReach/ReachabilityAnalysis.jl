@@ -1,5 +1,6 @@
 # continuous post for GLGM06 using Zonotope set representation
-function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
+function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              time_shift::N=zero(N), kwargs...) where {N}
 
     @unpack δ, approx_model, max_order, static, dim, ngens, preallocate, reduction_method = alg
 
@@ -37,7 +38,7 @@ function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs..
     Φ = _reconvert(Φ, static, dim)
 
     # preallocate output flowpipe
-    N = eltype(Ω0)
+    #N = eltype(Ω0)
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 

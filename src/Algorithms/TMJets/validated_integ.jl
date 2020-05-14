@@ -434,7 +434,7 @@ end
 
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, adaptive::Bool=true, params=nothing;
-        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
+        parse_eqs::Bool=true, check_property::Function=(t, x)->true, time_shift) where {N, T<:Real}
 
     # Set proper parameters for jet transport
     @assert N == get_numvars()
@@ -527,7 +527,7 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
         end
 
         # construct the taylor model reach-set
-        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0))
+        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0) + time_shift)
 
         # update output flowpipe
         # note that F has 1 less element than xTM1v and xv (we don't store the initial set)

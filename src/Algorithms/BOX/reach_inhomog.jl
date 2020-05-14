@@ -12,10 +12,11 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                             δ::N,
                             X::Universe,
                             U::Hyperrectangle,
-                            recursive::Val{false}) where {N, VNC, VNR}
+                            recursive::Val{false},
+                            t0) where {N, VNC, VNR}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # preallocations
@@ -65,10 +66,11 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                             δ::N,
                             X::LazySet,
                             U::Hyperrectangle,
-                            recursive::Val{false}) where {N, VNC, VNR}
+                            recursive::Val{false},
+                            t0) where {N, VNC, VNR}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # preallocations

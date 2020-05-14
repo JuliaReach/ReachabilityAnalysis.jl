@@ -19,10 +19,11 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                           NSTEPS::Integer,
                           δ::N,
                           X::Universe,
-                          recursive::Val{false}) where {N, VNC, VNR}
+                          recursive::Val{false},
+                          t0) where {N, VNC, VNR}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # preallocations
@@ -61,10 +62,11 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                           NSTEPS::Integer,
                           δ::Float64,
                           X::Universe,
-                          recursive::Val{true}) where {N, VNC, VNR}
+                          recursive::Val{true},
+                          t0) where {N, VNC, VNR}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -84,10 +86,11 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
                           NSTEPS::Integer,
                           δ::N,
                           X::LazySet,
-                          recursive::Val{false}) where {N, VNC, VNR}
+                          recursive::Val{false},
+                          t0) where {N, VNC, VNR}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # preallocations

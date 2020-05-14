@@ -42,9 +42,9 @@ function DiscreteTransition(; guard::GT, source_invariant::IT⁻, target_invaria
     return DiscreteTransition(IdentityMap(n), ZeroSet(n), guard, source_invariant, target_invariant)
 end
 
-# constructor from hybrid system given source and target modes id's
+# constructor from hybrid system given source and target modes id's and the transition t
 function DiscreteTransition(H::HybridSystem, source_id::Integer, target_id::Integer)
-    #R = ... # getter function for resetmaps[1].A ?
+    R = # target(H, t)
     #W = ... # TODO get from the reset map
     #G = ...
     I⁻ = stateset(H, source_id)
@@ -169,7 +169,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:AbstractVector, GT, IT
                method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
                                                    IT⁻<:AbstractPolyhedron{N},
                                                    IT⁺<:AbstractPolyhedron{N}}
-    return _apply_hrep(tr.R, tr.W, tr.G, tr.I⁻, tr.I⁺, method)
+    return _apply_hrep(tr.R, tr.W, tr.G, tr.I⁻, tr.I⁺, X, method)
 end
 
 # cases where the inputs are non-deterministic (W is a set)

@@ -7,10 +7,10 @@
 # Invariant: No
 function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
                                setrep::Type{<:Interval{N}}, vars, block_indices,
-                               row_blocks, column_blocks) where {NM, N}
+                               row_blocks, column_blocks, t0) where {NM, N}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[collect(block_indices)]), Δt, vars)
 
     # cache matrix
@@ -44,10 +44,10 @@ end
 # Matrix operations: Dense
 # Invariant: No
 function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
-                               setrep, vars, block_indices, row_blocks, column_blocks) where {NM, N}
+                               setrep, vars, block_indices, row_blocks, column_blocks, t0) where {NM, N}
 
     # initial reach-set
-    Δt = zero(δ) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0[block_indices]), Δt, vars)
 
     # cache matrix
@@ -82,10 +82,10 @@ end
 # Invariant: No
 function reach_homog_BFFPSV18!(F, Xhat0, Φ::SparseMatrixCSC{NM, IM}, NSTEPS, δ::N, X::Universe,
                                setrep, vars, block_indices,
-                               row_blocks, column_blocks) where {NM, IM, N}
+                               row_blocks, column_blocks, t0) where {NM, IM, N}
 
     # store first element
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0[block_indices]), Δt, vars)
 
     # cache matrix

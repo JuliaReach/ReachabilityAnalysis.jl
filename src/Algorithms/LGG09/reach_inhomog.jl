@@ -4,7 +4,7 @@
 
 # note that each of the computations in the loop over directions is independent
 function reach_inhomog_LGG09!(ρvec_ℓ, Φ::AbstractMatrix{N}, Ω₀::LazySet{N},
-                              ℓ::AbstractVector{N}, NSTEPS::Int, W::LazySet{N}) where {N}
+                              ℓ::AbstractVector{N}, NSTEPS::Int, W::LazySet{N}, t0) where {N}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -22,7 +22,7 @@ end
 # TODO: needs specialization for static vector / static matrix ?
 
 # compute NSTEPS iterations support function along direction ℓ
-function reach_inhomog_dir_LGG09!(ρvec_ℓ, Φᵀ, ℓ, Ω₀, NSTEPS, W)
+function reach_inhomog_dir_LGG09!(ρvec_ℓ, Φᵀ, ℓ, Ω₀, NSTEPS, W, t0)
     sᵢ = zero(T) # initialize s₀
     rᵢ = copy(ℓ) # initialize r₀
     rᵢ₊₁ = similar(rᵢ) # initialize r₁
