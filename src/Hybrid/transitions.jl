@@ -52,6 +52,23 @@ function DiscreteTransition(H::HybridSystem, source_id::Integer, target_id::Inte
     return DiscreteTransition(R, W, G, I⁻, I⁺)
 end
 
+# -------------------------------------------
+# Applying reset maps
+# -------------------------------------------
+
+@inline function _apply_reset(R::AbstractMatrix, P::HPolytope, W::ZeroSet, ::HRepIntersection)
+    return linear_map(R, P) # TODO pass options here
+end
+
+@inline function _apply_reset(R::AbstractMatrix, P::HPolytope, W::AbstractVector, ::HRepIntersection)
+    return affine_map(R, P, W) # TODO pass options here
+end
+
+@inline function _apply_reset(R::AbstractMatrix, P::HPolytope, W::LazySet, ::HRepIntersection)
+    Ylm = linear_map(tr.R, P) # TODO pass options here
+    return minkowski_sum(Y, tr.W)
+end
+
 # we assume that the reach-set is bounded: it's either a polytopic set
 # or a union of polytopic sets
 # => the return type is either the empty set or an HPolytope unless otherwise stated
@@ -123,25 +140,45 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
 end
 
 # -------------------------------------------
-# Cases where the reset map is linear
+# Cases where the reset map is RX ⊕ W
 # -------------------------------------------
 
-# all sets are polyhedral
-function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT⁺},
-               X::AbstractPolytope{N},
-               method::HRepIntersection) where {N,
-                                GT<:AbstractPolyhedron{N},
-                                IT⁻<:AbstractPolyhedron{N},
-                                IT⁺<:AbstractPolyhedron{N}}
-
-    success, aux = _intersection(X, tr.G, tr.I⁻, method)
+function _apply_hrep(R, W, G, I⁻, I⁺, X, method::HRepIntersection)
+    success, aux = _intersection(X, G, I⁻, method)
     !success && return EmptySet(dim(X))
 
     P = HPolytope(aux)
-    Y = linear_map(tr.R, P) # TODO pass options here
+    Y = _apply_reset(R, P, W, method)
 
-    success, out = _intersection(Y, tr.I⁺, method)
+    success, out = _intersection(Y, I⁺, method)
     return success ? HPolytope(out) : EmptySet(dim(X))
+end
+
+# cases with W = 0
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::AbstractPolytope{N},
+               method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
+                                                   IT⁻<:AbstractPolyhedron{N},
+                                                   IT⁺<:AbstractPolyhedron{N}}
+    return _apply_hrep(tr.R, tr.W, tr.G, tr.I⁻, tr.I⁺, X, method)
+end
+
+# cases where the inputs are deterministic (W is a vector)
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:AbstractVector, GT, IT⁻, IT⁺},
+               X::AbstractPolytope{N},
+               method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
+                                                   IT⁻<:AbstractPolyhedron{N},
+                                                   IT⁺<:AbstractPolyhedron{N}}
+    return _apply_hrep(tr.R, tr.W, tr.G, tr.I⁻, tr.I⁺, method)
+end
+
+# cases where the inputs are non-deterministic (W is a set)
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
+               X::AbstractPolytope{N},
+               method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
+                                                   IT⁻<:AbstractPolyhedron{N},
+                                                   IT⁺<:AbstractPolyhedron{N}}
+    return _apply_hrep(R, W, G, I⁻, I⁺, X, method)
 end
 
 # ==========================================
