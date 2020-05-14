@@ -101,12 +101,13 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
     S = system(ivp)
     X0 = initial_state(ivp)
     if !check_invariant
-        initial_states = [(loc, X0) for loc in states(S)]
+        initial_states = WaitingList([StateInLocation(loc, X0) for loc in states(S)])
     else
-        initial_states = Vector{Tuple{Int, ST}}()
+        initial_states = WaitingList{Int, ST}()
         for loc in states(S)
             if !_is_intersection_empty(X0, stateset(loc))
-                push!(initial_states, )
+                push!(initial_states, StateInLocation(loc, X0))
+            end
         end
     end
     return InitialValueProblem(S, initial_states)
