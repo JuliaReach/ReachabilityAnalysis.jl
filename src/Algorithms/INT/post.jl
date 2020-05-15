@@ -1,5 +1,5 @@
 # this algorithms assumes that the initial-value problem is one-dimensional
-function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               time_shift::N=zero(N), kwargs...) where {N}
 
     n = statedim(ivp)

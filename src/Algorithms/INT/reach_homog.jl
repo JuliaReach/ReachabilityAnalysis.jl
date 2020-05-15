@@ -9,9 +9,9 @@ function reach_homog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
                           NSTEPS::Integer,
                           δ::Float64,
                           X::Universe,
-                          t0) where {N}
+                          time_shift::N) where {N}
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -31,10 +31,10 @@ function reach_homog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
                           NSTEPS::Integer,
                           δ::Float64,
                           X::LazySet,
-                          t0) where {N}
+                          time_shift::N) where {N}
 
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2

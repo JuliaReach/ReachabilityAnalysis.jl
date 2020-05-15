@@ -14,10 +14,10 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              max_order::Integer,
                              X::Universe,
                              preallocate::Val{false},
-                             t0) where {N, VN, MN}
+                             time_shift::N) where {N, VN, MN}
 
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -39,10 +39,10 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
                              max_order::Integer,
                              X::Universe,
                              preallocate::Val{true},
-                             t0) where {N}
+                             time_shift::N) where {N}
 
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)
@@ -82,9 +82,9 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              max_order::Integer,
                              X::LazySet,
                              preallocate::Val{false},
-                             t0) where {N, VN, MN}
+                             time_shift::N) where {N, VN, MN}
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -110,9 +110,9 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
                              max_order::Integer,
                              X::LazySet,
                              preallocate::Val{true},
-                             t0) where {N, VN, MN}
+                             time_shift::N) where {N, VN, MN}
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)

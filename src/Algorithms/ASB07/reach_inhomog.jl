@@ -9,9 +9,9 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             U::Zonotope,
                             recursive::Val{true},
                             reduction_method::AbstractReductionMethod,
-                            t0) where {N, VN, MN}
+                            time_shift::N) where {N, VN, MN}
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # input sequence
@@ -51,9 +51,9 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             U::Zonotope,
                             recursive::Val{true},
                             reduction_method::AbstractReductionMethod,
-                            t0) where {N, VN, MN}
+                            time_shift::N) where {N, VN, MN}
     # initial reach set
-    Δt = t0 .. δ
+    Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # input sequence

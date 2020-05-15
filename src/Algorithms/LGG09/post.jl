@@ -1,4 +1,4 @@
-function post(alg::LGG09, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+function post(alg::LGG09{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               time_shift::N=zero(N), kwargs...) where {N}
 
     @unpack δ, approx_model = alg

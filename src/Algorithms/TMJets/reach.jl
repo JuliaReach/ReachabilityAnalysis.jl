@@ -7,7 +7,7 @@ function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_
 end
 
 # case with an invariant
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, adaptive, time_shift)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, time_shift, adaptive)
     validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, time_shift, adaptive)
 end
 
