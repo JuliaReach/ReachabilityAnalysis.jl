@@ -11,10 +11,11 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                max_order::Integer,
                                X::Universe,
                                U::LazySet,
-                               reduction_method::AbstractReductionMethod) where {N, VN, MN}
+                               reduction_method::AbstractReductionMethod,
+                               t0) where {N, VN, MN}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
@@ -47,10 +48,11 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                max_order::Integer,
                                X::LazySet,
                                U::LazySet,
-                               reduction_method::AbstractReductionMethod) where {N, VN, MN}
+                               reduction_method::AbstractReductionMethod,
+                               t0) where {N, VN, MN}
 
     # initial reach set
-    Δt = zero(N) .. δ
+    Δt = t0 .. δ
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U

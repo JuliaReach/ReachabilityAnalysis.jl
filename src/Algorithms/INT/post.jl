@@ -1,5 +1,6 @@
 # this algorithms assumes that the initial-value problem is one-dimensional
-function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
+function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              time_shift::N=zero(N), kwargs...) where {N}
 
     n = statedim(ivp)
     n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
@@ -33,16 +34,16 @@ function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
 
     # preallocate output flowpipe
     IT = typeof(Ω0)
-    N = eltype(Ω0)
+    #N = eltype(Ω0)
     F = Vector{ReachSet{N, IT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_INT!(F, Ω0, Φ, NSTEPS, δ, X)
+        reach_homog_INT!(F, Ω0, Φ, NSTEPS, δ, X, time_shift)
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
         U = overapproximate(U, Interval) # TODO guarantee this on the discretization?
-        reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, X, U)
+        reach_inhomog_INT!(F, Ω0, Φ, NSTEPS, δ, X, U, time_shift)
     end
 
     return Flowpipe(F)

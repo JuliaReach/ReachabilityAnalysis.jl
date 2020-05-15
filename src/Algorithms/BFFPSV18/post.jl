@@ -1,4 +1,5 @@
-function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...) where {N, ST}
+function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              time_shift::N=zero(N), kwargs...) where {N, ST}
 
     @unpack δ, approx_model, vars, block_indices, row_blocks, column_blocks, partition, sparse = alg
 
@@ -36,12 +37,12 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     if got_homogeneous
         reach_homog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, ST,
-                              vars, block_indices, row_blocks, column_blocks)
+                              vars, block_indices, row_blocks, column_blocks, time_shift)
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         reach_inhomog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, U, ST,
-                                vars, block_indices, row_blocks, column_blocks)
+                                vars, block_indices, row_blocks, column_blocks, time_shift)
     end
     return Flowpipe(F)
 end

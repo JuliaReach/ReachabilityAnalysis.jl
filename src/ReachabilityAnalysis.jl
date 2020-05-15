@@ -49,8 +49,7 @@ include("Algorithms/TMJets/TMJets.jl")
 # ===========================================================
 include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
-#include("DiscretePost/concrete.jl")
-#include("DiscretePost/decomposed.jl")
-#include("DiscretePost/lazy.jl")
+#include("Hybrid/solve.jl")
+
 
 end # module
