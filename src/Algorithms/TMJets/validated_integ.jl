@@ -433,8 +433,8 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
 end
 
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
-        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, adaptive::Bool=true, params=nothing;
-        parse_eqs::Bool=true, check_property::Function=(t, x)->true, time_shift) where {N, T<:Real}
+        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, time_shift, adaptive::Bool=true, params=nothing;
+        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
     # Set proper parameters for jet transport
     @assert N == get_numvars()

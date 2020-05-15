@@ -1,14 +1,14 @@
 # case without invariant: this is the same as in TaylorModels.jl but
 # we wrap the each taylor model reach-set in the main loop
 # TODO: do this a posteriri? then we can use `validated_integ!` directly
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, disjointness, adaptive, time_shift)
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, disjointness, time_shift, adaptive)
     # the disjointness method option is ignored
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, adaptive, time_shift)
+    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, time_shift, adaptive)
 end
 
 # case with an invariant
 function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, adaptive, time_shift)
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, adaptive, time_shift)
+    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, time_shift, adaptive)
 end
 
 # this function is the same as validated_integ! but with the addition that
@@ -16,8 +16,8 @@ end
 # moreover we passs
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet,
-        disjointness::AbstractDisjointnessMethod, adaptive::Bool=true, params=nothing;
-        parse_eqs::Bool=true, check_property::Function=(t, x)->true, time_shift) where {N, T<:Real}
+        disjointness::AbstractDisjointnessMethod, time_shift, adaptive::Bool=true, params=nothing;
+        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
     # Set proper parameters for jet transport
     @assert N == get_numvars()
