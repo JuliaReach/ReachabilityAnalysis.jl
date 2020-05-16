@@ -49,7 +49,7 @@ include("Algorithms/TMJets/TMJets.jl")
 # ===========================================================
 include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
-#include("Hybrid/solve.jl")
+include("Hybrid/solve.jl")
 
 
 end # module
