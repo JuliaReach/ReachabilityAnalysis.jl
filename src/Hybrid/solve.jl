@@ -3,20 +3,23 @@
 # =====================================
 
 # TODO API to specify the hybrid-specific options as a "DiscretePost" struct
+# TODO pass internal options (eg. first_mode_representative, throw_error, etc.)
 
 function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                max_jumps=100,
                intersection::AbstractIntersectionMethod=HRepIntersection(),
                clustering::AbstractClusteringMethod=BoxClustering(),
+               check_invariant=true,
+               first_mode_representative=true,
                kwargs...)
 
     # distribute the initial condition across the different locations
-    ivp_distributed = _distribute(ivp)
+    ivp_distributed = _distribute(ivp; check_invariant=check_invariant)
     waiting_list = initial_state(ivp_distributed)
     H = system(ivp_distributed)
 
     # dimensional checks
-    _check_dim(ivp_distributed)
+    _check_dim(ivp_distributed, first_mode_representative=first_mode_representative)
 
     # get time span (or the emptyset if NSTEPS was specified)
     tspan = _get_tspan(args...; kwargs...)
@@ -44,7 +47,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     count_jumps = 0
 
-    while !isempty(waiting_list) &&  count_jumps <= max_jumps
+    while !isempty(waiting_list) && count_jumps <= max_jumps
         elem = pop!(waiting_list)
         push!(explored_list, elem)
 
@@ -52,6 +55,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         q = location(elem)
         S = mode(H, q)
         X0 = state(elem)
+        time_shift = 0.0
         F = post(cpost, IVP(S, X0), tspan; time_shift=time_shift, kwargs...)
 
         #time_shift += tend(F)  # update global time
@@ -145,12 +149,12 @@ Distribute the set of initial states to each mode of a hybrid system.
 A new initial value problem with the same hybrid system but where the set of initial
 states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 """
-function _distribute(ivp::InitialValueProblem{HS, ST},
+function _distribute(ivp::InitialValueProblem{HS, ST};
                      check_invariant=false) where {HS<:HybridSystem, ST<:LazySet}
     S = system(ivp)
     X0 = initial_state(ivp)
     if !check_invariant
-        initial_states = WaitingList([StateInLocation(loc, X0) for loc in states(S)])
+        initial_states = WaitingList([StateInLocation(X0, loc) for loc in states(S)])
     else
         initial_states = WaitingList{ST, Int}()
         for loc in states(S)

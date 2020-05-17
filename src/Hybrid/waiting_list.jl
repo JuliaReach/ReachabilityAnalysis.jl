@@ -2,7 +2,7 @@
 # Structs to work with waiting lists
 # =====================================
 
-# association of a set with a hybrid automaton location: (set, location)
+# association of a set with a hybrid automaton location: (set, index of the mode)
 struct StateInLocation{ST, M}
     X::ST # set representation
     loc_id::M # discrete location index
@@ -22,7 +22,7 @@ WaitingList{ST, M}() where {ST, M} = WaitingList(Vector{StateInLocation{ST, M}}(
 # getter functions
 @inline array(w::WaitingList) = w.array
 setrep(w::WaitingList{ST}) where {ST} = ST
-locrep(w::WaitingList{ST, M}) where {ST, M} = ST
+locrep(w::WaitingList{ST, M}) where {ST, M} = M
 
 # iterator interface
 @inline Base.getindex(w::WaitingList, i::Int) = getindex(array(w), i)
