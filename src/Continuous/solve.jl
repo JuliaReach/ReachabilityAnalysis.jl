@@ -135,12 +135,6 @@ abstract type AbstractContinuousPost <: AbstractPost end
 LazySets.dim(::IA.Interval) = 1
 LazySets.dim(::IA.IntervalBox{D, N}) where {D, N} = D
 
-function _check_dim(ivp::InitialValueProblem{<:AbstractContinuousSystem}; throw_error::Bool=true)
-    S = system(ivp)
-    X0 = initial_state(ivp)
-    _check_dim(S, X0, throw_error=throw_error)
-end
-
 # lazy sets (or sets that behave like such -- TODO update once UnionSet <: LazySet)
 _dim(X::Union{<:LazySet, <:IA.Interval, <:IA.IntervalBox, <:UnionSet, <:UnionSetArray}) = dim(X)
 
@@ -159,8 +153,7 @@ end
 
 _dim(X) = throw(ArgumentError("the type of the initial condition, $(typeof(X)), cannot be handled"))
 
-# TODO dispatch on X0
-function _check_dim(S::AbstractContinuousSystem, X0; throw_error::Bool=true)
+function _check_dim(S, X0; throw_error::Bool=true)
     n = statedim(S)
     d = _dim(X0)
     n == d && return true
@@ -171,6 +164,12 @@ function _check_dim(S::AbstractContinuousSystem, X0; throw_error::Bool=true)
                             "$n and $(dim(X0)) respectively"))
     end
     return false
+end
+
+function _check_dim(ivp::InitialValueProblem{<:AbstractContinuousSystem}; throw_error::Bool=true)
+    S = system(ivp)
+    X0 = initial_state(ivp)
+    _check_dim(S, X0, throw_error=throw_error)
 end
 
 # promotion from tuple-like arguments

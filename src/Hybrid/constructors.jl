@@ -157,3 +157,9 @@ function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J}
     switching = diam(ζint) > zero(N) ? NonDeterministicSwitching() : DeterministicSwitching()
     return HACLD1(sys, rmap, Tsample, ζint, switching)
 end
+
+function _check_dim(ivp::InitialValueProblem{<:HACLD1}; throw_error::Bool=true)
+    S = system(ivp)
+    X0 = initial_state(ivp)
+    _check_dim(S, X0, throw_error=throw_error)
+end
