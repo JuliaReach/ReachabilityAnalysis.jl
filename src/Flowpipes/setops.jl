@@ -692,9 +692,9 @@ _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H
 # Concrete intersection
 # ==================================
 
-# ---------------------------------------------------------
-# Methods to evaluate intersection between a pair of sets
-# ---------------------------------------------------------
+# -------------------------------------------------------------
+# Methods to compute the intersection between two or more sets
+# ------------------------------------------------------------
 
 abstract type AbstractIntersectionMethod end
 
@@ -764,3 +764,63 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
+
+# =====================================
+# Clustering methods
+# =====================================
+
+abstract type AbstractClusteringMethod end
+
+struct NoClustering <: AbstractClusteringMethod
+#
+end
+
+
+function cluster(F, idx, ::NoClustering)
+    return view(F, idx) # F[idx]
+end
+
+struct BoxClustering <: AbstractClusteringMethod
+#
+end
+
+function cluster(F, idx, ::BoxClustering)
+    convF = Convexify(view(F, idx))  # Convexify(F[idx])
+    return overapproximate(convF, Hyperrectangle)
+end
+
+struct LazyCHClustering <: AbstractClusteringMethod
+#
+end
+
+function cluster(F, idx, ::LazyCHClustering)
+    return Convexify(view(F, idx)) # Convexify(F[idx])
+end
+
+struct ZonotopeClustering <: AbstractClusteringMethod
+#
+end
+
+#function cluster(F, idx, ::ZonotopeClustering)
+ # iteratlvely apply overapproximation of the CH of zonotopes with a zonotope,
+ # requires LazySets #
+#end
+
+# convexify and convert to vrep
+#C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])
+#Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
+
+#=
+# =====================================
+# Methods for checking inclusion
+# =====================================
+
+# given two reach-sets A, B check whether f(A) ⊆ g(B) where
+# A ⊆ f(A) and B ⊆ g(B)
+abstract type AbstractInclusionMethod end
+
+# no pre-processing of the sets
+struct LazySetsDefaultInclusion <: AbstractInclusionMethod
+#
+end
+=#

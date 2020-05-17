@@ -1,26 +1,4 @@
-"""
-    AbstractPost
 
-Abstract supertype of all post operator types.
-
-### Notes
-
-All post operators should provide the following methods:
-
-```julia
-init(op::AbstractPostOperator, system, options)
-
-post(op::AbstractPostOperator, system, ...)
-```
-"""
-abstract type AbstractPost end
-
-"""
-    AbstractContinuousPost
-
-Abstract supertype of all continuous post operators.
-"""
-abstract type AbstractContinuousPost <: AbstractPost end
 
 """
     AbstractDiscretePost

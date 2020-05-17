@@ -32,7 +32,7 @@ end
 
 reset_map(tr::DiscreteTransition{<:AbstractMatrix})  = ConstrainedAffineMap(tr.R, tr.W)
 reset_map(tr::DiscreteTransition{<:IdentityMap}) = ConstrainedIdentityMap(dim(tr.W), tr.W)
-guard(tr::DiscreteTransition) = tr.G
+HybridSystems.guard(tr::DiscreteTransition) = tr.G
 source_invariant(tr::DiscreteTransition) = tr.I⁻
 target_invariant(tr::DiscreteTransition) = tr.I⁺
 
@@ -43,12 +43,12 @@ function DiscreteTransition(; guard::GT, source_invariant::IT⁻, target_invaria
 end
 
 # constructor from hybrid system given source and target modes id's and the transition t
-function DiscreteTransition(H::HybridSystem, source_id::Integer, target_id::Integer)
-    R = # target(H, t)
-    #W = ... # TODO get from the reset map
-    #G = ...
-    I⁻ = stateset(H, source_id)
-    I⁺ = stateset(H, target_id)
+function DiscreteTransition(H::HybridSystem, transition)
+    R = resetmap(H, transition)
+    W = stateset(R)
+    G = stateset(resetmap(H, transition)) # HybridSystems.guard(H, transition) doesn't work
+    I⁻ = stateset(H, source(H, transition))
+    I⁺ = stateset(H, target(H, transition))
     return DiscreteTransition(R, W, G, I⁻, I⁺)
 end
 
