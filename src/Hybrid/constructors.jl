@@ -9,6 +9,22 @@ function HybridSystems.HybridSystem(mode::AbstractContinuousSystem, reset_map::A
     return HybridSystem(automaton, [mode], [reset_map], [AutonomousSwitching()])
 end
 
+#=
+# hybrid automaton with only one mode TODO compare with OneStateAutomaton
+struct HA1{ST, IT, TT, GT} <: AbstractHybridSystem
+    mode::ST
+    invariant::IT
+    transition::TT
+    guard::GT
+end
+
+function HA1(sys::AbstractSystem, tr::AbstractMap)
+    # normalize(sys) ? for cases without invariant
+    HA1(sys, stateset(sys), tr, stateset(tr))
+end
+
+=#
+
 # ===============================================
 # Hybrid systems with time-triggered transitions
 # ===============================================
