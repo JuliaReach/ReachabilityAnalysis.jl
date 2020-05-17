@@ -2,7 +2,7 @@
 # Main solve for hybrid systems
 # =====================================
 
-# TODO wrap optinos into a "DiscretePost" algorithm .. ?
+# TODO API to specify the hybrid-specific options as a "DiscretePost" struct
 
 function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                max_jumps=100,
@@ -97,6 +97,10 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     # wrap the flowpipe and algorithm in a solution structure
     sol = ReachSolution(HybridFlowpipe(out), cpost)
 end
+
+# =====================================
+# Utility functions
+# =====================================
 
 # use the first_mode_representative flag to only check dimension of the first
 # element in the waiting list
@@ -202,3 +206,33 @@ function _distribute(ivp::InitialValueProblem{HS, VQT};
     end
 end
 =#
+
+"""
+    constrained_dimensions(HS::HybridSystem)::Dict{Int,Vector{Int}}
+
+For each location, compute all dimensions that are constrained in the invariant
+or the guard of any outgoing transition.
+
+### Input
+
+- `HS`  -- hybrid system
+
+### Output
+
+A dictionary mapping (`::Dict{Int,Vector{Int}}`) the index of each location
+``ℓ`` to the dimension indices that are constrained in ``ℓ``.
+"""
+function constrained_dimensions(HS::HybridSystem)
+    result = Dict{Int,Vector{Int}}()
+    sizehint!(result, nstates(HS))
+    for mode in states(HS)
+        vars = Vector{Int}()
+        append!(vars, constrained_dimensions(stateset(HS, mode)))
+        for transition in out_transitions(HS, mode)
+            append!(vars, constrained_dimensions(stateset(HS, transition)))
+        end
+        result[mode] = unique(vars)
+    end
+
+    return result
+end
