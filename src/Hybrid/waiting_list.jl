@@ -27,7 +27,7 @@ struct WaitingList{N, ST, M, QT<:StateInLocation{ST, M}}
 end
 
 # constructor of empty waiting list
-WaitingList{N, ST, M}() where {N, ST, M} = WaitingList(Vector{N}(), Vector{StateInLocation{N, ST, M}}())
+WaitingList{N, ST, M}() where {N, ST, M} = WaitingList(Vector{N}(), Vector{StateInLocation{ST, M}}())
 
 # constructor without time-stamp
 WaitingList(array::Vector{QT}) where {ST, M, QT<:StateInLocation{ST, M}} = WaitingList{Float64}(array)

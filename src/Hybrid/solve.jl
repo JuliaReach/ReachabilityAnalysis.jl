@@ -43,27 +43,24 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     # elapsed time accumulators
     t0 = tstart(time_span)
-    @assert t0 == zero(t0) # TEMP: global time starts at zero
+    @assert t0 == zero(t0) # NOTE: we assume that the global time starts at zero
     T = tend(time_span) # time horizon
 
     count_jumps = 0
 
-    while !isempty(waiting_list) && count_jumps <= max_jumps
+    while !isempty(waiting_list)  # && count_jumps <= max_jumps
         (tprev, elem) = pop!(waiting_list)
         push!(explored_list, elem)
 
         # compute reachable states by continuous evolution
         q = location(elem)
+        X0 = state(elem)
         S = mode(H, q)
-        R0 = reachset(elem)
-        X0 = set(R0)
-        #tprev = tstart(R0)
-        time_span = TimeInterval(t0, T-tprev)
+        time_span = TimeInterval(t0, T-tprev) # NOTE does this generalize for t0 ≠ 0.. T-tprev+t0 ?
         F = post(cpost, IVP(S, X0), time_span; time_shift=tprev, kwargs...)
 
         # assign location q to this flowpipe
         F.ext[:loc_id] = q
-        tprev = tstart(last(F))
         push!(out, F)
 
         # process jumps for all outgoing transitions with source q
@@ -86,21 +83,19 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # apply clustering method to those sets which intersect the guard
             # NOTE we assume that Clustering is applied and only Xc is only one reachset
             Xc = cluster(F, jump_rset_idx, clustering)
-            dt = tspan(Xc)
-            println(dt)
-            error("")
+            tprev = tstart(Xc)
 
             # compute reachable states by discrete evolution
             X = apply(discrete_post, Xc, intersection) # .. may use intersection_method from @unwrap discrete post
+            count_jumps += 1
 
             # check if this location has already been explored;
             # if it is not the case, add it to the waiting list
             r = target(H, t)
             Xr = StateInLocation(X, r)
-            if !(Xr ⊆ explored_list)
-                push!(waiting_list, Xr)
+            if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+                push!(waiting_list, tprev, Xr)
             end
-            count_jumps += 1 # TODO review if this is the right place
         end # for
     end # while
 
@@ -149,6 +144,8 @@ Distribute the set of initial states to each mode of a hybrid system.
                        and a set of initial states
 - `check_invariant` -- (optional, default: `false`) if `false`, only add those modes
                        for which the intersection of the initial state with the invariant is non-empty
+- `intersect_invariant` -- (optional, default: `false`) if `false`, take the concrete intersection with the invariant
+ (and possibly overapproximate to keep `WaitingList` concretely typed)
 
 ### Output
 
@@ -156,27 +153,37 @@ A new initial value problem with the same hybrid system but where the set of ini
 states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 """
 function _distribute(ivp::InitialValueProblem{HS, ST};
-                     check_invariant=false) where {HS<:HybridSystem, N, ST<:LazySet{N}}
+                     check_invariant=false,
+                     intersect_invariant=false) where {HS<:HybridSystem, N, ST<:LazySet{N}}
     H = system(ivp)
     X0 = initial_state(ivp)
-    if !check_invariant
-        # NOTE assuming t0 = 0 here
-#        initial_states = WaitingList{N, ST, Int}(nstates(H))
-#        times = fill(zero(N), nstates(H))
-#        states = [StateInLocation(X0, loc) for loc in states(H)]
-#        initial_states = WaitingList(times, states)
 
+    if !check_invariant
         initial_states = [StateInLocation(X0, loc) for loc in states(H)] |> WaitingList{N}
 
-    else
+    elseif check_invariant && !intersect_invariant
         initial_states = WaitingList{N, ST, Int}()
         for loc in states(H)
             Sloc = mode(H, loc)
-            if !_is_intersection_empty(X0, stateset(Sloc))
+            Y = stateset(Sloc)
+            if !_is_intersection_empty(X0, Y)
                 push!(initial_states, StateInLocation(X0, loc))
             end
         end
+
+    else # check_invariant && intersect_invariant
+        initial_states = WaitingList{N, ST, Int}()
+        for loc in states(H)
+            Sloc = mode(H, loc)
+            Y = stateset(Sloc)
+            if !_is_intersection_empty(X0, Y)
+                X0cut = intersection(X0, Y)
+                X0cut_oa = overapproximate(X0cut, ST)
+                push!(initial_states, StateInLocation(X0cut_oa, loc))
+            end
+        end
     end
+
     return InitialValueProblem(H, initial_states)
 end
 
