@@ -11,9 +11,8 @@ include("Continuous/solve.jl")
 # Structures to represent solutions of reachability problems
 # ===========================================================
 include("Flowpipes/reachsets.jl")
-include("Flowpipes/setops.jl")
 include("Flowpipes/flowpipes.jl")
-#include("Flowpipes/operators.jl")
+include("Flowpipes/setops.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
 include("Flowpipes/recipes.jl")

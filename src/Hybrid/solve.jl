@@ -22,18 +22,13 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     _check_dim(ivp_distributed, first_mode_representative=first_mode_representative)
 
     # get time span (or the emptyset if NSTEPS was specified)
-    tspan = _get_tspan(args...; kwargs...)
+    time_span = _get_tspan(args...; kwargs...)
 
     # get the continuous post or find a default one
     cpost = _get_cpost(ivp_distributed, args...; kwargs...)
     if cpost == nothing
-        cpost = _default_cpost(ivp_distributed, tspan; kwargs...)
+        cpost = _default_cpost(ivp_distributed, time_span; kwargs...)
     end
-
-    # list of (set, loc) tuples which have already been processed
-    STW = setrep(waiting_list)
-    MW = locrep(waiting_list)
-    explored_list = WaitingList{STW, MW}()
 
     # preallocate output flowpipe
     N = numtype(cpost)
@@ -41,28 +36,35 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     out = Vector{Flowpipe{N, RT, Vector{RT}}}()
     sizehint!(out, max_jumps+1)
 
+    # list of (set, loc) tuples which have already been processed
+    STW = setrep(waiting_list)
+    MW = locrep(waiting_list)
+    explored_list = WaitingList{N, STW, MW}()
+
     # elapsed time accumulators
-    t0 = tstart(tspan)
-    #time_shift = zero(N)
+    t0 = tstart(time_span)
+    @assert t0 == zero(t0) # TEMP: global time starts at zero
+    T = tend(time_span) # time horizon
 
     count_jumps = 0
 
     while !isempty(waiting_list) && count_jumps <= max_jumps
-        elem = pop!(waiting_list)
+        (tprev, elem) = pop!(waiting_list)
         push!(explored_list, elem)
 
         # compute reachable states by continuous evolution
         q = location(elem)
         S = mode(H, q)
-        X0 = state(elem)
-        time_shift = 0.0
-        F = post(cpost, IVP(S, X0), tspan; time_shift=time_shift, kwargs...)
+        R0 = reachset(elem)
+        X0 = set(R0)
+        tprev = tstart(R0)
+        time_span = TimeInterval(t0, T-tprev)
+        F = post(cpost, IVP(S, X0), time_span; time_shift=tprev, kwargs...)
 
-        #time_shift += tend(F)  # update global time
-        F.ext[:loc_id] = q      # assign location q to this flowpipe
+        # assign location q to this flowpipe
+        F.ext[:loc_id] = q
+        tprev = tstart(last(F))
         push!(out, F)
-
-        #effective_tspan = tspan(F)
 
         # process jumps for all outgoing transitions with source q
         for t in out_transitions(H, q)
@@ -73,7 +75,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
             # find reach-sets that may take the jump
             jump_rset_idx = Vector{Int}()
-            for (X, i) in enumerate(F)
+            for (i, X) in enumerate(F)
                 _is_intersection_empty(X, G) && continue
                 push!(jump_rset_idx, i)
             end
@@ -83,16 +85,19 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
             # apply clustering method to those sets which intersect the guard
             Xc = cluster(F, jump_rset_idx, clustering)
+            dt = tspan(Xc)
+            println(dt)
+            error("")
 
             # compute reachable states by discrete evolution
-            X = apply(discrete_post, Xc, method)
+            X = apply(discrete_post, Xc, intersection) # .. may use intersection_method from @unwrap discrete post
 
             # check if this location has already been explored;
             # if it is not the case, add it to the waiting list
             r = target(H, t)
             Xr = StateInLocation(X, r)
             if !(Xr ⊆ explored_list)
-                push!(waiting_list, v)
+                push!(waiting_list, Xr)
             end
             count_jumps += 1
         end # for
@@ -150,21 +155,25 @@ A new initial value problem with the same hybrid system but where the set of ini
 states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 """
 function _distribute(ivp::InitialValueProblem{HS, ST};
-                     check_invariant=false) where {HS<:HybridSystem, ST<:LazySet}
-    S = system(ivp)
+                     check_invariant=false) where {HS<:HybridSystem, N, ST<:LazySet{N}}
+    H = system(ivp)
     X0 = initial_state(ivp)
     if !check_invariant
-        initial_states = WaitingList([StateInLocation(X0, loc) for loc in states(S)])
+        # NOTE assuming t0 = 0 here
+        initial_states = WaitingList{N, ST, Int}(nstates(H))
+        times = fill(zero(N), nstates(H))
+        states = [StateInLocation(X0, loc) for loc in states(H)]
+        initial_states = WaitingList(times, states)
     else
-        initial_states = WaitingList{ST, Int}()
-        for loc in states(S)
-            Sloc = mode(S, loc)
+        initial_states = WaitingList{N, ST, Int}()
+        for loc in states(H)
+            Sloc = mode(H, loc)
             if !_is_intersection_empty(X0, stateset(Sloc))
                 push!(initial_states, StateInLocation(X0, loc))
             end
         end
     end
-    return InitialValueProblem(S, initial_states)
+    return InitialValueProblem(H, initial_states)
 end
 
 #=
@@ -240,3 +249,14 @@ function constrained_dimensions(HS::HybridSystem)
 
     return result
 end
+
+# =====================================
+# Discrete post structs
+# =====================================
+
+"""
+    AbstractDiscretePost
+
+Abstract supertype of all discrete post operators.
+"""
+abstract type AbstractDiscretePost <: AbstractPost end

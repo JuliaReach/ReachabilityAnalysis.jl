@@ -775,7 +775,6 @@ struct NoClustering <: AbstractClusteringMethod
 #
 end
 
-
 function cluster(F, idx, ::NoClustering)
     return view(F, idx) # F[idx]
 end
@@ -801,10 +800,19 @@ struct ZonotopeClustering <: AbstractClusteringMethod
 #
 end
 
-#function cluster(F, idx, ::ZonotopeClustering)
- # iteratlvely apply overapproximation of the CH of zonotopes with a zonotope,
- # requires LazySets #
-#end
+# for the generalization to > 2 ses, we iteratively apply the overapprox of the
+# CH of two zonotopes, cf LazySets #2154
+function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
+    if length(idx) == 1
+        return F[idx]
+    elseif length(idx) == 2
+        X = ConvexHull(set(F[idx[1]]), set(F[idx[2]]))
+        Y = overapproximate(X, Zonotope) # TODO pass algorithm
+        return ReachSet(Y, tspan(F[idx]))
+    else
+        error("`ZonotopeClustering` not implemented for $(length(idx)) sets")
+    end
+end
 
 # convexify and convert to vrep
 #C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])

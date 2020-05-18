@@ -11,18 +11,21 @@ end
 state(s::StateInLocation) = s.X
 location(s::StateInLocation) = s.loc_id
 
-# list of pairs (set_i, loc_i)
-struct WaitingList{ST, M, QT<:StateInLocation{ST, M}}
+# list of pairs (set_i, loc_i) for i in 1..k
+# times is a vector with a time-stamp for each state
+struct WaitingList{N, ST, M, QT<:StateInLocation{ST, M}}
+    times::Vector{N}
     array::Vector{QT}
 end
 
 # constructor of empty waiting list
-WaitingList{ST, M}() where {ST, M} = WaitingList(Vector{StateInLocation{ST, M}}())
+WaitingList{N, ST, M}() where {N, ST, M} = WaitingList(Vector{N}(), Vector{StateInLocation{N, ST, M}}())
 
 # getter functions
 @inline array(w::WaitingList) = w.array
-setrep(w::WaitingList{ST}) where {ST} = ST
-locrep(w::WaitingList{ST, M}) where {ST, M} = M
+setrep(w::WaitingList{N, ST}) where {N, ST} = ST
+locrep(w::WaitingList{N, ST, M}) where {N, ST, M} = M
+tstamp(w::WaitingList, i) = w.times[i]
 
 # iterator interface
 @inline Base.getindex(w::WaitingList, i::Int) = getindex(array(w), i)
@@ -38,8 +41,15 @@ locrep(w::WaitingList{ST, M}) where {ST, M} = M
 @inline Base.firstindex(w::WaitingList) = 1
 @inline Base.lastindex(w::WaitingList) = length(array(w))
 @inline Base.eachindex(w::WaitingList) = eachindex(array(w))
-@inline Base.push!(w::WaitingList, elem) = push!(w.array, elem)
-@inline Base.pop!(w::WaitingList) = pop!(w.array)
+@inline function Base.push!(w::WaitingList{N, ST, M, QT}, elem::QT) where {N, ST, M, QT}
+    push!(w.times, zero(N))
+    push!(w.array, elem)
+end
+@inline function Base.push!(w::WaitingList{N, ST, M, QT}, tstamp::N, elem::QT) where {N, ST, M, QT}
+    push!(w.times, tstamp)
+    push!(w.array, elem)
+end
+@inline Base.pop!(w::WaitingList) = (pop!(w.times), pop!(w.array))
 
 function Base.:⊆(s::StateInLocation, w::WaitingList)
     contained = false

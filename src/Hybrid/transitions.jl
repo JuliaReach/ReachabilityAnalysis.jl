@@ -44,12 +44,54 @@ end
 
 # constructor from hybrid system given source and target modes id's and the transition t
 function DiscreteTransition(H::HybridSystem, transition)
-    R = resetmap(H, transition)
-    W = stateset(R)
-    G = stateset(resetmap(H, transition)) # HybridSystems.guard(H, transition) doesn't work
+    assignment = resetmap(H, transition)
+    R = _state_matrix(assignment)
+    W = _affine_term(assignment)
+    G = stateset(assignment) # HybridSystems.guard(H, transition) doesn't work
     I⁻ = stateset(H, source(H, transition))
     I⁺ = stateset(H, target(H, transition))
     return DiscreteTransition(R, W, G, I⁻, I⁺)
+end
+
+# -----------------------------------------------
+# Getter functions for MathematicalSystems maps
+# (see also MathematicalSystems#209)
+# -----------------------------------------------
+
+_state_matrix(m::IdentityMap) = m       # no-op, to dispatch on identity assignments
+_state_matrix(m::ConstrainedIdentityMap) = IdentityMap(dim(m))
+_state_matrix(m::MathematicalSystems.LinearMap) = m.A
+_state_matrix(m::ConstrainedLinearMap) = m.A
+_state_matrix(m::MathematicalSystems.AffineMap) = m.A
+_state_matrix(m::ConstrainedAffineMap) = m.A
+
+_affine_term(m::IdentityMap) = ZeroSet(statedim(m)) # there is no numeric type in these maps; use ZeroSet default
+_affine_term(m::ConstrainedIdentityMap) = ZeroSet(statedim(m))
+_affine_term(m::MathematicalSystems.LinearMap{N}) where {N} = ZeroSet{N}(statedim(m))
+_affine_term(m::ConstrainedLinearMap{N}) where {N} = ZeroSet{N}(statedim(m))
+_affine_term(m::MathematicalSystems.AffineMap{N, <:AbstractVector}) where {N} = Singleton(m.c)
+_affine_term(m::MathematicalSystems.AffineMap{N, <:LazySet}) where {N} = m.c
+_affine_term(m::ConstrainedAffineMap{N, <:AbstractVector}) where {N} = Singleton(m.c)
+_affine_term(m::ConstrainedAffineMap{N, <:LazySet}) where {N} = m.c
+
+function _state_matrix(m::Union{<:MathematicalSystems.ResetMap{N},
+                                <:MathematicalSystems.ConstrainedResetMap{N}}) where {N}
+    n = dim(m)
+    v = ones(N, n)
+    for i in keys(m.dict)
+        v[i] = zero(N)
+    end
+    return Diagonal(v)
+end
+
+function _affine_term(m::Union{<:MathematicalSystems.ResetMap{N},
+                               <:MathematicalSystems.ConstrainedResetMap{N}}) where {N}
+    n = dim(m)
+    b = sparsevec(Int[], N[], n)
+    for (i, val) in m.dict
+        b[i] = val
+    end
+    return Singleton(b)
 end
 
 # -------------------------------------------
