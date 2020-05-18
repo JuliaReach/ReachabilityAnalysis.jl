@@ -57,7 +57,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         S = mode(H, q)
         R0 = reachset(elem)
         X0 = set(R0)
-        tprev = tstart(R0)
+        #tprev = tstart(R0)
         time_span = TimeInterval(t0, T-tprev)
         F = post(cpost, IVP(S, X0), time_span; time_shift=tprev, kwargs...)
 
@@ -80,10 +80,11 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 push!(jump_rset_idx, i)
             end
 
-            # continue if there is no guard enable for this transition
+            # continue if there is no guard enabled for this transition
             isempty(jump_rset_idx) && continue
 
             # apply clustering method to those sets which intersect the guard
+            # NOTE we assume that Clustering is applied and only Xc is only one reachset
             Xc = cluster(F, jump_rset_idx, clustering)
             dt = tspan(Xc)
             println(dt)
@@ -99,7 +100,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             if !(Xr ⊆ explored_list)
                 push!(waiting_list, Xr)
             end
-            count_jumps += 1
+            count_jumps += 1 # TODO review if this is the right place
         end # for
     end # while
 
@@ -160,10 +161,13 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
     X0 = initial_state(ivp)
     if !check_invariant
         # NOTE assuming t0 = 0 here
-        initial_states = WaitingList{N, ST, Int}(nstates(H))
-        times = fill(zero(N), nstates(H))
-        states = [StateInLocation(X0, loc) for loc in states(H)]
-        initial_states = WaitingList(times, states)
+#        initial_states = WaitingList{N, ST, Int}(nstates(H))
+#        times = fill(zero(N), nstates(H))
+#        states = [StateInLocation(X0, loc) for loc in states(H)]
+#        initial_states = WaitingList(times, states)
+
+        initial_states = [StateInLocation(X0, loc) for loc in states(H)] |> WaitingList{N}
+
     else
         initial_states = WaitingList{N, ST, Int}()
         for loc in states(H)

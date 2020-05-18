@@ -16,10 +16,25 @@ location(s::StateInLocation) = s.loc_id
 struct WaitingList{N, ST, M, QT<:StateInLocation{ST, M}}
     times::Vector{N}
     array::Vector{QT}
+    # TODO add inner constructor that checks that the lengths of times and array are the same
+
+    function WaitingList(times::Vector{N}, array::Vector{QT}) where {N, ST, M, QT<:StateInLocation{ST, M}}
+        @assert length(times) == length(array) || throw(ArgumentError("the lengths of the time " *
+        "stamps and the array of sets should match, but they are $(length(times)) and $(length(array)) respectively"))
+
+        return new{N, ST, M, QT}(times, array)
+    end
 end
 
 # constructor of empty waiting list
 WaitingList{N, ST, M}() where {N, ST, M} = WaitingList(Vector{N}(), Vector{StateInLocation{N, ST, M}}())
+
+# constructor without time-stamp
+WaitingList(array::Vector{QT}) where {ST, M, QT<:StateInLocation{ST, M}} = WaitingList{Float64}(array)
+function WaitingList{N}(array::Vector{QT}) where {N, ST, M, QT<:StateInLocation{ST, M}}
+    times = fill(zero(N), length(array))
+    WaitingList(times, array)
+end
 
 # getter functions
 @inline array(w::WaitingList) = w.array
