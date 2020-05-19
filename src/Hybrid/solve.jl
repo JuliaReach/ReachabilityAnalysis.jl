@@ -200,6 +200,9 @@ function _distribute(ivp::InitialValueProblem{HS, ST},
     # NOTE using a the WaitingList, the set representation should be the same
     # for all sets => we have to convert (or overapproximate) the initial set X0
     # to the set representation that will be used for the sets after each discrete jump
+    # we may be able to refactor this option, / ad an in-place _distribute
+    # as this option is only used for storing (eventually overapproximating)
+    # the new waiting list elements
     STwl = setrep(intersection_method)
     X0 = _overapproximate(X0, STwl)
 
