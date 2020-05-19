@@ -264,7 +264,8 @@ end
 Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
 Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
 Base.size(fp::Flowpipe) = (length(fp.Xk),)
-Base.view(F::Flowpipe, args...) = view(F.Xk, args...)
+Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
+Base.push!(F::Flowpipe, args...) = push!(F.Xk, args...)
 
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)

@@ -127,6 +127,8 @@ Abstract supertype of all continuous post operators.
 """
 abstract type AbstractContinuousPost <: AbstractPost end
 
+setrep(::InitialValueProblem{HS, ST}) where {HS, ST} = ST
+
 # ==================
 # Argument handling
 # ==================

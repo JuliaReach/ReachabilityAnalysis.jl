@@ -80,6 +80,15 @@ function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
 
+function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N, VT}}) where {N, VT}
+    # TODO create overapproximation using VT directly
+    Y = overapproximate(X, BoxDirections(dim(X)))
+    return convert(T, Y)
+end
+
+Base.convert(::Type{HPolytope{N, VT}}, P::HPolytope{N, VT}) where {N, VT} = P
+Base.convert(::Type{HPolytope{N, VT}}, P) where {N, VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
+
 # =========================
 # In-place ops
 # =========================
@@ -704,6 +713,8 @@ struct HRepIntersection <: AbstractIntersectionMethod
 #
 end
 
+setrep(::HRepIntersection) = HPolytope{Float64, Vector{Float64}}
+
 # evaluate X ∩ Y approximately using support function evaluations, through the
 # property that the support function of X ∩ Y along direction d is not greater
 # min(ρ(d, X), ρ(d, Y))
@@ -810,7 +821,11 @@ function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, Z
         Y = overapproximate(X, Zonotope) # TODO pass algorithm
         return ReachSet(Y, tspan(F[idx]))
     else
-        error("`ZonotopeClustering` not implemented for $(length(idx)) sets")
+        Zaux = overapproximate(ConvexHull(set(F[idx[1]]), set(F[idx[2]])), Zonotope)
+        for k in 3:length(idx)
+            Zaux = overapproximate(ConvexHull(Zaux, set(F[idx[k]])), Zonotope)
+        end
+        return ReachSet(Zaux, tspan(F[idx]))
     end
 end
 
