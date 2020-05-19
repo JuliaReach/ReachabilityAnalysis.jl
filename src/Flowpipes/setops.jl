@@ -86,6 +86,12 @@ function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N, VT}}) where {N
     return convert(T, Y)
 end
 
+function _overapproximate(X::UnionSetArray, T::Type{HPolytope{N, VT}}) where {N, VT}
+    # TODO create overapproximation using VT directly
+    Y = overapproximate(X, BoxDirections(dim(X)))
+    return convert(T, Y)
+end
+
 Base.convert(::Type{HPolytope{N, VT}}, P::HPolytope{N, VT}) where {N, VT} = P
 Base.convert(::Type{HPolytope{N, VT}}, P) where {N, VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
 
@@ -641,6 +647,9 @@ struct BoxEnclosure <: AbstractDisjointnessMethod end
 # we pass the sets to the disjointness check algorithm without pre-processing
 struct NoEnclosure <: AbstractDisjointnessMethod end
 
+# the check retuns "false"
+struct NoCheck <: AbstractDisjointnessMethod end
+
 # fallbacks
 _is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
 _is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
@@ -664,6 +673,11 @@ end
 function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
     H = overapproximate(R, Hyperrectangle)
     return _is_intersection_empty(set(H), Y)
+end
+
+# we assume that the intersection is non-empty
+function _is_intersection_empty(R::AbstractReachSet, Y::Union{LazySet, UnionSetArray}, ::NoCheck)
+    return false
 end
 
 # -----------------------------------------------

@@ -33,7 +33,9 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     # preallocate output flowpipe
     N = numtype(cpost)
-    RT = rsetrep(cpost)
+    #ST = Zonotope{N, Vector{N}, Matrix{N}} # rsetrep(cpost)
+    ST = Zonotope{Float64,Array{Float64,1},SparseArrays.SparseMatrixCSC{Float64,Int64}}
+    RT = ReachSet{N, ST}
     out = Vector{Flowpipe{N, RT, Vector{RT}}}()
     sizehint!(out, max_jumps+1)
 
@@ -66,6 +68,9 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         S = mode(H, q)
         time_span = TimeInterval(t0, T-tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
         F = post(cpost, IVP(S, X0), time_span; time_shift=tprev, kwargs...)
+
+        F = overapproximate(F, Zonotope)
+    #    println(typeof(F))
 
         # assign location q to this flowpipe
         F.ext[:loc_id] = q
@@ -123,7 +128,11 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # if it is not the case, add it to the waiting list
             r = target(H, t)
             Xr = StateInLocation(X, r)
+            Xr = StateInLocation(_overapproximate(state(Xr), HPolytope{Float64, Vector{Float64}}))# BoxDirections(2)));
+#            HPolytope{Float64, Vector{Float64}}), r)
             if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+                println(typeof(tprev))
+                println(typeof(Xr))
                 push!(waiting_list, tprev, Xr)
                 # NOTE save jumps_rset_idx, Xc? It might be interesting to store (for plots) the concrete
                 # intersection with the source invariant F
@@ -233,6 +242,54 @@ function _distribute(ivp::InitialValueProblem{HS, ST},
             end
         end
     end
+    return InitialValueProblem(H, initial_states)
+end
+
+function _distribute(ivp::InitialValueProblem{HS, VQT},
+                     intersection_method::AbstractIntersectionMethod;
+                     check_invariant=false,
+                     intersect_invariant=false,
+                     ) where {HS<:HybridSystem, N, ST<:LazySet{N}, M, QT<:StateInLocation{ST, M}, VQT<:AbstractVector{QT}}
+
+    H = system(ivp)
+    X0vec = initial_state(ivp) # vector of StateInLocation
+
+    STwl = setrep(intersection_method)
+    initial_states = WaitingList{N, STwl, M}()
+
+    if !check_invariant && !intersect_invariant
+        for X0 in X0vec
+            X0wl = _overapproximate(state(X0), STwl)
+            push!(initial_states, StateInLocation(X0wl, location(X0)))
+        end
+    else
+        error("not implemented")
+    end
+
+    #=
+    # TODO remove?
+    elseif check_invariant && !intersect_invariant
+        for loc in states(H)
+            Sloc = mode(H, loc)
+            Y = stateset(Sloc)
+            #if !_is_intersection_empty(X0, Y)
+                push!(initial_states, StateInLocation(X0, loc))
+            #end
+        end
+
+    # TODO remove?
+    else # check_invariant && intersect_invariant
+        for loc in states(H)
+            Sloc = mode(H, loc)
+            Y = stateset(Sloc)
+            if !_is_intersection_empty(X0, Y)
+                X0cut = intersection(X0, Y)
+                X0cut_oa = overapproximate(X0cut, ST)
+                push!(initial_states, StateInLocation(X0cut_oa, loc))
+            end
+        end
+    end
+    =#
     return InitialValueProblem(H, initial_states)
 end
 

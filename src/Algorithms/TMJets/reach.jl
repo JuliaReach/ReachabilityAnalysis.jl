@@ -7,7 +7,8 @@ function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_
 end
 
 # case with an invariant
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, time_shift, adaptive)
+# TODO annotate X::LazySet once UnionSetArray <: LazySet
+function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, time_shift, adaptive)
     validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, time_shift, adaptive)
 end
 
@@ -15,7 +16,7 @@ end
 # we consider an intersection with an invariant X in the main loop
 # moreover we passs
 function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
-        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet,
+        t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X, # TODO annotate X::LazySet once UnionSetArray <: LazySet
         disjointness::AbstractDisjointnessMethod, time_shift, adaptive::Bool=true, params=nothing;
         parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
 
