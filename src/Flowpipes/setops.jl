@@ -80,6 +80,15 @@ function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
 
+function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N, VT}}) where {N, VT}
+    # TODO create overapproximation using VT directly
+    Y = overapproximate(X, BoxDirections(dim(X)))
+    return convert(T, Y)
+end
+
+Base.convert(::Type{HPolytope{N, VT}}, P::HPolytope{N, VT}) where {N, VT} = P
+Base.convert(::Type{HPolytope{N, VT}}, P) where {N, VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
+
 # =========================
 # In-place ops
 # =========================
@@ -692,9 +701,9 @@ _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H
 # Concrete intersection
 # ==================================
 
-# ---------------------------------------------------------
-# Methods to evaluate intersection between a pair of sets
-# ---------------------------------------------------------
+# -------------------------------------------------------------
+# Methods to compute the intersection between two or more sets
+# ------------------------------------------------------------
 
 abstract type AbstractIntersectionMethod end
 
@@ -703,6 +712,8 @@ abstract type AbstractIntersectionMethod end
 struct HRepIntersection <: AbstractIntersectionMethod
 #
 end
+
+setrep(::HRepIntersection) = HPolytope{Float64, Vector{Float64}}
 
 # evaluate X ∩ Y approximately using support function evaluations, through the
 # property that the support function of X ∩ Y along direction d is not greater
@@ -764,3 +775,75 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     success = remove_redundant_constraints!(out)
     return (success, out)
 end
+
+# =====================================
+# Clustering methods
+# =====================================
+
+abstract type AbstractClusteringMethod end
+
+struct NoClustering <: AbstractClusteringMethod
+#
+end
+
+function cluster(F, idx, ::NoClustering)
+    return view(F, idx) # F[idx]
+end
+
+struct BoxClustering <: AbstractClusteringMethod
+#
+end
+
+function cluster(F, idx, ::BoxClustering)
+    convF = Convexify(view(F, idx))  # Convexify(F[idx])
+    return overapproximate(convF, Hyperrectangle)
+end
+
+struct LazyCHClustering <: AbstractClusteringMethod
+#
+end
+
+function cluster(F, idx, ::LazyCHClustering)
+    return Convexify(view(F, idx)) # Convexify(F[idx])
+end
+
+struct ZonotopeClustering <: AbstractClusteringMethod
+#
+end
+
+# for the generalization to > 2 ses, we iteratively apply the overapprox of the
+# CH of two zonotopes, cf LazySets #2154
+function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
+    if length(idx) == 1
+        return F[idx]
+    elseif length(idx) == 2
+        X = ConvexHull(set(F[idx[1]]), set(F[idx[2]]))
+        Y = overapproximate(X, Zonotope) # TODO pass algorithm
+        return ReachSet(Y, tspan(F[idx]))
+    else
+        Zaux = overapproximate(ConvexHull(set(F[idx[1]]), set(F[idx[2]])), Zonotope)
+        for k in 3:length(idx)
+            Zaux = overapproximate(ConvexHull(Zaux, set(F[idx[k]])), Zonotope)
+        end
+        return ReachSet(Zaux, tspan(F[idx]))
+    end
+end
+
+# convexify and convert to vrep
+#C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])
+#Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
+
+#=
+# =====================================
+# Methods for checking inclusion
+# =====================================
+
+# given two reach-sets A, B check whether f(A) ⊆ g(B) where
+# A ⊆ f(A) and B ⊆ g(B)
+abstract type AbstractInclusionMethod end
+
+# no pre-processing of the sets
+struct LazySetsDefaultInclusion <: AbstractInclusionMethod
+#
+end
+=#

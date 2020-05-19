@@ -109,6 +109,26 @@ function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...
     return sol_tot
 end
 
+# ====================================
+# Continuous post operator interface
+# ====================================
+
+"""
+    AbstractPost
+
+Abstract supertype of all post operator types.
+"""
+abstract type AbstractPost end
+
+"""
+    AbstractContinuousPost
+
+Abstract supertype of all continuous post operators.
+"""
+abstract type AbstractContinuousPost <: AbstractPost end
+
+setrep(::InitialValueProblem{HS, ST}) where {HS, ST} = ST
+
 # ==================
 # Argument handling
 # ==================
@@ -117,30 +137,41 @@ end
 LazySets.dim(::IA.Interval) = 1
 LazySets.dim(::IA.IntervalBox{D, N}) where {D, N} = D
 
-function _check_dim(ivp; throw_error::Bool=true)
-    S = system(ivp)
-    n = statedim(S)
-    X0 = initial_state(ivp)
-    if X0 isa LazySet || X0 isa IA.Interval || X0 isa IA.IntervalBox || X0 isa UnionSet || X0 isa UnionSetArray # TODO update when UnionSet <: LazySet
-        d = dim(X0)
-    elseif X0 isa AbstractVector && eltype(X0) <: Number
-        d = length(X0)
-    elseif X0 isa AbstractVector && eltype(X0) <: LazySet
-        d = dim(first(X0)) # assumes that first element is representative
-    elseif X0 isa Number
-        d = 1
-    else
-        throw(ArgumentError("the type of the initial condition, $(typeof(X0)), cannot be handled"))
-    end
+# lazy sets (or sets that behave like such -- TODO update once UnionSet <: LazySet)
+_dim(X::Union{<:LazySet, <:IA.Interval, <:IA.IntervalBox, <:UnionSet, <:UnionSetArray}) = dim(X)
 
-    if n == d
-        return true
-    else
-        throw_error && throw(ArgumentError("the state-space dimension should match " *
+# singleton elements
+_dim(X::Number) = 1
+_dim(X::AbstractVector{N}) where {N<:Number} = length(X)
+
+# vector of sets
+function  _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
+                <:IA.Interval, <:IA.IntervalBox, <:UnionSet, <:UnionSetArray}}
+    n = _dim(first(X))
+    all(X -> _dim(X) == n, X)  || throw(ArgumentError("dimension mismatch between " *
+            "the initial sets in this array; expected only sets of dimension $n"))
+    return n
+end
+
+_dim(X) = throw(ArgumentError("the type of the initial condition, $(typeof(X)), cannot be handled"))
+
+function _check_dim(S, X0; throw_error::Bool=true)
+    n = statedim(S)
+    d = _dim(X0)
+    n == d && return true
+
+    if throw_error
+        throw(ArgumentError("the state-space dimension should match " *
                             "the dimension of the initial state, but they are " *
                             "$n and $(dim(X0)) respectively"))
-        return false
     end
+    return false
+end
+
+function _check_dim(ivp::InitialValueProblem{<:AbstractContinuousSystem}; throw_error::Bool=true)
+    S = system(ivp)
+    X0 = initial_state(ivp)
+    _check_dim(S, X0, throw_error=throw_error)
 end
 
 # promotion from tuple-like arguments
@@ -267,7 +298,39 @@ end
 # Algorithm defaults
 # ===================
 
+# number of discrete steps used if only the time horizonis given
 const DEFAULT_NSTEPS = 100
+
+function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
+    if isaffine(ivp)
+        if haskey(kwargs, :δ)
+            δ = kwargs[:δ]
+        elseif haskey(kwargs, :N)
+            N = kwargs[:N]
+            δ = diam(tspan) / N
+        elseif haskey(kwargs, :NSTEPS)
+            NSTEPS = kwargs[:NSTEPS]
+            δ = diam(tspan) / NSTEPS
+        elseif haskey(kwargs, :num_steps)
+            num_steps = kwargs[:num_steps]
+            δ = diam(tspan) / num_steps
+        else
+            δ = diam(tspan) / DEFAULT_NSTEPS
+        end
+        if statedim(ivp) == 1
+            opC = INT(δ=δ)
+        else
+            static = haskey(kwargs, :static) ? kwargs[:static] : false
+            # TODO pass order and dimension options as well
+            opC = GLGM06(δ=δ, static=static)
+        end
+    else
+        opC = TMJets()
+    end
+    return opC
+end
+
+# TODO refactor / update docstring
 
 """
     _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
@@ -291,29 +354,11 @@ If the system is affine, then:
 If the system is not affine, then the algorithm `TMJets` is used.
 """
 function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
-    if isaffine(ivp)
-        if haskey(kwargs, :δ)
-            δ = kwargs[:δ]
-        elseif haskey(kwargs, :N)
-            N = kwargs[:N]
-            δ = diam(tspan) / N
-        elseif haskey(kwargs, :NSTEPS)
-            NSTEPS = kwargs[:NSTEPS]
-            δ = diam(tspan) / NSTEPS
-        elseif haskey(kwargs, :num_steps)
-            num_steps = kwargs[:num_steps]
-            δ = diam(tspan) / num_steps
-        else
-            δ = diam(tspan) / DEFAULT_NSTEPS
-        end
-        if statedim(ivp) == 1
-            opC = INT(δ=δ)
-        else
-            static = haskey(kwargs, :static) ? kwargs[:static] : false
-            opC = GLGM06(δ=δ, static=static)
-        end
-    else
-        opC = TMJets()
-    end
-    return opC
+    _default_cpost(system(ivp), tspan; kwargs...)
+end
+
+# return a default algorithm, assuming that the first mode is representative
+function _default_cpost(ivp::IVP{<:AbstractHybridSystem}, tspan; kwargs...)
+    first_mode = mode(system(ivp), 1)
+    _default_cpost(first_mode, tspan; kwargs...)
 end

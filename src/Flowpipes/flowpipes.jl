@@ -251,6 +251,12 @@ function Flowpipe(::UndefInitializer, RT::Type{<:AbstractReachSet}, k::Int)
     return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
 end
 
+# undef initializer given a continuous post-operator
+function Flowpipe(::UndefInitializer, cpost::AbstractContinuousPost, k::Int)
+    RT = rsetrep(cpost)
+    return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
+end
+
 function Base.similar(fp::Flowpipe{N, RT, VRT}) where {N, RT, VRT}
    return Flowpipe(VRT())
 end
@@ -258,8 +264,16 @@ end
 Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
 Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
 Base.size(fp::Flowpipe) = (length(fp.Xk),)
+Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
+Base.push!(F::Flowpipe, args...) = push!(F.Xk, args...)
+
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
+
+function location(fp::Flowpipe)
+    @assert haskey(fp.ext, :loc_id) "this flowpipe has not been assigned a location identifier"
+    return fp.ext[:loc_id]
+end
 
 # evaluate a flowpipe at a given time point: gives a reach set
 # here it would be useful to layout the times contiguously in a vector

@@ -11,9 +11,8 @@ include("Continuous/solve.jl")
 # Structures to represent solutions of reachability problems
 # ===========================================================
 include("Flowpipes/reachsets.jl")
-include("Flowpipes/setops.jl")
 include("Flowpipes/flowpipes.jl")
-include("Flowpipes/operators.jl")
+include("Flowpipes/setops.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
 include("Flowpipes/recipes.jl")
@@ -47,9 +46,11 @@ include("Algorithms/TMJets/TMJets.jl")
 # ===========================================================
 # Discrete post-operators for hybrid systems
 # ===========================================================
+include("Hybrid/constructors.jl")
+include("Hybrid/waiting_list.jl")
 include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
-#include("Hybrid/solve.jl")
+include("Hybrid/solve.jl")
 
 
 end # module
