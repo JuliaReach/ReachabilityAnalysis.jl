@@ -87,7 +87,7 @@ for further details. Since it is an optimization, it is *not* mandatory,
 though it is recommended as it helps to reduce the number of allocations and as a
 consequence it usually gives a performance boost.
 
-### How can I get the most of out `@taylorize`?
+### How can I get the most out of `@taylorize`?
 
 The main advice is to refactor expressions involving several terms into smaller
 expressions which involve at most two arguments, making appropriate use of parentheses
@@ -110,7 +110,8 @@ end
 ```
 
 Observe that the terms `x * y` can be factored out into a new auxiliary variable
-`aux`, and all intermediate operations involve two arguments at most using parentheses:
+`aux`, and all intermediate operations can be arranged to only involve two arguments,
+using parentheses:
 
 ```julia
 @taylorize function g!(du, u, params, t)
@@ -165,7 +166,7 @@ Equations that involve constant terms may give a `BoundsError`. This is a known 
 (cf. issue [#179](https://github.com/JuliaReach/ReachabilityAnalysis.jl/issues/179))
 and it is related to cases in which the update rule for the right-hand side does not
 have the expected coefficient type. The current solution is to change terms
-like `du[1] = 1.0` to `du[1] = 1.0 + zero(u[1])`, i.e. let Julia's promotion mechanism
+like `du[1] = 1.0` into `du[1] = 1.0 + zero(u[1])`, i.e. let Julia's promotion mechanism
 take care by adding the given numeric constant with the zero element of the type of `u`.
 
 **Example.** Consider the function `f!`:
