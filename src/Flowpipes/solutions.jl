@@ -75,8 +75,13 @@ tspan(sol::ReachSolution) = tspan(sol.F)
 tstart(sol::ReachSolution, arr::AbstractVector) = tstart(sol.F, arr)
 tend(sol::ReachSolution, arr::AbstractVector) = tend(sol.F, arr)
 tspan(sol::ReachSolution, arr::AbstractVector) = tspan(sol.F, arr)
-setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT) # NOTE sol.alg should work in most cases too
-rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(sol.alg)
+
+# NOTE: using sol.alg for setrep and rsetrep may be inaccurate as solutions
+# do not change their sol.alg (eg. overapproximate(sol, Zonotope)) where sol is
+# a Taylor model flowpipe keeps sol.alg being TMJets => we have to check
+# for the rep's of the flowpipe
+setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
+rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(FT)
 vars(sol::ReachSolution) = vars(sol.F)
 
 # iteration and indexing iterator interface
