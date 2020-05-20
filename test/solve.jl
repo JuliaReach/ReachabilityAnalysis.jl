@@ -32,7 +32,10 @@
 
     # set representation
     #@test setrep(F) isa Zonotope
-    @test setrep(F) == Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
+    N = Float64
+    ZT = Zonotope{N, Vector{N}, Matrix{N}}
+    @test setrep(F) == ZT
+    @test rsetrep(F) == ReachSet{N, ZT}
 
     # callable behavior
     @test F(0..1) == F[1:end]

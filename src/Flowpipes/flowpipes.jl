@@ -269,6 +269,8 @@ Base.push!(F::Flowpipe, args...) = push!(F.Xk, args...)
 
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
+rsetrep(fp::Flowpipe{N, RT}) where {N, RT} = RT
+rsetrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = RT
 
 function location(fp::Flowpipe)
     @assert haskey(fp.ext, :loc_id) "this flowpipe has not been assigned a location identifier"
