@@ -585,10 +585,14 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) wh
     # pick the time domain of the given TM (same in all dimensions)
     t0 = tstart(R)
     Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = TM.evaluate(set(R), Δt - t0)
+    X_Δt = TM.evaluate(set(R), tdom)
 
     # evaluate the spatial variables in the symmetric box
     Bn = symBox(D)
@@ -606,7 +610,8 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, np
     t0 = tstart(R)
     Δt = tspan(R)
     # tdom defined below is the same as Δt - t0, but the domain inclusion check
-    # in TM.evauate may fail, so we unpack the domain again here
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
     tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
@@ -632,7 +637,8 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     t0 = tstart(R)
     Δt = tspan(R)
     # tdom defined below is the same as Δt - t0, but the domain inclusion check
-    # in TM.evauate may fail, so we unpack the domain again here
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
     tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
