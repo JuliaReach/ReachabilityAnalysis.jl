@@ -605,10 +605,13 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, np
     # pick the time domain of the given TM (same in all dimensions)
     t0 = tstart(R)
     Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here
+    tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = TM.evaluate(set(R), Δt - t0)
+    X_Δt = TM.evaluate(set(R), tdom)
 
     # evaluate the spatial variables in the symmetric box
     partition = IA.mince(symBox(D), nparts)
@@ -628,11 +631,14 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     # pick the time domain of the given TM (same in all dimensions)
     t0 = tstart(R)
     Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here
+    tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X = set(R)
-    X_Δt = TM.evaluate(X, Δt - t0)
+    X_Δt = TM.evaluate(X, tdom)
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
