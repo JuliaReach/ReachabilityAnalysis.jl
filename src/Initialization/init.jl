@@ -47,6 +47,9 @@ const CPA = CartesianProductArray
 #const LCS = LinearContinuousSystem
 #const CLCCS = ConstrainedLinearControlContinuousSystem
 
+# convenience union for dispatch on structs that are admissible as initial sets or inputs
+const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox}
+
 # ======================
 # Optional dependencies
 # ======================
