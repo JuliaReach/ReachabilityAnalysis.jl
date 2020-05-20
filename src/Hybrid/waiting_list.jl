@@ -96,21 +96,21 @@ function Base.:⊆(s::StateInLocation, w::WaitingList)
 end
 
 # conversion from vector-of-tuples to waiting list
-function Base.convert(::Type{TW}, Q::Vector{Tuple{M, ST}}) where {TW<:RA.WaitingList, M<:Integer, ST<:RA.AdmissibleSet}
+function Base.convert(::Type{TW}, Q::Vector{Tuple{M, ST}}) where {TW<:WaitingList, M<:Integer, ST<:AdmissibleSet}
     waiting_list = TW()
     for Qi in Q # no intersection chcks
         q, Xi = Qi
-        push!(waiting_list, RA.StateInLocation(Xi, q))
+        push!(waiting_list, StateInLocation(Xi, q))
     end
     return waiting_list
 end
 
 # "duck-typing" conversion from vector-of-tuples to waiting list
-function Base.convert(::Type{TW}, Q::Vector{Tuple{ST, M}}) where {TW<:RA.WaitingList, ST<:RA.AdmissibleSet, M<:Integer}
+function Base.convert(::Type{TW}, Q::Vector{Tuple{ST, M}}) where {TW<:WaitingList, ST<:AdmissibleSet, M<:Integer}
     waiting_list = TW()
     for Qi in Q # no intersection chcks
         Xi, q = Qi
-        push!(waiting_list, RA.StateInLocation(Xi, q))
+        push!(waiting_list, StateInLocation(Xi, q))
     end
     return waiting_list
 end
