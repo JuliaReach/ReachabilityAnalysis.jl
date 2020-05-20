@@ -648,6 +648,9 @@ _is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty
 # symmetric case
 _is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
 
+# this is a dummy disjointness check which returns "false" irrespective of the value of its arguments
+struct Dummy <: AbstractDisjointnessMethod end
+
 # --------------------------------------------------------------------
 # Methods to evaluate disjointness between a reach-set and a lazy set
 # --------------------------------------------------------------------
@@ -664,6 +667,11 @@ end
 function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
     H = overapproximate(R, Hyperrectangle)
     return _is_intersection_empty(set(H), Y)
+end
+
+# in this method we assume that the intersection is non-empty
+function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::Dummy)
+    return false
 end
 
 # -----------------------------------------------
