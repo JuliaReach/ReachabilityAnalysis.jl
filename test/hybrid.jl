@@ -45,6 +45,8 @@ end
 
 @testset "Bouncing ball: linear solvers" begin
     prob, _ = bouncing_ball()
+
+    sol = solve(prob, tspan=3.0);
 end
 
 @testset "Bouncing ball: nonlinear solvers" begin
