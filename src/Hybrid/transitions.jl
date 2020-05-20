@@ -59,7 +59,7 @@ end
 # -----------------------------------------------
 
 _state_matrix(m::IdentityMap) = m       # no-op, to dispatch on identity assignments
-_state_matrix(m::ConstrainedIdentityMap) = IdentityMap(dim(m))
+_state_matrix(m::ConstrainedIdentityMap) = IdentityMap(statedim(m))
 _state_matrix(m::MathematicalSystems.LinearMap) = m.A
 _state_matrix(m::ConstrainedLinearMap) = m.A
 _state_matrix(m::MathematicalSystems.AffineMap) = m.A
