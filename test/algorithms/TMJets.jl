@@ -1,3 +1,6 @@
+using ReachabilityAnalysis: domain, remainder, polynomial, get_order, expansion_point
+const IA = IntervalArithmetic
+
 @testset "TMJets algorithm" begin
     prob, tspan = vanderpol()
 
@@ -25,6 +28,14 @@ end
     prob, tspan = exponential_1d()
     sol = solve(prob, tspan=tspan, TMJets())
     @test sol.alg isa TMJets
+
+    # getter functins for the taylor model reach-set
+    R = sol[1]
+    @test domain(R) == tspan(R)
+    @test diam(remainder(R)[1]) < 1e-13
+    @test get_order(R) == [8]
+    @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
+    @test expansion_point(R) ≈ [IA.Interval(0.0)]
 
     # test intersection with invariant
     prob, tspan = exponential_1d(invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3

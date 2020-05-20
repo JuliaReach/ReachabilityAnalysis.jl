@@ -2,6 +2,8 @@
 import LazySets: dim, overapproximate
 import Base: ∈
 
+import TaylorModels: domain, remainder, polynomial, get_order
+
 # ================================================================
 # Reach set interfaces
 # ================================================================
@@ -533,7 +535,8 @@ using TaylorModels: TaylorModel1, TaylorN
 
 Taylor model reach-set represented as a vector taylor models in one variable
 (namely, the "time" variable) whose coefficients are multivariate polynomials
-(namely in the "space" variables).
+(namely in the "space" variables). It is assumed that the time domain is the same
+for all components.
 
 ### Notes
 
@@ -555,6 +558,14 @@ end
 @inline tspan(R::TaylorModelReachSet) = R.Δt
 @inline dim(R::TaylorModelReachSet) = get_numvars()
 @inline vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)),)
+
+# overload getter functions for the taylor model
+# we assume that the first element is representative
+domain(R::TaylorModelReachSet) = domain(first(R.X))
+remainder(R::TaylorModelReachSet) = remainder.(R.X)
+polynomial(R::TaylorModelReachSet) = polynomial.(R.X)
+get_order(R::TaylorModelReachSet) = get_order.(R.X)
+expansion_point(R::TaylorModelReachSet) = [Xi.x0 for Xi in R.X]
 
 # useful constants
 @inline zeroBox(m) = IntervalBox(zeroI, m)
