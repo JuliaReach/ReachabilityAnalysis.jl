@@ -11,6 +11,11 @@ end
 state(s::StateInLocation) = s.X
 location(s::StateInLocation) = s.loc_id
 
+# convert to a struct with broader type
+function Base.convert(::Type{StateInLocation{ST, M}}, s::StateInLocation{WT, M}) where {ST, WT<:ST, M}
+    StateInLocation{ST, M}(s.X, s.loc_id)
+end
+
 abstract type AbstractWaitingList end
 
 # iterator interface
@@ -47,6 +52,7 @@ end
 
 # constructor of empty waiting list
 WaitingList{N, ST, M}() where {N, ST, M} = WaitingList(Vector{N}(), Vector{StateInLocation{ST, M}}())
+WaitingList{N, ST, M, QT}() where {N, ST, M, QT<:StateInLocation{ST, M}} = WaitingList(Vector{N}(), Vector{QT}())
 
 # constructor without time-stamp
 WaitingList(array::Vector{QT}) where {ST, M, QT<:StateInLocation{ST, M}} = WaitingList{Float64}(array)
@@ -62,16 +68,18 @@ setrep(w::WaitingList{N, ST}) where {N, ST} = ST
 locrep(w::WaitingList{N, ST, M}) where {N, ST, M} = M
 tstamp(w::WaitingList, i) = w.times[i]
 
-@inline function Base.push!(w::WaitingList{N, ST, M, QT}, elem::QT) where {N, ST, M, QT}
+# we let elem::ET be possibly different than QT, for waiting lists which mixed set representations
+@inline function Base.push!(w::WaitingList{N, ST, M, QT}, elem::ET) where {N, ST, M, QT, ET}
     push!(w.times, zero(N))
     push!(w.array, elem)
     return w
 end
-@inline function Base.push!(w::WaitingList{N, ST, M, QT}, tstamp::N, elem::QT) where {N, ST, M, QT}
+@inline function Base.push!(w::WaitingList{N, ST, M, QT}, tstamp::N, elem::ET) where {N, ST, M, QT, ET}
     push!(w.times, tstamp)
     push!(w.array, elem)
     return w
 end
+
 @inline Base.pop!(w::WaitingList) = (pop!(w.times), pop!(w.array))
 
 function Base.:⊆(s::StateInLocation, w::WaitingList)
@@ -85,6 +93,26 @@ function Base.:⊆(s::StateInLocation, w::WaitingList)
         end
     end
     return contained
+end
+
+# conversion from vector-of-tuples to waiting list
+function Base.convert(::Type{TW}, Q::Vector{Tuple{M, ST}}) where {TW<:WaitingList, M<:Integer, ST<:AdmissibleSet}
+    waiting_list = TW()
+    for Qi in Q # no intersection chcks
+        q, Xi = Qi
+        push!(waiting_list, StateInLocation(Xi, q))
+    end
+    return waiting_list
+end
+
+# "duck-typing" conversion from vector-of-tuples to waiting list
+function Base.convert(::Type{TW}, Q::Vector{Tuple{ST, M}}) where {TW<:WaitingList, ST<:AdmissibleSet, M<:Integer}
+    waiting_list = TW()
+    for Qi in Q # no intersection chcks
+        Xi, q = Qi
+        push!(waiting_list, StateInLocation(Xi, q))
+    end
+    return waiting_list
 end
 
 #

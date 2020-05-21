@@ -561,7 +561,8 @@ end
 # interface functions
 array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
-setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = setrep(RT)
+rsetrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
