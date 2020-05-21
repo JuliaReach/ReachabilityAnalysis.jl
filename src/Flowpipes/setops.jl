@@ -674,6 +674,15 @@ function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::Dummy)
     return false
 end
 
+# TODO refactor?
+function overapproximate(R::TaylorModelReachSet{N}, ::BoxEnclosure) where {N}
+    return overapproximate(R, Hyperrectangle)
+end
+# TODO refactor?
+function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
+    return overapproximate(R, Zonotope)
+end
+
 # -----------------------------------------------
 # Disjointness checks between specific set types
 # -----------------------------------------------

@@ -67,11 +67,11 @@ end
 
     sol = solve(prob, tspan=3.0, max_jumps=1, alg=TMJets(),
                 intersect_source_invariant=false,
-                disjointness_method=RA.ZonotopeEnclosure())
+                disjointness_method=ZonotopeEnclosure())
     @test rsetrep(sol) <: TaylorModelReachSet
 
     sol = solve(prob, tspan=3.0, max_jumps=1, alg=TMJets(),
                 intersect_source_invariant=true,
-                disjointness_method=RA.ZonotopeEnclosure())
+                disjointness_method=ZonotopeEnclosure())
     @test setrep(sol) <: HPolytope
 end

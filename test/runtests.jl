@@ -1,7 +1,8 @@
 using Test, ReachabilityAnalysis, StaticArrays
 
 using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
-                           DeterministicSwitching, NonDeterministicSwitching
+                           DeterministicSwitching, NonDeterministicSwitching,
+                           BoxEnclosure, ZonotopeEnclosure
 
 # load test models
 include("models/linear/exponential1D.jl")
