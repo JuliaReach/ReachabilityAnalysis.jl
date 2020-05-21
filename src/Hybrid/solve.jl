@@ -7,15 +7,18 @@
 
 function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                max_jumps=100, # maximum number of discrete transitions
-               intersection_method::AbstractIntersectionMethod=HRepIntersection(), # method to perform take the concrete intersection in discrete transitions
+               intersection_method::AbstractIntersectionMethod=HRepIntersection(), # method to take the concrete intersection in discrete transitions
                clustering_method::AbstractClusteringMethod=BoxClustering(), # method to perform clustering of the sets that cross a guard
-               check_invariant=false, # check intersection with invariant in the distribution of initial sets
+               check_invariant_initial_states=false, # apply a disjointness check wrt each mode's invariant in the distribution of initial sets
+               intersect_invariant_initial_states=false, # take the concrete intersection wrt each mode's invariant when distributing the initial states
                first_mode_representative=true, # assume that the first mode is representative of the other modes when checking that the dimension in each mode is consistent
                intersect_source_invariant=true, # take the concrete intersection of the flowpipe with the source invariant
                kwargs...)
 
     # distribute the initial condition across the different locations
-    ivp_distributed = _distribute(ivp, intersection_method; check_invariant=check_invariant)
+    ivp_distributed = _distribute(ivp; intersection_method=intersection_method,
+                                       check_invariant=check_invariant_initial_states,
+                                       intersect_invariant=intersect_invariant_initial_states)
     waiting_list = initial_state(ivp_distributed)
     H = system(ivp_distributed)
 
@@ -171,7 +174,10 @@ end
 
 """
     _distribute(ivp::InitialValueProblem{HS, ST};
-                check_invariant=false) where {HS<:HybridSystem, ST<:LazySet}
+                intersection_method::AbstractIntersectionMethod=nothing,
+                check_invariant=false,
+                intersect_invariant=false,
+                ) where {HS<:HybridSystem, ST<:AdmissibleSet}
 
 Distribute the set of initial states to each mode of a hybrid system.
 
@@ -179,6 +185,7 @@ Distribute the set of initial states to each mode of a hybrid system.
 
 - `system`          -- an initial value problem wrapping a mathematical system (hybrid)
                        and a set of initial states
+- `intersection_method`
 - `check_invariant` -- (optional, default: `false`) if `false`, only add those modes
                        for which the intersection of the initial state with the invariant is non-empty
 - `intersect_invariant` -- (optional, default: `false`) if `false`, take the concrete intersection with the invariant
@@ -189,13 +196,14 @@ Distribute the set of initial states to each mode of a hybrid system.
 A new initial value problem with the same hybrid system but where the set of initial
 states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 """
-function _distribute(ivp::InitialValueProblem{HS, ST},
-                     intersection_method::AbstractIntersectionMethod;
+function _distribute(ivp::InitialValueProblem{HS, ST};
+                     intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false,
-                     ) where {HS<:HybridSystem, N, ST<:LazySet{N}}
+                     intersect_invariant=false
+                     ) where {HS<:HybridSystem, ST<:AdmissibleSet}
     H = system(ivp)
     X0 = initial_state(ivp)
+    N = eltype(X0)
 
     # NOTE using a the WaitingList, the set representation should be the same
     # for all sets => we have to convert (or overapproximate) the initial set X0
@@ -203,14 +211,18 @@ function _distribute(ivp::InitialValueProblem{HS, ST},
     # we may be able to refactor this option, / ad an in-place _distribute
     # as this option is only used for storing (eventually overapproximating)
     # the new waiting list elements
-    STwl = setrep(intersection_method)
-    X0 = _overapproximate(X0, STwl)
+    if intersection_method != nothing
+        STwl = setrep(intersection_method)
+        X0 = _overapproximate(X0, STwl)
+    else
+        STwl = ST
+    end
 
-    initial_states = WaitingList{N, STwl, Int}()
+    waiting_list = WaitingList{N, STwl, Int}()
 
     if !check_invariant
         for loc in states(H)
-            push!(initial_states, StateInLocation(X0, loc))
+            push!(waiting_list, StateInLocation(X0, loc))
         end
 
     elseif check_invariant && !intersect_invariant
@@ -218,7 +230,7 @@ function _distribute(ivp::InitialValueProblem{HS, ST},
             Sloc = mode(H, loc)
             Y = stateset(Sloc)
             if !_is_intersection_empty(X0, Y)
-                push!(initial_states, StateInLocation(X0, loc))
+                push!(waiting_list, StateInLocation(X0, loc))
             end
         end
 
@@ -229,11 +241,71 @@ function _distribute(ivp::InitialValueProblem{HS, ST},
             if !_is_intersection_empty(X0, Y)
                 X0cut = intersection(X0, Y)
                 X0cut_oa = overapproximate(X0cut, ST)
-                push!(initial_states, StateInLocation(X0cut_oa, loc))
+                push!(waiting_list, StateInLocation(X0cut_oa, loc))
             end
         end
     end
-    return InitialValueProblem(H, initial_states)
+    return InitialValueProblem(H, waiting_list)
+end
+
+# the initial states are passed as a vector-of-tuples, each tuple being of the form
+# (loc, X) where loc is an integer that corresponds to the mode and X is a set
+function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{M, ST}}};
+                     intersection_method=nothing,
+                     check_invariant=false,
+                     intersect_invariant=false
+                    ) where {HS<:HybridSystem, M<:Integer, ST<:AdmissibleSet}
+
+    H = system(ivp)
+    X0vec = initial_state(ivp) #  distributed initial states
+
+    if intersection_method != nothing
+        STwl = setrep(intersection_method)
+        X0vec = [(X0i[1], _overapproximate(X0i[2], STwl)) for X0i in X0vec]
+    else
+        STwl = ST
+    end
+
+    N = eltype(ST)
+    WL = WaitingList{N, STwl, Int, StateInLocation{STwl, Int}}
+
+    if !check_invariant && !intersect_invariant
+        waiting_list = convert(WL, X0vec)
+    else
+        error("not implemented")
+    end
+
+    return InitialValueProblem(H, waiting_list)
+end
+
+# "duck-typing" the initial states passed as a vector-of-tuples, each tuple being
+# of the form (X, loc) where loc is an integer that corresponds to the mode and X is a set
+function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{ST, M}}};
+                     intersection_method=nothing,
+                     check_invariant=false,
+                     intersect_invariant=false
+                    ) where {HS<:HybridSystem, ST<:AdmissibleSet, M<:Integer}
+
+    H = system(ivp)
+    X0vec = initial_state(ivp) #  distributed initial states
+
+    if intersection_method != nothing
+        STwl = setrep(intersection_method)
+        X0vec = [(_overapproximate(X0i[1], STwl), X0i[2]) for X0i in X0vec]
+    else
+        STwl = ST
+    end
+
+    N = eltype(ST)
+    WL = WaitingList{N, STwl, Int, StateInLocation{STwl, Int}}
+
+    if !check_invariant && !intersect_invariant
+        waiting_list = convert(WL, X0vec)
+    else
+        error("not implemented")
+    end
+
+    return InitialValueProblem(H, waiting_list)
 end
 
 #=
