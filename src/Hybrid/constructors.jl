@@ -11,7 +11,7 @@ end
 
 # hybrid automaton with kwargs and default switchings
 function HybridSystems.HybridSystem(; automaton, modes, resetmaps)
-    return HybridSystem(automaton=automaton, modes=modes, resetmaps=resetmaps, [AutonomousSwitching()])
+    return HybridSystem(automaton, modes, resetmaps, [AutonomousSwitching()])
 end
 
 #=
