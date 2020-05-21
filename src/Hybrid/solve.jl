@@ -11,8 +11,10 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                clustering_method::AbstractClusteringMethod=BoxClustering(), # method to perform clustering of the sets that cross a guard
                check_invariant_initial_states=false, # apply a disjointness check wrt each mode's invariant in the distribution of initial sets
                intersect_invariant_initial_states=false, # take the concrete intersection wrt each mode's invariant when distributing the initial states
+               intersection_source_invariant_method=FallbackIntersection(), # method to take the concrete intersection with the source invariant
                first_mode_representative=true, # assume that the first mode is representative of the other modes when checking that the dimension in each mode is consistent
                intersect_source_invariant=true, # take the concrete intersection of the flowpipe with the source invariant
+               disjointness_method=NoEnclosure(), # method to compute disjointness
                kwargs...)
 
     # distribute the initial condition across the different locations
@@ -87,8 +89,8 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # assign location q to this flowpipe
             F_in_inv = Flowpipe(undef, STwl, 0)
             for Ri in F
-                # TODO refactor / reconstruct
-                aux = intersection(set(Ri), I⁻)
+                # TODO refactor with reconstruct
+                aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
                 Raux = ReachSet(aux, tspan(Ri))
                 push!(F_in_inv, Raux)
             end
@@ -106,7 +108,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # find reach-sets that may take the jump
             jump_rset_idx = Vector{Int}()
             for (i, X) in enumerate(F)
-                _is_intersection_empty(X, G) && continue
+                _is_intersection_empty(X, G, disjointness_method) && continue
                 push!(jump_rset_idx, i)
             end
 

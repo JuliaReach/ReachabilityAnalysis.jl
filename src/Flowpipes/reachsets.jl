@@ -647,6 +647,14 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
+function overapproximate(R::TaylorModelReachSet{N}, ::BoxEnclosure) where {N}
+    return overapproximate(R, Hyperrectangle)
+end
+
+function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
+    return overapproximate(R, Zonotope)
+end
+
 # ================================================================
 # Template reach set
 # ================================================================

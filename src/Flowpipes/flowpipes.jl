@@ -516,6 +516,10 @@ function overapproximate(fp::Flowpipe, args...)
     return Flowpipe(map(R -> overapproximate(R, args...), fp))
 end
 
+function overapproximate(fp::VRT, args...) where {RT, VRT<:AbstractVector{RT}}
+    return Flowpipe(map(R -> overapproximate(R, args...), fp))
+end
+
 # ================================
 # Hybrid flowpipe
 # ================================

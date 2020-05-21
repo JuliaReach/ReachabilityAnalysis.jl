@@ -731,9 +731,10 @@ struct SupportFunctionIntersection <: AbstractIntersectionMethod
 #
 end
 
+# "fallback" implementation that uses LazySets intersection(X, Y)
+struct FallbackIntersection <: AbstractIntersectionMethod
 #
-# TODO: add some "Fallback" implementation that uses LazySets intersection(X, Y)
-#
+end
 
 # = METHODS WITH TYPE ANNOTATION
 #=
@@ -747,6 +748,19 @@ struct SupportFunctionIntersection <: AbstractIntersectionMethod
 
 end
 =#
+
+function _intersection(R::AbstractReachSet, Y::LazySet, method::AbstractIntersectionMethod)
+    _intersection(set(R), Y, method)
+end
+function _intersection(X::LazySet, Y::LazySet, ::FallbackIntersection)
+    intersection(X, Y)
+end
+
+# for TMs, we overapproximate with a zonotope
+function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersection)
+    X = set(overapproximate(R, Zonotope))
+    intersection(X, Y)
+end
 
 # concatenate with "promotion"
 const VECH{N, VT} = Vector{HalfSpace{N, VT}}
@@ -802,9 +816,18 @@ struct BoxClustering <: AbstractClusteringMethod
 #
 end
 
-function cluster(F, idx, ::BoxClustering)
+function cluster(F::Flowpipe{N, ReachSet{N, ST}}, idx, ::BoxClustering) where {N, ST}
     convF = Convexify(view(F, idx))  # Convexify(F[idx])
     return overapproximate(convF, Hyperrectangle)
+end
+
+# we use a Zonotope overapproximation of the flowpipe, take thir convex hull, and
+# compute its box overapproximation
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N, ST}
+    Fidx = Flowpipe(view(F, idx))
+    charr = [set(overapproximate(Ri, Zonotope)) for Ri in Fidx]
+    Xoa = overapproximate(ConvexHullArray(charr), Hyperrectangle)
+    return ReachSet(Xoa, tspan(Fidx))
 end
 
 struct LazyCHClustering <: AbstractClusteringMethod
