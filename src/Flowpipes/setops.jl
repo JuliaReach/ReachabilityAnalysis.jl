@@ -745,6 +745,12 @@ struct FallbackIntersection <: AbstractIntersectionMethod
 #
 end
 
+struct BoxIntersection <: AbstractIntersectionMethod
+#
+end
+
+setrep(::BoxIntersection) = Hyperrectangle{Float64, Vector{Float64}, Vector{Float64}}
+
 # = METHODS WITH TYPE ANNOTATION
 #=
 struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod

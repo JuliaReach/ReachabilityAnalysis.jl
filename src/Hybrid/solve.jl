@@ -62,6 +62,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     count_jumps = 0
 
     while !isempty(waiting_list)  # && count_jumps <= max_jumps .. new stopping criterion?
+        println("XXXX")
         (tprev, elem) = pop!(waiting_list)
         push!(explored_list, elem)
 
@@ -108,6 +109,8 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # find reach-sets that may take the jump
             jump_rset_idx = Vector{Int}()
             for (i, X) in enumerate(F)
+                #println(typeof(X))
+                #println(typeof(G))
                 _is_intersection_empty(X, G, disjointness_method) && continue
                 push!(jump_rset_idx, i)
             end
@@ -119,16 +122,19 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # NOTE we assume that Clustering is applied and only Xc is only one reachset
             Xc = cluster(F, jump_rset_idx, clustering_method)
             tprev = tstart(Xc)
+            println("intersection time = $(diam(tspan(Xc)))")
 
             # compute reachable states by discrete evolution
             X = apply(discrete_post, Xc, intersection_method) # .. may use intersection_method from @unwrap discrete post
             count_jumps += 1
-
+            println("count_jumps = $count_jumps")
             # check if this location has already been explored;
             # if it is not the case, add it to the waiting list
             r = target(H, t)
             Xr = StateInLocation(X, r)
             if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+                println(tprev)
+                println(Xr)
                 push!(waiting_list, tprev, Xr)
                 # NOTE save jumps_rset_idx, Xc? It might be interesting to store (for plots) the concrete
                 # intersection with the source invariant F
