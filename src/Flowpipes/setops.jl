@@ -777,13 +777,16 @@ function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersectio
     intersection(X, Y)
 end
 
-# concatenate with "promotion"
+# converts the normal vector of a list of half-spaces to be a Vector
 const VECH{N, VT} = Vector{HalfSpace{N, VT}}
+_to_vec(c::HalfSpace{N, Vector{N}}) where {N} = c
+_to_vec(c::HalfSpace{N, VT}) where {N, VT<:AbstractVector{N}} = HalfSpace(Vector(c.a), c.b)
+_to_vec(x::VECH{N, Vector{N}}) where {N} = x
+_to_vec(x::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = broadcast(_to_vec, x)
 
-_vcat(x::VECH{N, VT}, y::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y)
-_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z)
-_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}, w::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z, w)
-_vcat(x::VECH{N, SingleEntryVector{N}}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat([HalfSpace(Vector(c.a), c.b) for c in x], y, z)
+# concatenates lists of half-spaces such that the normal vectors of the final list
+# are all Vector
+_vcat(args::VECH...) = vcat(map(_to_vec, args)...)
 
 # TODO use LazySets intersection
 function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
