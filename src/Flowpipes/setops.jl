@@ -714,14 +714,22 @@ end
 # symmetric case
 _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H)
 
+# if X is polyhedral and Y is the set union of half-spaces, X ∩ Y is empty iff
+# X ∩ Hi is empty for each half-space Hi in Y
+# NOTE the algorithm below solves an LP for each X ∩ Hi; however, we can proceed
+# more efficintly using support functions
+# see LazySets.is_intersection_empty_helper_halfspace
 function LazySets.is_intersection_empty(X::AbstractPolytope{N},
                                         Y::UnionSetArray{N, HT}
                                         ) where {N<:Real, VN<:AbstractVector{N}, HT<:HalfSpace{N, VN}}
     clist_X = constraints_list(X)
     for ci in Y.array
+        # using support functions
+        #!(-ρ(-hs.a, X) > hs.b) && return false # TODO use robust check
+
+        # using LP
         Y_ci = vcat(clist_X, ci)
-        success = remove_redundant_constraints!(Y_ci)
-        success && return false
+        remove_redundant_constraints!(Y_ci) && return false
     end
     return true
 end

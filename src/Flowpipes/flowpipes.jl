@@ -207,6 +207,9 @@ function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer
 end
 =#
 
+# further setops
+LazySets.is_intersection_empty(F::AbstractFlowpipe, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+
 # ================================
 # Flowpipes
 # ================================
@@ -391,6 +394,9 @@ tend(F::Flowpipe, arr::UnitRange) = tend(view(array(F), arr), contiguous=true)
 tend(F::Flowpipe, arr::AbstractVector) = tend(view(array(F), arr))
 tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr), contiguous=true)
 tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
+
+# further setops
+LazySets.is_intersection_empty(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
 
 # =======================================
 # Flowpipe composition with a time-shift

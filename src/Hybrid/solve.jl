@@ -59,6 +59,9 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     @assert t0 == zero(t0) # we assume that the initial time is zero
     T = tend(time_span) # time horizon
 
+    # counter for the number of transitions: using `count_jumps <= max_jumps` as
+    # stopping criterion ensures that no more elements are added to the waiting
+    # list after `max_jumps` discrete jumps
     count_jumps = 0
 
     while !isempty(waiting_list)
@@ -119,7 +122,6 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # NOTE we assume that Clustering is applied and only Xc is only one reachset
             Xc = cluster(F, jump_rset_idx, clustering_method)
             tprev = tstart(Xc)
-            println("intersection time = $(diam(tspan(Xc)))")
 
             # compute reachable states by discrete evolution
             X = apply(discrete_post, Xc, intersection_method) # .. may use intersection_method from @unwrap discrete post
@@ -130,8 +132,6 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             r = target(H, t)
             Xr = StateInLocation(X, r)
             if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
-                println(tprev)
-                println(Xr)
                 push!(waiting_list, tprev, Xr)
                 # NOTE save jumps_rset_idx, Xc? It might be interesting to store (for plots) the concrete
                 # intersection with the source invariant F

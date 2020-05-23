@@ -123,3 +123,6 @@ end
 LazySets.dim(sol::ReachSolution) = dim(sol.F)
 LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.F)
 LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.F)
+
+# further setops functions acting on solutions' flowpipes
+LazySets.is_intersection_empty(sol::ReachSolution, Y::LazySet) = is_intersection_empty(sol.F, Y)
