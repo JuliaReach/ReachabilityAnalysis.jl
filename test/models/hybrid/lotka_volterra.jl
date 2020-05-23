@@ -1,3 +1,10 @@
+@taylorize function lotka_volterra!(du, u, p, t)
+    u1u2 = u[1] * u[2]
+    du[1] = 3.0 * (u[1] - u1u2)
+    du[2] = u1u2 - u[2]
+    return du
+end
+
 function lotka_volterra_hybrid(; ε_ext=1e-4, # threshold for the outer approximation
                                  n_int=50)   # number of directions for the inner approximation
 
