@@ -162,11 +162,7 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
         !success && continue
         push!(out, HPolytope(copy(Y_ci)))
     end
-    if isempty(out)
-        return EmptySet(dim(X))
-    else
-        return UnionSetArray(out)
-    end
+    return isempty(out) ? EmptySet(dim(X)) : UnionSetArray(out)
 end
 
 # the source invariant is the set union of half-spaces, the other sets are polyhedral
@@ -182,6 +178,33 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     vlist = vertices_list(X) # TODO pass the backend as an option
     Xhrep = tohrep(vlist)
     return apply(tr, Xhrep, method)
+end
+
+# the guard is the set union of half-spaces, the source invariant is polyhedral,
+# and the target invariant is universal
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+                  X::AbstractPolytope{N},
+                  method::HRepIntersection) where {N, VN,
+                                                   GT<:UnionSetArray{N, HalfSpace{N, VN}},
+                                                   IT⁻<:AbstractPolyhedron{N},
+                                                   IT⁺<:Universe{N}}
+
+    success, aux = _intersection(X, tr.I⁻, method)
+    !success && return EmptySet(dim(X))
+
+    clist_G = tr.G.array
+    out = Vector{HPolytope{N, Vector{N}}}()
+
+    # intersect Y := X ∩ I⁻ with each half-space ci in G
+    # only store those polytpes for which Y ∩ ci is non-empty
+    for ci in clist_G
+        Y_ci = vcat(aux, ci)
+        success = remove_redundant_constraints!(Y_ci)
+        !success && continue
+        push!(out, HPolytope(copy(Y_ci)))
+    end
+
+    return !isempty(out) ? UnionSetArray(out) : EmptySet(dim(X))
 end
 
 # -------------------------------------------
@@ -239,8 +262,19 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
                                        IT⁺<:AbstractPolyhedron{N}}
 
     out = apply(tr, X, HRepIntersection())
-    #Hout = convert(HPolytope, overapproximate(Punion, Hyperrectangle))
-    #Hout = HPolytope([HalfSpace(Vector(c.a), c.b) for c in Hout.constraints])
+    return overapproximate(out, Hyperrectangle)
+end
+
+# the guard is the set union of half-spaces, the source invariant is polyhedral,
+# and the target invariant is the set union of half-spaces
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+                  X::AbstractPolytope{N},
+                  method::BoxIntersection) where {N, VN,
+                                                  GT<:UnionSetArray{N, HalfSpace{N, VN}},
+                                                  IT⁻<:AbstractPolyhedron{N},
+                                                  IT⁺<:Universe{N}}
+
+    out = apply(tr, X, HRepIntersection())
     return overapproximate(out, Hyperrectangle)
 end
 

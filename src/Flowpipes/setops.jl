@@ -714,6 +714,18 @@ end
 # symmetric case
 _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H)
 
+function LazySets.is_intersection_empty(X::AbstractPolytope{N},
+                                        Y::UnionSetArray{N, HT}
+                                        ) where {N<:Real, VN<:AbstractVector{N}, HT<:HalfSpace{N, VN}}
+    clist_X = constraints_list(X)
+    for ci in Y.array
+        Y_ci = vcat(clist_X, ci)
+        success = remove_redundant_constraints!(Y_ci)
+        success && return false
+    end
+    return true
+end
+
 # ==================================
 # Concrete intersection
 # ==================================

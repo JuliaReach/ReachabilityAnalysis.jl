@@ -56,13 +56,12 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     # elapsed time accumulators
     t0 = tstart(time_span)
-    @assert t0 == zero(t0) # NOTE: we assume that the initial time is zero
+    @assert t0 == zero(t0) # we assume that the initial time is zero
     T = tend(time_span) # time horizon
 
     count_jumps = 0
 
-    while !isempty(waiting_list)  # && count_jumps <= max_jumps .. new stopping criterion?
-        println("XXXX")
+    while !isempty(waiting_list)
         (tprev, elem) = pop!(waiting_list)
         push!(explored_list, elem)
 
@@ -109,8 +108,6 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # find reach-sets that may take the jump
             jump_rset_idx = Vector{Int}()
             for (i, X) in enumerate(F)
-                #println(typeof(X))
-                #println(typeof(G))
                 _is_intersection_empty(X, G, disjointness_method) && continue
                 push!(jump_rset_idx, i)
             end
@@ -127,7 +124,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # compute reachable states by discrete evolution
             X = apply(discrete_post, Xc, intersection_method) # .. may use intersection_method from @unwrap discrete post
             count_jumps += 1
-            println("count_jumps = $count_jumps")
+
             # check if this location has already been explored;
             # if it is not the case, add it to the waiting list
             r = target(H, t)
