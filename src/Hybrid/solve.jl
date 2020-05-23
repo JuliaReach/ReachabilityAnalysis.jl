@@ -56,12 +56,15 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     # elapsed time accumulators
     t0 = tstart(time_span)
-    @assert t0 == zero(t0) # NOTE: we assume that the initial time is zero
+    @assert t0 == zero(t0) # we assume that the initial time is zero
     T = tend(time_span) # time horizon
 
+    # counter for the number of transitions: using `count_jumps <= max_jumps` as
+    # stopping criterion ensures that no more elements are added to the waiting
+    # list after `max_jumps` discrete jumps
     count_jumps = 0
 
-    while !isempty(waiting_list)  # && count_jumps <= max_jumps .. new stopping criterion?
+    while !isempty(waiting_list)
         (tprev, elem) = pop!(waiting_list)
         push!(explored_list, elem)
 

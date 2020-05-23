@@ -264,6 +264,10 @@ Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(
 Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalBox, set(R))
 complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 
+# forward to internal function _is_intersection_empty, which admit a pre-processing
+# step for the reach-set / algorithm choice
+LazySets.is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y)
+
 function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end
