@@ -5,7 +5,9 @@
     return du
 end
 
-function lotka_volterra_hybrid(; ε_ext=1e-4, # threshold for the outer approximation
+function lotka_volterra_hybrid(; nsplit=1,
+                                 ε = 0.008,
+                                 ε_ext=1e-4, # threshold for the outer approximation
                                  n_int=50)   # number of directions for the inner approximation
 
     # generate external / internal polytopic approximations of the guard
@@ -31,21 +33,20 @@ function lotka_volterra_hybrid(; ε_ext=1e-4, # threshold for the outer approxim
     H = HybridSystem(automaton=aut, modes=[outside, inside, outside_unconstrained],
                                            resetmaps=[T_out_in, T_in_out])
 
-    # initial states
-    ε = 0.008
+    # initial states with splitting
     X0 = Hyperrectangle(low=[1.3-ε, 1.], high=[1.3+ε, 1.])
-
-    return InitialValueProblem(H, [(X0, 1)])
+    X0s = split(X0, [nsplit, 1])
+    X0st = [(X0s_i, 1) for X0s_i in X0s]
+    return InitialValueProblem(H, X0st)
 end
 
 #=
 # TEST RUN:
 
-prob = lotka_volterra_hybrid();
-
+prob = lotka_volterra_hybrid(nsplit=10, ε_ext=1e-4, n_int = 30, ε = 0.008);
 @time sol = solve(prob,
                   tspan=(0.0, 3.64),
-                  alg=TMJets(abs_tol=1e-16, orderT=7, orderQ=1, disjointness=RA.Dummy()),
+                  alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=true, disjointness=RA.ZonotopeEnclosure()),
                   max_jumps=2,
                   intersect_source_invariant=false,
                   intersection_method=RA.BoxIntersection(),
@@ -53,9 +54,8 @@ prob = lotka_volterra_hybrid();
                   disjointness_method=RA.BoxEnclosure());
 solz = overapproximate(sol, Zonotope);
 
-fig = plot()
-plot!(fig, Ball2([1.0, 1.0], 0.15), 1e-4)
-plot!(fig, solz[1], vars=(1, 2))
-plot!(fig, solz[2], vars=(1, 2))
-plot!(solz[3][1], vars=(1, 2))
+B = Ball2([1.0, 1.0], 0.15) # "exact"
+B_ext = overapproximate(B, 1e-6) # outer approximation
+plot(solz, vars=(1, 2))
+plot!(B_ext, ratio=1)
 =#
