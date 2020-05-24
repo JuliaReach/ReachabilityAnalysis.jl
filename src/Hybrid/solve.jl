@@ -89,8 +89,10 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         =#
         if intersect_source_invariant
             I⁻ = stateset(H, q)
+
             # assign location q to this flowpipe
             F_in_inv = Flowpipe(undef, STwl, 0)
+
             for Ri in F
                 # TODO refactor with reconstruct
                 aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
