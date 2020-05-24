@@ -89,6 +89,11 @@ end
 Base.convert(::Type{HPolytope{N, VT}}, P::HPolytope{N, VT}) where {N, VT} = P
 Base.convert(::Type{HPolytope{N, VT}}, P) where {N, VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
 
+function Base.convert(::Type{Hyperrectangle{N, Vector{N}, Vector{N}}},
+                      H::Hyperrectangle{N, SVector{L, N}, SVector{L, N}}) where {N, L}
+    return Hyperrectangle(Vector(H.center), Vector(H.radius))
+end
+
 # =========================
 # In-place ops
 # =========================
@@ -790,11 +795,49 @@ end
 function _intersection(X::LazySet, Y::LazySet, ::FallbackIntersection)
     intersection(X, Y)
 end
+_intersection(X::LazySet, Y::LazySet) = _intersection(X, Y, FallbackIntersection())
 
 # for TMs, we overapproximate with a zonotope
+function _intersection(R::TaylorModelReachSet, Y::LazySet)
+    _intersection(R, Y, FallbackIntersection())
+end
+
 function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersection)
     X = set(overapproximate(R, Zonotope))
     intersection(X, Y)
+end
+
+function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
+    X = set(overapproximate(R, Hyperrectangle))
+    out = intersection(X, Y)
+    return isempty(out) ? EmptySet(dim(out)) : overapproximate(out, Hyperrectangle)
+end
+
+# TODO refactor? See LazySets#2158
+function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N, HT}, ::BoxIntersection) where {N, HT<:HalfSpace{N}}
+    X = set(overapproximate(R, Hyperrectangle))
+
+    # find first non-empty intersection
+    m = length(Y.array) # can't use array(Y) ?
+    i = 1
+    local W
+    @inbounds while i <= m
+        W = intersection(X, Y.array[i])
+        !isempty(W) && break
+        i += 1
+    end
+    if i == m+1
+        return EmptySet(dim(Y))
+    end
+
+    # add all other non-empty intersections
+    out = [W]
+    @inbounds for j in i+1:m
+        W = intersection(X, Y.array[j])
+        !isempty(W) && push!(out, W)
+    end
+    #println(typeof(overapproximate(UnionSetArray(out), Hyperrectangle)))
+    return isempty(out) ? EmptySet(dim(out)) : overapproximate(UnionSetArray(out), Hyperrectangle)
 end
 
 # converts the normal vector of a list of half-spaces to be a Vector
