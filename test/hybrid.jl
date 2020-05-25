@@ -60,6 +60,9 @@ end
     prob_b = IVP(system(prob), [(X0, 1)]) # equivalent
     sol_a = solve(prob_a, tspan=3.0)
     sol_b = solve(prob_b, tspan=3.0)
+
+    # get vector of locations of each component flowpipe
+    @test location.(sol) == [1, 1]
 end
 
 @testset "Bouncing ball: nonlinear solvers" begin
