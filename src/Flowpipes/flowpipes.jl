@@ -210,6 +210,9 @@ end
 # further setops
 LazySets.is_intersection_empty(F::AbstractFlowpipe, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
 
+# getter functions for hybrid systems
+location(F::AbstractFlowpipe) = get(F.ext, :loc_id, missing)
+
 # ================================
 # Flowpipes
 # ================================
