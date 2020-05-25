@@ -17,6 +17,7 @@ include("solve.jl")
 include("reachsets.jl")
 include("flowpipes.jl")
 #include("traces.jl")
+include("setops.jl")
 
 include("algorithms/INT.jl")
 include("algorithms/BOX.jl")

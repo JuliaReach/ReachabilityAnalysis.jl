@@ -749,6 +749,11 @@ end
 
 abstract type AbstractIntersectionMethod end
 
+#= TODO annotate normal vector types?
+struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod end
+setrep(int_method::HRepIntersection{SX<:AbstractPolytope}, SY<:AbstractPolyhedron}) = SX
+=#
+
 # evaluate X ∩ Y exactly using the constraint representation of X and Y
 # evaluate X₁ ∩ ⋯ ∩ Xₖ using the constraint representation of each Xᵢ
 struct HRepIntersection <: AbstractIntersectionMethod
@@ -756,14 +761,6 @@ struct HRepIntersection <: AbstractIntersectionMethod
 end
 
 setrep(::HRepIntersection) = HPolytope{Float64, Vector{Float64}}
-
-# evaluate X ∩ Y approximately using support function evaluations, through the
-# property that the support function of X ∩ Y along direction d is not greater
-# min(ρ(d, X), ρ(d, Y))
-# by the same token, compute X₁ ∩ ⋯ ∩ Xₖ approximately using the same property
-struct SupportFunctionIntersection <: AbstractIntersectionMethod
-#
-end
 
 # "fallback" implementation that uses LazySets intersection(X, Y)
 struct FallbackIntersection <: AbstractIntersectionMethod
@@ -776,25 +773,38 @@ end
 
 setrep(::BoxIntersection) = Hyperrectangle{Float64, Vector{Float64}, Vector{Float64}}
 
-# = METHODS WITH TYPE ANNOTATION
-#=
-struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod
-#
+# evaluate X ∩ Y approximately using support function evaluations, with the
+# property that the support function of X ∩ Y along direction d is not greater
+# ρ(d, X ∩ Y) <= min(ρ(d, X), ρ(d, Y))
+# by the same token, compute X₁ ∩ ⋯ ∩ Xₖ approximately using the same property
+# if the template is provided, we have TN<:AbstractDirections{N, VN}
+# otherwise, the constraints of X and Y are used and TN is Missing
+struct TemplateHullIntersection{N, VN, TN} <: AbstractIntersectionMethod
+    dirs::TN
 end
 
-setrep(int_method::HRepIntersection{SX<:AbstractPolytope}, SY<:AbstractPolyhedron}) = SX
-
-struct SupportFunctionIntersection <: AbstractIntersectionMethod
-
+# constructor with template directions provided
+function TemplateHullIntersection(dirs::TN) where {N, VN, TN<:AbstractDirections{N, VN}}
+    TemplateHullIntersection{N, VN, TN}(dirs)
 end
-=#
 
-function _intersection(R::AbstractReachSet, Y::LazySet, method::AbstractIntersectionMethod)
-    _intersection(set(R), Y, method)
+# constructor without template directions => directions are missing until evaluated
+function TemplateHullIntersection{N, VN}() where {N, VN<:AbstractVector{N}}
+    TemplateHullIntersection{N, VN, Missing}(missing)
 end
-function _intersection(X::LazySet, Y::LazySet, ::FallbackIntersection)
-    intersection(X, Y)
-end
+TemplateHullIntersection() = TemplateHullIntersection{Float64, Vector{Float64}}()
+
+setrep(::TemplateHullIntersection{N, VN}) where {N, VN} = HPolytope{N, VN}
+
+# propagate methods from reach-set to sets
+# TODO always return ReachSets; extend to AbstractLazyReachSet; intersect time spans
+_intersection(R::AbstractReachSet, X::LazySet, method::AbstractIntersectionMethod) = _intersection(set(R), X, method)
+_intersection(X::LazySet, R::AbstractReachSet, method::AbstractIntersectionMethod) = _intersection(X, set(R), method)
+
+# TODO intersect time spans?
+#_intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod) = _intersection(set(R), set(S), method)
+
+_intersection(X::LazySet, Y::LazySet, ::FallbackIntersection) = intersection(X, Y)
 _intersection(X::LazySet, Y::LazySet) = _intersection(X, Y, FallbackIntersection())
 
 # for TMs, we overapproximate with a zonotope
@@ -807,6 +817,7 @@ function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersectio
     intersection(X, Y)
 end
 
+# TODO overapprox Y with a box if it's bounded?
 function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
     X = set(overapproximate(R, Hyperrectangle))
     out = intersection(X, Y)
@@ -877,6 +888,42 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     out = _vcat(clist_X, clist_Y, clist_Z, clist_W)
     success = remove_redundant_constraints!(out)
     return (success, out)
+end
+
+# if the template directions is missing => use the constraints of both X and Y
+# TODO remove redundant constraints?
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, Missing}) where {N, VN}
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
+
+    out = Vector{HalfSpace{N, VN}}()
+    sizehint!(out, length(clist_X) + length(clist_Y))
+
+    @inbounds for (i, c) in enumerate(clist_X)
+        d = convert(VN, c.a) # normal vector
+        b = min(c.b, ρ(d, Y)) # we know that ρ(d, X) = b
+        push!(out, HalfSpace(d, b))
+    end
+
+    @inbounds for (i, c) in enumerate(clist_Y)
+        d = convert(VN, c.a) # normal vector
+        b = min(ρ(d, X), c.b) # we know that ρ(d, Y) = b
+        push!(out, HalfSpace(d, b))
+    end
+
+    return HPolytope(out)
+end
+
+# use ρ(d, X∩Y) ≤ min(ρ(d, X), ρ(d, Y)) for each d in the template
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, TN}) where {N, VN, TN<:AbstractDirections{N, VN}}
+    dirs = method.dirs
+    out = Vector{HalfSpace{N, VN}}(undef, length(dirs))
+    @inbounds for (i, d) in enumerate(dirs)
+        d = convert(VN, d)
+        b = min(ρ(d, X), ρ(d, Y))
+        out[i] = HalfSpace(d, b)
+    end
+    return HPolytope(out)
 end
 
 # =====================================
