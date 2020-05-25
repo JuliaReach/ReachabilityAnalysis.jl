@@ -50,7 +50,7 @@ export
     shift,
     complement,
 
-# Lazy operations
+# Lazy operations on flowpipes
     Projection,
     Shift,
     Convexify,
@@ -66,4 +66,10 @@ export
     reset_map,
     guard,
     source_invariant,
-    target_invariant
+    target_invariant,
+
+# Algorithms for set operations
+    FallbackIntersection,
+    HRepIntersection,
+    BoxIntersection,
+    TemplateHullIntersection
