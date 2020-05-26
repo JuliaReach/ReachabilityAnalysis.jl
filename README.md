@@ -22,18 +22,12 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 
 The following types of systems are supported.
 
-### Implemented
-
-- Continuous ODEs with linear dynamics (GLGM06, INT, BOX) :heavy_check_mark:
+- Continuous ODEs with linear dynamics (GLGM06, LGG09, BFFPSV18) :heavy_check_mark:
 - Continuous ODEs with linear dynamics and parametric uncertainty (ASB07) :heavy_check_mark:
 - Continuous ODEs with non-linear dynamics (TMJets) :heavy_check_mark:
+- Hybrid systems with piecewise-affine dynamics :heavy_check_mark:
+- Hybrid systems with non-linear dynamics :heavy_check_mark:
 - Hybrid systems with clocked linear dynamics (HACLD1) :heavy_check_mark:
-
-### Planned
-
-- Continuous ODEs with linear dynamics (BFFPSV18)
-- Hybrid systems with piecewise-affine dynamics
-- Hybrid systems with non-linear dynamics
 
 Research credit and full references to the scientific papers presenting the algorithms
 implemented in this package can be found in the source code for each algorithm and in the
