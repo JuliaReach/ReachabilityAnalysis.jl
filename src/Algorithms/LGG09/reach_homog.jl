@@ -3,36 +3,85 @@
 # =================
 
 # note that each of the computations in the loop over directions is independent
-function reach_homog_LGG09!(ρvec_ℓ, Φ::AbstractMatrix{N}, Ω₀::LazySet{N},
-                            ℓ::AbstractVector{N}, NSTEPS::Int, time_shift::N) where {N}
+function reach_homog_LGG09!(F::Vector{TemplateReachSet{N, VN, TN, SN}}, # SN = Vector{N} always ?
+                            dirs::TN,
+                            Ω₀::LazySet,
+                            Φ::AbstractMatrix,
+                            NSTEPS::Integer,
+                            δ::N,
+                            X::Universe, # no invariant
+                            time_shift::N
+                            ) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
 
     # preallocate output sequence
-    ρvec_ℓ = Vector{N}(undef, N-1)
-    ρvec = fill(ρvec_ℓ, ndirs)
+    ρℓ = Matrix{N}(undef, length(dirs), NSTEPS)
 
     # for each direction, compute NSTEPS iterations
-    @inbounds for (i, ℓ) in enumerate(dirs)
-        reach_homog_dir_LGG09!(ρvec[i], Φᵀ, ℓ, Ω₀, NSTEPS, time_shift)
+    @inbounds for (j, ℓ) in enumerate(dirs)
+        reach_homog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, ℓ, NSTEPS)
+    end
+
+    # fill template reach-set sequence
+    Δt = (zero(N) .. δ) + time_shift
+    @inbounds for k in 1:NSTEPS
+        F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)
+        Δt += δ
+    end
+
+    return F
+end
+
+function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS) where {N}
+    rᵢ = copy(ℓ)
+    rᵢ₊₁ = similar(rᵢ)
+
+    @inbounds for i in 1:NSTEPS
+        ρvec_ℓ[j, i] = ρ(rᵢ, Ω₀)
+
+        # update cache for the next iteration
+        mul!(rᵢ₊₁, Φᵀ, rᵢ)
+        copy!(rᵢ, rᵢ₊₁)   # rᵢ .= rᵢ₊₁
     end
     return ρvec_ℓ
 end
 
 # TODO: needs specialization for static vector / static matrix ?
-
 # compute NSTEPS iterations support function along direction ℓ
-function reach_homog_dir_LGG09!(ρvec_ℓ, Φᵀ, ℓ, Ω₀, NSTEPS, time_shift) where {N}
-    rᵢ = copy(ℓ) # initialize r₀
-    rᵢ₊₁ = similar(rᵢ) # initialize r₁
+function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS) where {N}
+    rᵢ = copy(ℓ)
+    rᵢ₊₁ = similar(rᵢ)
 
-    @inbounds for i in 0:NSTEPS-2
+    @inbounds for i in 1:NSTEPS
+        ρvec_ℓ[i] = ρ(rᵢ, Ω₀)
+
+        # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
-        ρvec_ℓ[i+1] = ρ(rᵢ₊₁, Ω₀)
-
-        #copy!(rᵢ, rᵢ₊₁) # update cache for the next iteration
-        rᵢ .= rᵢ₊₁
+        copy!(rᵢ, rᵢ₊₁)   # rᵢ .= rᵢ₊₁
     end
     return ρvec_ℓ
 end
+
+# NOTES:
+# - if ℓ and -ℓ are in the template, they could share (Φᵀ)^k * ℓ
+# - the loop over directions can be parallelized
+
+#=---- version using vector-of-vectors
+    # preallocate output sequence
+    ρℓ = [Vector{N}(undef, NSTEPS) for _ in 1:length(dirs)]
+
+    # for each direction, compute NSTEPS iterations
+    @inbounds for (i, ℓ) in enumerate(dirs)
+        reach_homog_dir_LGG09!(ρℓ[i], Ω₀, Φᵀ, ℓ, NSTEPS)
+    end
+
+    # fill template reach-set sequence
+    Δt = (zero(N) .. δ) + time_shift
+    @inbounds for k in 1:NSTEPS
+        sf = [ρℓ[i][k] for i in 1:length(dirs)]
+        F[k] = TemplateReachSet(dirs, sf, Δt)
+        Δt += δ
+    end
+=#

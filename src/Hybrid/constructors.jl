@@ -30,6 +30,9 @@ end
 
 =#
 
+# TODO refactor => MathematicalSystems (?)
+HybridSystems.mode(ivp::InitialValueProblem{<:HybridSystem}, i::Integer) = mode(system(ivp), i)
+
 # ===============================================
 # Hybrid systems with time-triggered transitions
 # ===============================================

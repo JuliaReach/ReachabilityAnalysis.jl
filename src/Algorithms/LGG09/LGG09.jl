@@ -34,7 +34,7 @@ These methods are described at length in the dissertation [[LG09]](@ref).
 struct LGG09{N, AM, VN, TN<:AbstractDirections{N, VN}, S} <: AbstractContinuousPost
     δ::N
     approx_model::AM
-    template::TN
+    template::TN # TODO rename -> dirs (see usage in the algorithm)
     static::S
     threaded::Bool
 end
@@ -44,17 +44,17 @@ function LGG09(; δ::N,
                approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
                template::TN,
                static::Bool=false,
-               threaded::Bool=true) where {N, AM, TN}
+               threaded::Bool=false) where {N, AM, TN}
     return LGG09(δ, approx_model, template, Val(static), threaded)
 end
 
 step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
+setrep(alg::LGG09) = setrep(alg.template)
 
-function rsetrep(alg::LGG09{N, AM, TN}) where {N, AM, TN}
-    RT = TemplateReachSet{N, eltype(TN), TN, Vector{N}}
-    # TODO: SN is also Vector{N} or SVector ? if alg.static = true ?
-    return RT
+function rsetrep(alg::LGG09{N, AM, VN, TN}) where {N, AM, VN, TN}
+    SN = SubArray{N, 1, Matrix{N}, Tuple{Base.Slice{Base.OneTo{Int}}, Int}, true}
+    return TemplateReachSet{N, VN, TN, SN}
 end
 
 include("reach_homog.jl")
