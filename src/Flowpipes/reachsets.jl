@@ -698,7 +698,7 @@ the following methods are available:
 """
 struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}, SN<:AbstractVector{N}} <: AbstractLazyReachSet{N}
     dirs::TN
-    sf::SN
+    sf::SN # TODO fix sf::Vector{N} ?
     Δt::TimeInterval
 end
 
@@ -716,7 +716,7 @@ end
 # implement abstract reachset interface
 # TODO: use HPolyhedron or HPolytope if the set is bounded or not
 set(R::TemplateReachSet) = HPolytope([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
-setrep(::Type{TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
+setrep(::Type{<:TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
 setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
