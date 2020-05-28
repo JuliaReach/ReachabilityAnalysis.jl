@@ -475,6 +475,14 @@ function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
     return SparseReachSet(proj, tspan(R), variables)
 end
 
+#=
+function project(R::SparseReachSet, variables::NTuple{D, M};
+                 check_vars::Bool=true) where {D, M<:Integer}
+
+# TODO
+end
+=#
+
 # lazy projection of a reach-set
 function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
                     check_vars::Bool=true) where {D, M<:Integer}
@@ -496,6 +504,16 @@ function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
     end
 
     return SparseReachSet(proj, tspan(R), variables)
+end
+
+# handle generic vars vector
+function Projection(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
+    return Projection(R, Tuple(vars))
+end
+
+# handle generic kwargs vars
+function Projection(R::AbstractLazyReachSet; vars)
+    return Projection(R, Tuple(vars))
 end
 
 # ================================================================
