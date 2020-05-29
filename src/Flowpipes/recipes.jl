@@ -35,8 +35,13 @@ using LazySets: plot_recipe,
     @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
                                  "but received $D variable indices where `vars = ` $vars"
 
-    πR = project(R, vars) # project the reach-set
-    X = set(πR) # extract the set representation
+    if setrep(R) isa HPolyhedron
+        πR = Projection(R, vars) # lazy projection of the reach-set
+        X = overapproximate(set(πR), ε) # extract the set representation
+    else
+        πR = project(R, vars) # project the reach-set
+        X = set(πR) # extract the set representation
+    end
 
     # TODO : try D = 1
 

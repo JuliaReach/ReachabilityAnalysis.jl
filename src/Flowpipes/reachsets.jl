@@ -732,15 +732,14 @@ function TemplateReachSet(dirs::AbstractDirections, R::AbstractLazyReachSet)
 end
 
 # implement abstract reachset interface
-# TODO: use HPolyhedron or HPolytope if the set is bounded or not
-set(R::TemplateReachSet) = HPolytope([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
+set(R::TemplateReachSet) = HPolyhedron([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
 setrep(::Type{<:TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
 setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
-vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
+vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
 
 directions(R::TemplateReachSet) = R.dirs # TODO rename to dirs ?
 sup_func(R::TemplateReachSet) = R.sf # TODO rename?

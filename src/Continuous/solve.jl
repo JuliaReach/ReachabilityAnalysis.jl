@@ -86,8 +86,8 @@ function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuo
 
     X0 = initial_state(ivp)
     S = system(ivp)
-
-    threading = haskey(kwargs, :threading) ? kwargs[:threading] : (Threads.nthreads() > 1)
+    # accept "threading"
+    threading = haskey(kwargs, :threading) ? kwargs[:threading] : false # TEMP (Threads.nthreads() > 1)
 
     F = _solve_distributed(cpost, S, X0, tspan, Val(threading); kwargs...)
     return ReachSolution(MixedFlowpipe(F), cpost)

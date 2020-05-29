@@ -83,6 +83,10 @@ function BFFPSV18(; δ::N,
                     lazy_input::Bool=false
                  ) where {N, ST, IDX, PT, AM}
 
+    if ismissing(dim) && ismissing(partition)
+        throw(ArgumentError("should specify either the dimension (`dim`) or the partition (`partition`)"))
+    end
+
     setrep  = _concretize_setrep(setrep, N)
     block_indices, row_blocks, column_blocks = _parse_opts(setrep, vars, dim, partition)
     spval = Val(sparse)

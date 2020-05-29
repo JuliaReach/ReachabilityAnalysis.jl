@@ -63,7 +63,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     @inbounds while k <= NSTEPS
         Rₖ = _minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
-        _is_intersection_empty(X, Rₖ) && break
+        _is_intersection_empty(X, Rₖ, algorithm="sufficient") && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 

@@ -224,9 +224,13 @@ end
 #end
 
 # fallback lazy projection
+_Projection(X::LazySet, vars::AbstractVector) = LazySets.Projection(X, vars)
+
+# using a vars tuple
 function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
     return LazySets.Projection(X, collect(vars))
 end
+
 
 # ===============================
 # Decompositions and partitions
@@ -647,7 +651,7 @@ struct BoxEnclosure <: AbstractDisjointnessMethod end
 struct NoEnclosure <: AbstractDisjointnessMethod end
 
 # fallbacks
-_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(X::LazySet, Y::LazySet; kwargs...) = LazySets.is_intersection_empty(X, Y; kwargs...)
 _is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
 
 # symmetric case
@@ -946,7 +950,7 @@ end
 
 function cluster(F::Flowpipe{N, ReachSet{N, ST}}, idx, ::BoxClustering) where {N, ST}
     convF = Convexify(view(F, idx))  # Convexify(F[idx])
-    return overapproximate(convF, Hyperrectangle)
+    return [overapproximate(convF, Hyperrectangle)] # TEMP store as iterable
 end
 
 # we use a Zonotope overapproximation of the flowpipe, take thir convex hull, and
@@ -955,7 +959,7 @@ function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxCluster
     Fidx = Flowpipe(view(F, idx))
     charr = [set(overapproximate(Ri, Zonotope)) for Ri in Fidx]
     Xoa = overapproximate(ConvexHullArray(charr), Hyperrectangle)
-    return ReachSet(Xoa, tspan(Fidx))
+    return [ReachSet(Xoa, tspan(Fidx))]
 end
 
 struct LazyCHClustering <: AbstractClusteringMethod
@@ -963,7 +967,7 @@ struct LazyCHClustering <: AbstractClusteringMethod
 end
 
 function cluster(F, idx, ::LazyCHClustering)
-    return Convexify(view(F, idx)) # Convexify(F[idx])
+    return [Convexify(view(F, idx))] # Convexify(F[idx])
 end
 
 struct ZonotopeClustering <: AbstractClusteringMethod
@@ -974,17 +978,17 @@ end
 # CH of two zonotopes, cf LazySets #2154
 function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
     if length(idx) == 1
-        return F[idx]
+        return [F[idx]]
     elseif length(idx) == 2
         X = ConvexHull(set(F[idx[1]]), set(F[idx[2]]))
         Y = overapproximate(X, Zonotope) # TODO pass algorithm
-        return ReachSet(Y, tspan(F[idx]))
+        return [ReachSet(Y, tspan(F[idx]))]
     else
         Zaux = overapproximate(ConvexHull(set(F[idx[1]]), set(F[idx[2]])), Zonotope)
         for k in 3:length(idx)
             Zaux = overapproximate(ConvexHull(Zaux, set(F[idx[k]])), Zonotope)
         end
-        return ReachSet(Zaux, tspan(F[idx]))
+        return [ReachSet(Zaux, tspan(F[idx]))]
     end
 end
 

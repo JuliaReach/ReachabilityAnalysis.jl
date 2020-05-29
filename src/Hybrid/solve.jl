@@ -96,6 +96,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             for Ri in F
                 # TODO refactor with reconstruct
                 aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
+                isa(aux, EmptySet) && continue
                 Raux = ReachSet(aux, tspan(Ri))
                 push!(F_in_inv, Raux)
             end
@@ -120,23 +121,29 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # continue if there is no guard enabled for this transition
             isempty(jump_rset_idx) && continue
 
+            tprev = tstart(F[first(jump_rset_idx)])
+
             # apply clustering method to those sets which intersect the guard
             # NOTE we assume that Clustering is applied and only Xc is only one reachset
             Xc = cluster(F, jump_rset_idx, clustering_method)
-            tprev = tstart(Xc)
 
-            # compute reachable states by discrete evolution
-            X = apply(discrete_post, Xc, intersection_method) # .. may use intersection_method from @unwrap discrete post
             count_jumps += 1
 
-            # check if this location has already been explored;
-            # if it is not the case, add it to the waiting list
-            r = target(H, t)
-            Xr = StateInLocation(X, r)
-            if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
-                push!(waiting_list, tprev, Xr)
-                # NOTE save jumps_rset_idx, Xc? It might be interesting to store (for plots) the concrete
-                # intersection with the source invariant F
+            for Xci in Xc
+                # compute reachable states by discrete evolution
+                X = apply(discrete_post, Xci, intersection_method) # .. may use intersection_method from @unwrap discrete post
+
+                # check if this location has already been explored;
+                # if it is not the case, add it to the waiting list
+                r = target(H, t)
+                isa(X, EmptySet) && continue
+                Xr = StateInLocation(X, r)
+
+                if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+                    push!(waiting_list, tprev, Xr)
+                    # NOTE save jumps_rset_idx, Xc? It might be interesting to store (for plots) the concrete
+                    # intersection with the source invariant F
+                end
             end
         end # for
     end # while
