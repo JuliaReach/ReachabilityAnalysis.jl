@@ -32,12 +32,12 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
     F = Vector{RT}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, time_shift)
+        ρℓ = reach_homog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, time_shift)
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
-        reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, time_shift)
+        ρℓ = reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, time_shift)
     end
 
-    return Flowpipe(F)
+    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ))
 end

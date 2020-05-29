@@ -1,7 +1,7 @@
 function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               time_shift::N=zero(N), kwargs...) where {N, ST}
 
-    @unpack δ, approx_model, vars, block_indices, row_blocks, column_blocks, partition, sparse = alg
+    @unpack δ, approx_model, vars, block_indices, row_blocks, column_blocks, sparse = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -27,6 +27,7 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     got_homogeneous = !hasinput(ivp_discr)
 
     # decompose the initial states into a cartesian product
+    # TODO add option to do the lazy decomposition
     Xhat0 = _decompose(Ω0, column_blocks, ST)
     Φ = state_matrix(ivp_discr)
     X = stateset(ivp_discr) # invariant

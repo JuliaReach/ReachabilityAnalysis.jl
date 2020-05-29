@@ -2,7 +2,7 @@
 # Inhomogeneous case
 # ===================
 
-function reach_inhomog_LGG09!(F::Vector{TemplateReachSet{N, VN, TN, SN}},
+function reach_inhomog_LGG09!(F::Vector{RT},
                               dirs::TN,
                               Ω₀::LazySet{N},
                               Φ::AbstractMatrix{N},
@@ -30,7 +30,7 @@ function reach_inhomog_LGG09!(F::Vector{TemplateReachSet{N, VN, TN, SN}},
         Δt += δ
     end
 
-    return F
+    return ρℓ
 end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS) where {N}

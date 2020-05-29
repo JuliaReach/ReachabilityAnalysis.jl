@@ -24,7 +24,7 @@ include("algorithms/BOX.jl")
 include("algorithms/GLGM06.jl")
 include("algorithms/LGG09.jl")
 include("algorithms/ASB07.jl")
-#include("algorithms/BFFPSV18.jl")
+include("algorithms/BFFPSV18.jl")
 include("algorithms/TMJets.jl")
 
 include("hybrid.jl")
