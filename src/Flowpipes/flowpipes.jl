@@ -401,6 +401,15 @@ tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
 # further setops
 LazySets.is_intersection_empty(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
 
+# lazy projection of a flowpipe
+function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Xk = array(F)
+    out = map(X -> Projection(X, vars), Xk)
+    return Flowpipe(out)
+end
+Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
+Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
+
 # =======================================
 # Flowpipe composition with a time-shift
 # =======================================

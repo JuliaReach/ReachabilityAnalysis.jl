@@ -3,7 +3,7 @@
 # =================
 
 # note that each of the computations in the loop over directions is independent
-function reach_homog_LGG09!(F::Vector{TemplateReachSet{N, VN, TN, SN}}, # SN = Vector{N} always ?
+function reach_homog_LGG09!(F::Vector{RT},
                             dirs::TN,
                             Ω₀::LazySet,
                             Φ::AbstractMatrix,
@@ -31,7 +31,7 @@ function reach_homog_LGG09!(F::Vector{TemplateReachSet{N, VN, TN, SN}}, # SN = V
         Δt += δ
     end
 
-    return F
+    return ρℓ
 end
 
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS) where {N}
