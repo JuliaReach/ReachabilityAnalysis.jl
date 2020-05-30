@@ -18,6 +18,7 @@ export
     Backward,
     Discrete,
     CorrectionHull,
+    NoBloating,
 
 # Flowpipes
     flowpipe,

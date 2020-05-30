@@ -38,6 +38,11 @@ struct NoBloating{EM, SO} <: AbstractApproximationModel
     setops::SO
 end
 
+# convenience constructor using symbols
+function NoBloating(; exp::Symbol=:base, setops::Symbol=:lazy)
+    NoBloating(Val(exp), Val(setops))
+end
+
 struct CorrectionHull{EM} <: AbstractApproximationModel
    order::Int
    exp::EM
