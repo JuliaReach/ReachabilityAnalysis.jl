@@ -69,8 +69,12 @@ export
     source_invariant,
     target_invariant,
 
-# Algorithms for set operations
+# Algorithms for intersection operations
     FallbackIntersection,
     HRepIntersection,
     BoxIntersection,
-    TemplateHullIntersection
+    TemplateHullIntersection,
+
+# Clustering methods
+    BoxClustering,
+    ZonotopeClustering
