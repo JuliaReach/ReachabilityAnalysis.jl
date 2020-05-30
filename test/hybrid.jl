@@ -1,5 +1,4 @@
-using ReachabilityAnalysis: _distribute, HRepIntersection,
-                            WaitingList, StateInLocation, state, location
+using ReachabilityAnalysis: _distribute, WaitingList, StateInLocation, state, location
 
 @testset "Hybrid utility functions" begin
 
@@ -48,39 +47,39 @@ end
     X0 = initial_state(prob)
 
     # default options
-    sol = solve(prob, tspan=3.0)
+    sol = solve(prob, T=3.0)
     @test setrep(sol) == HPolytope{Float64, Vector{Float64}}
 
     # default algorithm, but without intersecting the flowpipe with source invariant
-    sol = solve(prob, tspan=3.0, intersect_source_invariant=false)
+    sol = solve(prob, T=3.0, intersect_source_invariant=false)
     @test setrep(sol) == Zonotope{Float64,Vector{Float64},Matrix{Float64}}
 
     # give a distribution of the initial states among the locations
     prob_a = IVP(system(prob), [(1, X0)])
     prob_b = IVP(system(prob), [(X0, 1)]) # equivalent
-    sol_a = solve(prob_a, tspan=3.0)
-    sol_b = solve(prob_b, tspan=3.0)
+    sol_a = solve(prob_a, T=3.0)
+    sol_b = solve(prob_b, T=3.0)
 
     # get vector of locations of each component flowpipe
     @test location.(sol) == [1, 1]
 
     # using GLGM06 + template hull intersection
     dirs = PolarDirections(10)
-    sol = solve(prob, tspan=6.0, alg=GLGM06(δ=1e-2, max_order=10),
-                intersection_method=RA.TemplateHullIntersection(dirs),
-                clustering_method=RA.ZonotopeClustering(),
-                intersect_source_invariant=true
+    sol = solve(prob, T=3.0, alg=GLGM06(δ=1e-2, max_order=10),
+                intersection_method=TemplateHullIntersection(dirs),
+                clustering_method=ZonotopeClustering(),
+                intersect_source_invariant=true)
 end
 
 @testset "Bouncing ball: nonlinear solvers" begin
     prob, _ = bouncing_ball()
 
-    sol = solve(prob, tspan=3.0, max_jumps=1, alg=TMJets(),
+    sol = solve(prob, T=3.0, max_jumps=1, alg=TMJets(),
                 intersect_source_invariant=false,
                 disjointness_method=ZonotopeEnclosure())
     @test rsetrep(sol) <: TaylorModelReachSet
 
-    sol = solve(prob, tspan=3.0, max_jumps=1, alg=TMJets(),
+    sol = solve(prob, T=3.0, max_jumps=1, alg=TMJets(),
                 intersect_source_invariant=true,
                 disjointness_method=ZonotopeEnclosure())
     @test setrep(sol) <: HPolytope
