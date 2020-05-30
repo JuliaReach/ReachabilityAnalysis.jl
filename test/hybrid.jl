@@ -63,6 +63,13 @@ end
 
     # get vector of locations of each component flowpipe
     @test location.(sol) == [1, 1]
+
+    # using GLGM06 + template hull intersection
+    dirs = PolarDirections(10)
+    sol = solve(prob, tspan=6.0, alg=GLGM06(δ=1e-2, max_order=10),
+                intersection_method=RA.TemplateHullIntersection(dirs),
+                clustering_method=RA.ZonotopeClustering(),
+                intersect_source_invariant=true
 end
 
 @testset "Bouncing ball: nonlinear solvers" begin

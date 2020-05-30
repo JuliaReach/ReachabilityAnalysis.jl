@@ -321,4 +321,32 @@ function _apply(tr::DiscreteTransition{<:Universe, <:ZeroSet, GT, IT⁻, IT⁺},
 end
 =#
 
-# TODO: use SupportFunctionIntersection instead
+# ===============================================
+# Intersection method: TemplateHullIntersection
+# ===============================================
+
+# general case; compute (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺ first computing the exact intersection
+# of Y := G ∩ I⁻ which are polyhedral, then computing the intersection with X
+# using the template, let K := [X ∩ Y]_dirs, then compute
+# (RK ⊕ W) ∩ I⁺ using again the template, Z := [(RK ⊕ W) ∩ I⁺]_dirs
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
+               X::PT,
+               method::TemplateHullIntersection) where {N,
+                                PT<:AbstractPolyhedron{N},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    # intersect the guard and the sourct invariant (NOTE can be cached)
+    success, Y = _intersection(X, tr.G, tr.I⁻, HRepIntersection())
+    !success && return EmptySet(dim(X))
+
+    # compute the intersection K := [X ∩ Y]_dirs using the template
+    K = _intersection(X, HPolyhedron(Y), method)
+
+    # compute Z := [(RK ⊕ W) ∩ I⁺]_dirs using the template
+    Km = (tr.R * K) ⊕ tr.W # lazy affine map
+
+    Z = _intersection(Km, tr.I⁺, method)
+    return Z
+end
