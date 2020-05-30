@@ -32,8 +32,10 @@ function Backward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concre
     Backward(Val(exp), Val(setops), Val(sih))
 end
 
-struct Discrete <: AbstractApproximationModel
-#
+# no bloating or "discrete time" approximation model ref Eqs. (14) in [[BFFPSV18]]
+struct NoBloating{EM, SO} <: AbstractApproximationModel
+    exp::EM
+    setops::SO
 end
 
 struct CorrectionHull{EM} <: AbstractApproximationModel
@@ -177,4 +179,38 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
 
     ivp_discr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(ivp_discr, Ω0)
+end
+
+# ============================================================
+# NoBloating Approximation
+# ============================================================
+
+# homogeneous case
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+
+    Φ = _exp(A, δ, alg.exp)
+
+    Ω0 = copy(X0)
+    X = stateset(ivp)
+    Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(Sdiscr, Ω0)
+end
+
+# inhomogeneous case
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+
+    Φ = _exp(A, δ, alg.exp)
+    M = Φ₁(A, δ, alg.exp)
+    U = next_set(inputset(ivp), 1) # inputset(ivp)
+    Ud = M * U # TODO assert alg.setops  / alg.inputsetops are lazy
+    In = IdentityMultiple(one(eltype(A)), size(A, 1))
+
+    Ω0 = copy(X0)
+    X = stateset(ivp)
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    return InitialValueProblem(Sdiscr, Ω0)
 end
