@@ -83,7 +83,7 @@ function BFFPSV18(; δ::N,
                     lazy_input::Bool=false
                  ) where {N, ST, IDX, PT, AM}
 
-    setrep  = _concretize_setrep(setrep, N)
+    setrep = _concretize_setrep(setrep, N)
     block_indices, row_blocks, column_blocks = _parse_opts(setrep, vars, dim, partition)
     spval = Val(sparse)
     return BFFPSV18{N, setrep, AM, IDX, typeof(block_indices), typeof(row_blocks),
@@ -116,77 +116,6 @@ function _parse_opts(::Type{<:Hyperrectangle}, vars, dim, partition)
     end
     return block_indices, row_blocks, column_blocks
 end
-
-#=
-# Example:
-# alg = BFFPSV18(δ=1e-3, setrep=Interval, vars=[2], dim=4);
-function BFFPSV18(; δ::N,
-                    setrep::Type{<:Interval},
-                    vars::IDX,
-                    dim::Integer,
-                    partition::PT=-1, # ignored
-                    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
-                    sparse::Bool=false,
-                    lazy_initial_set::Bool=false,
-                    lazy_input::Bool=false
-                 ) where {N, IDX, PT, AM}
-
-    if setrep == Interval # default concretization
-        setrep = Interval{N, IntervalArithmetic.Interval{N}}
-    end
-
-    block_indices = collect(vars)
-    row_blocks = [[i] for i in vars]
-    column_blocks = [[i] for i in 1:dim]
-    #partition = [1 for _ in 1:dim]
-    spval = Val(sparse)
-
-    return BFFPSV18{N, setrep, AM, IDX, typeof(block_indices), typeof(row_blocks),
-                    typeof(column_blocks), typeof(spval)}(δ, approx_model,
-                    vars, block_indices, row_blocks, column_blocks, spval,
-                    lazy_initial_set, lazy_input)
-end
-
-function BFFPSV18(; δ::N,
-                    setrep::Type{<:Hyperrectangle},
-                    vars::IDX,
-                    partition::PT,
-                    dim::Integer=-1, # can be deduced from the partitions
-                    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
-                    sparse::Bool=false,
-                    lazy_initial_set::Bool=false,
-                    lazy_input::Bool=false
-                 ) where {N, IDX, PT, AM}
-
-    if setrep == Hyperrectangle # default concretization
-        setrep = Hyperrectangle{N, Vector{N}, Vector{N}}
-    end
-
-    column_blocks = copy(partition)
-
-    block_indices = Vector{Int}()
-    row_blocks = Vector{Vector{Int}}()
-
-    # TODO error checks
-    for v in vars
-        for (j, bj) in enumerate(column_blocks)
-            if v ∈ bj && j ∉ block_indices
-                push!(block_indices, j)
-                push!(row_blocks, bj)
-                break
-            end
-        end
-    end
-
-    spval = Val(sparse)
-
-    return BFFPSV18{N, setrep, AM, IDX, typeof(block_indices), typeof(row_blocks),
-                    typeof(column_blocks), typeof(spval)}(δ, approx_model,
-                    vars, block_indices, row_blocks, column_blocks, spval,
-                    lazy_initial_set, lazy_input)
-end
-=#
-
 
 # getter functions
 step_size(alg::BFFPSV18) = alg.δ
