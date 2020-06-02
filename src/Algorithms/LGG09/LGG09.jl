@@ -45,8 +45,13 @@ function LGG09(; δ::N,
                template::TN,
                static::Bool=false,
                threaded::Bool=false) where {N, AM, TN}
-    return LGG09(δ, approx_model, template, Val(static), threaded)
+    dirs = _get_template(template)
+    return LGG09(δ, approx_model, dirs, Val(static), threaded)
 end
+
+_get_template(template::AbstractDirections) = template
+_get_template(template::AbstractVector{N}) where {N<:Number} = CustomDirections(template)
+_get_template(template::AbstractVector{VT}) where {N<:Number, VT<:AbstractVector{N}} = CustomDirections(template)
 
 step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
