@@ -325,7 +325,27 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
             opC = GLGM06(δ=δ, static=static)
         end
     else
-        opC = TMJets()
+        # check additional kwargs options if they exist, allowing some aliases
+        if haskey(kwargs, :max_steps)
+            max_steps = kwargs[:max_steps]
+        elseif haskey(kwargs, :maxsteps)
+            max_steps = kwargs[:maxsteps]
+        else
+            max_steps = DEFAULT_MAX_STEPS_TMJETS
+        end
+
+        if haskey(kwargs, :abs_tol)
+            abs_tol = kwargs[:abs_tol]
+        elseif haskey(kwargs, :abstol)
+            abs_tol = kwargs[:abstol]
+        else
+            abs_tol = DEFAULT_ABS_TOL_TMJETS
+        end
+
+        orderT = haskey(kwargs, :orderT) ? kwargs[:orderT] : DEFAULT_ORDER_T_TMJETS
+        orderQ = haskey(kwargs, :orderQ) ? kwargs[:orderQ] : DEFAULT_ORDER_Q_TMJETS
+
+        opC = TMJets(max_steps=max_steps, abs_tol=abs_tol, orderT=orderT, orderQ=orderQ)
     end
     return opC
 end
