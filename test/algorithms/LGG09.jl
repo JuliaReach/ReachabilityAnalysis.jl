@@ -1,3 +1,5 @@
+using LazySets.Arrays: SingleEntryVector
+
 @testset "LGG09 algorithm" begin
     # one-dimensional
     prob, tspan = exponential_1d()
@@ -14,4 +16,14 @@
     sol = solve(prob, tspan=tspan, LGG09(δ=0.01, template=box5d))
     @test setrep(sol) == HPolyhedron{Float64, Vector{Float64}}
     @test dim(sol) == 5
+
+    # case where the template directions is as single vector
+    dirs = fill(0.0, 5); dirs[1] = 1.0 # e1
+    alg = LGG09(δ=0.01, template=dirs)
+    alg.template == CustomDirections([dirs])
+
+    # case where the template directions is a vector of vectors
+    dirs = [SingleEntryVector(1, 5, 1.0), SingleEntryVector(1, 5, -1.0)]
+    alg = LGG09(δ=0.01, template=dirs)
+    alg.template == CustomDirections(dirs)
 end

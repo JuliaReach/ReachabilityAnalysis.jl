@@ -50,7 +50,7 @@ function LGG09(; δ::N,
 end
 
 _get_template(template::AbstractDirections) = template
-_get_template(template::AbstractVector{N}) where {N<:Number} = CustomDirections(template)
+_get_template(template::AbstractVector{N}) where {N<:Number} = CustomDirections([template])
 _get_template(template::AbstractVector{VT}) where {N<:Number, VT<:AbstractVector{N}} = CustomDirections(template)
 
 step_size(alg::LGG09) = alg.δ
