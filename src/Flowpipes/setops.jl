@@ -496,6 +496,24 @@ function _split(Z::Zonotope{N, SVector{n, N}, <:SMatrix{n, p, N}}, j::Int) where
     return Z₁, Z₂
 end
 
+function split(Z::Zonotope, gens::AbstractVector, n::AbstractVector)
+    @assert length(gens) == length(n) "the number of generators doesn't match the" *
+    " number of indicated partitions ($(length(gens)) and $(length(n)))"
+    @assert length(gens) <= ngens(Z) "the number of generators to split is greater" *
+    " than the number of generators of the zonotope (($(length(gens)) and $(ngens(Z)))"
+    Zs = [Z]
+    for i = 1:length(gens)
+        for j = 1:n[i]
+            km = length(Zs)
+            for k = 1:km
+                append!(Zs, _split(Zs[k], gens[i]))
+            end
+            deleteat!(Zs, 1:km)
+        end
+    end
+    return Zs
+end
+
 # TODO in-place split for static arrays
 
 # ==================================
