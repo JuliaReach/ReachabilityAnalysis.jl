@@ -506,7 +506,7 @@ function split(Z::Zonotope, gens::AbstractVector, n::AbstractVector)
         for j = 1:n[i]
             km = length(Zs)
             for k = 1:km
-                append!(Zs, RA._split(Zs[k], gens[i]))
+                append!(Zs, _split(Zs[k], gens[i]))
             end
             deleteat!(Zs, 1:km)
         end
