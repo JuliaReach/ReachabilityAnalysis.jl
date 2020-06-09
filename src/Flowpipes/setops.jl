@@ -468,7 +468,7 @@ function _split!(Z₁::Zonotope, Z₂::Zonotope, Z::Zonotope, j::Int)
         c₁[i] = c[i] - α
         c₂[i] = c[i] + α
         G₁[i, j] = α
-        G₁[i, j] = α
+        G₂[i, j] = α
     end
     return Z₁, Z₂
 end
@@ -488,7 +488,7 @@ function _split(Z::Zonotope{N, SVector{n, N}, <:SMatrix{n, p, N}}, j::Int) where
         c₁[i] = c[i] - α
         c₂[i] = c[i] + α
         G₁[i, j] = α
-        G₁[i, j] = α
+        G₂[i, j] = α
     end
 
     Z₁ = Zonotope(SVector{n}(c₁), SMatrix{n, p}(G₁))
