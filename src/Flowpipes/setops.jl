@@ -496,7 +496,7 @@ function _split(Z::Zonotope{N, SVector{n, N}, <:SMatrix{n, p, N}}, j::Int) where
     return Z₁, Z₂
 end
 
-function split(Z::Zonotope, gens::AbstractVector, n::AbstractVector)
+function _split(Z::Zonotope, gens::AbstractVector, n::AbstractVector)
     @assert length(gens) == length(n) "the number of generators doesn't match the" *
     " number of indicated partitions ($(length(gens)) and $(length(n)))"
     @assert length(gens) <= ngens(Z) "the number of generators to split is greater" *
