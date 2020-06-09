@@ -439,16 +439,29 @@ end
 # Zonotope splitting methods
 # ==================================
 
-function _split(Z::Zonotope{N, Vector{N}, Matrix{N}}, j::Int) where {N}
+function _split(Z::Zonotope, j::Int)
+    c, G = Z.center, Z.generators
+
+    c₁ = similar(c)
+    G₁ = similar(G)
+    Z₁ = Zonotope(c₁, G₁)
+
+    c₂ = similar(c)
+    G₂ = similar(G)
+    Z₂ = Zonotope(c₂, G₂)
+
+    _split!(Z₁, Z₂, Z, j)
+end
+
+function _split!(Z₁::Zonotope, Z₂::Zonotope, Z::Zonotope, j::Int)
     c, G = Z.center, Z.generators
     n, p = size(G)
     @assert 1 <= j <= p "cannot split a zonotope with $p generators along index $j"
 
-    c₁ = Vector{N}(undef, n)
-    c₂ = Vector{N}(undef, n)
-
-    G₁ = copy(G)
-    G₂ = copy(G)
+    c₁, G₁ = Z₁.center, Z₁.generators
+    c₂, G₂ = Z₂.center, Z₂.generators
+    copyto!(G₁, G)
+    copyto!(G₂, G)
 
     @inbounds for i in 1:n
         α = G[i, j] / 2
@@ -457,9 +470,6 @@ function _split(Z::Zonotope{N, Vector{N}, Matrix{N}}, j::Int) where {N}
         G₁[i, j] = α
         G₁[i, j] = α
     end
-
-    Z₁ = Zonotope(c₁, G₁)
-    Z₂ = Zonotope(c₂, G₂)
     return Z₁, Z₂
 end
 
@@ -485,6 +495,8 @@ function _split(Z::Zonotope{N, SVector{n, N}, <:SMatrix{n, p, N}}, j::Int) where
     Z₂ = Zonotope(SVector{n}(c₂), SMatrix{n, p}(G₂))
     return Z₁, Z₂
 end
+
+# TODO in-place split for static arrays
 
 # ==================================
 # Zonotope order reduction methods
