@@ -499,7 +499,7 @@ end
 function split(Z::Zonotope, gens::AbstractVector, n::AbstractVector)
     @assert length(gens) == length(n) "the number of generators doesn't match the" *
     " number of indicated partitions ($(length(gens)) and $(length(n)))"
-    @assert length(gens) < ngens(Z) "the number of generators to split is greater" *
+    @assert length(gens) <= ngens(Z) "the number of generators to split is greater" *
     " than the number of generators of the zonotope (($(length(gens)) and $(ngens(Z)))"
     Zs = [Z]
     for i = 1:length(gens)
