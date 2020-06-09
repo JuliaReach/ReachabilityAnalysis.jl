@@ -553,9 +553,9 @@ using TaylorModels: TaylorModel1, TaylorN
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
 
-Taylor model reach-set represented as a vector taylor models in one variable
-(namely, the "time" variable) whose coefficients are multivariate polynomials
-(namely in the "space" variables).
+Taylor model reach-set represented as a of vector taylor models in one variable
+(the "time" variable) whose coefficients are multivariate polynomials
+(the "space" variables).
 
 ### Notes
 
