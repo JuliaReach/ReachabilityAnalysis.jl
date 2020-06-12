@@ -10,7 +10,8 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
                                  block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
+                                 time_shift::N,
+                                 viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach set
     Δt = (zero(N) .. δ) + time_shift
@@ -63,7 +64,8 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
                                  ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
+                                 time_shift::N,
+                                 viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach-set
     Δt = (zero(N) .. δ) + time_shift
@@ -118,9 +120,9 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
                                  block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N) where {NM, IM, MT<:SparseMatrixCSC{NM, IM},
-                                                       N, RBLKi, CBLKj}
-
+                                 time_shift::N,
+                                 viewval::Val{true}) where {NM, IM, MT<:SparseMatrixCSC{NM, IM},
+                                                            N, RBLKi, CBLKj}
     # store first element
     Δt = (zero(N) .. δ) + time_shift
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
@@ -151,7 +153,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
                     buffer[j] = view(Φpowerk, bi, bj) * Xhat0.array[j]
                 end
             end
-            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer ⊕ Whatk[i]), ST)
+            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], ST)
         end
         Δt += δ
         Xk = CartesianProductArray(copy(Xhatk))
@@ -160,6 +162,63 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
         # update the input set
         for (i, bi) in enumerate(row_blocks)
             Whatk[i] = overapproximate(Whatk[i] ⊕ view(Φpowerk, bi, :) * U, ST)
+        end
+
+        mul!(Φpowerk_cache, Φpowerk, Φ)
+        copyto!(Φpowerk, Φpowerk_cache)
+    end
+    return F
+end
+
+function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
+                                 X::Universe, U,
+                                 ST, vars,
+                                 block_indices,
+                                 row_blocks::AbstractVector{<:RBLKi},
+                                 column_blocks::AbstractVector{<:CBLKj},
+                                 time_shift::N,
+                                 viewval::Val{false}) where {NM, IM, MT<:SparseMatrixCSC{NM, IM}, N, RBLKi, CBLKj}
+
+    # store first element
+    Δt = (zero(N) .. δ) + time_shift
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
+
+    # cache matrix
+    Φpowerk = copy(Φ)
+    Φpowerk_cache = similar(Φ)
+
+    # preallocate buffer for each row-block
+    SMT = SparseMatrixCSC{NM, IM}
+    buffer = Vector{LazySets.LinearMap{N, ST, NM, SMT}}(undef, length(column_blocks))
+
+    # preallocate overapproximated Minkowski sum for each row-block
+    Xhatk = Vector{ST}(undef, length(row_blocks))
+
+    # preallocate accumulated inputs and decompose it
+    Whatk = Vector{ST}(undef, length(row_blocks))
+    @inbounds for (i, bi) in enumerate(row_blocks)
+        πX = _Projection(U, bi)
+        Whatk[i] = overapproximate(πX, ST)
+    end
+
+    @inbounds for k in 2:NSTEPS
+        for (i, bi) in enumerate(row_blocks) # loop over row-blocks of interest
+            for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
+                Φpowerk_bi_bj = Φpowerk
+                if !iszero(Φpowerk_bi_bj)
+                    buffer[j] = Φpowerk[bi, bj] * Xhat0.array[j]
+                end
+            end
+
+            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], ST)
+        end
+        Δt += δ
+        Xk = CartesianProductArray(copy(Xhatk))
+        F[k] = SparseReachSet(Xk, Δt, vars)
+
+        # update the input set
+        for (i, bi) in enumerate(row_blocks)
+            Whatk[i] = overapproximate(Whatk[i] ⊕ Φpowerk[bi, :] * U, ST)
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
