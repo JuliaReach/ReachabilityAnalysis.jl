@@ -13,6 +13,11 @@ _reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}, dim) where
 _reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens) = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 
 # convert any zonotope to be represented with static arrays
+function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Missing, ngens::Missing) where {N, VN, MN}
+    n, m = size(Ω0.generators)
+    _reconvert(Ω0, static, Val(n), Val(m))
+end
+
 function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
     G = Ω0.generators
     m = size(G, 2)
@@ -53,7 +58,7 @@ _reconvert(Φ::Matrix{N}, static::Val{false}, dim) where {N} = Φ
 _reconvert(Φ::IntervalMatrix{N}, static::Val{false}, dim) where {N} = Φ
 _reconvert(Φ::AbstractMatrix, static::Val{false}, dim) = Matrix(Φ)
 _reconvert(Φ::SMatrix, static::Val{true}, dim) = Φ
-_reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing) = nodim_msg()
+_reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing) = _reconvert(Φ, static, Val(size(Φ, 1)))
 
 function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}, dim::Val{n}) where {N, n}
     #n = size(Φ, 1)

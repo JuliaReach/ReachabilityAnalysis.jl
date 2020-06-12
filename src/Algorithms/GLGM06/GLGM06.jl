@@ -110,6 +110,12 @@ end
     RT = ReachSet{N, ZT}
 end
 
+@inline function rsetrep(alg::GLGM06{N, AM, Val{true}, Missing, Missing}) where {N, AM}
+    throw(ArgumentError("the reach-set representation for a statically sized zonotope " *
+                        "that the system's dimension argument has been defined; add `dim=...`" *
+                        "to the algorithm constructor"))
+end
+
 include("post.jl")
 include("reach_homog.jl")
 include("reach_inhomog.jl")
