@@ -233,6 +233,8 @@ function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
     return LazySets.Projection(X, collect(vars))
 end
 
+_Projection(X::LazySet, vars::AbstractVector) =  _Projection(X, Tuple(vars))
+
 # ===============================
 # Decompositions and partitions
 # ===============================
