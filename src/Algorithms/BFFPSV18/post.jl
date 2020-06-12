@@ -48,6 +48,7 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         reach_homog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, ST,
                               vars, block_indices,
                               row_blocks, column_blocks, time_shift, viewval)
+
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
