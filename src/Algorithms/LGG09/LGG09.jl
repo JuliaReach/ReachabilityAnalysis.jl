@@ -16,6 +16,10 @@ using support functions.
 - `static`       -- (optional, default: `false`) if `true`, use statically sized arrays
 - `threaded`     -- (optional, default: `true`) if `true`, use multi-threading parallelism
                     to compute the support function along each direction
+- `sparse`       -- (optional, default: `false`) if `true`, convert the matrix exponential
+                    obtained after discretization to a sparse matrix
+- `cache`        -- (optional, default: `true`) if `true`, use a cache for intermediate
+                    computations in the set recurrence loop
 
 ## Notes
 
@@ -37,6 +41,8 @@ struct LGG09{N, AM, VN, TN<:AbstractDirections{N, VN}, S} <: AbstractContinuousP
     template::TN # TODO rename -> dirs (see usage in the algorithm)
     static::S
     threaded::Bool
+    sparse::Bool
+    cache::Bool
 end
 
 # convenience constructor using symbols
@@ -44,9 +50,11 @@ function LGG09(; δ::N,
                approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
                template::TN,
                static::Bool=false,
-               threaded::Bool=false) where {N, AM, TN}
+               threaded::Bool=false,
+               sparse::Bool=false,
+               cache::Bool=true) where {N, AM, TN}
     dirs = _get_template(template)
-    return LGG09(δ, approx_model, dirs, Val(static), threaded)
+    return LGG09(δ, approx_model, dirs, Val(static), threaded, sparse, cache)
 end
 
 _get_template(template::AbstractDirections) = template
