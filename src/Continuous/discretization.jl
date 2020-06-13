@@ -195,7 +195,12 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
-    Φ = _exp(A, δ, alg.exp)
+    if A isa IntervalMatrix
+        order = 10 # default order
+        Φ = exp_overapproximation(A, δ, order)
+    else
+        Φ = _exp(A, δ, alg.exp)
+    end
 
     Ω0 = copy(X0)
     X = stateset(ivp)
