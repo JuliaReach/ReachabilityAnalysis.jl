@@ -195,9 +195,13 @@ end
 @testset "Time-triggered solve (EMBrake)" begin
     # scenario without parameter variation
     prob = embrake_no_pv()
-    sol = solve(prob, alg=GLGM06(δ=1e-7), max_jumps=1)
+    sol = solve(prob, alg=GLGM06(δ=1e-7), max_jumps=2)
     @test dim(sol) == 4
+    @test sol.alg.static == Val(false)
     @test flowpipe(sol) isa HybridFlowpipe
+
+    sol = solve(prob, alg=GLGM06(δ=1e-7, static=true, max_order=1, dim=4, ngens=4), max_jumps=2)
+    @test sol.alg.static == Val(true)
 
     # scenario with parameter variation
     # tested in test/algorithms/ASB07.jl
