@@ -10,7 +10,8 @@ function reach_inhomog_LGG09!(F::Vector{RT},
                               δ::N,
                               X::Universe,
                               U::LazySet,
-                              time_shift::N) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                              time_shift::N,
+                              cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -20,7 +21,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
 
     # for each direction, compute NSTEPS iterations
     @inbounds for (j, ℓ) in enumerate(dirs)
-        reach_inhomog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, U, ℓ, NSTEPS)
+        reach_inhomog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, U, ℓ, NSTEPS, cache)
     end
 
     # fill template reach-set sequence
@@ -33,7 +34,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     return ρℓ
 end
 
-function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS) where {N}
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
@@ -49,7 +50,21 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ,
     return ρvec_ℓ
 end
 
-function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS) where {N}
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{false}) where {N}
+    rᵢ = copy(ℓ)
+    sᵢ = zero(N)
+
+    @inbounds for i in 1:NSTEPS
+        ρvec_ℓ[j, i] = ρ(rᵢ, Ω₀) + sᵢ
+        sᵢ += ρ(rᵢ, U)
+
+        # update cache for the next iteration
+        rᵢ = Φᵀ * rᵢ
+    end
+    return ρvec_ℓ
+end
+
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
@@ -64,6 +79,21 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U,
     end
     return ρvec_ℓ
 end
+
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{false}) where {N}
+    rᵢ = copy(ℓ)
+    sᵢ = zero(N)
+
+    @inbounds for i in 1:NSTEPS
+        ρvec_ℓ[i] = ρ(rᵢ, Ω₀) + sᵢ
+        sᵢ += ρ(rᵢ, U)
+
+        # update cache for the next iteration
+        rᵢ = Φᵀ * rᵢ
+    end
+    return ρvec_ℓ
+end
+
 
 #= ---- version using vector-of-vectors
     ρℓ = [Vector{N}(undef, NSTEPS) for _ in 1:length(dirs)]
