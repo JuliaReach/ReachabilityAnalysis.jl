@@ -88,7 +88,9 @@ The type associated to the jitter, `J`, can be one of the following:
 - `Number`      -- symetric jitter, i.e. non-deterministic switchings occur in the
                    intervals `[Tsample - ζ, Tsample + ζ]`
 - `IA.Interval` -- nonsymetric jitter, i.e. non-deterministic switchings occur in the
-                   intervals `[Tsample - inf(ζ), Tsample + sup(ζ)]`
+                   intervals `[Tsample + inf(ζ), Tsample + sup(ζ)]`; note that
+                   the infimum is expected to be negative for most use cases, i.e.
+                   when the jitter interval is centered at zero
 
 The following getter functions are available:
 
@@ -158,7 +160,7 @@ function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J<:IA.Inte
     return HACLD1(sys, rmap, Tsample, ζ, NonDeterministicSwitching())
 end
 
-# constructor when jitter is an inteval: check whether its diameter is zero or not
+# constructor when jitter is an interval: check whether its diameter is zero or not
 # we promote ζ to accept tspan-like inputs (tuples, vectors, etc.)
 function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J}
     ζint = _promote_tspan(ζ)
