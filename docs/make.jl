@@ -4,6 +4,9 @@ using Documenter, ReachabilityAnalysis
 DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                    :(using ReachabilityAnalysis); recursive=true)
 
+# generate Literate documentation
+include("generate.jl")
+
 makedocs(
     format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS")), # disable for local builds
     sitename = "ReachabilityAnalysis.jl",
@@ -25,7 +28,8 @@ makedocs(
         "Applications" => Any["Electromechanic break" => "man/applications/embrake.md",
                               "Quadrotor altitude control" => "man/applications/quadrotor.md",
                               "Transmision line" => "man/applications/transmission_line.md",
-                              "Epidemic disease" => "man/applications/epidemic.md"],
+                              "Epidemic disease" => "man/applications/epidemic.md",
+                              "Van der Pol oscillator" => "models/vanderpol.md"],
                               # Other topics: car control, power systems stability.
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
