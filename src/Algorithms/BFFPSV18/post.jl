@@ -1,7 +1,8 @@
 function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               time_shift::N=zero(N), kwargs...) where {N, ST}
 
-    @unpack δ, approx_model, vars, block_indices, row_blocks, column_blocks, sparse = alg
+    @unpack δ, approx_model, vars, block_indices,
+            row_blocks, column_blocks = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -32,18 +33,28 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     Φ = state_matrix(ivp_discr)
     X = stateset(ivp_discr) # invariant
 
+    # force using sparse type for the matrix exponential
+    if alg.sparse
+        Φ = SparseArrays.sparse(Φ)
+    end
+
     # preallocate output flowpipe
     CP = CartesianProductArray{N, ST}
     F = Vector{SparseReachSet{N, CP, length(vars)}}(undef, NSTEPS)
 
+    viewval = Val(alg.view)
+
     if got_homogeneous
         reach_homog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, ST,
-                              vars, block_indices, row_blocks, column_blocks, time_shift)
+                              vars, block_indices,
+                              row_blocks, column_blocks, time_shift, viewval)
+
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         reach_inhomog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, U, ST,
-                                vars, block_indices, row_blocks, column_blocks, time_shift)
+                                vars, block_indices,
+                                row_blocks, column_blocks, time_shift, viewval)
     end
     return Flowpipe(F)
 end

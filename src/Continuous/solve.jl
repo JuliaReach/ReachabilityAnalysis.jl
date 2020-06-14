@@ -99,7 +99,7 @@ end
 
 function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...)
     nsets = length(X0)
-    FT = Flowpipe{numtype(cpost), rsetrep(cpost)}
+    FT = Flowpipe{numtype(cpost), rsetrep(cpost)} # TODO add third parameter
     sol_tot = Vector{FT}(undef, nsets)
 
     Threads.@threads for i in 1:length(X0)

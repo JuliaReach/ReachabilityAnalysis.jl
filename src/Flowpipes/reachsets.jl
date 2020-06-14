@@ -295,6 +295,13 @@ function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
     return ∈(x, set(R))
 end
 
+# splitting a reach-set according to a given partition; the partition should be
+# a vector of integers
+function LazySets.split(R::AbstractLazyReachSet, partition)
+    Y = split(set(R), partition)
+    [reconstruct(R, y) for y in Y]
+end
+
 # ================================================================
 # Reach set
 # ================================================================
@@ -553,9 +560,9 @@ using TaylorModels: TaylorModel1, TaylorN
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
 
-Taylor model reach-set represented as a vector taylor models in one variable
-(namely, the "time" variable) whose coefficients are multivariate polynomials
-(namely in the "space" variables).
+Taylor model reach-set represented as a of vector taylor models in one variable
+(the "time" variable) whose coefficients are multivariate polynomials
+(the "space" variables).
 
 ### Notes
 

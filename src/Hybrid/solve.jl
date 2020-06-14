@@ -121,22 +121,22 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             isempty(jump_rset_idx) && continue
 
             # apply clustering method to those sets which intersect the guard
-            # NOTE we assume that Clustering is applied and only Xc is only one reachset
             Xc = cluster(F, jump_rset_idx, clustering_method)
             tprev = tstart(Xc)
 
-            # compute reachable states by discrete evolution
-            X = apply(discrete_post, Xc, intersection_method) # .. may use intersection_method from @unwrap discrete post
-            count_jumps += 1
+            for Xci in Xc
+                # compute reachable states by discrete evolution
+                X = apply(discrete_post, Xci, intersection_method)
+                isa(X, EmptySet) && continue
+                count_jumps += 1
 
-            # check if this location has already been explored;
-            # if it is not the case, add it to the waiting list
-            r = target(H, t)
-            Xr = StateInLocation(X, r)
-            if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
-                push!(waiting_list, tprev, Xr)
-                # NOTE save jumps_rset_idx, Xc? It might be interesting to store (for plots) the concrete
-                # intersection with the source invariant F
+                # check if this location has already been explored;
+                # if it is not the case, add it to the waiting list
+                r = target(H, t)
+                Xr = StateInLocation(X, r)
+                if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+                    push!(waiting_list, tprev, Xr)
+                end
             end
         end # for
     end # while

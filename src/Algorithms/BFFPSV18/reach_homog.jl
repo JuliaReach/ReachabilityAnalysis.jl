@@ -7,7 +7,8 @@
 # Invariant: No
 function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
                                ST::Type{<:Interval{N}}, vars, block_indices,
-                               row_blocks, column_blocks, time_shift::N) where {NM, N}
+                               row_blocks, column_blocks, time_shift::N,
+                               viewval::Val{true}) where {NM, N}
 
     # initial reach set
     Δt = (zero(N) .. δ) + time_shift
@@ -47,7 +48,8 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe,
                                ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj},
-                               time_shift::N) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
+                               time_shift::N,
+                               viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach-set
     Δt = (zero(N) .. δ) + time_shift
@@ -89,8 +91,8 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
                                block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj},
-                               time_shift::N) where {NM, IM, MT<:SparseMatrixCSC{NM, IM},
-                                                     N, RBLKi, CBLKj}
+                               time_shift::N,
+                               viewval::Val{true}) where {NM, IM, MT<:SparseMatrixCSC{NM, IM}, N, RBLKi, CBLKj}
 
     # store first element
     Δt = (zero(N) .. δ) + time_shift

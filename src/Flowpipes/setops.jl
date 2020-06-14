@@ -233,6 +233,8 @@ function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
     return LazySets.Projection(X, collect(vars))
 end
 
+_Projection(X::LazySet, vars::AbstractVector) =  _Projection(X, Tuple(vars))
+
 # ===============================
 # Decompositions and partitions
 # ===============================
@@ -960,72 +962,6 @@ function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{
     end
     return HPolytope(out)
 end
-
-# =====================================
-# Clustering methods
-# =====================================
-
-abstract type AbstractClusteringMethod end
-
-struct NoClustering <: AbstractClusteringMethod
-#
-end
-
-function cluster(F, idx, ::NoClustering)
-    return view(F, idx) # F[idx]
-end
-
-struct BoxClustering <: AbstractClusteringMethod
-#
-end
-
-function cluster(F::Flowpipe{N, ReachSet{N, ST}}, idx, ::BoxClustering) where {N, ST}
-    convF = Convexify(view(F, idx))  # Convexify(F[idx])
-    return overapproximate(convF, Hyperrectangle)
-end
-
-# we use a Zonotope overapproximation of the flowpipe, take thir convex hull, and
-# compute its box overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N, ST}
-    Fidx = Flowpipe(view(F, idx))
-    charr = [set(overapproximate(Ri, Zonotope)) for Ri in Fidx]
-    Xoa = overapproximate(ConvexHullArray(charr), Hyperrectangle)
-    return ReachSet(Xoa, tspan(Fidx))
-end
-
-struct LazyCHClustering <: AbstractClusteringMethod
-#
-end
-
-function cluster(F, idx, ::LazyCHClustering)
-    return Convexify(view(F, idx)) # Convexify(F[idx])
-end
-
-struct ZonotopeClustering <: AbstractClusteringMethod
-#
-end
-
-# for the generalization to > 2 ses, we iteratively apply the overapprox of the
-# CH of two zonotopes, cf LazySets #2154
-function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
-    if length(idx) == 1
-        return F[idx]
-    elseif length(idx) == 2
-        X = ConvexHull(set(F[idx[1]]), set(F[idx[2]]))
-        Y = overapproximate(X, Zonotope) # TODO pass algorithm
-        return ReachSet(Y, tspan(F[idx]))
-    else
-        Zaux = overapproximate(ConvexHull(set(F[idx[1]]), set(F[idx[2]])), Zonotope)
-        for k in 3:length(idx)
-            Zaux = overapproximate(ConvexHull(Zaux, set(F[idx[k]])), Zonotope)
-        end
-        return ReachSet(Zaux, tspan(F[idx]))
-    end
-end
-
-# convexify and convert to vrep
-#C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])
-#Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
 
 #=
 # =====================================

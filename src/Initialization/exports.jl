@@ -50,6 +50,7 @@ export
     project,
     shift,
     complement,
+    cluster,
 
 # Lazy operations on flowpipes
     Projection,
@@ -76,5 +77,7 @@ export
     TemplateHullIntersection,
 
 # Clustering methods
+    NoClustering,
+    LazyClustering,
     BoxClustering,
     ZonotopeClustering
