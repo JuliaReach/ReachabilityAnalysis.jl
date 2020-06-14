@@ -295,6 +295,13 @@ function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
     return ∈(x, set(R))
 end
 
+# splitting a reach-set according to a given partition; the partition should be
+# a vector of integers
+function LazySets.split(R::AbstractLazyReachSet, partition)
+    Y = split(set(R), partition)
+    [reconstruct(R, y) for y in Y]
+end
+
 # ================================================================
 # Reach set
 # ================================================================

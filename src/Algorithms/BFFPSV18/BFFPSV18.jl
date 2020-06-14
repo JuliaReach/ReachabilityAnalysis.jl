@@ -92,7 +92,7 @@ function BFFPSV18(; δ::N,
     setrep = _concretize_setrep(setrep, N)
     block_indices, row_blocks, column_blocks = _parse_opts(setrep, vars, dim, partition)
     return BFFPSV18{N, setrep, AM, IDX, typeof(block_indices), typeof(row_blocks),
-                    typeof(column_blocks), typeof(spval)}(δ, approx_model,
+                    typeof(column_blocks)}(δ, approx_model,
                     vars, block_indices, row_blocks, column_blocks,
                     lazy_initial_set, lazy_input, sparse, view)
 end

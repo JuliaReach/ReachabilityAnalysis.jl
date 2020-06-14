@@ -32,12 +32,17 @@ at the interface level:
 - If `P` is of type integer: the partition corresponds to gruping the into the given integer
                              number of sets (or as close as possible)
 - If `P` is of type vector of vectors: the given partition is applied
+
+### Examples
+
+`LazyClustering([1:2, 3:10])` groups the first two reach-sets in one cluster and
+the third to tenth reach-sets in another cluster.
 """
 abstract type AbstractClusteringMethod{P} end
 
-_partition(C::AbstractClusteringMethod{Missing}, idx) = nfolds(idx, 1)
-_partition(C::AbstractClusteringMethod{<:Integer}, idx) = nfolds(idx, partition(C))
-_partition(C::AbstractClusteringMethod{VT}, idx) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = [idx[vi] for vi in partition(C)]
+_partition(method::AbstractClusteringMethod{Missing}, idx) = nfolds(idx, 1)
+_partition(method::AbstractClusteringMethod{<:Integer}, idx) = nfolds(idx, partition(method))
+_partition(method::AbstractClusteringMethod{VT}, idx) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = [idx[vi] for vi in partition(method)]
 
 # partition an array x into n parts of equal size (if possible); if n is too large
 # we split into length(x) parts
@@ -63,7 +68,7 @@ end
 
 partition(::NoClustering{Missing}) = missing
 
-NoClustering() = NoClustering(missing)
+NoClustering() = NoClustering{Missing}()
 
 function cluster(F, idx, ::NoClustering)
     return view(F, idx)
@@ -84,14 +89,19 @@ struct LazyClustering{P} <: AbstractClusteringMethod{P}
     partition::P
 end
 
-partition(C::LazyClustering) = C.partition
+partition(method::LazyClustering) = method.partition
 
 LazyClustering() = LazyClustering(missing)
 LazyClustering(nchunks::D) where {D<:Integer} = LazyClustering{D}(nchunks)
 LazyClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = LazyClustering{VT}(partition)
 
-function cluster(F, idx, ::LazyClustering)
-    return Convexify(view(F, idx))
+function cluster(F, idx, ::LazyClustering{Missing})
+    return [Convexify(view(F, idx))]
+end
+
+function cluster(F, idx, method::LazyClustering{P}) where {P}
+    p = _partition(method, idx)
+    convF = [Convexify(view(F, cj)) for cj in p]
 end
 
 # =====================================
@@ -111,56 +121,68 @@ struct BoxClustering{PI, PO} <: AbstractClusteringMethod{PI}
     outpartition::PO
 end
 
-partition(C::BoxClustering) = C.inpartition
+partition(method::BoxClustering) = method.inpartition
 
 BoxClustering() = BoxClustering(missing, missing)
 BoxClustering(nchunks::D) where {D<:Integer} = BoxClustering{D, Missing}(nchunks, missing)
-BoxClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = BoxClustering{VT}(partition, missing)
+BoxClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = BoxClustering{VT, Missing}(partition, missing)
+
+_out_partition(method::BoxClustering{PI, Missing}, idx, n) where {PI} = fill(1, n)
+_out_partition(method::BoxClustering{PI, <:Integer}, idx, n) where {PI} = fill(method.outpartition, n)
+_out_partition(method::BoxClustering{PI, VT}, idx, n) where {PI, D<:Integer, VT<:AbstractVector{D}} = method.outpartition
 
 # do not partition neither the input nor the output
-function cluster(F::Flowpipe{N, ReachSet}, idx, ::BoxClustering{Missing, Missing}) where {N}
+function cluster(F::Flowpipe{N, <:ReachSet}, idx, ::BoxClustering{Missing, Missing}) where {N}
     convF = Convexify(view(F, idx))
     return [overapproximate(convF, Hyperrectangle)]
 end
 
+# do not partition neither the input but split the output
+function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{Missing, PO}) where {N, PO}
+    convF = Convexify(view(F, idx))
+    Y = overapproximate(convF, Hyperrectangle)
+    p = _out_partition(method, idx, dim(F))
+    return split(Y, p)
+end
+
 # partition the input array and do not partition the output
-function cluster(F::Flowpipe{N, ReachSet}, idx, C::BoxClustering{PI, Missing}) where {N, PI}
-    p = _partition(C, idx)
+function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
+    p = _partition(method, idx)
     convF = [Convexify(view(F, cj)) for cj in p]
     return [overapproximate(Xc, Hyperrectangle) for Xc in convF]
 end
 
-# we use a Zonotope overapproximation of the flowpipe, take their convex hull, and
-# compute its box overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N, ST}
-    Fz = overapproximate(Zonotope, Flowpipe(view(F, idx)))
-    return cluster(Fz, idx, C)
+# partition the input array and do not partition the output
+function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{PI, PO}) where {N, PI, PO}
+    p = _partition(method, idx)
+    convF = [Convexify(view(F, cj)) for cj in p]
+    Y = [overapproximate(Xc, Hyperrectangle) for Xc in convF]
+    pout = _out_partition(method, idx, dim(F))
+    Ys = reduce(vcat, [split(y, pout) for y in Y])
+    return Ys
 end
 
-# TODO methods to split the output
+# for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N}
+    Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
 
-#=
- # old
- function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N, ST}
-     Fidx = Flowpipe(view(F, idx))
-     charr = [set(overapproximate(Ri, Zonotope)) for Ri in Fidx]
-     Xoa = overapproximate(ConvexHullArray(charr), Hyperrectangle)
-     return [ReachSet(Xoa, tspan(Fidx))]
- end
-=#
+    # Fx is now indexed from 1 ... length(idx)
+    return cluster(Fz, 1:length(idx), method)
+end
 
 # =====================================
 # Zonotope clustering
 # =====================================
 
-#=
 struct ZonotopeClustering{P} <: AbstractClusteringMethod{P}
-#
+    partition::P
 end
+
+ZonotopeClustering() = ZonotopeClustering(missing)
 
 # for the generalization to > 2 ses, we iteratively apply the overapprox of the
 # CH of two zonotopes, cf LazySets #2154
-function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
+function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering{Missing}) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
     if length(idx) == 1
         return F[idx]
     elseif length(idx) == 2
@@ -176,7 +198,6 @@ function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, Z
     end
 end
 
-=#
 
 # convexify and convert to vrep
 #C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])

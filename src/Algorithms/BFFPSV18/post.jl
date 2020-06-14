@@ -19,7 +19,7 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     ivp_norm = _normalize(ivp)
 
     # discretize system
-    @time ivp_discr = discretize(ivp_norm, δ, approx_model)
+    ivp_discr = discretize(ivp_norm, δ, approx_model)
     Φ = state_matrix(ivp_discr)
     Ω0 = initial_state(ivp_discr)
     X = stateset(ivp_discr)
