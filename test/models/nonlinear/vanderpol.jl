@@ -1,9 +1,26 @@
-# =======================================
-# Van der Pol oscillator
-# #include("models/lotka_volterra.jl")
-# https://en.wikipedia.org/wiki/Van_der_Pol_oscillator
-# Number of state variables: 2
-# =======================================
+# # Van der Pol oscillator
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](__NBVIEWER_ROOT_URL__/../vanderpol.ipynb)
+#
+#md # !!! note "Overview"
+#md #     system type: polynomial continuous system\
+#md #     state dimension: 2
+#
+# For more information on the model see
+# [Wikipedia](https://en.wikipedia.org/wiki/Van_der_Pol_oscillator).
+
+# ## Dynamics
+#
+# The dynamics of the Van der Pol oscillator are described as follows:
+#
+# ```math
+# \begin{aligned}
+#   \dot{x} &= y \\
+#   \dot{y} &= \mu (1 - x^2) y - x
+# \end{aligned}
+# ```
+# We consider the parameter ``μ = 1``.
+
+#!jl using ReachabilityAnalysis, Plots  #hide
 
 @taylorize function vanderPol!(dx, x, params, t)
     local μ = 1.0
@@ -12,31 +29,21 @@
     return dx
 end
 
-function vanderpol()
+# ## Initial-value problem
+
+function vanderpol()  #jl
+    ## set of initial states
     X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45])
-    prob = @ivp(x' = vanderPol!(x), dim: 2, x(0) ∈ X0)
+#!jl     plot(X0)  #hide
+
+    #-
+
+    ## initial-value problem
+    ivp = @ivp(x' = vanderPol!(x), dim: 2, x(0) ∈ X0)
+
+    ## time horizon
     tspan = (0.0, 5.0)
 
-    return prob, tspan
-end
-
-#=
-OLD
-
-# check mode
-property = (t, x) -> x[2] <= 2.75
-sol = solve(P, T=7.0, property=property, alg)
-
-# test set representation option
-sol = solve(P, T=7.0, setrep=:Hyperrectangle, alg)
-@test set(sol[1]) isa Hyperrectangle
-
-sol = solve(P, T=7.0, setrep=:IntervalBox, alg)
-@test set(sol[1]) isa IntervalBox
-
-sol = solve(P, T=7.0, setrep=:Zonotope, alg)
-@test set(sol[1]) isa Zonotope
-
-sol = solve(P, T=7.0, setrep=:TaylorModel, alg)
-@test set(sol[1]) isa TaylorModel
-=#
+    nothing  #hide  #md
+    return ivp, tspan  #jl
+end  #jl
