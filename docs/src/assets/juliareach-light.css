@@ -294,7 +294,8 @@ html {
   overflow-x: auto;
   overflow-y: scroll;
   text-rendering: optimizeLegibility;
-  text-size-adjust: 100%; }
+  text-size-adjust: 100%;
+  text-align: justify;}
 
 article,
 aside,
