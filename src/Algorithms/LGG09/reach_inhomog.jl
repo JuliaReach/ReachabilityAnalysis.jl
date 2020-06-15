@@ -133,3 +133,45 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ, Φᵀ, ℓ, Ω₀, NSTEPS, W, time_
     return ρvec_ℓ
 end
 =#
+
+
+# ===================================
+# Inhomogeneous case with invariant
+# ===================================
+
+function reach_inhomog_LGG09!(F::Vector{RT},
+                              dirs::TN,
+                              Ω₀::LazySet{N},
+                              Φ::AbstractMatrix{N},
+                              NSTEPS::Integer,
+                              δ::N,
+                              X::LazySet,
+                              U::LazySet,
+                              time_shift::N,
+                              cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+
+    # transpose coefficients matrix
+    Φᵀ = copy(transpose(Φ))
+
+    # preallocate output sequence
+    ρℓ = Matrix{N}(undef, length(dirs), NSTEPS)
+
+    # for each direction, compute NSTEPS iterations
+    @inbounds for (j, ℓ) in enumerate(dirs)
+        reach_inhomog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, U, ℓ, NSTEPS, cache)
+    end
+
+    # fill template reach-set sequence
+    Δt = (zero(N) .. δ) + time_shift
+    k = 1
+    @inbounds while k <= NSTEPS
+        F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)
+        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        Δt += δ
+        k += 1
+    end
+    if k < NSTEPS
+        resize!(F, k-1)
+    end
+    return ρℓ
+end
