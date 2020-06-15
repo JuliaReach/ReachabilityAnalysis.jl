@@ -17,15 +17,15 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     ivp_norm = _normalize(ivp)
     X = stateset(ivp_norm)
 
+    # fix the working variables and maximum order in the global
+    # parameters struct (_params_TaylorN_)
+    set_variables("x", numvars=n, order=2*orderQ)
+
     # initial set
     X0 = initial_state(ivp_norm)
     box_x0 = box_approximation(X0)
     q0 = center(box_x0)
     δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
-
-    # fix the working variables and maximum order in the global
-    # parameters struct (_params_TaylorN_)
-    set_variables("x", numvars=length(q0), order=2*orderQ)
 
     # preallocate output flowpipe
     F = Vector{TaylorModelReachSet{N}}()
