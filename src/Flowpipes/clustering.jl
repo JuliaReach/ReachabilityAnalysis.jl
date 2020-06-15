@@ -74,7 +74,6 @@ function cluster(F, idx, ::NoClustering)
     return view(F, idx)
 end
 
-
 # =====================================
 # Lazy convexification clustering
 # =====================================
@@ -132,13 +131,13 @@ _out_partition(method::BoxClustering{PI, <:Integer}, idx, n) where {PI} = fill(m
 _out_partition(method::BoxClustering{PI, VT}, idx, n) where {PI, D<:Integer, VT<:AbstractVector{D}} = method.outpartition
 
 # do not partition neither the input nor the output
-function cluster(F::Flowpipe{N, <:ReachSet}, idx, ::BoxClustering{Missing, Missing}) where {N}
+function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, ::BoxClustering{Missing, Missing}) where {N}
     convF = Convexify(view(F, idx))
     return [overapproximate(convF, Hyperrectangle)]
 end
 
 # do not partition neither the input but split the output
-function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{Missing, PO}) where {N, PO}
+function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{Missing, PO}) where {N, PO}
     convF = Convexify(view(F, idx))
     Y = overapproximate(convF, Hyperrectangle)
     p = _out_partition(method, idx, dim(F))
@@ -146,14 +145,15 @@ function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{Missing,
 end
 
 # partition the input array and do not partition the output
-function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
+#function cluster(F::Flowpipe{N, Union{<:ReachSet, <:SparseReachSet}}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
+function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
     p = _partition(method, idx)
     convF = [Convexify(view(F, cj)) for cj in p]
     return [overapproximate(Xc, Hyperrectangle) for Xc in convF]
 end
 
 # partition the input array and do not partition the output
-function cluster(F::Flowpipe{N, <:ReachSet}, idx, method::BoxClustering{PI, PO}) where {N, PI, PO}
+function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{PI, PO}) where {N, PI, PO}
     p = _partition(method, idx)
     convF = [Convexify(view(F, cj)) for cj in p]
     Y = [overapproximate(Xc, Hyperrectangle) for Xc in convF]
