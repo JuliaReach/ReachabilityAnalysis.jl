@@ -379,6 +379,13 @@ function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
     return ReachSet(Y, tspan(fp))
 end
 
+function Convexify(fp::AbstractVector{SparseReachSet{N, ST, D}}) where {N, ST, D}
+    Y = ConvexHullArray([set(X) for X in fp])
+    ti = tstart(fp[1])
+    tf = tend(fp[end])
+    return ReachSet(Y, TimeInterval(ti, tf))
+end
+
 function Convexify(fp::AbstractVector{ReachSet{N, ST}}) where {N, ST}
     Y = ConvexHullArray([set(X) for X in fp])
     ti = tstart(fp[1])
