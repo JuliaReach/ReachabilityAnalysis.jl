@@ -226,3 +226,70 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
     end
     return F
 end
+
+
+
+
+
+#######################################################################
+
+# Set representation: Generic
+# Matrix operations: Dense
+# Invariant: LazySet
+function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::LazySet, U,
+                                 ST, vars, block_indices,
+                                 row_blocks::AbstractVector{<:RBLKi},
+                                 column_blocks::AbstractVector{<:CBLKj},
+                                 time_shift::N,
+                                 viewval::Val{false}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
+
+    # initial reach-set
+    Δt = (zero(N) .. δ) + time_shift
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
+
+    # cache matrix
+    Φpowerk = copy(Φ)
+    Φpowerk_cache = similar(Φ)
+
+    # preallocate buffer for each row-block
+    SMT = SubArray{N, 2, MT, Tuple{RBLKi, CBLKj}, false}
+    buffer = Vector{LazySets.LinearMap{N, ST, N, SMT}}(undef, length(column_blocks))
+
+    # preallocate overapproximated Minkowski sum for each row-block
+    Xhatk = Vector{ST}(undef, length(row_blocks))
+
+    # preallocate accumulated inputs and decompose it
+    Whatk = Vector{ST}(undef, length(row_blocks))
+    @inbounds for (i, bi) in enumerate(row_blocks)
+        πX = _Projection(U, bi)
+        Whatk[i] = overapproximate(πX, ST)
+    end
+
+    k = 2
+    @inbounds while k <= NSTEPS
+        for (i, bi) in enumerate(row_blocks) # loop over row-blocks of interest
+            for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
+                buffer[j] = view(Φpowerk, bi, bj) * Xhat0.array[j]
+            end
+            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], ST)
+        end
+        Xk = CartesianProductArray(copy(Xhatk))
+        _is_intersection_empty(X, Xk) && break
+        Δt += δ
+        F[k] = SparseReachSet(Xk, Δt, vars)
+
+        # update the input set
+        for (i, bi) in enumerate(row_blocks)
+            Whatk[i] = overapproximate(Whatk[i] ⊕ view(Φpowerk, bi, :) * U, ST)
+        end
+
+        mul!(Φpowerk_cache, Φpowerk, Φ)
+        copyto!(Φpowerk, Φpowerk_cache)
+
+        k += 1
+    end
+    if k < NSTEPS + 1
+        resize!(F, k-1)
+    end
+    return F
+end
