@@ -374,12 +374,12 @@ end
 # given flowpipe. TODO add second argument for number of reach-sets
 # return a flowpipe..?
 # TODO: lazily convexify?
-function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
+function Convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
     Y = ConvexHullArray([set(X) for X in array(fp)])
     return ReachSet(Y, tspan(fp))
 end
 
-function Convexify(fp::AbstractVector{ReachSet{N, ST}}) where {N, ST}
+function Convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
     Y = ConvexHullArray([set(X) for X in fp])
     ti = tstart(fp[1])
     tf = tend(fp[end])
