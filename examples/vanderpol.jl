@@ -53,9 +53,8 @@ end
 # ## Results
 
 # We proceed by defining the initial conditions as a hyperrectangular set according
-# to the problem's specifications. Then we build the initial-value problem using the
-# `@ivp` macro, which is then passed to the `solve` function.
-# We specify using `TMJets` algorithm with default options.
+# to the problem's specifications. Then we build the initial-value problem and pass
+# it to the `solve` function. We specify using `TMJets` algorithm with default options.
 
 X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45]) #!jl
 prob = @ivp(x' = vanderpol!(x), dim=2, x(0) ∈ X0) #!jl
