@@ -1,5 +1,10 @@
 using RecipesBase
 
+#=
+The plotting functions in this file are adapted from those in LazySets.jl.
+See the relevant docstrings in LazySets for the description of the available options.
+=#
+
 using LazySets: plot_recipe,
                 PLOT_PRECISION,
                 PLOT_POLAR_DIRECTIONS,
@@ -14,9 +19,29 @@ using LazySets: plot_recipe,
                 _bounding_hyperrectangle,
                 _update_plot_limits!
 
-# This function is from LazySets.jl. See the docstring in LazySets for the description
-# of the available options.
-#
+# projection of a reach-set either concretely or lazily
+function _project_reachset(R, vars, ε)
+    if setrep(R) <: AbstractZonotope
+        πR = project(R, vars) # concrete projection
+        X = set(πR)
+    else
+        πR = Projection(R, vars) # lazy projection
+        X = overapproximate(set(πR), ε)
+    end
+    return X
+end
+
+function _check_vars(vars)
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot in one or two dimensions, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+end
+
 # The type annotation NTuple in vars is removed because of this warning:
 # ┌ Warning: Type annotations on keyword arguments not currently supported in recipes. Type information has been discarded
 # └ @ RecipesBase ~/.julia/packages/RecipesBase/zBoFG/src/RecipesBase.jl:112
@@ -25,22 +50,11 @@ using LazySets: plot_recipe,
                                ε=N(PLOT_PRECISION)
                                ) where {N<:Real}
 
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
 
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
+    _check_vars(vars)
+    X = _project_reachset(R, vars, ε)
 
-    πR = project(R, vars) # project the reach-set
-    X = set(πR) # extract the set representation
-
-    # TODO : try D = 1
-
-    if (dim(X) == 1) && (D == 1)
+    if dim(X) == 1
         plot_recipe(X, ε)
     else
         label --> DEFAULT_LABEL
@@ -82,14 +96,8 @@ using LazySets: plot_recipe,
             x, y
         end
     end
-#    else
-#        throw(ArgumentError("can only plot reach-sets of dimension 1 or 2, but " *
-#                            "received a reach-set of dimension $(dim(R))"))
-#    end
 end
 
-# This function is from LazySets.jl. See the docstring in LazySets for the description
-# of the available options.
 @recipe function plot_list(list::AbstractVector{RN};
                            vars=nothing,
                            ε=N(PLOT_PRECISION),
@@ -97,17 +105,7 @@ end
                            fast=true
                           ) where {N<:Real, RN<:AbstractReachSet{N}}
 
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
-
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
-
-    # TODO : try D = 1
+    _check_vars(vars)
 
     if fast
         label --> DEFAULT_LABEL
@@ -123,8 +121,7 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in list
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
@@ -159,8 +156,7 @@ end
         x, y
     else
         for Ri in list
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -172,25 +168,14 @@ end
 
 # This function is from LazySets.jl. See the docstring in LazySets for the description
 # of the available options.
-@recipe function plot_list(fp::Flowpipe;
+@recipe function plot_list(fp::Flowpipe{N};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
                            fast=true
-                          )
-    N = Float64 # TODO: add type parameter to the AbstractFlowpipe ?
+                          ) where {N}
 
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
-
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
-
-    # TODO : try D = 1
+    _check_vars(vars)
 
     if fast
         label --> DEFAULT_LABEL
@@ -206,8 +191,7 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in fp
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
@@ -242,8 +226,7 @@ end
         x, y
     else
         for Ri in fp
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -254,25 +237,14 @@ end
 end
 
 # compound flowpipes
-@recipe function plot_list(fp::Union{HybridFlowpipe, MixedFlowpipe};
+@recipe function plot_list(fp::Union{HF, MF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
                            fast=true
-                          )
-    N = Float64 # TODO: add type parameter to the AbstractFlowpipe ?
+                          ) where {N, HF<:HybridFlowpipe{N}, MF<:MixedFlowpipe{N}}
 
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
-
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
-
-    # TODO : try D = 1
+    _check_vars(vars)
 
     if fast
         label --> DEFAULT_LABEL
@@ -289,8 +261,7 @@ end
         y = Vector{N}()
         for F in fp
         for Ri in F
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
@@ -327,8 +298,7 @@ end
     else
         for F in fp
         for Ri in F
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -339,29 +309,14 @@ end
     end
 end
 
-# This function is from LazySets.jl. See the docstring in LazySets for the description
-# of the available options.
-@recipe function plot_list(sol::ReachSolution{<:Flowpipe};
+@recipe function plot_list(sol::ReachSolution{FT};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
                            fast=true
-                          )
+                          ) where {N, FT<:Flowpipe{N}}
 
-    N = Float64
-
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
-
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
-
-    # TODO : try D = 1
-
+    _check_vars(vars)
     if fast
         label --> DEFAULT_LABEL
         grid --> DEFAULT_GRID
@@ -376,9 +331,7 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in flowpipe(sol)
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
-
+            Xi = _project_reachset(Ri, vars, ε)
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
             else
@@ -412,8 +365,7 @@ end
         x, y
     else
         for Ri in flowpipe(sol)
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            Xi = _project_reachset(Ri, vars, ε)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -424,27 +376,13 @@ end
 end
 
 # compound solution flowpipes
-@recipe function plot_list(sol::Union{ReachSolution{<:MixedFlowpipe}, ReachSolution{<:HybridFlowpipe}};
+@recipe function plot_list(sol::Union{SMF, SHF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
                            fast=true
-                          )
-
-    N = Float64
-
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
-
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
-
-    # TODO : try D = 1
-
+                          ) where {N, MF<:MixedFlowpipe{N}, HF<:HybridFlowpipe{N}, SMF<:ReachSolution{MF}, SHF<:ReachSolution{HF}}
+    _check_vars(vars)
     if fast
         label --> DEFAULT_LABEL
         grid --> DEFAULT_GRID
@@ -460,10 +398,13 @@ end
         y = Vector{N}()
         for F in flowpipe(sol)
         for (i, Ri) in enumerate(F)
-            # NOTE: the following is needed to support ShiftedFlowpipe
-            # otherwise we would just to project(Ri, vars)
-            πRi = project(F, i, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+            if isa(F, ShiftedFlowpipe)
+                # TODO refactor; this is needed to support ShiftedFlowpipe
+                πRi = project(F, i, vars) # project the reach-set
+                Xi = set(πRi) # extract the set representation
+            else
+                Xi = _project_reachset(Ri, vars, ε)
+            end
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
@@ -499,9 +440,14 @@ end
         x, y
     else
         for F in flowpipe(sol)
-        for Ri in F
-            πRi = project(Ri, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
+        for (i, Ri) in enumerate(F)
+            if isa(F, ShiftedFlowpipe)
+                # TODO refactor; this is needed to support ShiftedFlowpipe
+                πRi = project(F, i, vars) # project the reach-set
+                Xi = set(πRi) # extract the set representation
+            else
+                Xi = _project_reachset(Ri, vars, ε)
+            end
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -513,26 +459,14 @@ end
 end
 
 # TODO: refactor with Flowpipe
-@recipe function plot_list(fp::ShiftedFlowpipe;
+# TODO extend projection of shifted flowpipes to use lazy projection if needed
+@recipe function plot_list(fp::ShiftedFlowpipe{N};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS,
                            fast=true
-                          )
-    N = Float64 # TODO: add type parameter to the AbstractFlowpipe ?
-
-    if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
-                "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-                "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
-    end
-
-    D = length(vars)
-    @assert (D == 1) || (D == 2) "can only plot one or two dimensional reach-sets, " *
-                                 "but received $D variable indices where `vars = ` $vars"
-
-    # TODO : try D = 1
-
+                          ) where {N}
+    _check_vars(vars)
     if fast
         label --> DEFAULT_LABEL
         grid --> DEFAULT_GRID

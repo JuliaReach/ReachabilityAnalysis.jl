@@ -16,7 +16,9 @@ linear systems using zonotopes.
 - `ngens`            -- (optional, default: `missing`) number of generators
 - `preallocate`      -- (optional, default: `true`) if `true`, use the implementation
                         which preallocates the zonotopes prior to applying the update rule
-- `reduction_method` -- (optional, default: `GIR05()`) zonotope order reduction method used
+- `reduction_method`    -- (optional, default: `GIR05()`) zonotope order reduction method used
+- `disjointness_method` -- (optional, default: `ZonotopeEnclosure()`) method to check
+                           disjointness between the reach-set and the invariant
 
 ## Notes
 
@@ -56,7 +58,7 @@ Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 
 Regarding the approximation model, we use an adaptation of a result in [[FRE11]](@ref).
 """
-struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
+struct GLGM06{N, AM, S, D, NG, P, RM, DM} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     max_order::Int
@@ -65,6 +67,7 @@ struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
     ngens::NG
     preallocate::P
     reduction_method::RM
+    disjointness_method::DM
 end
 
 # TODO review setops "zonotope" / "lazy" options, used or ignored
@@ -77,7 +80,8 @@ function GLGM06(; δ::N,
                dim::Union{Int, Missing}=missing,
                ngens::Union{Int, Missing}=missing,
                preallocate::Bool=true,
-               reduction_method::RM=GIR05()) where {N, AM, RM}
+               reduction_method::RM=GIR05(),
+               disjointness_method::DM=ZonotopeEnclosure()) where {N, AM, RM<:AbstractReductionMethod, DM<:AbstractDisjointnessMethod}
 
     # algorithm with "preallocation" is only defined for the non-static case
     preallocate = !static
