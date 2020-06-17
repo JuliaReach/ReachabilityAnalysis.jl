@@ -241,7 +241,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::LazySet, U,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
                                  time_shift::N,
-                                 viewval::Val{false}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
+                                 viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach-set
     Δt = (zero(N) .. δ) + time_shift
