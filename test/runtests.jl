@@ -5,12 +5,12 @@ using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
                            BoxEnclosure, ZonotopeEnclosure
 
 # load test models
-include("models/linear/exponential1D.jl")
-include("models/linear/motor.jl")
-include("models/linear/linear5D.jl")
-include("models/nonlinear/vanderpol.jl")
-include("models/hybrid/embrake.jl")
-include("models/hybrid/bouncing_ball.jl")
+include("models/exponential1D.jl")
+include("models/motor.jl")
+include("models/linear5D.jl")
+include("models/vanderpol.jl")
+include("models/embrake.jl")
+include("models/bouncing_ball.jl")
 
 #include("utils.jl")
 include("solve.jl")

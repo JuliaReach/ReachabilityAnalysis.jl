@@ -8,13 +8,15 @@ DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
 include("generate.jl")
 
 makedocs(
-    format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS")), # disable for local builds
+    format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),  # disable for local builds
+                             collapselevel = 1,
+                             assets = ["assets/juliareach-light.css"]),
     sitename = "ReachabilityAnalysis.jl",
     doctest = false,
     strict = false,
     pages = [
         "Home" => "index.md",
-        "Introduction" => "introduction.md", # TODO: keep?
+        "Introduction" => "introduction.md",
         "Manual" => Any["Set representations" => "man/setrep.md",
                         "Linear ODEs" => "man/linear.md",
                         "Exploiting structure" => "man/linear_high_dim.md",
@@ -25,10 +27,10 @@ makedocs(
                         "Benchmarks" => "man/benchmarks.md",
                         "Model library" => "man/library.md"],
                         # Other topics: Distributed computations. Multithreading.
-        "Applications" => Any["Electromechanic break" => "man/applications/embrake.md",
-                              "Quadrotor altitude control" => "man/applications/quadrotor.md",
-                              "Transmision line" => "man/applications/transmission_line.md",
-                              "Epidemic disease" => "man/applications/epidemic.md",
+        "Examples" => Any[#"Electromechanic break" => "man/applications/embrake.md",
+                              #"Quadrotor altitude control" => "man/applications/quadrotor.md",
+                              #"Transmision line" => "man/applications/transmission_line.md",
+                              #"Epidemic disease" => "man/applications/epidemic.md",
                               "Van der Pol oscillator" => "models/vanderpol.md"],
                               # Other topics: car control, power systems stability.
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
@@ -51,5 +53,5 @@ makedocs(
 # Deploy built documentation from Travis.
 deploydocs(
     repo = "github.com/JuliaReach/ReachabilityAnalysis.jl.git",
-    push_preview=true,
+    push_preview = true,
 )
