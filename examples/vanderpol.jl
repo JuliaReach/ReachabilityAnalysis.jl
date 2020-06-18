@@ -36,7 +36,7 @@ end
 
 #jl function vanderpol()
 #jl    X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45])
-#jl    ivp = @ivp(x' = vanderPol!(x), dim: 2, x(0) ∈ X0)
+#jl    ivp = @ivp(x' = vanderpol!(x), dim: 2, x(0) ∈ X0)
 #jl    tspan = (0.0, 5.0)
 #jl    return ivp, tspan
 #jl end

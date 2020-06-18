@@ -45,6 +45,7 @@ export
     sup_func, # TODO keep?
     setrep,
     rsetrep,
+    numrsets,
 
 # Concrete operations
     project,

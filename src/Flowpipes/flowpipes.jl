@@ -277,6 +277,7 @@ setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 rsetrep(fp::Flowpipe{N, RT}) where {N, RT} = RT
 rsetrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = RT
+numrsets(fp::Flowpipe) = length(fp)
 
 function location(fp::Flowpipe)
     @assert haskey(fp.ext, :loc_id) "this flowpipe has not been assigned a location identifier"
@@ -585,6 +586,7 @@ array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
 setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = setrep(RT)
 rsetrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+numrsets(fp::HybridFlowpipe) = mapreduce(length, +, fp)
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
@@ -717,6 +719,7 @@ end
 array(fp::MixedFlowpipe) = fp.Fk
 flowpipe(fp::MixedFlowpipe) = fp
 setrep(::Type{MixedFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+numrsets(fp::MixedFlowpipe) = mapreduce(length, +, fp)
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::MixedFlowpipe, I::Int...) = getindex(fp.Fk, I...)

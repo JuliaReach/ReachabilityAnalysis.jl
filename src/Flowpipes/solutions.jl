@@ -83,6 +83,7 @@ tspan(sol::ReachSolution, arr::AbstractVector) = tspan(sol.F, arr)
 setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
 rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(FT)
 vars(sol::ReachSolution) = vars(sol.F)
+numrsets(sol::ReachSolution) = numrsets(sol.F)
 
 # iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
