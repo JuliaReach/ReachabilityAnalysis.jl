@@ -17,7 +17,7 @@ linear systems using zonotopes.
 - `preallocate`      -- (optional, default: `true`) if `true`, use the implementation
                         which preallocates the zonotopes prior to applying the update rule
 - `reduction_method`    -- (optional, default: `GIR05()`) zonotope order reduction method used
-- `disjointness_method` -- (optional, default: `ZonotopeEnclosure()`) method to check
+- `disjointness_method` -- (optional, default: `NoEnclosure()`) method to check
                            disjointness between the reach-set and the invariant
 
 ## Notes
@@ -81,14 +81,14 @@ function GLGM06(; δ::N,
                ngens::Union{Int, Missing}=missing,
                preallocate::Bool=true,
                reduction_method::RM=GIR05(),
-               disjointness_method::DM=ZonotopeEnclosure()) where {N, AM, RM<:AbstractReductionMethod, DM<:AbstractDisjointnessMethod}
+               disjointness_method::DM=NoEnclosure()) where {N, AM, RM<:AbstractReductionMethod, DM<:AbstractDisjointnessMethod}
 
     # algorithm with "preallocation" is only defined for the non-static case
     preallocate = !static
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return GLGM06(δ, approx_model, max_order, Val(static), n, p,
-                  Val(preallocate), reduction_method)
+                  Val(preallocate), reduction_method, disjointness_method)
 end
 
 step_size(alg::GLGM06) = alg.δ

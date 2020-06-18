@@ -38,10 +38,14 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         Φ = SparseArrays.sparse(Φ)
     end
 
+    # variables that are actually computed
+    vars = reduce(vcat, alg.row_blocks)
+
     # preallocate output flowpipe
     CP = CartesianProductArray{N, ST}
     F = Vector{SparseReachSet{N, CP, length(vars)}}(undef, NSTEPS)
 
+    # option to use array views
     viewval = Val(alg.view)
 
     if got_homogeneous

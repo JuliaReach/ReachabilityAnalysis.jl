@@ -78,23 +78,45 @@ _concretize_setrep(setrep::Type{Interval}, N) = Interval{N, IntervalArithmetic.I
 _concretize_setrep(setrep::Type{Hyperrectangle}, N) = Hyperrectangle{N, Vector{N}, Vector{N}}
 
 function BFFPSV18(; δ::N,
-                    setrep::ST,
-                    vars::IDX,
+                    setrep::ST=missing,
+                    vars=missing,
                     partition::PT=missing,
                     dim::Union{Int, Missing}=missing, # can be deduced from the partitions
                     approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
                     lazy_initial_set::Bool=false,
                     lazy_input::Bool=false,
                     sparse::Bool=false,
-                    view::Bool=false
-                 ) where {N, ST, IDX, PT, AM}
+                    view::Bool=true
+                 ) where {N, ST, PT, AM}
+
+    if ismissing(dim) && ismissing(partition)
+        throw(ArgumentError("the constructor of `BFFPSV18` should specify at least the " *
+                            "number of variables in the dimension field (`dim`) " *
+                            "or the partition (`partition`)"))
+    end
+
+    if !ismissing(dim)
+        dimension = dim
+    else # got partition
+        dimension = last(last(partition))
+    end
+
+    if ismissing(setrep)
+        setrep = dimension == 1 ? Interval : Hyperrectangle
+    end
+
+    if ismissing(vars) # if not specified, compute all variables
+        vars = 1:dimension
+    end
 
     setrep = _concretize_setrep(setrep, N)
-    block_indices, row_blocks, column_blocks = _parse_opts(setrep, vars, dim, partition)
-    return BFFPSV18{N, setrep, AM, IDX, typeof(block_indices), typeof(row_blocks),
+    block_indices, row_blocks, column_blocks = _parse_opts(setrep, vars, dimension, partition)
+
+    return BFFPSV18{N, setrep, AM, typeof(vars), typeof(block_indices), typeof(row_blocks),
                     typeof(column_blocks)}(δ, approx_model,
                     vars, block_indices, row_blocks, column_blocks,
                     lazy_initial_set, lazy_input, sparse, view)
+
 end
 
 function _parse_opts(::Type{<:Interval}, vars, dim, partition)
@@ -102,6 +124,11 @@ function _parse_opts(::Type{<:Interval}, vars, dim, partition)
     row_blocks = [[i] for i in vars]
     column_blocks = [[i] for i in 1:dim]
     return block_indices, row_blocks, column_blocks
+end
+
+# default partition
+function _parse_opts(::Type{<:Hyperrectangle}, vars, dim, partition::Missing)
+    _parse_opts(Hyperrectangle, vars, dim, [1:dim])
 end
 
 function _parse_opts(::Type{<:Hyperrectangle}, vars, dim, partition)

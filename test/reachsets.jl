@@ -1,4 +1,4 @@
-@test "Reach-set projections" begin
+@testset "Reach-set projections" begin
     X = BallInf(zeros(5), 1.0)
     B = BallInf(zeros(2), 1.0)
 
