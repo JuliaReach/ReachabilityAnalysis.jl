@@ -159,7 +159,9 @@ end
 step_size(alg::BFFPSV18) = alg.δ
 numtype(::BFFPSV18{N}) where {N} = N
 setrep(::BFFPSV18{N, ST}) where {N, ST} = ST
-rsetrep(alg::BFFPSV18{N, ST}) where {N, ST} = SparseReachSet{N, CartesianProductArray{N, ST}, length(alg.vars)}
+
+# the reduction is necessary to have the number of variables that are actually computed
+rsetrep(alg::BFFPSV18{N, ST}) where {N, ST} = SparseReachSet{N, CartesianProductArray{N, ST}, length(reduce(vcat, alg.row_blocks))}
 
 include("post.jl")
 include("reach_homog.jl")
