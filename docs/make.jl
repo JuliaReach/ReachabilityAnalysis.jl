@@ -28,10 +28,11 @@ makedocs(
                         "Model library" => "man/library.md"],
                         # Other topics: Distributed computations. Multithreading.
         "Examples" => Any[#"Electromechanic break" => "man/applications/embrake.md",
-                              #"Quadrotor altitude control" => "man/applications/quadrotor.md",
-                              #"Transmision line" => "man/applications/transmission_line.md",
-                              #"Epidemic disease" => "man/applications/epidemic.md",
-                              "Van der Pol oscillator" => "models/vanderpol.md"],
+                          #"Quadrotor altitude control" => "man/applications/quadrotor.md",
+                          "Van der Pol oscillator" => "models/vanderpol.md",
+                         # "Lotka-Volterra" => "models/lotka_volterra.md",
+                         # "SEIR model" => "man/applications/seir.md",
+                          "Transmision line" => "models/transmission_line.md"],
                               # Other topics: car control, power systems stability.
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
