@@ -1,6 +1,6 @@
 # # Transmission line circuit
 #
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/dev/models/transmission_line.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/transmission_line.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: linear continuous system\
