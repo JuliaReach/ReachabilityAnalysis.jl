@@ -12,7 +12,8 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                X::Universe,
                                U::LazySet,
                                reduction_method::AbstractReductionMethod,
-                               time_shift::N) where {N, VN, MN}
+                               time_shift::N,
+                               disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
 
     # initial reach set
     Δt = (zero(N) .. δ) + time_shift
@@ -49,7 +50,8 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                X::LazySet,
                                U::LazySet,
                                reduction_method::AbstractReductionMethod,
-                               time_shift::N) where {N, VN, MN}
+                               time_shift::N,
+                               disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
 
     # initial reach set
     Δt = (zero(N) .. δ) + time_shift
@@ -63,7 +65,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     @inbounds while k <= NSTEPS
         Rₖ = _minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
-        _is_intersection_empty(X, Rₖ) && break
+        _is_intersection_empty(X, Rₖ, disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 

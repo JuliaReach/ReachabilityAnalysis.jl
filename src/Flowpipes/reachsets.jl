@@ -1,5 +1,5 @@
 # method extensions
-import LazySets: dim, overapproximate
+import LazySets: dim, overapproximate, project, Projection
 import Base: ∈
 
 # ================================================================
@@ -426,8 +426,8 @@ function reconstruct(R::SparseReachSet, Y::LazySet)
 end
 
 """
-    project(R::Union{ReachSet, SparseReachSet}, variables::NTuple{D, Int};
-            [check_vars]::Bool=true) where {D}
+    project(R::AbstractLazyReachSet, variables::NTuple{D, M};
+            check_vars::Bool=true) where {D, M<:Integer}
 
 Projects a reach-set onto the subspace spanned by the given variables.
 
@@ -463,51 +463,52 @@ onto the time variable and the first variable in `R`.
 function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
                  check_vars::Bool=true) where {D, M<:Integer}
 
+    vR = vars(R)
+    vRvec = collect(vR)
+
     # TODO: make vars check faster, specific for ReachSets and number of vars D
-    if check_vars && !(setdiff(variables, 0) ⊆ vars(R))
+    if check_vars && !(setdiff(variables, 0) ⊆ vR)
         throw(ArgumentError("the variables $vars do not belong to the variables " *
-                            " of this reach-set, $(vars(R))"))
+                            " of this reach-set, $(vR)"))
     end
 
-    if 0 ∈ variables
-        # if the projection involves "time", we shift the vars indices by one as
-        # we will take the Cartesian product of the reach-set with the time interval
-        aux = variables .+ 1
+    if 0 ∈ variables  # the projection involves "time"
+        vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  _project(Δt × set(R), aux)
+        proj =  _project(Δt × set(R), vars_idx)
     else
-        proj = _project(set(R), variables)
+        vars_idx = _get_vars_idx(variables, vRvec)
+        proj = _project(set(R), vars_idx)
     end
 
     return SparseReachSet(proj, tspan(R), variables)
 end
 
-#=
-function project(R::SparseReachSet, variables::NTuple{D, M};
-                 check_vars::Bool=true) where {D, M<:Integer}
-
-# TODO
+# assumes that variables is a subset of all_variables
+@inline function _get_vars_idx(variables, all_variables)
+    vars_idx = indexin(variables, all_variables) |> Vector{Int}
 end
-=#
 
 # lazy projection of a reach-set
 function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
                     check_vars::Bool=true) where {D, M<:Integer}
 
+    vR = vars(R)
+    vRvec = collect(vR)
+
     # TODO: make vars check faster, specific for ReachSets and number of vars D
-    if check_vars && !(setdiff(variables, 0) ⊆ vars(R))
+    if check_vars && !(setdiff(variables, 0) ⊆ vR)
         throw(ArgumentError("the variables $variables do not belong to the variables " *
-                            " of this reach-set, $(vars(R))"))
+                            " of this reach-set, $(vR)"))
     end
 
-    if 0 ∈ variables
-        # if the projection involves "time", we shift the vars indices by one as
-        # we will take the Cartesian product of the reach-set with the time interval
-        aux = variables .+ 1
+    if 0 ∈ variables  # the projection involves "time"
+        vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  _Projection(Δt × set(R), aux)
+        proj =  _Projection(Δt × set(R), vars_idx)
     else
-        proj = _Projection(set(R), variables)
+        vars_idx = _get_vars_idx(variables, vRvec)
+        proj = _Projection(set(R), vars_idx)
     end
 
     return SparseReachSet(proj, tspan(R), variables)
@@ -739,7 +740,7 @@ function TemplateReachSet(dirs::AbstractDirections, R::AbstractLazyReachSet)
 end
 
 # implement abstract reachset interface
-# TODO: use HPolyhedron or HPolytope if the set is bounded or not
+# TODO: use HPolyhedron or HPolytope if the template directions are bounded
 set(R::TemplateReachSet) = HPolytope([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
 setrep(::Type{<:TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
 setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
@@ -747,7 +748,7 @@ tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
-vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
+vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
 
 directions(R::TemplateReachSet) = R.dirs # TODO rename to dirs ?
 sup_func(R::TemplateReachSet) = R.sf # TODO rename?

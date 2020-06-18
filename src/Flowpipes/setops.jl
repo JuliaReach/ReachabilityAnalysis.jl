@@ -135,18 +135,29 @@ end
 # Projection
 # =========================
 
+# extend LazySets concrete projection for other arg fomats
+LazySets.project(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = project(X, collect(vars))
+LazySets.project(X::LazySet; vars) where {D} = project(X, collect(vars))
+
+# extend LazySets lazy projection for other arg fomats
+LazySets.Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = Projection(X, collect(vars))
+LazySets.Projection(X::LazySet; vars) where {D} = Projection(X, collect(vars))
+
 # fallback concrete projection
-function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
-    return LazySets.project(X, collect(vars))
+function _project(X::LazySet, vars::NTuple{D, <:Integer}) where {D}
+    return project(X, collect(vars))
 end
 
+_project(X::LazySet, vars::AbstractVector) = _project(X, Tuple(vars))
+
 # more efficient concrete projection for zonotopic sets (see LazySets#2013)
-function _project(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
+function _project(Z::AbstractZonotope{N}, vars::NTuple{D, <:Integer}) where {N, D}
     M = projection_matrix(collect(vars), dim(Z), N)
-    return linear_map(M, Z)  # return _project!(copy(Z), vars)
+    return linear_map(M, Z)
 end
 
 # cartesian product of an interval and a hyperrectangular set
+# TODO refactor to LazySets
 function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:AbstractHyperrectangle{N}}, vars::NTuple{D, T}) where {N, D, T<:Integer}
     # NOTE: can be optimized further, eg. for the case that 1 ∉ vars and
     # without copying the full center and radius vectors of H
@@ -229,7 +240,7 @@ end
 #end
 
 # fallback lazy projection
-function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
+function _Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D}
     return LazySets.Projection(X, collect(vars))
 end
 
@@ -683,19 +694,20 @@ struct BoxEnclosure <: AbstractDisjointnessMethod end
 # we pass the sets to the disjointness check algorithm without pre-processing
 struct NoEnclosure <: AbstractDisjointnessMethod end
 
-# fallbacks
-_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
-_is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
-
-# symmetric case
-_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
-
 # this is a dummy disjointness check which returns "false" irrespective of the value of its arguments
 struct Dummy <: AbstractDisjointnessMethod end
 
 # --------------------------------------------------------------------
 # Methods to evaluate disjointness between a reach-set and a lazy set
 # --------------------------------------------------------------------
+
+# fallbacks
+_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(X::LazySet, Y::LazySet, ::NoEnclosure) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
+
+# symmetric case
+_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
 
 function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::NoEnclosure)
     return _is_intersection_empty(set(R), Y)

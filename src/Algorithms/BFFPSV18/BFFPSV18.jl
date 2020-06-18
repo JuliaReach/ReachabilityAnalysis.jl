@@ -74,39 +74,72 @@ struct BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK} <: AbstractContinuousPost
     view::Bool
 end
 
-_concretize_setrep(setrep::Type{Interval}, N) = Interval{N, IntervalArithmetic.Interval{N}}
-_concretize_setrep(setrep::Type{Hyperrectangle}, N) = Hyperrectangle{N, Vector{N}, Vector{N}}
-
 function BFFPSV18(; δ::N,
-                    setrep::ST,
-                    vars::IDX,
+                    setrep::ST=missing,
+                    vars=missing,
                     partition::PT=missing,
-                    dim::Union{Int, Missing}=missing, # can be deduced from the partitions
+                    dim::Union{Int, Missing}=missing,
                     approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
                     lazy_initial_set::Bool=false,
                     lazy_input::Bool=false,
                     sparse::Bool=false,
-                    view::Bool=false
-                 ) where {N, ST, IDX, PT, AM}
+                    view::Bool=true
+                 ) where {N, ST, PT, AM}
+
+    if !ismissing(dim)
+        dimension = dim
+    elseif !ismissing(partition)
+        dimension = last(last(partition))
+    else
+        throw(ArgumentError("the constructor of `BFFPSV18` should specify at least the " *
+                            "number of variables (`dim`) or the partition (`partition`)"))
+    end
+
+    if ismissing(vars) # if not specified, compute all variables
+        vars = 1:dimension
+    end
+
+    if dimension == 1
+        block_indices, row_blocks, column_blocks, setrep_tmp = _parse_opts_1D(vars, dimension, partition)
+    else
+        block_indices, row_blocks, column_blocks, setrep_tmp = _parse_opts_ND(vars, dimension, partition)
+    end
+
+    if ismissing(setrep)
+        setrep = setrep_tmp
+    end
 
     setrep = _concretize_setrep(setrep, N)
-    block_indices, row_blocks, column_blocks = _parse_opts(setrep, vars, dim, partition)
-    return BFFPSV18{N, setrep, AM, IDX, typeof(block_indices), typeof(row_blocks),
+
+    return BFFPSV18{N, setrep, AM, typeof(vars), typeof(block_indices), typeof(row_blocks),
                     typeof(column_blocks)}(δ, approx_model,
                     vars, block_indices, row_blocks, column_blocks,
                     lazy_initial_set, lazy_input, sparse, view)
+
 end
 
-function _parse_opts(::Type{<:Interval}, vars, dim, partition)
+_concretize_setrep(setrep::Type{Interval}, N) = Interval{N, IntervalArithmetic.Interval{N}}
+_concretize_setrep(setrep::Type{Hyperrectangle}, N) = Hyperrectangle{N, Vector{N}, Vector{N}}
+
+# blocks of size 1
+function _parse_opts_1D(vars, dim::Integer, partition)
     block_indices = collect(vars)
     row_blocks = [[i] for i in vars]
     column_blocks = [[i] for i in 1:dim]
-    return block_indices, row_blocks, column_blocks
+    return block_indices, row_blocks, column_blocks, Interval
 end
 
-function _parse_opts(::Type{<:Hyperrectangle}, vars, dim, partition)
-    column_blocks = copy(partition)
-
+# blocks of size possibly greater than one
+function _parse_opts_ND(vars, dim::Integer, partition)
+    got_partition = !ismissing(partition)
+    got_vars = !ismissing(vars)
+    if got_partition
+        column_blocks = copy(partition)
+    elseif got_vars
+        return _parse_opts_1D(vars, dim, partition)
+    else
+        column_blocks = [1:dim]
+    end
     block_indices = Vector{Int}()
     row_blocks = Vector{Vector{Int}}()
 
@@ -119,7 +152,7 @@ function _parse_opts(::Type{<:Hyperrectangle}, vars, dim, partition)
             end
         end
     end
-    return block_indices, row_blocks, column_blocks
+    return block_indices, row_blocks, column_blocks, Hyperrectangle
 end
 
 # getter functions

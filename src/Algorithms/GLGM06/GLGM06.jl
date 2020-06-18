@@ -16,7 +16,9 @@ linear systems using zonotopes.
 - `ngens`            -- (optional, default: `missing`) number of generators
 - `preallocate`      -- (optional, default: `true`) if `true`, use the implementation
                         which preallocates the zonotopes prior to applying the update rule
-- `reduction_method` -- (optional, default: `GIR05()`) zonotope order reduction method used
+- `reduction_method`    -- (optional, default: `GIR05()`) zonotope order reduction method used
+- `disjointness_method` -- (optional, default: `NoEnclosure()`) method to check
+                           disjointness between the reach-set and the invariant
 
 ## Notes
 
@@ -56,7 +58,7 @@ Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 
 Regarding the approximation model, we use an adaptation of a result in [[FRE11]](@ref).
 """
-struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
+struct GLGM06{N, AM, S, D, NG, P, RM, DM} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     max_order::Int
@@ -65,6 +67,7 @@ struct GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
     ngens::NG
     preallocate::P
     reduction_method::RM
+    disjointness_method::DM
 end
 
 # TODO review setops "zonotope" / "lazy" options, used or ignored
@@ -77,14 +80,15 @@ function GLGM06(; δ::N,
                dim::Union{Int, Missing}=missing,
                ngens::Union{Int, Missing}=missing,
                preallocate::Bool=true,
-               reduction_method::RM=GIR05()) where {N, AM, RM}
+               reduction_method::RM=GIR05(),
+               disjointness_method::DM=NoEnclosure()) where {N, AM, RM<:AbstractReductionMethod, DM<:AbstractDisjointnessMethod}
 
     # algorithm with "preallocation" is only defined for the non-static case
     preallocate = !static
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return GLGM06(δ, approx_model, max_order, Val(static), n, p,
-                  Val(preallocate), reduction_method)
+                  Val(preallocate), reduction_method, disjointness_method)
 end
 
 step_size(alg::GLGM06) = alg.δ

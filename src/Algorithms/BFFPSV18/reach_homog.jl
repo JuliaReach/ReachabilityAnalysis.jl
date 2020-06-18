@@ -53,7 +53,7 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe,
 
     # initial reach-set
     Δt = (zero(N) .. δ) + time_shift
-    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0[block_indices]), Δt, vars)
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
     Φpowerk = copy(Φ)
@@ -69,7 +69,7 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe,
     @inbounds for k in 2:NSTEPS
         for (i, bi) in enumerate(row_blocks) # loop over row-blocks of interest
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
-                buffer[j] = view(Φpowerk, bi, bj) * Xhat0[j]
+                buffer[j] = view(Φpowerk, bi, bj) * Xhat0.array[j]
             end
             Xhatk[i] = overapproximate(MinkowskiSumArray(buffer), ST)
         end
@@ -96,7 +96,7 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
 
     # store first element
     Δt = (zero(N) .. δ) + time_shift
-    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0[block_indices]), Δt, vars)
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
     Φpowerk = copy(Φ)
@@ -114,7 +114,7 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
                 Φpowerk_bi_bj = Φpowerk
                 if !iszero(Φpowerk_bi_bj)
-                    buffer[j] = Φpowerk[bi, bj] * Xhat0[j]
+                    buffer[j] = Φpowerk[bi, bj] * Xhat0.array[j]
                 end
             end
             Xhatk[i] = overapproximate(MinkowskiSumArray(buffer), ST)
