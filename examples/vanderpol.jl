@@ -1,9 +1,9 @@
 # # Van der Pol oscillator
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/../vanderpol.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/dev/models/vanderpol.ipynb)
 #
 #md # !!! note "Overview"
-#md #     system type: polynomial continuous system\
-#md #     state dimension: 2
+#md #     System type: polynomial continuous system\
+#md #     State dimension: 2
 #
 # The Van der Pol oscillator was introduced by the Dutch physicist Balthasar van der Pol.
 # This is a famous model, typically investigated in the study of nonlinear dynamics.
