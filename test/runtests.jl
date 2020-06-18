@@ -4,6 +4,9 @@ using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
                            DeterministicSwitching, NonDeterministicSwitching,
                            BoxEnclosure, ZonotopeEnclosure
 
+import IntervalArithmetic
+const IA = IntervalArithmetic
+
 # load test models
 include("models/linear/exponential1D.jl")
 include("models/linear/motor.jl")
