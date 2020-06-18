@@ -1,15 +1,16 @@
 # # Van der Pol oscillator
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/dev/models/vanderpol.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/vanderpol.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: polynomial continuous system\
-#md #     State dimension: 2
+#md #     State dimension: 2\
+#md #     Application domain: Nonlinear physics
 #
 # The Van der Pol oscillator was introduced by the Dutch physicist Balthasar van der Pol.
 # This is a famous model, typically investigated in the study of nonlinear dynamics.
 # It has been used in several practical problems of engineering, e.g. circuits
-# containing vacuum tubes. For more information on the model see
-# [Wikipedia](https://en.wikipedia.org/wiki/Van_der_Pol_oscillator).
+# containing vacuum tubes. For more information on the model see the wikipedia article
+# [Van der Pol oscillator](https://en.wikipedia.org/wiki/Van_der_Pol_oscillator).
 
 # ## Dynamics
 #
