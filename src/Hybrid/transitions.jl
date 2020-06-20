@@ -366,7 +366,5 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     # compute the intersection K := [X ∩ Y]_dirs using the template
     K = _intersection(X, HPolyhedron(Y), method)
 
-    #Z = _intersection(K, tr.I⁺, method)
-
     return K
 end
