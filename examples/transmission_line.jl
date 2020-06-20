@@ -12,7 +12,7 @@
 # In the circuit, ``U_{in}`` is the voltage at the sending end,
 # and ``U_{out}`` is the voltage at the receiving end.
 
-# <img src="https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/fig/tline.png?raw=true" alt="Transmission line circuit" style="width: 700px;"/>
+# ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/fig/tline.png?raw=true)
 
 # ## Model description
 

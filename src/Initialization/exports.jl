@@ -77,6 +77,12 @@ export
     BoxIntersection,
     TemplateHullIntersection,
 
+# Algorithms for disjointness operations
+    NoEnclosure,
+    BoxEnclosure,
+    ZonotopeEnclosure,
+    Dummy,
+
 # Clustering methods
     NoClustering,
     LazyClustering,

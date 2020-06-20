@@ -71,8 +71,8 @@ _affine_term(m::MathematicalSystems.LinearMap{N}) where {N} = ZeroSet{N}(statedi
 _affine_term(m::ConstrainedLinearMap{N}) where {N} = ZeroSet{N}(statedim(m))
 _affine_term(m::MathematicalSystems.AffineMap{N, <:AbstractVector}) where {N} = Singleton(m.c)
 _affine_term(m::MathematicalSystems.AffineMap{N, <:LazySet}) where {N} = m.c
-_affine_term(m::ConstrainedAffineMap{N, <:AbstractVector}) where {N} = Singleton(m.c)
-_affine_term(m::ConstrainedAffineMap{N, <:LazySet}) where {N} = m.c
+_affine_term(m::ConstrainedAffineMap{N, MT, VT, <:AbstractVector}) where {N, MT, VT} = Singleton(m.c)
+_affine_term(m::ConstrainedAffineMap{N, MT, VT, <:LazySet}) where {N, MT, VT} = Singleton(m.c)
 
 function _state_matrix(m::Union{<:MathematicalSystems.ResetMap{N},
                                 <:MathematicalSystems.ConstrainedResetMap{N}}) where {N}
@@ -349,4 +349,22 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
 
     Z = _intersection(Km, tr.I⁺, method)
     return Z
+end
+
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::PT,
+               method::TemplateHullIntersection) where {N,
+                                PT<:LazySet{N},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    # intersect the guard and the source invariant (NOTE can be cached)
+    success, Y = _intersection(tr.G, tr.I⁻, tr.I⁺, HRepIntersection())
+    !success && return EmptySet(dim(X))
+
+    # compute the intersection K := [X ∩ Y]_dirs using the template
+    K = _intersection(X, HPolyhedron(Y), method)
+
+    return K
 end
