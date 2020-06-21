@@ -103,6 +103,14 @@ function cluster(F, idx, method::LazyClustering{P}) where {P}
     convF = [Convexify(view(F, cj)) for cj in p]
 end
 
+# for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyClustering) where {N}
+    Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
+
+    # Fx is now indexed from 1 ... length(idx)
+    return cluster(Fz, 1:length(idx), method)
+end
+
 # =====================================
 # Box clustering
 # =====================================
