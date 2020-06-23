@@ -536,7 +536,7 @@ function overapproximate(fp::Flowpipe, args...)
 end
 
 function overapproximate(fp::VRT, args...) where {RT, VRT<:AbstractVector{RT}}
-    return Flowpipe(map(R -> overapproximate(R, args...), fp), fp.ext)
+    return Flowpipe(map(R -> overapproximate(R, args...), fp))
 end
 
 # ================================
