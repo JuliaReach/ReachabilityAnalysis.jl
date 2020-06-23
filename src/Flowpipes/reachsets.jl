@@ -689,6 +689,55 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
+function overapproximate(X::AbstractHyperrectangle{N}, ::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8,
+                         Δt::TimeInterval=zeroI) where {N}
+
+    n = dim(X)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of X
+    for i in 1:n
+        α = radius_hyperrectangle(H, i)
+        β = center(H, i)
+        pi = α * x[i] + β
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δt)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
+function overapproximate(X::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8,
+                         Δt::TimeInterval=RA.zeroI) where {N}
+
+    n = dim(X)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    if order(X) > 1
+        X = _reduce_order(X, 1)
+    end
+    c = center(X)
+    G = genmat(X)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of X
+    @inbounds for i in 1:n
+        pi = c[i] + sum(view(G, i, :) .* x)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δt)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
+
 # ================================================================
 # Template reach set
 # ================================================================
