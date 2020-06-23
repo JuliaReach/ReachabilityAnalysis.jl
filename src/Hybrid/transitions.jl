@@ -337,7 +337,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
                                 IT⁻<:AbstractPolyhedron{N},
                                 IT⁺<:AbstractPolyhedron{N}}
 
-    # intersect the guard and the sourct invariant (NOTE can be cached)
+    # intersect X with the guard and the source invariant (NOTE can be cached)
     success, Y = _intersection(X, tr.G, tr.I⁻, HRepIntersection())
     !success && return EmptySet(dim(X))
 
@@ -351,6 +351,27 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     return Z
 end
 
+# (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
+               X::PT,
+               method::TemplateHullIntersection) where {N,
+                                PT<:LazySet{N},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    # intersect the guard and the source invariant
+    success, Y = _intersection(tr.G, tr.I⁻, HRepIntersection())
+    !success && return EmptySet(dim(X))
+
+    K = _intersection(X, HPolyhedron(Y), method)
+
+    # compute Z := [(RK ⊕ W) ∩ I⁺]_dirs using the template
+    Km = (tr.R * K) ⊕ tr.W # lazy affine map
+    Z = _intersection(Km, tr.I⁺, method)
+    return Z
+end
+
 function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
                X::PT,
                method::TemplateHullIntersection) where {N,
@@ -359,7 +380,7 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
                                 IT⁻<:AbstractPolyhedron{N},
                                 IT⁺<:AbstractPolyhedron{N}}
 
-    # intersect the guard and the source invariant (NOTE can be cached)
+    # intersect the guard and the source invariant
     success, Y = _intersection(tr.G, tr.I⁻, tr.I⁺, HRepIntersection())
     !success && return EmptySet(dim(X))
 
