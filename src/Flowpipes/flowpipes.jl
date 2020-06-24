@@ -532,7 +532,7 @@ function LazySets.Projection(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D,
 end
 
 function overapproximate(fp::Flowpipe, args...)
-    return Flowpipe(map(R -> overapproximate(R, args...), fp))
+    return Flowpipe(map(R -> overapproximate(R, args...), fp), fp.ext)
 end
 
 function overapproximate(fp::VRT, args...) where {RT, VRT<:AbstractVector{RT}}
@@ -623,7 +623,7 @@ function (fp::HybridFlowpipe)(t::Number)
 end
 
 function overapproximate(fp::HybridFlowpipe, args...)
-    return HybridFlowpipe([overapproximate(F, args...) for F in fp])
+    return HybridFlowpipe([overapproximate(F, args...) for F in fp], fp.ext)
 end
 
 function project(fp::HybridFlowpipe, args...)
@@ -740,7 +740,7 @@ function (fp::MixedFlowpipe)(dt::TimeInterval)
 end
 
 function overapproximate(fp::MixedFlowpipe, args...)
-    return MixedFlowpipe([overapproximate(Fi, args...) for Fi in fp])
+    return MixedFlowpipe([overapproximate(Fi, args...) for Fi in fp], fp.ext)
 end
 
 function project(fp::MixedFlowpipe, args...)
