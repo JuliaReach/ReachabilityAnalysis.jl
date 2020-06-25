@@ -84,3 +84,23 @@ end
                 disjointness_method=ZonotopeEnclosure())
     @test setrep(sol) <: HPolytope
 end
+
+@testset "Inclusion checks" begin
+    prob, dt = bouncing_ball()
+    sol = solve(prob, T=5.0, alg=BOX(δ=1e-3))
+
+    @test sol[1][1] ⊆ HalfSpace([1.0, 0.0], 11.0)
+    @test !(sol[1][1] ⊆ HalfSpace([1.0, 0.0], 10.0))
+
+    # flowpipe
+    @test sol[1] ⊆ HalfSpace([1.0, 0.0], 11.0)
+    @test !(sol[1] ⊆ HalfSpace([1.0, 0.0], 10.0))
+
+    # hybrid flowpipe
+    @test sol.F ⊆ HalfSpace([1.0, 0.0], 11.0)
+    @test !(sol.F ⊆ HalfSpace([1.0, 0.0], 10.0))
+
+    # solution
+    @test sol ⊆ HalfSpace([1.0, 0.0], 11.0)
+    @test !(sol ⊆ HalfSpace([1.0, 0.0], 10.0))
+end
