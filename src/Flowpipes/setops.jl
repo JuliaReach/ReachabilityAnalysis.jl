@@ -453,6 +453,12 @@ end
     return c, r
 end
 
+# overapproximate a hyperrectangular set with a polytope
+function _overapproximate(H::AbstractHyperrectangle, ::Type{<:HPolytope})
+    P = overapproximate(H, Hyperrectangle)
+    HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
+end
+
 # ==================================
 # Zonotope splitting methods
 # ==================================
