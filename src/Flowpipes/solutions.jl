@@ -131,4 +131,4 @@ LazySets.is_intersection_empty(sol::ReachSolution, Y::AbstractLazyReachSet) = is
 
 # inclusion checks
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
-Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::ReachSet) = ⊆(sol.F, set(Y))
+Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
