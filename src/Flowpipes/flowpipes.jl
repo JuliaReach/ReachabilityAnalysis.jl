@@ -209,6 +209,8 @@ end
 
 # further setops
 LazySets.is_intersection_empty(F::AbstractFlowpipe, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+Base.:⊆(F::AbstractFlowpipe, X::LazySet) = all(R ⊆ X for R in F)
+Base.:⊆(F::AbstractFlowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 
 # getter functions for hybrid systems
 location(F::AbstractFlowpipe) = get(F.ext, :loc_id, missing)
@@ -401,6 +403,8 @@ tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
 
 # further setops
 LazySets.is_intersection_empty(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
+Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 
 # lazy projection of a flowpipe
 function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
@@ -638,6 +642,9 @@ end
 function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
     error("not implemented")
 end
+
+Base.:⊆(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
+Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
 
 #=
 function (fp::HybridFlowpipe)(dt::TimeInterval)
