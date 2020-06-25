@@ -16,11 +16,11 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 
 ## 🎯  Table of Contents
 
-* [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#-installation)
-* [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#-documentation)
-* [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#-features)
-* [Examples Gallery](https://github.com/marcomusy/vedo#-examples)
-* [References](https://github.com/JuliaReach/ReachabilityAnalysis.jl#-references)
+* [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--installation)
+* [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
+* [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
+* [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
+* [References](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--references)
 
 ## 💾  Installation
 
