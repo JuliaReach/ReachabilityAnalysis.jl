@@ -74,6 +74,9 @@ _affine_term(m::MathematicalSystems.AffineMap{N, <:LazySet}) where {N} = m.c
 _affine_term(m::ConstrainedAffineMap{N, MT, VT, <:AbstractVector}) where {N, MT, VT} = Singleton(m.c)
 _affine_term(m::ConstrainedAffineMap{N, MT, VT, <:LazySet}) where {N, MT, VT} = Singleton(m.c)
 
+# TODO see LazySets#2198
+LazySets.dim(c::ConstrainedResetMap) = c.dim
+
 function _state_matrix(m::Union{<:MathematicalSystems.ResetMap{N},
                                 <:MathematicalSystems.ConstrainedResetMap{N}}) where {N}
     n = dim(m)
