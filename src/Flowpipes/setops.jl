@@ -454,7 +454,10 @@ end
 end
 
 # overapproximate a hyperrectangular set with a polytope
-function _overapproximate(H::AbstractHyperrectangle, ::Type{<:HPolytope})
+# TODO clean-up
+_overapproximate(H::AbstractHyperrectangle, T::Type{<:HPolytope}) = _overapproximate_hyperrectangle(H, T)
+_overapproximate(H::Hyperrectangle, T::Type{<:HPolytope}) = _overapproximate_hyperrectangle(H, T)
+function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
     P = overapproximate(H, Hyperrectangle)
     HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
