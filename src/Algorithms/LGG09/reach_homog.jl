@@ -118,7 +118,7 @@ function load_exponential_utilities_LGG09()
 return quote
 
 # recursive version, default expv
-function reach_homog_dir_LGG09!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:true})
+function reach_homog_dir_LGG09_expv!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:true})
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
 
@@ -133,7 +133,7 @@ function reach_homog_dir_LGG09!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:t
 end
 
 # ρ(ℓ, Ω₀), ρ(exp(Aᵀ) * ℓ, Ω₀), ρ(exp(2Aᵀ) * ℓ, Ω₀)
-function reach_homog_dir_LGG09!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
+function reach_homog_dir_LGG09_expv!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
     rᵢ = deepcopy(ℓ) # if ℓ is a sev => this is a sev
 
     @inbounds for i in 1:NSTEPS
@@ -146,7 +146,7 @@ function reach_homog_dir_LGG09!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:f
 end
 
 # non-recursive version using precomputed Krylov subspace
-function reach_homog_dir_LGG09c!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
+function reach_homog_dir_LGG09_expv_pk!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
     rᵢ = deepcopy(ℓ) # if ℓ is a sev => this is a sev
     Ks = arnoldi(Aᵀ, ℓ, tol=1e-18)
 
@@ -161,13 +161,13 @@ end
 
 # this function computes the sequence
 # ``ρ(ℓ, Ω₀)``, ``ρ(exp(Aᵀ) * ℓ, Ω₀)``, ``ρ(exp(2Aᵀ) * ℓ, Ω₀)`` until ``ρ(exp(\\text{NSTEPS} * Aᵀ) * ℓ, Ω₀)``.
-function reach_homog_dir_LGG09h!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false};
-                                 m=min(30, size(Aᵀ, 1)), tol=1e-7)
+function reach_homog_dir_LGG09_expv_pk2!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false};
+                                        hermitian=false, m=min(30, size(Aᵀ, 1)), tol=1e-7)
 
     TA, Tb = eltype(Aᵀ), eltype(ℓ)
     T = promote_type(TA, Tb)
     Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
-    arnoldi!(Ks, Aᵀ, ℓ; m=m, ishermitian=true, tol=tol)
+    arnoldi!(Ks, Aᵀ, ℓ; m=m, ishermitian=hermitian, tol=tol)
 
     rᵢ = deepcopy(ℓ)
 
