@@ -109,3 +109,75 @@ end
         Δt += δ
     end
 =#
+
+# ------------------------------------------------------------
+# Functionality that requires ExpnentialUtilities.jl
+# ------------------------------------------------------------
+
+function load_exponential_utilities_LGG09()
+return quote
+
+# recursive version, default expv
+function reach_homog_dir_LGG09!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:true})
+    rᵢ = copy(ℓ)
+    rᵢ₊₁ = similar(rᵢ)
+
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ(rᵢ, Ω₀)
+
+        # update cache for the next iteration
+        rᵢ₊₁ = expv(1.0, Aᵀ, rᵢ) # computes exp(Aᵀ * 1.0) * rᵢ
+        copy!(rᵢ, rᵢ₊₁)
+    end
+    return out
+end
+
+# ρ(ℓ, Ω₀), ρ(exp(Aᵀ) * ℓ, Ω₀), ρ(exp(2Aᵀ) * ℓ, Ω₀)
+function reach_homog_dir_LGG09!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
+    rᵢ = deepcopy(ℓ) # if ℓ is a sev => this is a sev
+
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ(rᵢ, Ω₀)
+
+        # update cache for the next iteration
+        rᵢ = expv(i*1.0, Aᵀ, ℓ)
+    end
+    return out
+end
+
+# non-recursive version using precomputed Krylov subspace
+function reach_homog_dir_LGG09c!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
+    rᵢ = deepcopy(ℓ) # if ℓ is a sev => this is a sev
+    Ks = arnoldi(Aᵀ, ℓ, tol=1e-18)
+
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ(rᵢ, Ω₀)
+
+        # update cache for the next iteration
+        expv!(rᵢ, i*1.0, Ks)
+    end
+    return out
+end
+
+# this function computes the sequence
+# ``ρ(ℓ, Ω₀)``, ``ρ(exp(Aᵀ) * ℓ, Ω₀)``, ``ρ(exp(2Aᵀ) * ℓ, Ω₀)`` until ``ρ(exp(\\text{NSTEPS} * Aᵀ) * ℓ, Ω₀)``.
+function reach_homog_dir_LGG09h!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false};
+                                 m=min(30, size(Aᵀ, 1)), tol=1e-7)
+
+    TA, Tb = eltype(Aᵀ), eltype(ℓ)
+    T = promote_type(TA, Tb)
+    Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
+    arnoldi!(Ks, Aᵀ, ℓ; m=m, ishermitian=true, tol=tol)
+
+    rᵢ = deepcopy(ℓ)
+
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ(rᵢ, Ω₀)
+
+        # update cache for the next iteration
+        expv!(rᵢ, i*1.0, Ks)
+    end
+    return out
+end
+
+end end  # quote / load_exponential_utilities_LGG09()
