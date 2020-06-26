@@ -111,7 +111,7 @@ end
 =#
 
 # ------------------------------------------------------------
-# Functionality that requires ExpnentialUtilities.jl
+# Functionality that requires ExponentialUtilities.jl
 # ------------------------------------------------------------
 
 function load_exponential_utilities_LGG09()
