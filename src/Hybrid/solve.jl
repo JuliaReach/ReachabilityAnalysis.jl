@@ -150,6 +150,153 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     sol = ReachSolution(HFout, cpost)
 end
 
+using HybridSystems: LightTransition
+
+function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
+               max_jumps=100, # maximum number of discrete transitions
+               intersection_method::Dict{LightTransition, AbstractIntersectionMethod}, # method to take the concrete intersection in discrete transitions
+               clustering_method::Dict{LightTransition, AbstractClusteringMethod}, # method to perform clustering of the sets that cross a guard
+               check_invariant_initial_states::Bool=false, # apply a disjointness check wrt each mode's invariant in the distribution of initial sets
+               intersect_invariant_initial_states::Bool=false, # take the concrete intersection wrt each mode's invariant when distributing the initial states
+               intersection_source_invariant_method::Dict{LightTransition, AbstractIntersectionMethod}, # method to take the concrete intersection with the source invariant
+               first_mode_representative=true, # assume that the first mode is representative of the other modes when checking that the dimension in each mode is consistent
+               intersect_source_invariant=true, # take the concrete intersection of the flowpipe with the source invariant
+               disjointness_method::Dict{LightTransition, AbstractDisjointnessMethod}, # method to compute disjointness
+               kwargs...)
+
+    # distribute the initial condition across the different locations
+    ivp_distributed = _distribute(ivp; intersection_method=intersection_method,
+                                       check_invariant=check_invariant_initial_states,
+                                       intersect_invariant=intersect_invariant_initial_states)
+    waiting_list = initial_state(ivp_distributed)
+    H = system(ivp_distributed)
+
+    # dimensional checks
+    _check_dim(ivp_distributed, first_mode_representative=first_mode_representative)
+
+    # get time span (or the emptyset if NSTEPS was specified)
+    time_span = _get_tspan(args...; kwargs...)
+
+    # get the continuous post or find a default one
+    cpost = _get_cpost(ivp_distributed, args...; kwargs...)
+    if cpost == nothing
+        cpost = _default_cpost(ivp_distributed, time_span; kwargs...)
+    end
+
+    # preallocate output flowpipe
+    N = numtype(cpost)
+    RT = rsetrep(cpost)
+    out = Vector{Flowpipe{N, RT, Vector{RT}}}()
+    sizehint!(out, max_jumps+1)
+
+    # list of (set, loc) tuples which have already been processed
+    STwl = setrep(waiting_list)
+    MW = locrep(waiting_list)
+    explored_list = WaitingList{N, STwl, MW}()
+
+    # preallocate output flowpipe strictly contained in each source invariant
+    if intersect_source_invariant
+        RTwl = ReachSet{N, STwl}
+        out_in_inv = Vector{Flowpipe{N, RTwl, Vector{RTwl}}}()
+        sizehint!(out_in_inv, max_jumps+1)
+    end
+
+    # elapsed time accumulators
+    t0 = tstart(time_span)
+    @assert t0 == zero(t0) # we assume that the initial time is zero
+    T = tend(time_span) # time horizon
+
+    # counter for the number of transitions: using `count_jumps <= max_jumps` as
+    # stopping criterion ensures that no more elements are added to the waiting
+    # list after `max_jumps` discrete jumps
+    count_jumps = 0
+
+    while !isempty(waiting_list)
+        (tprev, elem) = pop!(waiting_list)
+        push!(explored_list, elem)
+
+        # compute reachable states by continuous evolution
+        q = location(elem)
+        X0 = state(elem)
+        S = mode(H, q)
+        time_span = TimeInterval(t0, T-tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
+        F = post(cpost, IVP(S, X0), time_span; time_shift=tprev, kwargs...)
+
+        # assign location q to this flowpipe
+        F.ext[:loc_id] = q
+        push!(out, F)
+
+        #=
+        # NOTE: here we may take the concrete intersection with the source invariant
+        # We have to loop over each reach-set in F and only store the intersection
+        # (possibly overapproximated) with the source invariant I⁻
+        Two ways: (i) compute concrete intersection between F and I⁻
+        (ii) compute disjointness between F and (I⁻)^C and only when it is non-zero
+        compute the concrete intersection.
+        =#
+        if intersect_source_invariant
+            I⁻ = stateset(H, q)
+
+            # assign location q to this flowpipe
+            F_in_inv = Flowpipe(undef, STwl, 0)
+
+            for Ri in F
+                # TODO refactor with reconstruct
+                aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
+                Raux = ReachSet(aux, tspan(Ri))
+                push!(F_in_inv, Raux)
+            end
+            F_in_inv.ext[:loc_id] = q
+            push!(out_in_inv, F_in_inv)
+        end
+
+        # process jumps for all outgoing transitions with source q
+        for t in out_transitions(H, q)
+
+            # instantiate post_d : X -> (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺
+            discrete_post = DiscreteTransition(H, t)
+            G = guard(discrete_post)
+
+            # find reach-sets that may take the jump
+            jump_rset_idx = Vector{Int}()
+            for (i, X) in enumerate(F)
+                _is_intersection_empty(X, G, disjointness_method) && continue
+                push!(jump_rset_idx, i)
+            end
+
+            # continue if there is no guard enabled for this transition
+            isempty(jump_rset_idx) && continue
+
+            # apply clustering method to those sets which intersect the guard
+            Xc = cluster(F, jump_rset_idx, clustering_method)
+            tprev = tstart(Xc)
+
+            for Xci in Xc
+                # compute reachable states by discrete evolution
+                X = apply(discrete_post, Xci, intersection_method)
+                isa(X, EmptySet) && continue
+                count_jumps += 1
+
+                # check if this location has already been explored;
+                # if it is not the case, add it to the waiting list
+                r = target(H, t)
+                Xr = StateInLocation(X, r)
+                if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+                    push!(waiting_list, tprev, Xr)
+                end
+            end
+        end # for
+    end # while
+
+    # wrap the flowpipe and algorithm in a solution structure
+    if intersect_source_invariant
+        HFout = HybridFlowpipe(out_in_inv)
+    else
+        HFout = HybridFlowpipe(out)
+    end
+    sol = ReachSolution(HFout, cpost)
+end
+
 # =====================================
 # Utility functions
 # =====================================
