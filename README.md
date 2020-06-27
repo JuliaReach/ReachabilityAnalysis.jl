@@ -69,6 +69,13 @@ Research credit and full references to the scientific papers presenting the algo
 implemented in this package can be found in the source code for each algorithm and in the
 [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
-If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, consider citing the appropriate references for the algorithm(s) used.
+The following articles have used `ReachabilityAnalysis.jl` for their research:
+
+- Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions. Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
+
+---
+
+If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, please also cite the appropriate originl references to the algorithm(s) used.
+
 
 
