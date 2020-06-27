@@ -39,6 +39,10 @@ See the [Reference Manual](https://juliareach.github.io/ReachabilityAnalysis.jl/
 📌 **Need help?** Have any question, or wish to suggest or ask for a missing feature?
 Do not hesitate to open a [**issue**](https://github.com/JuliaReach/ReachabilityAnalysis.jl/issues) or join the JuliaReach gitter chat: [![join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge), or send an [email](mailto:mforets@gmail.com) to the developers.
 
+Research credit and full references to the scientific papers presenting the algorithms
+implemented in this package can be found in the source code for each algorithm and in the
+[References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
+
 ## 🎨  Features
 
 The following types of systems are supported.
@@ -49,10 +53,6 @@ The following types of systems are supported.
 - Hybrid systems with piecewise-affine dynamics :heavy_check_mark:
 - Hybrid systems with non-linear dynamics :heavy_check_mark:
 - Hybrid systems with clocked linear dynamics :heavy_check_mark:
-
-Research credit and full references to the scientific papers presenting the algorithms
-implemented in this package can be found in the source code for each algorithm and in the
-[References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
 
 ## 🐾  Examples
