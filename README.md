@@ -71,7 +71,7 @@ implemented in this package can be found in the source code for each algorithm a
 
 The following articles have used `ReachabilityAnalysis.jl` for their research:
 
-- Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions. Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
+- *Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.* Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
 
 ---
 
