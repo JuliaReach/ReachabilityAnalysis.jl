@@ -69,6 +69,6 @@ Research credit and full references to the scientific papers presenting the algo
 implemented in this package can be found in the source code for each algorithm and in the
 [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
-If you use this package for your research, we kindly ask you to consider citing the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib).
+If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, consider citing the appropriate references for the algorithm(s) used.
 
 
