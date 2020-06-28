@@ -370,8 +370,8 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
     @eval begin
         function normalize(system::$CAC_S{N, AN, BN, VN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, VN<:AbstractVector{N}, XT<:XNCF{N}, UT<:UNCF{N}}
             n = statedim(system)
-            X = _wrap_invariant(stateset(X), n)
-            U = _wrap_inputs(inputset(U), input_matrix(system), affine_term(system))
+            X = _wrap_invariant(stateset(system), n)
+            U = _wrap_inputs(inputset(system), input_matrix(system), affine_term(system))
             $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
