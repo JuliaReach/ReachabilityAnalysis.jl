@@ -591,7 +591,7 @@ array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
 numtype(::HybridFlowpipe{N}) where {N} = N
 setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = setrep(RT)
-setrep(::HybridFlowpipe{N, <:ReachSet{N, ST}}) where {N, ST} = ST
+setrep(::HybridFlowpipe{N, RT, FT}) where {N, RT, FT} = setrep(RT)
 rsetrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 numrsets(fp::HybridFlowpipe) = mapreduce(length, +, fp)
 
