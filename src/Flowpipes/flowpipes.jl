@@ -275,6 +275,7 @@ Base.size(fp::Flowpipe) = (length(fp.Xk),)
 Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
 Base.push!(F::Flowpipe, args...) = push!(F.Xk, args...)
 
+numtype(::Flowpipe{N}) where {N} = N
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 rsetrep(fp::Flowpipe{N, RT}) where {N, RT} = RT
@@ -560,8 +561,8 @@ contiguous in time.
 
 ### Notes
 
-This type assumes that the flowpipes are *contiguous* in time. This means that
-the final time the `i`-th flowpipe matches the start time of the `i+1`-th flowpipe.
+The evaluation functions (in time) for this type do not assume that the flowpipes are contiguous in time.
+That is, the final time of the `i`-th flowpipe does not match the start time of the `i+1`-th flowpipe.
 """
 struct HybridFlowpipe{N, RT<:AbstractReachSet{N}, FT<:AbstractFlowpipe} <: AbstractFlowpipe
     Fk::VectorOfArray{RT, 2, Vector{FT}}
@@ -588,7 +589,9 @@ end
 # interface functions
 array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
+numtype(::HybridFlowpipe{N}) where {N} = N
 setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = setrep(RT)
+setrep(::HybridFlowpipe{N, <:ReachSet{N, ST}}) where {N, ST} = ST
 rsetrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
 numrsets(fp::HybridFlowpipe) = mapreduce(length, +, fp)
 
@@ -605,29 +608,22 @@ function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
     return HybridFlowpipe(Vector{FT}())
 end
 
-# first searches the flowpipe that contains `t` in its time-span, then searches
-# inside that flowpipe for the corresponding reach-set
-function (fp::HybridFlowpipe)(t::Number)
-    @warn "this function assumes that the flowpipes are contiguous in time!"
-    Fk = array(fp)
-    i = 1
-    while t ∉ tspan(Fk[i])
-        i += 1
+function (fp::HybridFlowpipe{N, RT})(t::Number) where {N, RT<:AbstractReachSet{N}}
+    if t ∉ tspan(fp)
+        throw(ArgumentError("time $t does not belong to the time span, " *
+                            "$(tspan(fp)), of the given flowpipe"))
     end
-    i > length(Fk) && @goto error_msg
-    F = Fk[i]
-    @inbounds for (j, X) in enumerate(F)
-        if t ∈ tspan(X) # exit on the first occurrence
-            if j < length(F) && t ∈ tspan(F[i+1])
-                return view(Fk, j:j+1, i)
-            else
-                return X
+    vec = Vector{RT}()
+    for (k, fk) in enumerate(array(fp))
+        if t ∈ tspan(fk)
+            for Ri in fk
+                if t ∈ tspan(Ri)
+                    push!(vec, Ri)
+                end
             end
         end
     end
-    @label error_msg
-    throw(ArgumentError("time $t does not belong to the time span, " *
-                        "$(tspan(fp)), of the given flowpipe"))
+    return vec
 end
 
 function overapproximate(fp::HybridFlowpipe, args...)
@@ -643,53 +639,28 @@ function LazySets.ρ(d::AbstractVector, fp::HybridFlowpipe)
     return maximum(ρ(d, F) for F in array(fp))
 end
 
-function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
-    error("not implemented")
-end
+#function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
+#    error("not implemented")
+#end
 
 Base.:⊆(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
 Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
 
-#=
-function (fp::HybridFlowpipe)(dt::TimeInterval)
-    # here we assume that indices are one-based, ie. form 1 .. n
-    firstidx = 0
-    lastidx = 0
-    α = inf(dt)
-    β = sup(dt)
-    Fk = array(fp)
-
-    # search first intersecting flowpipe
-    i = 1
-    while α ∉ tspan(Fk[i])
-        i += 1
-    end
-    i > length(Fk) && @goto error_msg
-    firstfp = i
-
-    # search last intersecting flowpipe
-    i = 1
-    while t ∉ tspan(Fk[i])
-        i += 1
-    end
-    i > length(Fk) && @goto error_msg
-    firstfp = i
-
-    for (i, X) in enumerate(Xk)
-        if α ∈ tspan(X)
-            firstidx = i
-        end
-        if β ∈ tspan(X)
-            lastidx = i
-        end
-    end
-    if firstidx == 0 || lastidx == 0
-        throw(ArgumentError("the time interval $dt is not contained in the time span, " *
+function (fp::HybridFlowpipe{N, RT})(dt::TimeInterval) where {N, RT<:AbstractReachSet{N}}
+    if dt ⊊ tspan(fp)
+        throw(ArgumentError("time interval $dt does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
-    return view(Xk, firstidx:lastidx)
+    vec = Vector{RT}()
+    for (k, fk) in enumerate(array(fp))
+        if dt ⊆ tspan(fk)
+            for R in fk(dt)
+                push!(vec, R)
+            end
+        end
+    end
+    return vec
 end
-=#
 
 # ============================================
 # Flowpipes not contiguous in time
