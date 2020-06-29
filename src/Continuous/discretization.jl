@@ -160,12 +160,13 @@ end
 # homogeneous case x' = Ax, x in X
 # implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
 # where F is the correction (interval) matrix
-# if A is an interval matix, the exponential is overapproximated
+# if A is an interval matrix, the exponential is overapproximated
 function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
 
+    # compute exp(A*δ) * X0
     X0z = _convert_or_overapproximate(Zonotope, X0)
     if A isa IntervalMatrix
         Φ = exp_overapproximation(A, δ, alg.order)
@@ -183,6 +184,59 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     Ω0 = _minkowski_sum(H, R)
 
     ivp_discr = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(ivp_discr, Ω0)
+end
+
+# inhomogeneous case x' = Ax + u, x in X, u ∈ U
+# implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
+# where F is the correction (interval) matrix
+# if A is an interval matrix, the exponential is overapproximated
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+    X = stateset(ivp)
+    U = next_set(inputset(ivp), 1) # inputset(ivp)
+    n = size(A, 1)
+
+    # here U is an interval matrix map of a lazyset
+    if isa(U, LinearMap)
+        Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
+        B = matrix(U)
+        if isa(B, IntervalMatrix)
+            Uz = _overapproximate(B * Uz, Zonotope)
+        else
+            Uz = _linear_map(B, Uz)
+        end
+    else # LazySet
+        Uz = _convert_or_overapproximate(Zonotope, U)
+    end
+    if zeros(dim(U)) ∉ Uz
+        error("this function is not implemented, see issue #253")
+    end
+
+    # TODO refactor Ω0_homog
+    X0z = _convert_or_overapproximate(Zonotope, X0)
+    if A isa IntervalMatrix
+        Φ = exp_overapproximation(A, δ, alg.order)
+
+        #Φ = IntervalMatrices.scale_and_square(A, 10, δ, 10)
+        Y = _overapproximate(Φ * X0z, Zonotope)
+    else
+        Φ = _exp(A, δ, alg.exp)
+        Y = _linear_map(Φ, X0z)
+    end
+
+    H = overapproximate(CH(X0z, Y), Zonotope)
+    F = correction_hull(A, δ, alg.order)
+    R = _overapproximate(F * X0z, Zonotope)
+    Ω0_homog = _minkowski_sum(H, R)
+
+    # compute C(δ) * U
+    Cδ = _Cδ(A, δ, alg.order)
+    Ud = _overapproximate(Cδ * Uz, Zonotope)
+    Ω0 = _minkowski_sum(Ω0_homog, Ud)
+    In = IdentityMultiple(one(eltype(A)), n)
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
     return InitialValueProblem(ivp_discr, Ω0)
 end
 

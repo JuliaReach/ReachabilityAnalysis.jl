@@ -317,7 +317,7 @@ end
 # x+ = Ax, x ∈ X in the discrete case
 for CL_S in (:CLCS, :CLDS)
     @eval begin
-        function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, XT<:XNCF{N}}
+        function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, M, XT<:XNCF{M}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             return $CL_S(state_matrix(system), X)
@@ -329,7 +329,7 @@ end
 # x+ = Ax + Bu, x ∈ X, u ∈ U in the discrete case
 for CLC_S in (:CLCCS, :CLCDS)
     @eval begin
-        function normalize(system::$CLC_S{N, AN, BN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, XT<:XNCF{N}, UT<:UNCF{N}}
+        function normalize(system::$CLC_S{N, AN, BN, XT, UT}) where {N, AN<:AbstractMatrix{N}, NN, BN<:AbstractMatrix{NN}, M, XT<:XNCF{M}, UT<:UNCF{M}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system))
@@ -406,6 +406,17 @@ _wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple, c::AbstractVector) = isi
 _wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector) = VaryingInput(map(u -> B*u ⊕ c, U))
 
 _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
+
+# TODO refactor to MathematicalSystems.jl ?
+function CLCCS(A::IntervalMatrix, B::Matrix{N}, X::XT, U::UT) where {N<:AbstractFloat, XT, UT}
+    CLCCS(A, IntervalMatrix(B), X, U)
+end
+function CLCCS(A::AbstractMatrix{<:IntervalArithmetic.Interval}, B::IntervalMatrix, X::XT, U::UT) where {N<:AbstractFloat, XT, UT}
+    CLCCS(IntervalMatrix(A), B, X, U)
+end
+function CLCCS(A::AbstractMatrix{<:IntervalArithmetic.Interval}, B::AbstractMatrix, X::XT, U::UT) where {N<:AbstractFloat, XT, UT}
+    CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
+end
 
 # ==========================================================
 # Shared functionality for linear continuous post operators

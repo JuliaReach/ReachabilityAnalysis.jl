@@ -300,10 +300,12 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
             dvec[i] += abs(G[i, j])
         end
     end
-    DV = zeros(N, n, n)
-    α = Ms * dvec
-    @inbounds for i in 1:n
-        DV[i, i] = α[i]
+    q = size(Mc, 1)
+    α = Ms * dvec # vector of length q
+    αnz = findall(!iszero, α)
+    DV = zeros(N, q, length(αnz))
+    @inbounds for (j, idx) in enumerate(αnz)
+        DV[j, idx] = α[idx]
     end
     G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
@@ -323,10 +325,12 @@ function _overapproximate_interval_linear_map(Mc::SMatrix{n, n, N, LM},
             dvec[i] += abs(G[i, j])
         end
     end
-    DV = zeros(MMatrix{n, n, N}) # NOTE: sole difference with regular arrays, may refactor
-    α = Ms * dvec
-    @inbounds for i in 1:n
-        DV[i, i] = α[i]
+    q = size(Mc, 1)
+    α = Ms * dvec # vector of length q
+    αnz = findall(!iszero, α)
+    DV = zeros(MMatrix{q, q, N}) # NOTE: sole difference with regular arrays, may refactor
+    @inbounds for (j, idx) in enumerate(αnz)
+        DV[j, idx] = α[idx]
     end
     G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
