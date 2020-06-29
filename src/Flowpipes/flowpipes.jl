@@ -595,8 +595,11 @@ numrsets(fp::HybridFlowpipe) = mapreduce(length, +, fp)
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 
-# assumes that the flowpipes are contiguous in time
-tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
+function tspan(fp::HybridFlowpipe)
+    ti = minimum(tstart, fp)
+    tf = maximum(tend, fp)
+    return TimeInterval(ti, tf)
+end
 
 function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
     return HybridFlowpipe(Vector{FT}())
@@ -605,6 +608,7 @@ end
 # first searches the flowpipe that contains `t` in its time-span, then searches
 # inside that flowpipe for the corresponding reach-set
 function (fp::HybridFlowpipe)(t::Number)
+    @warn "this function assumes that the flowpipes are contiguous in time!"
     Fk = array(fp)
     i = 1
     while t ∉ tspan(Fk[i])
