@@ -408,14 +408,11 @@ _wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector) = Varyi
 _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
 
 # TODO refactor to MathematicalSystems.jl ?
-function CLCCS(A::IntervalMatrix, B::Matrix{N}, X::XT, U::UT) where {N<:AbstractFloat, XT, UT}
-    CLCCS(A, IntervalMatrix(B), X, U)
-end
-function CLCCS(A::AbstractMatrix{<:IntervalArithmetic.Interval}, B::IntervalMatrix, X::XT, U::UT) where {N<:AbstractFloat, XT, UT}
-    CLCCS(IntervalMatrix(A), B, X, U)
-end
-function CLCCS(A::AbstractMatrix{<:IntervalArithmetic.Interval}, B::AbstractMatrix, X::XT, U::UT) where {N<:AbstractFloat, XT, UT}
+function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{<:IntervalArithmetic.Interval}, B::SparseMatrixCSC, X::XT, U::UT) where {XT, UT}
     CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
+end
+function MathematicalSystems.ConstrainedLinearControlDiscreteSystem(A::IntervalMatrix, B::Matrix, X::XT, U::UT) where {XT, UT}
+    CLCDS(A, IntervalMatrix(B), X, U)
 end
 
 # ==========================================================
