@@ -229,3 +229,38 @@ end
 @inline _elementwise_abs(A::AbstractMatrix) = abs.(A)
 @inline _elementwise_abs(A::SparseMatrixCSC) = SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
 @inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(exp(A.M.λ), size(A, 1))
+
+# ====================================
+# Exponentiation of interval matrices
+# ====================================
+
+# TODO: outsource to IntervalMatrices.jl
+
+# compute Iδ + 1/2 * δ^2 * A + 1/6 * δ^3 * A² + ... + 1/(η+1)! * δ^(η+1) * A^η + E(δ) * δ
+function _Cδ(A, δ, order)
+    n = size(A, 1)
+    A² = A * A
+    if isa(A, IntervalMatrix)
+        Iδ = IntervalMatrix(Diagonal(fill(IA.Interval(δ), n)))
+    else
+        Iδ = Matrix(δ * I, n, n)
+    end
+
+    IδW = Iδ + 1/2 * δ^2 * A + 1/6 * δ^3 * A²
+    M = IδW
+
+    if order > 2
+        # i = 2
+        αᵢ₊₁ = 6 # factorial of (i+1)
+        Aⁱ = A²
+        δⁱ⁺¹ = δ^3
+        @inbounds for i in 3:order
+            αᵢ₊₁ *= i+1
+            δⁱ⁺¹ *= δ
+            Aⁱ *= A
+            M += (δⁱ⁺¹/αᵢ₊₁) * Aⁱ
+        end
+    end
+    E = IntervalMatrices._exp_remainder(A, δ, order; n=n)
+    return M + E * δ
+end
