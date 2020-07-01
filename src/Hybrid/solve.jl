@@ -127,7 +127,11 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             for Xci in Xc
                 # compute reachable states by discrete evolution
                 X = apply(discrete_post, Xci, intersection_method)
-                isa(X, EmptySet) && continue
+
+                # do not add empty sets; checking `isempty` generalizes
+                # isa(X, EmptySet), though it may have to solve a feasibility LP if X is a polyhedron
+                isempty(X) && continue
+
                 count_jumps += 1
 
                 # check if this location has already been explored;
