@@ -49,7 +49,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     #push!(xTM1v_vec, xTM1v)
 
     while !success
-            # adapt the absolut tolerance
+            # adapt the absolute tolerance
             if abs_tol > min_abs_tol
                 abs_tol = abs_tol / 10
             else
@@ -59,7 +59,9 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
             end
 
             # new initial states
-            X0 = overapproximate(F[end], Zonotope) |> set
+            if !isempty(F)
+                X0 = overapproximate(F[end], Zonotope) |> set
+            end
             box_x0 = box_approximation(X0)
             q0 = center(box_x0)
             δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
@@ -72,6 +74,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
             # append the new flowpipe to the accumulated flowpipe and extra data
             append!(F, Fk)
+
             #push!(tv_vec, copy(tv))
             #push!(xv_vec, copy(xv))
             #push!(xTM1v_vec, copy(xTM1v))
