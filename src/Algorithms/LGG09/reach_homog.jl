@@ -62,6 +62,7 @@ end
 
 # TODO: needs specialization for static vector / static matrix ?
 # compute NSTEPS iterations support function along direction ℓ
+# ``ρ(ℓ, Ω₀), ρ(ℓ, Φ * Ω₀), ρ(ℓ, Φ^2 * Ω₀), ..., ρ(ℓ, Φ^NSTEPS * Ω₀)``
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
@@ -76,9 +77,9 @@ function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ,
     return ρvec_ℓ
 end
 
+# ``ρ(ℓ, Ω₀), ρ(ℓ, Φ * Ω₀), ρ(ℓ, Φ^2 * Ω₀), ..., ρ(ℓ, Φ^NSTEPS * Ω₀)``
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{false}) where {N}
     rᵢ = copy(ℓ)
-
     @inbounds for i in 1:NSTEPS
         ρvec_ℓ[i] = ρ(rᵢ, Ω₀)
 
@@ -160,7 +161,7 @@ function reach_homog_dir_LGG09_expv_pk!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive
 end
 
 # this function computes the sequence
-# ``ρ(ℓ, Ω₀)``, ``ρ(exp(Aᵀ) * ℓ, Ω₀)``, ``ρ(exp(2Aᵀ) * ℓ, Ω₀)`` until ``ρ(exp(\\text{NSTEPS} * Aᵀ) * ℓ, Ω₀)``.
+# ``ρ(ℓ, Ω₀)``, ``ρ(exp(Aᵀ) * ℓ, Ω₀)``, ``ρ(exp(2Aᵀ) * ℓ, Ω₀)`` until ``ρ(exp(NSTEPS * Aᵀ) * ℓ, Ω₀)``
 function reach_homog_dir_LGG09_expv_pk2!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false};
                                         hermitian=false, m=min(30, size(Aᵀ, 1)), tol=1e-7)
 
