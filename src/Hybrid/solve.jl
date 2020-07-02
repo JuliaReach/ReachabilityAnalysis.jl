@@ -131,8 +131,8 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 X = apply(discrete_post, Xci, intersection_method)
 
                 # do not add empty sets; checking `isempty` generalizes
-                isa(X, EmptySet) && continue # , though it may have to solve a feasibility LP if X is a polyhedron
-                #isempty(X) && continue
+                #isa(X, EmptySet) && continue # , though it may have to solve a feasibility LP if X is a polyhedron
+                isempty(X) && continue
 
                 count_jumps += 1
 
