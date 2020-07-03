@@ -6,7 +6,7 @@
 # TODO pass internal options (eg. first_mode_representative, throw_error, etc.)
 
 function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
-               max_jumps=100, # maximum number of discrete transitions
+               max_jumps=1000, # maximum number of discrete transitions
                intersection_method::AbstractIntersectionMethod=HRepIntersection(), # method to take the concrete intersection in discrete transitions
                clustering_method::AbstractClusteringMethod=BoxClustering(), # method to perform clustering of the sets that cross a guard
                check_invariant_initial_states=false, # apply a disjointness check wrt each mode's invariant in the distribution of initial sets
