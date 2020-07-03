@@ -154,9 +154,6 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
 
-    # TODO refactor to the discretization
-    Ω₀ = overapproximate(Ω₀, dirs)
-
     # preallocate output sequence
     ndirs = length(dirs)
     ρmat = Matrix{N}(undef, ndirs, NSTEPS)
