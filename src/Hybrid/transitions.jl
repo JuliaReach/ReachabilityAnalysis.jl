@@ -368,9 +368,11 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     !success && return EmptySet(dim(X))
 
     K = _intersection(X, HPolyhedron(Y), method)
+    isempty(K) && return EmptySet(dim(X)) # TODO keep this check?
 
     # compute Z := [(RK ⊕ W) ∩ I⁺]_dirs using the template
     Km = (tr.R * K) ⊕ tr.W # lazy affine map
+
     Z = _intersection(Km, tr.I⁺, method)
     return Z
 end

@@ -65,6 +65,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     count_jumps = 0
 
     while !isempty(waiting_list)
+        println("length(waiting_list) = ", length(waiting_list))
         (tprev, elem) = pop!(waiting_list)
         push!(explored_list, elem)
 
@@ -96,7 +97,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             for Ri in F
                 # TODO refactor with reconstruct
                 aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
-                Raux = ReachSet(aux, tspan(Ri))
+                Raux = ReachSet(HPolytope(aux[2]), tspan(Ri))
                 push!(F_in_inv, Raux)
             end
             F_in_inv.ext[:loc_id] = q
@@ -120,13 +121,15 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # continue if there is no guard enabled for this transition
             isempty(jump_rset_idx) && continue
 
+            println("number of sets that jump: ", length(jump_rset_idx))
+
             # apply clustering method to those sets which intersect the guard
             Xc = cluster(F, jump_rset_idx, clustering_method)
+            println(typeof(Xc))
             tprev = tstart(Xc)
 
             for Xci in Xc
 
-                #println(typeof(Xci))
                 # compute reachable states by discrete evolution
                 X = apply(discrete_post, Xci, intersection_method)
 
@@ -140,12 +143,19 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 # if it is not the case, add it to the waiting list
                 r = target(H, t)
                 Xr = StateInLocation(X, r)
-                if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+
+                hit_max_jumps = count_jumps > max_jumps
+                if hit_max_jumps
+                    @warn "maximum number of jumps reached; try increasing `max_jumps`"
+                end
+
+                if !hit_max_jumps && !(Xr ⊆ explored_list)
                     push!(waiting_list, tprev, Xr)
                 end
             end
         end # for
     end # while
+    println("length(waiting_list) = ", length(waiting_list))
 
     # wrap the flowpipe and algorithm in a solution structure
     if intersect_source_invariant
