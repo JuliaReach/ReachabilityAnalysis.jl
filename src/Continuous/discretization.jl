@@ -15,8 +15,13 @@ struct Forward{EM, SO, SI} <: AbstractApproximationModel
 end
 
 # convenience constructor using symbols
-function Forward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concrete)
-    Forward(Val(exp), Val(setops), Val(sih))
+function Forward(; exp::Symbol=:base, setops=nothing, sih::Symbol=:concrete)
+    if isnothing(setops)
+        setops = Val(:lazy)
+    elseif isa(setops, Symbol)
+        setops = Val(setops)
+    end
+    return Forward(Val(exp), setops, Val(sih))
 end
 
 # TODO: improve display of Forward()
@@ -39,8 +44,13 @@ struct NoBloating{EM, SO} <: AbstractApproximationModel
 end
 
 # convenience constructor using symbols
-function NoBloating(; exp::Symbol=:base, setops::Symbol=:lazy)
-    NoBloating(Val(exp), Val(setops))
+function NoBloating(; exp::Symbol=:base, setops=nothing)
+    if isnothing(setops)
+        setops = Val(:lazy)
+    elseif isa(setops, Symbol)
+        setops = Val(setops)
+    end
+    return NoBloating(Val(exp), setops)
 end
 
 struct CorrectionHull{EM} <: AbstractApproximationModel
@@ -56,6 +66,10 @@ end
 function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
     return Forward()
 end
+
+_apply_setops(X, ::Val{:lazy}) = X  # no-op
+_apply_setops(X, ::Val{:interval}) = convert(Interval, X)
+_apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
 
 # ============================================================
 # Forward Approximation: Homogeneous case
@@ -74,6 +88,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
 
     Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
+    Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -148,6 +163,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
 
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)
+    Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -259,6 +275,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
     end
 
     Ω0 = copy(X0)
+    Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -276,6 +293,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
 
     Ω0 = copy(X0)
+    Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
     return InitialValueProblem(Sdiscr, Ω0)

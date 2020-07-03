@@ -122,6 +122,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
             # apply clustering method to those sets which intersect the guard
             Xc = cluster(F, jump_rset_idx, clustering_method)
+
             tprev = tstart(Xc)
 
             for Xci in Xc
