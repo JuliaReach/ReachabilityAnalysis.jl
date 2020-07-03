@@ -139,6 +139,56 @@ end
 # Inhomogeneous case with invariant
 # ===================================
 
+# in this version we one matrix-matrix product for each time-step
+function reach_inhomog_LGG09!(F::Vector{RT},
+                              dirs::TN,
+                              Ω₀::LazySet{N},
+                              Φ::AbstractMatrix{N},
+                              NSTEPS::Integer,
+                              δ::N,
+                              X::LazySet,
+                              U::LazySet,
+                              time_shift::N,
+                              cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+
+    # transpose coefficients matrix
+    Φᵀ = copy(transpose(Φ))
+
+    # preallocate output sequence
+    ndirs = length(dirs)
+    ρmat = Matrix{N}(undef, ndirs, NSTEPS)
+
+    rᵢ = reduce(hcat, dirs) # one column per template direction
+    rᵢ₊₁ = similar(rᵢ)
+    sᵢ = zeros(N, ndirs)
+
+    # fill template reach-set sequence
+    Δt = (zero(N) .. δ) + time_shift
+    k = 1
+    @inbounds while k <= NSTEPS
+        for j in 1:ndirs
+            d = view(rᵢ, :, j)
+            ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
+            sᵢ[j] += ρ(d, U)
+        end
+        # update cache for the next iteration
+        mul!(rᵢ₊₁, Φᵀ, rᵢ)
+        copy!(rᵢ, rᵢ₊₁)
+
+        F[k] = TemplateReachSet(dirs, view(ρmat, :, k), Δt)
+        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        Δt += δ
+        k += 1
+    end
+    if k < NSTEPS
+        resize!(F, k-1)
+    end
+    return ρmat
+end
+
+
+#=
+# in this version we use several matrix-vector products for each direction
 function reach_inhomog_LGG09!(F::Vector{RT},
                               dirs::TN,
                               Ω₀::LazySet{N},
@@ -184,6 +234,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     end
     return ρmat
 end
+=#
 
 #=
 # in this version all the reach-sets are computed until NSTEPS, then we intersect
