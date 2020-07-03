@@ -140,7 +140,13 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 # if it is not the case, add it to the waiting list
                 r = target(H, t)
                 Xr = StateInLocation(X, r)
-                if (count_jumps <= max_jumps) && !(Xr ⊆ explored_list)
+
+                hit_max_jumps = count_jumps > max_jumps
+                if hit_max_jumps
+                    @warn "maximum number of jumps reached; try increasing `max_jumps`"
+                end
+
+                if !hit_max_jumps && !(Xr ⊆ explored_list)
                     push!(waiting_list, tprev, Xr)
                 end
             end
