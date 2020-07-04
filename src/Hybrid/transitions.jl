@@ -346,6 +346,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
 
     # compute the intersection K := [X ∩ Y]_dirs using the template
     K = _intersection(X, HPolyhedron(Y), method)
+    isempty(K) && return EmptySet(dim(X))
 
     # compute Z := [(RK ⊕ W) ∩ I⁺]_dirs using the template
     Km = (tr.R * K) ⊕ tr.W # lazy affine map
@@ -368,6 +369,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     !success && return EmptySet(dim(X))
 
     K = _intersection(X, HPolyhedron(Y), method)
+    isempty(K) && return EmptySet(dim(X))
 
     # compute Z := [(RK ⊕ W) ∩ I⁺]_dirs using the template
     Km = (tr.R * K) ⊕ tr.W # lazy affine map
