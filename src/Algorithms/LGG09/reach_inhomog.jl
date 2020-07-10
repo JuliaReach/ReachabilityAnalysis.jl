@@ -166,11 +166,13 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     Δt = (zero(N) .. δ) + time_shift
     k = 1
     @inbounds while k <= NSTEPS
+        @timeit to "ρvec_ℓ @reach_inhomog_dir_LGG09!" begin
         for j in 1:ndirs
             d = view(rᵢ, :, j)
             ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
             sᵢ[j] += ρ(d, U)
         end
+    end
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
         copy!(rᵢ, rᵢ₊₁)

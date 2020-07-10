@@ -73,3 +73,5 @@ end
 include("reach_homog.jl")
 include("reach_inhomog.jl")
 include("post.jl")
+TimerOutputs.show(to, allocations = true, compact = true)
+#show(to, allocations = true, compact = false)

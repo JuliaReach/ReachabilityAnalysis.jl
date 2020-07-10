@@ -25,6 +25,7 @@ TaylorIntegration = "92b13dbe-c966-51a2-8445-caca9f8a7d42"
 TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
+TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 
 [compat]
 CDDLib = "0.5, 0.6"
@@ -52,6 +53,7 @@ TaylorModels = "0.3"
 TaylorSeries = "0.10"
 UnPack = "0.1, 1.0"
 julia = "1.3, 1.4"
+TimerOutputs = "0.5"
 
 [extras]
 CDDLib = "3391f64e-dcde-5f30-b752-e11513730f60"

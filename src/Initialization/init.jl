@@ -17,6 +17,10 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
                 MathematicalSystems,
                 TaylorIntegration
 
+using TimerOutputs
+const to = TimerOutput();
+reset_timer!(to::TimerOutput);
+
 # required to avoid conflicts with MathematicalSystems
 using LazySets: LinearMap, AffineMap, ResetMap
 
