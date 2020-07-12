@@ -294,6 +294,16 @@ function project(R::Vector{<:AbstractLazyReachSet}; vars)
     return map(Ri -> project(Ri, Tuple(vars)), R)
 end
 
+function project(R::AbstractLazyReachSet, M::AbstractMatrix; vars=nothing)
+    πR = linear_map(M, R)
+    return isnothing(vars) ? πR : project(πR, vars)
+end
+
+function project(R::Vector{<:AbstractLazyReachSet}, M::AbstractMatrix; vars=nothing)
+    πR = map(Ri -> linear_map(M, Ri), R)
+    return isnothing(vars) ? πR : project(πR, vars)
+end
+
 # membership test
 function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
     return ∈(x, set(R))
