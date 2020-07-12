@@ -120,6 +120,11 @@ function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
+# concrete projection given a projection matrix
+function project(sol::ReachSolution{FT}, M::AbstractMatrix; vars=nothing) where {FT<:AbstractFlowpipe}
+    return project(sol.F, M; vars=vars)
+end
+
 # LazySets interface falls back to the associated flowpipe
 LazySets.dim(sol::ReachSolution) = dim(sol.F)
 LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.F)
