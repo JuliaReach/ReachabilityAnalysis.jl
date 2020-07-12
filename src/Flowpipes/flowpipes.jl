@@ -346,7 +346,18 @@ project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
 
 # concrete projection of a flowpipe for a given matrix
-function project(fp::Flowpipe, M::AbstractMatrix)
+function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
+    Xk = array(fp)
+    πfp = Flowpipe(map(X -> linear_map(M, X), Xk))
+    if isnothing(vars)
+        return πfp
+    else
+        return project(πfp, vars)
+    end
+end
+
+# concrete linear map of a flowpipe for a given matrix
+function linear_map(M::AbstractMatrix, fp::Flowpipe)
     Xk = array(fp)
     return Flowpipe(map(X -> linear_map(M, X), Xk))
 end

@@ -128,6 +128,7 @@ LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.
 # further setops functions acting on solutions' flowpipes
 LazySets.is_intersection_empty(sol::ReachSolution, Y::LazySet) = is_intersection_empty(sol.F, Y)
 LazySets.is_intersection_empty(sol::ReachSolution, Y::AbstractLazyReachSet) = is_intersection_empty(sol.F, set(Y))
+linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
 
 # inclusion checks
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
