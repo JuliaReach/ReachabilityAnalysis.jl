@@ -1,7 +1,3 @@
-# method extensions
-import LazySets: dim, overapproximate, project, Projection
-import Base: ∈
-
 # ================================================================
 # Reach set interfaces
 # ================================================================
@@ -268,15 +264,19 @@ complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 # step for the reach-set / algorithm choice
 LazySets.is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y)
 
-function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
+function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end
 
-function LazySets.linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
+function linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
     return reconstruct(R, linear_map(M, set(R)))
 end
 
-function LazySets.overapproximate(R::AbstractLazyReachSet, func)
+function linear_map(M::AbstractMatrix, R::Vector{<:AbstractLazyReachSet})
+    return map(Ri -> reconstruct(Ri, linear_map(M, set(Ri))), R)
+end
+
+function overapproximate(R::AbstractLazyReachSet, func)
     return reconstruct(R, overapproximate(set(R), func))
 end
 
@@ -288,6 +288,10 @@ end
 # handle generic kwargs vars
 function project(R::AbstractLazyReachSet; vars)
     return project(R, Tuple(vars))
+end
+
+function project(R::Vector{<:AbstractLazyReachSet}; vars)
+    return map(Ri -> project(Ri, Tuple(vars)), R)
 end
 
 # membership test

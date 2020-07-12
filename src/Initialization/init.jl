@@ -50,6 +50,11 @@ const CPA = CartesianProductArray
 # convenience union for dispatch on structs that are admissible as initial sets or inputs
 const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox}
 
+# method extensions
+import LazySets: dim, overapproximate, project, Projection,
+                 linear_map, LinearMap
+import Base: ∈
+
 # ======================
 # Optional dependencies
 # ======================
