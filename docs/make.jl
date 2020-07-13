@@ -33,6 +33,8 @@ makedocs(
                           "Brusselator" => "models/brusselator.md",
                          # "Lotka-Volterra" => "models/lotka_volterra.md",
                          # "SEIR model" => "man/applications/seir.md",
+                          "Insternational Space Station" => "models/ISS.md",
+                          "Platoon" => "models/Platoon.md"],
                           "Transmision line" => "models/transmission_line.md"],
                               # Other topics: car control, power systems stability.
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",

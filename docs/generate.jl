@@ -10,7 +10,7 @@ mkpath(trgt_dir)
 
 for src_dir in src_dirs
     for file in readdir(src_dir)
-        if endswith(file, ".jl")
+        if endswith(file, ".jl") #endswith(file, ".jl")
             src_path = abspath(joinpath(src_dir, file))
             text = script(src_path, trgt_dir_test, credit=false)
             code = strip(read(text, String))
