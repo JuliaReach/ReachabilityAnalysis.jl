@@ -857,6 +857,7 @@ end
 TemplateHullIntersection() = TemplateHullIntersection{Float64, Vector{Float64}}()
 
 setrep(::TemplateHullIntersection{N, VN}) where {N, VN} = HPolytope{N, VN}
+setrep(::TemplateHullIntersection{N, SEV}) where {N, SEV<:SingleEntryVector{N}} = Union{HPolytope{N, SEV}, HPolytope{N, Vector{N}}}
 
 # propagate methods from reach-set to sets
 # TODO always return ReachSets; extend to AbstractLazyReachSet; intersect time spans

@@ -64,10 +64,7 @@ end
 # getter functions
 @inline array(w::WaitingList) = w.array
 @inline times(w::WaitingList) = w.times
-
 setrep(w::WaitingList{N, ST}) where {N, ST} = ST
-setrep(w::WaitingList{N, HPolytope{N, SV}}) where {N, SV<:SingleEntryVector{N}} = Union{HPolytope{N, SV}, HPolytope{N, Vector{N}}}
-
 locrep(w::WaitingList{N, ST, M}) where {N, ST, M} = M
 tstamp(w::WaitingList, i) = w.times[i]
 
