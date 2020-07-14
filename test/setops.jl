@@ -6,5 +6,6 @@
 
     # constructor passing the template
     td = TemplateHullIntersection(BoxDirections(2))
-    @test setrep(td) == HPolytope{Float64,LazySets.Arrays.SingleEntryVector{Float64}}
+    @test setrep(td) == Union{HPolytope{Float64,LazySets.Arrays.SingleEntryVector{Float64}},
+                              HPolytope{Float64,Vector{Float64}}}
 end
