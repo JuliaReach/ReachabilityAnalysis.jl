@@ -20,7 +20,7 @@
 #   \dot{x} &= v_x \\
 #   \dot{y} &= v_y \\
 #   \dot{v_x} &= n^2x + 2nv_y + \frac{\mu}{r^2} - \frac{\mu}{r^3} (r +x) + \frac{u_x}{m_c} \\
-#   \dot{v_y} &= n^2y + 2nv_x + \frac{\mu}{r^3_c} + \frac{u_y}{m_c}
+#   \dot{v_y} &= n^2y - 2nv_x - \frac{\mu}{r^3_c}y + \frac{u_y}{m_c}
 #   \end{array} \right.
 # ```
 #
