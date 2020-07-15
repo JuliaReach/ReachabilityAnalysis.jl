@@ -375,6 +375,7 @@ fig
 
 
 # ## References
+
 # [1] N. Chan and S. Mitra. Verifying safety of an autonomous spacecraft
 # rendezvous mission. In ARCH17. 4th International Workshop on Applied
 # Veriﬁcation of Continuous and Hybrid Systems, collocated with Cyber-Physical
