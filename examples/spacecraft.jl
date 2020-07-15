@@ -360,7 +360,7 @@ idx_approaching = findall(x -> x == 1, location.(solz))
 idx_attempt = findall(x -> x == 2, location.(solz))
 idx_aborting = findall(x -> x == 3, location.(solz))
 
-fig = Plots.plot(legend=:bottomright)
+fig = plot(legend=:bottomright, xlab="x", ylab="y")
 
 for idx in idx_approaching
     Plots.plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1.)
