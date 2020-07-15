@@ -2,15 +2,15 @@
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/spacecraft.ipynb)
 #
 #md # !!! note "Overview"
-#md #     System type: hybrid system with nonlinear dynamics\
-#md #     State dimension: 4 + 1\
-#md #     Application domain: Flight dynamics, Switched Controllers
+#md #     System type: polynomial continuous system\
+#md #     State dimension: 2\
+#md #     Application domain: Chemical kinetics
 #
 # ## Model description
 #
 # Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid
 # systems with nonlinear dynamics since mission failure can cost lives and is
-# extremely expensive. This benchmark is taken from [1].
+# extremely expensive. This benchmark is taken from [1]
 
 # The nonlinear dynamic equations describe the two-dimensional, planar motion of
 # the space-craft on an orbital plane towards a space station:
@@ -20,7 +20,7 @@
 #   \dot{x} &= v_x \\
 #   \dot{y} &= v_y \\
 #   \dot{v_x} &= n^2x + 2nv_y + \frac{\mu}{r^2} - \frac{\mu}{r^3} (r +x) + \frac{u_x}{m_c} \\
-#   \dot{v_y} &= n^2y - 2nv_x - \frac{\mu}{r^3_c}y + \frac{u_y}{m_c}
+#   \dot{v_y} &= n^2y + 2nv_x + \frac{\mu}{r^3_c} + \frac{u_y}{m_c}
 #   \end{array} \right.
 # ```
 #
@@ -56,25 +56,6 @@
 # \end{pmatrix}
 # ```
 # In the mode aborting, the system is uncontrolled ``\binom{u_x}{u_y} = \binom{0}{0}``.
-
-
-# ## Reachability settings
-#
-# The spacecraft starts from the initial set ``x ∈ [−925, −875] [m]``,
-# ``y ∈ [−425, −375] [m], vx = 0 [m/min]`` and ``vy = 0 [m/min]``. For the
-# considered time horizon of ``t ∈ [0, 200] [min]``, the following speciﬁcations
-# have to be satisﬁed:
-# - Line-of-sight: In mode rendezvous attempt, the spacecraft has to stay
-#      inside line-of-sight cone ``L = {\binom{x}{y} | (x ≥ −100) ∧ (y ≥ x tan(30°)) ∧ (−y ≥ x tan(30°))}``.
-# - Collision avoidance: In mode aborting, the spacecraft has to avoid a
-#      collision with the target, which is modeled as a box ``B`` with ``0.2m``
-#      edge length and the center placed at the origin.
-# - Velocity constraint: In mode rendezvous attempt, the absolute velocity
-#      has to stay below ``3.3 [m/min]``: ``\sqrt{v^2_x + v^2_y} ≤ 3.3 [m/min]``.
-# **Remark on velocity constraint In the original benchmark** [1], the constraint
-# on the velocity was set to 0.05 m/s, but it can be shown (by a counterexample)
-# that this constraint cannot be satisﬁed. We therefore use the relaxed
-# constraint ``0.055 [m/s] = 3.3 [m/min]``.
 
 
 using ReachabilityAnalysis, SparseArrays
@@ -256,6 +237,24 @@ function spacecraft(; X0 = Hyperrectangle([-900., -400., 0., 0., 0.],
     return InitialValueProblem(H, init)
 end
 
+# ## Reachability settings
+#
+# The spacecraft starts from the initial set ``x ∈ [−925, −875] [m]``,
+# ``y ∈ [−425, −375] [m], vx = 0 [m/min]`` and ``vy = 0 [m/min]``. For the
+# considered time horizon of ``t ∈ [0, 200] [min]``, the following speciﬁcations
+# have to be satisﬁed:
+# - Line-of-sight: In mode rendezvous attempt, the spacecraft has to stay
+#      inside line-of-sight cone ``L = {\binom{x}{y} | (x ≥ −100) ∧ (y ≥ x tan(30°)) ∧ (−y ≥ x tan(30°))}``.
+# - Collision avoidance: In mode aborting, the spacecraft has to avoid a
+#      collision with the target, which is modeled as a box ``B`` with ``0.2m``
+#      edge length and the center placed at the origin.
+# - Velocity constraint: In mode rendezvous attempt, the absolute velocity
+#      has to stay below ``3.3 [m/min]``: ``\sqrt{v^2_x + v^2_y} ≤ 3.3 [m/min]``.
+# **Remark on velocity constraint In the original benchmark** [1], the constraint
+# on the velocity was set to 0.05 m/s, but it can be shown (by a counterexample)
+# that this constraint cannot be satisﬁed. We therefore use the relaxed
+# constraint ``0.055 [m/s] = 3.3 [m/min]``.
+
 #variables
 const x, y, vx, vy, t = 1:5
 const numvars = 5
@@ -313,13 +312,12 @@ end
 
 # ## Results
 
-# We use `TMJets` algorithm with five-order expansion in time and first order expansion
-# in the spatial variables.
+# We used ``n_Q = 1`` and ``n_T = 5``. The transition to the aborting mode is
+# handled by clustering the flowpipe into 29 boxes.
 
 
-using BenchmarkTools, Plots, Plots.PlotMeasures, LaTeXStrings
-using BenchmarkTools: minimum, median
-s
+using Plots
+
 boxdirs = BoxDirections(5)
 
 function solve_spacecraft(prob; k=25, s=missing)
@@ -360,16 +358,16 @@ idx_approaching = findall(x -> x == 1, location.(solz))
 idx_attempt = findall(x -> x == 2, location.(solz))
 idx_aborting = findall(x -> x == 3, location.(solz))
 
-fig = plot(legend=:bottomright, xlab="x", ylab="y")
+fig = Plots.plot(legend=:bottomright)
 
 for idx in idx_approaching
-    Plots.plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1.)
+    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1.)
 end
 for idx in idx_attempt
-    Plots.plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:red, alpha=1.)
+    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:red, alpha=1.)
 end
 for idx in idx_aborting
-    Plots.plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:green, alpha=1.)
+    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:green, alpha=1.)
 end
 fig
 
