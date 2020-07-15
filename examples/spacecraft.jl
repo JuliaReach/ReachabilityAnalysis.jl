@@ -10,7 +10,7 @@
 #
 # Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid
 # systems with nonlinear dynamics since mission failure can cost lives and is
-# extremely expensive. This benchmark is taken from [1]
+# extremely expensive. This benchmark is taken from [1].
 
 # The nonlinear dynamic equations describe the two-dimensional, planar motion of
 # the space-craft on an orbital plane towards a space station:
