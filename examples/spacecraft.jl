@@ -361,13 +361,13 @@ idx_aborting = findall(x -> x == 3, location.(solz))
 fig = plot(legend=:bottomright, xlab="x", ylab="y")
 
 for idx in idx_approaching
-    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1.)
+    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1., label="Approaching")
 end
 for idx in idx_attempt
-    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:red, alpha=1.)
+    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:red, alpha=1., label="Attempt")
 end
 for idx in idx_aborting
-    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:green, alpha=1.)
+    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:green, alpha=1., label="Aborting")
 end
 fig
 
