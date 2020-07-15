@@ -2,25 +2,25 @@
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/spacecraft.ipynb)
 #
 #md # !!! note "Overview"
-#md #     System type: polynomial continuous system\
-#md #     State dimension: 2\
-#md #     Application domain: Chemical kinetics
+#md #     System type: hybrid system with nonlinear dynamics\
+#md #     State dimension: 4 + 1\
+#md #     Application domain: Flight dynamics, Switched Controllers
 #
 # ## Model description
 #
 # Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid
 # systems with nonlinear dynamics since mission failure can cost lives and is
-# extremely expensive. This benchmark is taken from [1]
+# extremely expensive. This benchmark is taken from [1].
 
 # The nonlinear dynamic equations describe the two-dimensional, planar motion of
 # the space-craft on an orbital plane towards a space station:
 #
 # ```math
 #   \left\{ \begin{array}{lcl}
-#   \dot{x} &= v_x \\
-#   \dot{y} &= v_y \\
-#   \dot{v_x} &= n^2x + 2nv_y + \frac{\mu}{r^2} - \frac{\mu}{r^3} (r +x) + \frac{u_x}{m_c} \\
-#   \dot{v_y} &= n^2y + 2nv_x + \frac{\mu}{r^3_c} + \frac{u_y}{m_c}
+#   \dot{x} & = & v_x \\
+#   \dot{y} & = & v_y \\
+#   \dot{v_x} & = & n^2x + 2nv_y + \frac{\mu}{r^2} - \frac{\mu}{r^3} (r +x) + \frac{u_x}{m_c} \\
+#   \dot{v_y} & = & n^2y - 2nv_x - \frac{\mu}{r^3_c}y + \frac{u_y}{m_c}
 #   \end{array} \right.
 # ```
 #
@@ -38,7 +38,7 @@
 # The linear feedback controllers for the diﬀerent modes are deﬁned as
 # ``\binom{u_x}{u_y} = K_1\underline{x}`` for mode approaching, and
 # ``\binom{u_x}{u_y} = K_2\underline{x}`` for mode rendezvous attempt, where
-# ``\underline{x} = (x y v_x v_y)^T`` is the vector of system states. The
+# ``\underline{x} = (x, y, v_x, v_y)^T`` is the vector of system states. The
 # feedback matrices ``K_i`` were determined with an LQR-approach applied to the
 # linearized system dynamics, which resulted in the following numerical values:
 # ```math
@@ -70,7 +70,7 @@ const n² = μ / r^3
 const n = sqrt(n²)
 
 const two_n = 2*n
-const μ_r² = μ/r²
+const μ_r² = μ/r²;
 
 #-
 const K₁ = [-28.8287 0.1005 -1449.9754 0.0046 0.0;
@@ -358,7 +358,7 @@ idx_approaching = findall(x -> x == 1, location.(solz))
 idx_attempt = findall(x -> x == 2, location.(solz))
 idx_aborting = findall(x -> x == 3, location.(solz))
 
-fig = Plots.plot(legend=:bottomright)
+fig = plot(legend=:bottomright, xlab="x", ylab="y")
 
 for idx in idx_approaching
     plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1.)
