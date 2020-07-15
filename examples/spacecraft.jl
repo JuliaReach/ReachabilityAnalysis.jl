@@ -4,7 +4,7 @@
 #md # !!! note "Overview"
 #md #     System type: hybrid system with nonlinear dynamics\
 #md #     State dimension: 4 + 1\
-#md #     Application domain: Chemical kinetics
+#md #     Application domain: Flight dynamics, Switched Controllers
 #
 # ## Model description
 #
