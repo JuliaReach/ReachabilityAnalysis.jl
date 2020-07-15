@@ -3,7 +3,7 @@
 #
 #md # !!! note "Overview"
 #md #     System type: hybrid system with nonlinear dynamics\
-#md #     State dimension: 2\
+#md #     State dimension: 4 + 1\
 #md #     Application domain: Chemical kinetics
 #
 # ## Model description
