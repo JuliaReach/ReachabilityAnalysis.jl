@@ -55,7 +55,7 @@ Therefore, the order in which the variables appear in `vars` affects the final r
 Finally, the returned set is the hyperplane with normal vector `[a1, …, an]` and
 displacement `b`.
 """
-function Hyperplane(expr::Operation, vars=get_variables(expr); N::Type{<:Real}=Float64)
+function LazySets.Hyperplane(expr::Operation, vars=get_variables(expr); N::Type{<:Real}=Float64)
     (expr.op == ==) || throw(ArgumentError("expected an expression of the form `ax == b`, got $expr"))
 
     # simplify to the form a*x + β == 0
@@ -143,7 +143,7 @@ Note in particular that strict inequalities are relaxed as being smaller-or-equa
 Finally, the returned set is the half-space with normal vector `[a1, …, an]` and
 displacement `b`.
 """
-function HalfSpace(expr::Operation, vars=get_variables(expr); N::Type{<:Real}=Float64)
+function LazySets.HalfSpace(expr::Operation, vars=get_variables(expr); N::Type{<:Real}=Float64)
 
     # find sense and normalize
     if expr.op == <
@@ -182,6 +182,10 @@ function HalfSpace(expr::Operation, vars=get_variables(expr); N::Type{<:Real}=Fl
     β = -N(ModelingToolkit.SymbolicUtils.substitute(to_symbolic(sexpr), dvars, fold=true))
 
     return HalfSpace(coeffs, β)
+end
+
+function LazySets.HPolyhedron(expr::Vector{<:Operation}, vars=get_variables(first(expr)); N::Type{<:Real}=Float64)
+    return HPolyhedron([HalfSpace(ex, vars) for ex in expr])
 end
 
 end end  # quote / load_modeling_toolkit_halfspace()
