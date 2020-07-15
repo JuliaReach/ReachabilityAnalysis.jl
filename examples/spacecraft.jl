@@ -58,7 +58,7 @@
 # In the mode aborting, the system is uncontrolled ``\binom{u_x}{u_y} = \binom{0}{0}``.
 
 
-using ReachabilityAnalysis, SparseArrays
+using ReachabilityAnalysis, SparseArrays,
 
 using ReachabilityAnalysis: TaylorModelReachSet, AbstractLazyReachSet
 
@@ -186,28 +186,26 @@ end
 
 # ### Hybrid System setup
 
+using ModelingToolkit
+
+const var = @variables x y vx vy t
+
 function spacecraft(; X0 = Hyperrectangle([-900., -400., 0., 0., 0.],
                                           [25., 25., 0., 0., 0.]),
                          init=[(1, X0)],
                          abort_time=(120.0, 150.0))
 
-    #variables
-    x = 1   # x position
-    y = 2   # y position
-    vx = 3  # x velocity
-    vy = 4  # y velocity
-    t = 5   # time
     n = 4 + 1  # number of variables
     t_abort_lower, t_abort_upper = abort_time[1], abort_time[2]
 
     automaton = LightAutomaton(3)
 
     #mode 1 "approaching"
-    invariant = HalfSpace(sparsevec([x], [1.], n), -100.) # x <= -100
+    invariant = HalfSpace(x <= -100, vars)
     approaching = @system(x' = spacecraft_approaching!(x), dim:5, x ∈ invariant)
 
     #mode 2 ("rendezvous attempt")
-    invariant = HalfSpace(sparsevec([x], [-1.], n), 100.) # x >= -100
+    invariant = HalfSpace(x >= -100, vars) # x >= -100
     attempt = @system(x' = spacecraft_attempt!(x), dim:5, x ∈ invariant)
 
     #mode 3 "aborting"
@@ -216,14 +214,14 @@ function spacecraft(; X0 = Hyperrectangle([-900., -400., 0., 0., 0.],
 
     #transition "approach" -> "attempt"
     add_transition!(automaton, 1, 2, 1)
-    guard = HalfSpace(sparsevec([x], [-1.], n), 100.) # x >= -100
+    guard = HalfSpace(x >= -100, vars)
     t1 = @map(x -> x, dim: n, x ∈ guard)
 
 
     #transition "approach" -> "abort"
     add_transition!(automaton, 1, 3, 2)
-    guard_time = HPolyhedron([HalfSpace(sparsevec([t], [-1.], n), -t_abort_lower),  # t >= t_abort_lower
-                              HalfSpace(sparsevec([t], [1.], n), t_abort_upper)])   # t <= t_abort_upper
+    guard_time = HPolyhedron([HalfSpace(t >= t_abort_lower, vars),
+                              HalfSpace(t <= t_abort_upper, vars)])
     t2 = @map(x -> x, dim: n, x ∈ guard_time)
 
     #transition "attempt" -> "abort"
@@ -256,14 +254,10 @@ end
 # constraint ``0.055 [m/s] = 3.3 [m/min]``.
 
 #variables
-const x, y, vx, vy, t = 1:5
+
 const numvars = 5
 const tan30 = tand(30)
-
-LineOfSightCone = HPolyhedron([HalfSpace(sparsevec([x], [-1.], numvars), 100.),   # x >= -100
-                    HalfSpace(sparsevec([x, y], [tan30, -1.], numvars), 0.),  # y >= x tan(30°)
-                    HalfSpace(sparsevec([x, y], [tan30, 1.], numvars), 0.),   # -y >= x tan(30°)
-                   ])
+LineOfSightCone = HPolyhedron([x >= -100, y >= x*tan30, -y >= x*tan30], var)
 
 Target = Hyperrectangle(zeros(2), [0.2, 0.2]);
 
