@@ -2,7 +2,7 @@
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/spacecraft.ipynb)
 #
 #md # !!! note "Overview"
-#md #     System type: polynomial continuous system\
+#md #     System type: hybrid system with nonlinear dynamics\
 #md #     State dimension: 2\
 #md #     Application domain: Chemical kinetics
 #
