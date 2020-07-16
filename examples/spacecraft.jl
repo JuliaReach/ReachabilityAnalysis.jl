@@ -57,10 +57,7 @@
 # ```
 # In the mode aborting, the system is uncontrolled ``\binom{u_x}{u_y} = \binom{0}{0}``.
 
-
-using ReachabilityAnalysis, SparseArrays,
-
-using ReachabilityAnalysis: TaylorModelReachSet, AbstractLazyReachSet
+using ReachabilityAnalysis
 
 const μ = 3.986e14 * 60^2
 const r = 42164.0e3
@@ -92,6 +89,7 @@ function mymul!(v, A, x)
 end
 
 # ### Dynamics in the 'approaching' mode
+
 @taylorize function spacecraft_approaching!(du, u, p, t)
     x, y, vx, vy, t = u
 
@@ -105,25 +103,26 @@ end
     uxy = Vector{typeof(x)}(undef, 2)
     mymul!(uxy, K₁mc, u)
 
-    #x' = vx
+    ## x' = vx
     du[1] = vx
 
-    #y' = vy
+    ## y' = vy
     du[2] = vy
 
-    #vx' = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x) + ux/mc
+    ## vx' = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x) + ux/mc
     du[3] = (n²*x + two_n*vy) + ((μ_r² - μ_rc³*rx) + uxy[1])
 
-    #vy' = n²y - 2n*vx - μ/(rc^3)y + uy/mc
+    ## vy' = n²y - 2n*vx - μ/(rc^3)y + uy/mc
     du[4] = (n²*y - two_n*vx) - (μ_rc³*y - uxy[2])
 
-    #t' = 1
+    ## t' = 1
     du[5] = one(x)
 
     return du
 end
 
 # ### Dynamics in the 'rendezvous attempt' mode
+
 @taylorize function spacecraft_attempt!(du, u, p, t)
     x, y, vx, vy, t = u
 
@@ -137,25 +136,26 @@ end
     uxy = Vector{typeof(x)}(undef, 2)
     mymul!(uxy, K₂mc, u)
 
-    #x' = vx
+    ## x' = vx
     du[1] = vx
 
-    #y' = vy
+    ## y' = vy
     du[2] = vy
 
-    #vx' = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x) + ux/mc
+    ## vx' = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x) + ux/mc
     du[3] = (n²*x + two_n*vy) + ((μ_r² - μ_rc³*rx) + uxy[1])
 
-    #vy' = n²y - 2n*vx - μ/(rc^3)y + uy/mc
+    ## vy' = n²y - 2n*vx - μ/(rc^3)y + uy/mc
     du[4] = (n²*y - two_n*vx) - (μ_rc³*y - uxy[2])
 
-    #t' = 1
+    ## t' = 1
     du[5] = one(x)
 
     return du
 end
 
 # ### Dynamics in the 'aborting' mode
+
 @taylorize function spacecraft_aborting!(du, u, p, t)
     x, y, vx, vy, t = u
 
@@ -166,19 +166,19 @@ end
     rc³ = rc^3
     μ_rc³ = μ / rc³
 
-    #x' = vx
+    ## x' = vx
     du[1] = vx
 
-    #y' = vy
+    ## y' = vy
     du[2] = vy
 
-    #vx' = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x)
+    ## vx' = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x)
     du[3] = (n²*x + two_n*vy) + (μ_r² - μ_rc³*rx)
 
-    #vy' = n²y - 2n*vx - μ/(rc^3)y
+    ## vy' = n²y - 2n*vx - μ/(rc^3)y
     du[4] = (n²*y - two_n*vx) - μ_rc³*y
 
-    #t' = 1
+    ## t' = 1
     du[5] = one(x)
 
     return du
@@ -186,45 +186,43 @@ end
 
 # ### Hybrid System setup
 
+# To model the system as a hybrid automaton, it is useful to work with symbolic
+# state variables.
+
 using ModelingToolkit
 
 const var = @variables x y vx vy t
 
-function spacecraft(; X0 = Hyperrectangle([-900., -400., 0., 0., 0.],
-                                          [25., 25., 0., 0., 0.]),
-                         init=[(1, X0)],
-                         abort_time=(120.0, 150.0))
+function spacecraft(; abort_time=(120.0, 150.0))
 
     n = 4 + 1  # number of variables
-    t_abort_lower, t_abort_upper = abort_time[1], abort_time[2]
+    t_abort_lower, t_abort_upper = abort_time
 
     automaton = LightAutomaton(3)
 
-    #mode 1 "approaching"
-    invariant = HalfSpace(x <= -100, vars)
+    ## mode 1 "approaching"
+    invariant = HalfSpace(x <= -100, var)
     approaching = @system(x' = spacecraft_approaching!(x), dim:5, x ∈ invariant)
 
-    #mode 2 ("rendezvous attempt")
-    invariant = HalfSpace(x >= -100, vars) # x >= -100
+    ## mode 2 "rendezvous attempt"
+    invariant = HalfSpace(x >= -100, var)
     attempt = @system(x' = spacecraft_attempt!(x), dim:5, x ∈ invariant)
 
-    #mode 3 "aborting"
+    ## mode 3 "aborting"
     invariant = Universe(n)
     aborting = @system(x' = spacecraft_aborting!(x), dim: 5, x ∈ invariant)
 
-    #transition "approach" -> "attempt"
+    ## transition "approach" -> "attempt"
     add_transition!(automaton, 1, 2, 1)
-    guard = HalfSpace(x >= -100, vars)
+    guard = HalfSpace(x >= -100, var)
     t1 = @map(x -> x, dim: n, x ∈ guard)
 
-
-    #transition "approach" -> "abort"
+    ## transition "approach" -> "abort"
     add_transition!(automaton, 1, 3, 2)
-    guard_time = HPolyhedron([HalfSpace(t >= t_abort_lower, vars),
-                              HalfSpace(t <= t_abort_upper, vars)])
+    guard_time = HPolyhedron([t >= t_abort_lower, t <= t_abort_upper], var)
     t2 = @map(x -> x, dim: n, x ∈ guard_time)
 
-    #transition "attempt" -> "abort"
+    ## transition "attempt" -> "abort"
     add_transition!(automaton, 2, 3, 3)
     t3 = @map(x -> x, dim: n, x ∈ guard_time)
 
@@ -232,7 +230,11 @@ function spacecraft(; X0 = Hyperrectangle([-900., -400., 0., 0., 0.],
                      modes=[approaching, attempt, aborting],
                      resetmaps=[t1, t2, t3])
 
-    return InitialValueProblem(H, init)
+     ## initial condition in mode 1
+     X0 = Hyperrectangle([-900., -400., 0., 0., 0.], [25., 25., 0., 0., 0.])
+     init = [(1, X0)]
+
+     return InitialValueProblem(H, init)
 end
 
 # ## Reachability settings
@@ -241,22 +243,25 @@ end
 # ``y ∈ [−425, −375] [m], vx = 0 [m/min]`` and ``vy = 0 [m/min]``. For the
 # considered time horizon of ``t ∈ [0, 200] [min]``, the following speciﬁcations
 # have to be satisﬁed:
+#
 # - Line-of-sight: In mode rendezvous attempt, the spacecraft has to stay
-#      inside line-of-sight cone ``L = {\binom{x}{y} | (x ≥ −100) ∧ (y ≥ x tan(30°)) ∧ (−y ≥ x tan(30°))}``.
+#      inside line-of-sight cone ``L = {\binom{x}{y} | (x ≥ −100) ∧ (y ≥ x \tan(30°)) ∧ (−y ≥ x \tan(30°))}``.
+#
 # - Collision avoidance: In mode aborting, the spacecraft has to avoid a
 #      collision with the target, which is modeled as a box ``B`` with ``0.2m``
 #      edge length and the center placed at the origin.
+#
 # - Velocity constraint: In mode rendezvous attempt, the absolute velocity
 #      has to stay below ``3.3 [m/min]``: ``\sqrt{v^2_x + v^2_y} ≤ 3.3 [m/min]``.
-# **Remark on velocity constraint In the original benchmark** [1], the constraint
-# on the velocity was set to 0.05 m/s, but it can be shown (by a counterexample)
-# that this constraint cannot be satisﬁed. We therefore use the relaxed
-# constraint ``0.055 [m/s] = 3.3 [m/min]``.
+#
+# !!! note "Remark on velocity constraint"
+#     In the original benchmark [1], the constraint
+#     on the velocity was set to 0.05 m/s, but it can be shown (by a counterexample)
+#     that this constraint cannot be satisﬁed. We therefore use the relaxed
+#     constraint ``0.055 [m/s] = 3.3 [m/min]``.
 
-#variables
-
-const numvars = 5
 const tan30 = tand(30)
+
 LineOfSightCone = HPolyhedron([x >= -100, y >= x*tan30, -y >= x*tan30], var)
 
 Target = Hyperrectangle(zeros(2), [0.2, 0.2]);
@@ -272,23 +277,17 @@ function line_of_sight(sol)
     return true
 end
 
-function absolute_velocity(R::AbstractLazyReachSet)
-    vx = 3
-    vy = 4
-    vx2 = set(overapproximate(project(R, vars=(vx,)), Interval)).dat
-    vy2 = set(overapproximate(project(R, vars=(vy,)), Interval)).dat
-    sqrt(vx2 + vy2)
-end
-
-function absolute_velocity(R::TaylorModelReachSet)
-    Z = overapprximate(R, Zonotope)
-    absolute_velocity(Z)
+function absolute_velocity(R)
+    vx, vy = 3, 4
+    vx2 = set(overapproximate(project(R, vars=(vx,)), Interval))
+    vy2 = set(overapproximate(project(R, vars=(vy,)), Interval))
+    return sqrt(vx2.dat + vy2.dat)
 end
 
 function velocity_constraint(sol)
-    all_idx = findall(x -> x == 2, location.(sol)) # attempt
+    all_idx = findall(x -> x == 2, location.(sol)) # attempt mode
     for idx in all_idx
-        #maximum velocity measured in m/min
+        ## maximum velocity measured in m/min
         verif = all(absolute_velocity(R) < 0.055 * 60. for R in sol[idx])
         !verif && return false
     end
@@ -296,7 +295,7 @@ function velocity_constraint(sol)
 end
 
 function target_avoidance(sol)
-    all_idx = findall(x -> x == 3, location.(sol)) # aborting
+    all_idx = findall(x -> x == 3, location.(sol)) # aborting mode
     for idx in all_idx
         verif = all(is_intersection_empty(set(Projection(R, [x, y])), Target) for R in sol[idx])
         !verif && return false
@@ -309,14 +308,14 @@ end
 # We used ``n_Q = 1`` and ``n_T = 5``. The transition to the aborting mode is
 # handled by clustering the flowpipe into 29 boxes.
 
-
 using Plots
-
-boxdirs = BoxDirections(5)
 
 function solve_spacecraft(prob; k=25, s=missing)
 
-    #transition from mode 1 to mode 2
+    ## template directions
+    boxdirs = BoxDirections(5)
+
+    ## transition from mode 1 to mode 2
     sol12 = solve(prob,
                 tspan=(0.0, 200.0),
                 alg=TMJets(abs_tol=1e-5, max_steps=10_000, orderT=5, orderQ=1, disjointness=BoxEnclosure()),
@@ -330,15 +329,16 @@ function solve_spacecraft(prob; k=25, s=missing)
     t0 = tstart(sol12jump[1])
     sol12jump_c = cluster(sol12jump, 1:length(sol12jump), BoxClustering(k, s))
 
-    #transition from mode 2 to mode 3
+    ## transition from mode 2 to mode 3
     H = system(prob)
     sol3 = solve(IVP(mode(H, 3), [set(X) for X in sol12jump_c]),
                  tspan=(t0, 200.0),
                  alg=TMJets(abs_tol=1e-10, orderT=7, orderQ=1, disjointness=BoxEnclosure()))
     d = Dict{Symbol, Any}(:loc_id => 3)
 
-    return HybridFlowpipe(vcat([fp for fp in sol12.F],
-                               [Flowpipe(fp.Xk, d) for fp in sol3.F]))
+    F12 = [fp for fp in sol12.F]
+    F23 = [Flowpipe(fp.Xk, d) for fp in sol3.F]
+    return HybridFlowpipe(vcat(F12, F23))
 end
 
 prob = spacecraft()
@@ -347,29 +347,49 @@ solz = overapproximate(sol, Zonotope);
 
 #----------------
 
+plot(solz, vars=(1, 2), xlab="x", ylab="y")
+
+#-
+
+# Note that in the previous plot, it is not specified which reach-set corresponds to
+# which mode. After finding the location (mode of the hybrid system) associated
+# to each reach-set of the solution, we can plot each one using different colors.
+# The plotting code is more sophisticated than before, but is an example of finer
+# control of the options used to plot the flowpipes.
 
 idx_approaching = findall(x -> x == 1, location.(solz))
 idx_attempt = findall(x -> x == 2, location.(solz))
 idx_aborting = findall(x -> x == 3, location.(solz))
 
-fig = plot(legend=:bottomright, xlab="x", ylab="y")
+using Plots, Plots.PlotMeasures, LaTeXStrings
 
-for idx in idx_approaching
-    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:blue, alpha=1., label="Approaching")
+fig = plot(legend=:bottomright, tickfont=font(10, "Times"), guidefontsize=15,
+           xlab=L"x", ylab=L"y", lw=0.0,
+           xtick=[-750, -500, -250, 0, 250.], ytick=[-400, -300, -200, -100, 0.],
+           xlims=(-1000.0, 400.0), ylims=(-450.0, 0.0), size=(600, 600),
+           bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
+
+plot!(fig, solz[idx_approaching[1]], vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1., lab="Approaching")
+for k in 2:length(idx_approaching)
+    plot!(fig, solz[idx_approaching[k]], vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1.)
 end
-for idx in idx_attempt
-    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:red, alpha=1., label="Attempt")
+
+plot!(fig, solz[idx_attempt[1]], vars=(1, 2), lw=0.0, color=:red, alpha=1., lab="Attempt")
+for k in 2:length(idx_attempt)
+    plot!(fig, solz[idx_attempt[k]], vars=(1, 2), lw=0.0, color=:red, alpha=1.)
 end
-for idx in idx_aborting
-    plot!(fig, solz[idx], vars=(1, 2), lw=0.0, color=:green, alpha=1., label="Aborting")
+
+plot!(fig, solz[idx_aborting[1]], vars=(1, 2), lw=0.0, color=:cyan, alpha=1., lab="Aborting")
+for k in 2:length(idx_aborting)
+    plot!(fig, solz[idx_aborting[k]], vars=(1, 2), lw=0.0, color=:cyan, alpha=1.)
 end
+
 fig
-
 
 # ## References
 
-# [1] N. Chan and S. Mitra. Verifying safety of an autonomous spacecraft
-# rendezvous mission. In ARCH17. 4th International Workshop on Applied
+# [1] N. Chan and S. Mitra. *Verifying safety of an autonomous spacecraft
+# rendezvous mission.* In ARCH17. 4th International Workshop on Applied
 # Veriﬁcation of Continuous and Hybrid Systems, collocated with Cyber-Physical
 # Systems Week (CPSWeek) on April 17, 2017 in Pittsburgh, PA, USA, pages 20–32, 2017.
 #
