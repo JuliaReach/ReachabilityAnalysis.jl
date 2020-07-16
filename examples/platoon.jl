@@ -4,7 +4,7 @@
 #md # !!! note "Overview"
 #md #     System type: affine system\
 #md #     State dimension: 9 + 1\
-#md #     Application domain: Chemical kinetics
+#md #     Application domain: Autonomous Driving
 #
 # ## Model description
 #
@@ -14,33 +14,39 @@
 # of communication:
 #
 #
-# PLAA01 (arbitrary loss) The loss of communication can occur at any time. This
+# **PLAA01 (arbitrary loss)** The loss of communication can occur at any time. This
 #       includes the possibility of no communication at all.
 #
-# PLADxy (loss at deterministic times) The loss of communication occurs at fixed
+# **PLADxy (loss at deterministic times)** The loss of communication occurs at fixed
 #       points in time, which are determined by clock constraints ``c_1`` and ``c_2``.
 #       The clock t is reset when communication is lost and when it is re-established.
 #       Note that the transitions have must-semantics, i.e., they take place as soon
-#       as possible.
+#       as possible. We will consider `PLAD01: c_1 = c_2 = 5`.
 #
-#       PLAD01: ``c_1 = c_2 = 5``.
-#
-# PLANxy (loss at nondeterministic times) The loss of communication occurs at
+# **PLANxy (loss at nondeterministic times)** The loss of communication occurs at
 #       any time ``t ∈ [t_b, t_c]``. The clock t is reset when communication is lost
 #       and when it is reestablished. Communication is reestablished at any time
 #       ``t ∈ [0, t_r]``. This scenario covers loss of communication after an
 #       arbitrarily long time ``t ≥ t_c`` by reestablishing communication in zero time.
-#
-#       PLAN01: ``t_b = 10, t_c = 20, t_r = 20``.
+#       We will consider `PLAN01: t_b = 10, t_c = 20, t_r = 20`.
+
+# The Julia model is developed next. It's convenient to create two independent
+# functions, `platoon_connected` and `platoon_disconnected`, which describe the
+# dynamics of the connected (resp. disconnected) modes. These functions are
+# connected in the `platoon` function using a hybrid automaton with two modes
+# and two discrete transition, see figure below.
+
+# ### Dynamics of the "connected" platoon
 
 using ReachabilityAnalysis, SparseArrays, ModelingToolkit
 
-# ## Dynamics of the "connected" platoon
+const var = @variables x₁, x₂, x₃, x₄, x₅, x₆, x₇, x₈, x₉, t
 
 function platoon_connected(; deterministic_switching::Bool=true,
                              c1=5.0)  # clock constraints
-    n = 10 # 9 dimensions + time
-    #x' = Ax + Bu + c
+    n = 9 + 1
+
+    ## x' = Ax + Bu + c
     A = Matrix{Float64}(undef, n, n)
     A[1, :] = [0, 1.0, 0, 0, 0, 0, 0, 0, 0, 0]
     A[2, :] = [0, 0, -1.0, 0, 0, 0, 0, 0, 0, 0]
@@ -54,24 +60,25 @@ function platoon_connected(; deterministic_switching::Bool=true,
     A[10, :] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0]; # t' = 1
 
     if deterministic_switching
-        invariant = HalfSpace(sparsevec([n], [1.], n), c1) # t <= c1
+        invariant = HalfSpace(t <= c1, var)
     else
         invariant = Universe(n)
     end
 
-    #acceleration of the lead vehicle + time
+    ## acceleration of the lead vehicle + time
     B = sparse([2], [1], [1.0], n, 1)
     U = Hyperrectangle(low=[-9.], high=[1.])
     c = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0]
     @system(x' = Ax + Bu + c, x ∈ invariant, u ∈ U)
 end
 
-# ## Dynamics of the "disconnected" platoon
+# ### Dynamics of the "disconnected" platoon
 
 function platoon_disconnected(; deterministic_switching::Bool=true,
                                 c2=5.0)  # clock constraints
     n = 10 # 9 dimensions + time
-    #x' = Ax + Bu + c
+
+    ## x' = Ax + Bu + c
     A = Matrix{Float64}(undef, n, n)
     A[1, :] = [0, 1.0, 0, 0, 0, 0, 0, 0, 0, 0]
     A[2, :] = [0, 0, -1.0, 0, 0, 0, 0, 0, 0, 0]
@@ -85,7 +92,7 @@ function platoon_disconnected(; deterministic_switching::Bool=true,
     A[10, :] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0]; # t' = 1
 
     if deterministic_switching
-        invariant = HalfSpace(sparsevec([n], [1.], n), c2) # t <= c2
+        invariant = HalfSpace(t <= c2, var)
     else
         invariant = Universe(n)
     end
@@ -97,7 +104,7 @@ function platoon_disconnected(; deterministic_switching::Bool=true,
     @system(x' = Ax + Bu + c, x ∈ invariant, u ∈ U)
 end
 
-# ## Hybrid System Setup
+# ### Hybrid system
 
 function platoon(; deterministic_switching::Bool=true,
                    c1=5.0,  # clock constraints
@@ -108,7 +115,6 @@ function platoon(; deterministic_switching::Bool=true,
     #three variables for each vehicle, (ei, d(et)/dt, ai) for
     #(spacing error, relative velocity, speed), and the last dimension is time
     n = 9 + 1
-    var = @variables x₁, x₂, x₃, x₄, x₅, x₆, x₇, x₈, x₉, t
 
     #transition graph
     automaton = LightAutomaton(2)
@@ -127,7 +133,6 @@ function platoon(; deterministic_switching::Bool=true,
     if deterministic_switching
         guard = Hyperplane(t == c1, var)
     else
-        #tb <= t <= tc
         guard = HPolyhedron([tb <= t, t <= tc], var)
     end
     t1 = ConstrainedResetMap(n, guard, reset)
@@ -150,50 +155,71 @@ function platoon(; deterministic_switching::Bool=true,
     return IVP(H, initial_condition)
 end
 
-# ## Reachability settings
+# ## Safety specifications
 #
 # The verification goal is to check whether the minimum distance between
 # vehicles is preserved. The choice of the coordinate system is such that the
 # minimum distance is a negative value.
+#
 # BNDxy Bounded time (no explicit bound on the number of transitions):
 #    For all ``t ∈ [0, 20] [s]``,
 #    ``x_1(t) ≥ −d_{min} [m], x_4(t) ≥ −d_{min} [m], x_7(t) ≥ −d_{min} [m]``,
 #    where ``d_min = xy [m]``.
+#
 # BND50: ``d_{min} = 50``.
+#
 # BND42: ``d_{min} = 42``.
+#
 # BND30: ``d_{min} = 30``.
+#
 # UNBxy Unbounded time and unbounded switching: For all ``t ≥ 0 [s], x_1(t) ≥ −d_{min} [m]``,
 # ``x_4(t) ≥ −d_{min} [m], x_7(t)``
 
+function dmin_specification(sol, dmin)
+    return (-ρ(sparsevec([1], [-1.0], 10), sol) > dmin) &&
+           (-ρ(sparsevec([4], [-1.0], 10), sol) > dmin) &&
+           (-ρ(sparsevec([7], [-1.0], 10), sol) > dmin)
+end
+
 # ## Results
 
-# We use `LGG09` algorithm with ``δ=0.03`` and an octagonal template of
-# directions.
+# We will only consider the case of deterministic switching.
+
+# We use `LGG09` algorithm with ``δ=0.03`` and octagonal template directions.
 
 octdirs = OctDirections(10);
 
 #  ### PLAD01-BND30 (dense time)
 
 prob_PLAD01_BND30 = platoon(; deterministic_switching=true);
-imethod = TemplateHullIntersection(octdirs);
-cmethod = LazyClustering(1);
+
 alg = LGG09(δ=0.03, template=octdirs, approx_model=Forward(setops=octdirs));
 sol_PLAD01_BND30 = solve(prob_PLAD01_BND30,
                          alg=alg,
-                         clustering_method=cmethod,
-                         intersection_method=imethod,
+                         clustering_method=LazyClustering(1),
+                         intersection_method=TemplateHullIntersection(octdirs),
                          intersect_source_invariant=false,
                          tspan = (0.0 .. 20.0));
 
+# Here `approx_model=Forward(setops=octdirs)` passed to the `LGG09` solver
+# makes it overapproximate the set *after* discretization with the template directions.
+# Othewise, the set would be lazy by default. This option gives a gain in runtime,
+# since evaluating the 200 dimensions of the template is quite expensive.
+
+# Verifying that the specification holds:
+
+dmin_specification(sol_PLAD01_BND30, 30)
+
+# Let's check in more detail how close is the flowpipe to the safety conditions:
+
+@show -ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND30) > 30
+@show -ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND30) > 30
+@show -ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND30) > 30
+
 #--------------------------
+
+# We plot variable ``x_1`` vs time.
 
 using Plots
 
-fig = plot();
-plot!(fig, sol_PLAD01_BND30, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
-    #tickfont=font(30, "Times"), guidefontsize=45, #!jl
-    xlab="t",
-    ylab="x1",
-    xtick=[0, 5, 10, 15, 20.], ytick=[-30, -20, -10, 0],
-    xlims=(0., 20.), ylims=(-31, 7))
-fig
+plot(sol_PLAD01_BND30, vars=(0, 1), xlab="t", ylab="x1", title="PLAD01 - BND30")

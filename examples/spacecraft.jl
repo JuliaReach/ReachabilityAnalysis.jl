@@ -4,7 +4,7 @@
 #md # !!! note "Overview"
 #md #     System type: hybrid system with nonlinear dynamics\
 #md #     State dimension: 4 + 1\
-#md #     Application domain: Flight dynamics, Switched Controllers
+#md #     Application domain: Flight Dynamics, Switched Controllers
 #
 # ## Model description
 #
