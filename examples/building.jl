@@ -1,10 +1,10 @@
 # # Building
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/platoon.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/building.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: Affine system\
 #md #     State dimension: 48\
-#md #     Application domain: Building engineering
+#md #     Application domain: Mechanical Engineering
 #
 # ## Model description
 #
@@ -24,7 +24,7 @@ using ReachabilityAnalysis, SparseArrays, JLD2
 LazySets.set_ztol(Float64, 1e-14)
 
 const x25 = [zeros(24); 1.0; zeros(23)]
-const x25e = vcat(x25, 0.0);
+const x25e = vcat(x25, 0.0)
 building_path = joinpath(@__DIR__, "building.jld2")
 
 function building_BLDF01()
@@ -35,7 +35,7 @@ function building_BLDF01()
     A = A[1:n, 1:n]
     B = input_matrix(mode(H, 1))[1:n, 1]
     U = Hyperrectangle(low=[0.8], high=[1.0])
-    S = @system(x' = Ax + Bu, u ∈ U, x ∈ Universe(n));
+    S = @system(x' = Ax + Bu, u ∈ U, x ∈ Universe(n))
 
     #initial states
     center_X0 = [fill(0.000225, 10); fill(0.0, 38)]
@@ -77,13 +77,16 @@ end
 # instances. The SAT instance demonstrates that the over-approximation is not
 # too coarse, and the UNSAT instance indicates that the over-approximation is
 # indeed conservative.
+#
 # - [BDS01] Bounded time, safe property: For all ``t \in [0, 20]``,
 #    ``y_1(t) \leq 5.1\cdot 10^{-3}``. This property is assumed to be satisfied.
+#
 # - [BDU01] Bounded time, unsafe property: For all ``t \in [0, 20]``,
 #    ``y_1(t) \leq 4\cdot 10^{-3}``. This property is assumed to be violated.
 #    Property BDU01 serves as a sanity check. A tool should be run with the same
 #    accuracy settings on BLDF01-BDS01 and BLDF01-BDU01, returning UNSAT on the
 #    former and SAT on the latter.
+#
 # - [BDU02] Bounded time, unsafe property: The forbidden states are
 #    ``\{ y_1(t) \leq -0.78\cdot 10^{-3} \wedge t = 20\}``. This property is
 #    assumed to be violated for BLDF01 and satisfied for BLDC01. Property BDU02
@@ -100,31 +103,71 @@ using Plots
 
 prob_BLDF01 = building_BLDF01()
 
-# ### Dense time
-sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, template=x25))
-plot(sol_BLDF01_dense, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
-    xlab="t",
-    ylab="x1")
+# #### Dense time
 
-# ### Discrete time
-sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, template=x25, approx_model=NoBloating()))
-plot(sol_BLDF01_discrete, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
-    xlab="t",
-    ylab="x1")
+sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, template=[x25, -x25]));
 
+plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+
+# Safety properties
+
+@show ρ(x25, sol_BLDF01_dense)
+@show ρ(x25, sol_BLDF01_dense) <= 5.1e-3 # BLDF01 - BDS01
+
+@show ρ(x25, sol_BLDF01_dense) <= 4e-3 # BLDF01 - BDU01
+
+@show ρ(x25, sol_BLDF01_dense(20.0))
+@show ρ(x25, sol_BLDF01_dense(20.0)) <= -0.78e-3 # BLDF01 - BDU02
+
+# #### Discrete time
+
+sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, template=[x25, -x25], approx_model=NoBloating()));
+
+plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+
+# Safety properties
+
+@show ρ(x25, sol_BLDF01_discrete)
+@show ρ(x25, sol_BLDF01_discrete) <= 5.1e-3 # BLDF01 - BDS01
+
+@show ρ(x25, sol_BLDF01_discrete)
+@show ρ(x25, sol_BLDF01_discrete) <= 4e-3 # BLDF01 - BDU01
+
+@show ρ(x25, sol_BLDF01_discrete(20.0))
+@show ρ(x25, sol_BLDF01_discrete(20.0)) <= -0.78e-3 # BLDF01 - BDU02
 
 # ### BLDC01
 
 prob_BLDC01 = building_BLDC01()
 
-# ### Dense time
-sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.006, template=x25e))
-plot(sol_BLDC01_dense, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
-    xlab="t",
-    ylab="x1")
+# #### Dense time
 
-# ### Discrete time
-sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, template=x25e, approx_model=NoBloating()))
-plot(sol_BLDC01_discrete, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
-    xlab="t",
-    ylab="x1")
+sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.006, template=[x25e, -x25e]))
+
+plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+
+# Safety properties
+
+@show ρ(x25e, sol_BLDC01_dense)
+@show ρ(x25e, sol_BLDC01_dense) <= 5.1e-3 # BLDC01 - BDS01
+
+@show ρ(x25e, sol_BLDC01_dense) <= 4e-3 # BLDC01 - BDU01
+
+@show ρ(x25, sol_BLDF01_discrete(20.0))
+@show ρ(x25e, sol_BLDC01_dense(20.0)) <= -0.78e-3 # BLDC01 - BDU02
+
+# #### Discrete time
+
+sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, template=[x25e, -x25e], approx_model=NoBloating()))
+
+plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+
+# Safety properties
+
+@show ρ(x25e, sol_BLDC01_discrete)
+@show ρ(x25e, sol_BLDC01_discrete) <= 5.1e-3 # BLDC01 - BDS01
+
+@show ρ(x25e, sol_BLDC01_discrete) <= 4e-3 # BLDC01 - BDU01
+
+@show ρ(x25e, sol_BLDC01_discrete(20.0))
+@show ρ(x25e, sol_BLDC01_discrete(20.0)) <= -0.78e-3 # BLDC01 - BDU02
