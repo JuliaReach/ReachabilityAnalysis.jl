@@ -128,8 +128,7 @@ function platoon(; deterministic_switching::Bool=true,
         guard = Hyperplane(t == c1, var)
     else
         #tb <= t <= tc
-        guard = HPolyhedron([HalfSpace(tb <= t, var),
-                             HalfSpace(t <= tc, var)])
+        guard = HPolyhedron([tb <= t, t <= tc], var)
     end
     t1 = ConstrainedResetMap(n, guard, reset)
 
