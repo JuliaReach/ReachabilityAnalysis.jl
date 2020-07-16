@@ -34,7 +34,7 @@ makedocs(
                           "Brusselator" => "models/brusselator.md",
                          # "Lotka-Volterra" => "models/lotka_volterra.md",
                           "Platoon" => "models/platoon.md"],
-                         # "SEIR model" => "man/applications/seir.md",
+                         "SEIR model" => "models/seir.md",
                          "Spacecraft" => "models/spacecraft.md",
                           "Transmision line" => "models/transmission_line.md"],
                               # Other topics: car control, power systems stability.
