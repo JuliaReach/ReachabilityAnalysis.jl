@@ -19,7 +19,7 @@
 #    of this model instance is to accommodate tools that cannot handle
 #    time-varying inputs.
 
-using ReachabilityAnalysis, SparseArrays
+using ReachabilityAnalysis, SparseArrays, JLD2
 
 LazySets.set_ztol(Float64, 1e-14)
 
