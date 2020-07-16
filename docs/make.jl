@@ -34,6 +34,7 @@ makedocs(
                           "Brusselator" => "models/brusselator.md",
                          # "Lotka-Volterra" => "models/lotka_volterra.md",
                           "Platoon" => "models/platoon.md"],
+                          "Quadrotor" => "models/quadrotor.md"],
                          # "SEIR model" => "man/applications/seir.md",
                          "Spacecraft" => "models/spacecraft.md",
                           "Transmision line" => "models/transmission_line.md"],
