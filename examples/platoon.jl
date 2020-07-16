@@ -33,7 +33,7 @@
 #
 #       PLAN01: ``t_b = 10, t_c = 20, t_r = 20``.
 
-using ReachabilityAnalysis, SparseArrays
+using ReachabilityAnalysis, SparseArrays, ModelingToolkit
 
 # ## Dynamics of the "connected" platoon
 
@@ -108,6 +108,7 @@ function platoon(; deterministic_switching::Bool=true,
     #three variables for each vehicle, (ei, d(et)/dt, ai) for
     #(spacing error, relative velocity, speed), and the last dimension is time
     n = 9 + 1
+    var = @variables x₁, x₂, x₃, x₄, x₅, x₆, x₇, x₈, x₉, t
 
     #transition graph
     automaton = LightAutomaton(2)
@@ -124,19 +125,19 @@ function platoon(; deterministic_switching::Bool=true,
 
     #transition l1 -> l2
     if deterministic_switching
-        guard = Hyperplane(sparsevec([n], [1.], n), c1) # t == c1
+        guard = Hyperplane(t == c1, var)
     else
         #tb <= t <= tc
-        guard = HPolyhedron([HalfSpace(sparsevec([n], [-1.], n), -tb),
-                             HalfSpace(sparsevec([n], [1.], n), tc)])
+        guard = HPolyhedron([HalfSpace(tb <= t, var),
+                             HalfSpace(t <= tc, var)])
     end
     t1 = ConstrainedResetMap(n, guard, reset)
 
     #transition l2 -> l1
     if deterministic_switching
-        guard = Hyperplane(sparsevec([n], [1.], n), c2) # t == c2
+        guard = Hyperplane(t == c2, var)
     else
-        guard = HalfSpace(sparsevec([n], [1.], n), tr) # t <= tr
+        guard = HalfSpace(t <= tr, var)
     end
     t2 = ConstrainedResetMap(n, guard, reset)
     resetmaps = [t1, t2]
