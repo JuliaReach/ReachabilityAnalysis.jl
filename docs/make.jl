@@ -27,7 +27,8 @@ makedocs(
                         "Benchmarks" => "man/benchmarks.md",
                         "Model library" => "man/library.md"],
                         # Other topics: Distributed computations. Multithreading.
-        "Examples" => Any[#"Electromechanic break" => "man/applications/embrake.md",
+        "Examples" => Any["Building" => "models/building.md",
+                          #"Electromechanic break" => "man/applications/embrake.md",
                           #"Quadrotor altitude control" => "man/applications/quadrotor.md",
                           "Van der Pol oscillator" => "models/vanderpol.md",
                           "Brusselator" => "models/brusselator.md",
