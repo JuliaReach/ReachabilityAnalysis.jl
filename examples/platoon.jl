@@ -170,7 +170,7 @@ end
 # We use `LGG09` algorithm with ``δ=0.03`` and an octagonal template of
 # directions.
 
-octdirs = CustomDirections([Vector(vi) for vi in OctDirections(10)]);
+octdirs = OctDirections(10);
 
 #  ### PLAD01-BND30 (dense time)
 
@@ -190,7 +190,7 @@ sol_PLAD01_BND30 = solve(prob_PLAD01_BND30,
 using Plots
 
 fig = plot();
-Plots.plot!(fig, sol_PLAD01_BND30, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
+plot!(fig, sol_PLAD01_BND30, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
     #tickfont=font(30, "Times"), guidefontsize=45, #!jl
     xlab="t",
     ylab="x1",
