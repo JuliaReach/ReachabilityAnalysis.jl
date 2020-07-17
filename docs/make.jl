@@ -30,6 +30,7 @@ makedocs(
         "Examples" => Any["Building" => "models/building.md",
                           "Van der Pol oscillator" => "models/vanderpol.md",
                           "Brusselator" => "models/brusselator.md",
+                          "Lorenz" => "models/lorenz.md",
                           "Platoon" => "models/platoon.md",
                           "Quadrotor" => "models/quadrotor.md"],
                           "SEIR model" => "models/seir.md",
