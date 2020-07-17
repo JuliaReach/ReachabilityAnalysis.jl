@@ -30,6 +30,7 @@ makedocs(
         "Examples" => Any["Building" => "models/building.md",
                           "Van der Pol oscillator" => "models/vanderpol.md",
                           "Brusselator" => "models/brusselator.md",
+                          "Lorenz" => "models/lorenz.md",
                           "Lotka-Volterra" => "models/lotka-volterra.md",
                           "Platoon" => "models/platoon.md",
                           "Quadrotor" => "models/quadrotor.md"],
@@ -40,10 +41,6 @@ makedocs(
                           "Spacecraft" => "models/spacecraft.md",
                           "Transmision line" => "models/transmission_line.md",
                           "Laub-Loomis" => "models/laub_loomis.md"],
-                          # Other topics: car control, power systems stability, ...
-                          # "SEIR model" => "man/applications/seir.md",
-                          # "Electromechanic break" => "man/applications/embrake.md",
-                          # "Quadrotor altitude control" => "man/applications/quadrotor.md",
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                             "BOX" => "lib/algorithms/BOX.md",
