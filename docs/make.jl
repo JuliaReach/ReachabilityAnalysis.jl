@@ -32,6 +32,9 @@ makedocs(
                           "Laub-Loomis" => "models/laub_loomis.md"
                           "Building" => "models/building.md",
                           "Brusselator" => "models/brusselator.md",
+                          "ISS" => "models/ISS.md",
+                          "Lorenz" => "models/lorenz.md",
+                          "Lotka-Volterra" => "models/lotka-volterra.md",
                           "Platoon" => "models/platoon.md",
                           "Quadrotor" => "models/quadrotor.md",
                           "SEIR model" => "models/seir.md",
