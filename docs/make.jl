@@ -27,18 +27,16 @@ makedocs(
                         "Benchmarks" => "man/benchmarks.md",
                         "Model library" => "man/library.md"],
                         # Other topics: Distributed computations. Multithreading.
-        "Examples" => Any["Building" => "models/building.md",
-                          "Van der Pol oscillator" => "models/vanderpol.md",
+        "Examples" => Any["Van der Pol oscillator" => "models/vanderpol.md",
+                          "Transmision line" => "models/transmission_line.md",
+                          "Laub-Loomis" => "models/laub_loomis.md"
+                          "Building" => "models/building.md",
                           "Brusselator" => "models/brusselator.md",
                           "Platoon" => "models/platoon.md",
                           "Quadrotor" => "models/quadrotor.md",
                           "SEIR model" => "models/seir.md",
                           "Spacecraft" => "models/spacecraft.md",
-                          "Transmision line" => "models/transmission_line.md",
-                          "Platoon" => "models/platoon.md",
-                          "Spacecraft" => "models/spacecraft.md",
-                          "Transmision line" => "models/transmission_line.md",
-                          "Laub-Loomis" => "models/laub_loomis.md"],
+                          "Platoon" => "models/platoon.md"],
                           # "Electromechanic break" => "man/applications/embrake.md"
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
