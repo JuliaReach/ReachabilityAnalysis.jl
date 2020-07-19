@@ -29,7 +29,7 @@ makedocs(
                         # Other topics: Distributed computations. Multithreading.
         "Examples" => Any["Van der Pol oscillator" => "models/vanderpol.md",
                           "Transmision line" => "models/transmission_line.md",
-                          "Laub-Loomis" => "models/laub_loomis.md"
+                          "Laub-Loomis" => "models/laub_loomis.md",
                           "Building" => "models/building.md",
                           "Brusselator" => "models/brusselator.md",
                           "ISS" => "models/ISS.md",
