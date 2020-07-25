@@ -52,7 +52,8 @@ const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.In
 
 # method extensions
 import LazySets: dim, overapproximate, project, Projection,
-                 linear_map, LinearMap
+                 linear_map, LinearMap, _split, split!
+
 import Base: ∈
 
 # ======================
