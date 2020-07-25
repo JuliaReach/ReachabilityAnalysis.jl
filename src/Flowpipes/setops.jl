@@ -122,6 +122,7 @@ function scale!(α::Real, Z::Zonotope)
 end
 
 # in-place linear map of a zonotope
+# TODO update after LazySets#2063 
 @inline function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
     mul!(Zout.center, M, Z.center)
     mul!(Zout.generators, M, Z.generators)
@@ -170,6 +171,7 @@ function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:Abstrac
 end
 
 # hyperrectangular set
+# TODO refactor after LazySets#2190
 function _project(H::AbstractHyperrectangle{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
     cH = center(H)
     rH = radius_hyperrectangle(H)
