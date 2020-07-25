@@ -27,7 +27,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gₖ₋₁ = Zₖ₋₁.generators
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
-        Zₖ = _minkowski_sum(Wk₊, Zₖ)
+        Zₖ = minkowski_sum(Wk₊, Zₖ)
         Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
 
         Δt += δ
@@ -68,7 +68,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gₖ₋₁ = Zₖ₋₁.generators
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
-        Zₖ = _minkowski_sum(Wk₊, Zₖ)
+        Zₖ = minkowski_sum(Wk₊, Zₖ)
         Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
         _is_intersection_empty(X, Zₖʳ) && break
 

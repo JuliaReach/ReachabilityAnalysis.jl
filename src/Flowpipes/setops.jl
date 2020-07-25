@@ -105,14 +105,8 @@ end
 
 # Extension of some common LazySets operations, some of them in-place
 
-# TODO: remove
-function _minkowski_sum(Z1::Zonotope{N}, Z2::Zonotope{N}) where {N}
-    cnew = center(Z1) + center(Z2)
-    Gnew = hcat(genmat(Z1), genmat(Z2))
-    return Zonotope(cnew, Gnew)
-end
-
 # in-place scale of a zonotope
+# TODO update after LazySets#2274
 function scale!(α::Real, Z::Zonotope)
     c = Z.center
     G = Z.generators
@@ -122,7 +116,7 @@ function scale!(α::Real, Z::Zonotope)
 end
 
 # in-place linear map of a zonotope
-# TODO update after LazySets#2063 
+# TODO update after LazySets#2063
 @inline function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
     mul!(Zout.center, M, Z.center)
     mul!(Zout.generators, M, Z.generators)

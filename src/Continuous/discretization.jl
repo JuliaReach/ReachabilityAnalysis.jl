@@ -198,7 +198,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
     R = _overapproximate(F * X0z, Zonotope)
-    Ω0 = _minkowski_sum(H, R)
+    Ω0 = minkowski_sum(H, R)
 
     S_discr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(S_discr, Ω0)
@@ -247,12 +247,12 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
     R = _overapproximate(F * X0z, Zonotope)
-    Ω0_homog = _minkowski_sum(H, R)
+    Ω0_homog = minkowski_sum(H, R)
 
     # compute C(δ) * U
     Cδ = _Cδ(A, δ, alg.order)
     Ud = _overapproximate(Cδ * Uz, Zonotope)
-    Ω0 = _minkowski_sum(Ω0_homog, Ud)
+    Ω0 = minkowski_sum(Ω0_homog, Ud)
     Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
     Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
     return InitialValueProblem(Sdiscr, Ω0)
