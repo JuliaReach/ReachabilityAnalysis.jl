@@ -31,6 +31,7 @@ makedocs(
                           "Transmision line" => "models/transmission_line.md",
                           "Laub-Loomis" => "models/laub_loomis.md",
                           "Building" => "models/building.md",
+                          "Production-Destruction" => "models/production_destruction.md",
                           "Brusselator" => "models/brusselator.md",
                           "ISS" => "models/ISS.md",
                           "Lorenz" => "models/lorenz.md",
