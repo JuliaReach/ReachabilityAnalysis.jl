@@ -17,7 +17,7 @@ include("Flowpipes/clustering.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
 include("Flowpipes/recipes.jl")
-include("Flowpipes/symbolics.jl")
+#include("Flowpipes/symbolics.jl")
 
 # ===========================================================
 # Shared functionality for continuous systems

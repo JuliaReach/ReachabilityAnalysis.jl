@@ -1,6 +1,10 @@
 # ============================================
 # Functionality that requires ModelingToolkit
 # ============================================
+
+#=
+# outsourced to LazySets.jl
+#
 function load_modeling_toolkit_polyhedron()
 return quote
 
@@ -9,3 +13,4 @@ function LazySets.HPolyhedron(expr::Vector{<:Operation}, vars=get_variables(firs
 end
 
 end end  # quote / load_modeling_toolkit_polyhedron()
+=#
