@@ -356,6 +356,12 @@ function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
     end
 end
 
+# concrete projection of a flowpipe for a given direction
+function project(fp::Flowpipe, M::AbstractVector; vars=nothing)
+    Xk = array(fp)
+    πfp = Flowpipe(map(X -> project(X, M, vars=vars), Xk))
+end
+
 # concrete linear map of a flowpipe for a given matrix
 function linear_map(M::AbstractMatrix, fp::Flowpipe)
     Xk = array(fp)

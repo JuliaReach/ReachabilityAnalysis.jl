@@ -74,9 +74,8 @@ sol_ISSF01 = solve(prob_ISSF01, T=20.0, alg=LGG09(δ=6e-4, template=dirs, sparse
 
 using Plots, Plots.PlotMeasures, LaTeXStrings
 
-out = [Interval(tspan(sol_ISSF01[i])) × Interval(-ρ(-C3, sol_ISSF01[i]), ρ(C3, sol_ISSF01[i])) for i in 1:10:length(sol_ISSF01)];
-# - out = project(sol_ISSF01[1:10:end], C3, time=true) doesn't work (not implemented?)
-# - out = project(sol_ISSF01[1:10:end], C3; vars=(0,1)) doesn't work because C3 isn't a projectoin matrix
+out = project(sol_ISSF01[1:10:length(sol_ISSF01)], C3, vars=(0,1));
+# - out = [Interval(tspan(sol_ISSF01[i])) × Interval(-ρ(-C3, sol_ISSF01[i]), ρ(C3, sol_ISSF01[i])) for i in 1:10:length(sol_ISSF01)];
 
 fig = Plots.plot();
 Plots.plot!(fig, out, linecolor=:blue, color=:blue, alpha=0.8,
@@ -97,7 +96,8 @@ sol_ISSC01 = solve(prob_ISSC01, T=20.0, alg=LGG09(δ=0.01, template=dirs, sparse
 
 #-
 
-out = [Interval(tspan(sol_ISSC01[i])) × Interval(-ρ(-C3_ext, sol_ISSC01[i]), ρ(C3_ext, sol_ISSC01[i])) for i in 1:1:length(sol_ISSC01)];
+out = project(sol_ISSC01, C3_ext, vars=(0,1));
+# - out = [Interval(tspan(sol_ISSC01[i])) × Interval(-ρ(-C3_ext, sol_ISSC01[i]), ρ(C3_ext, sol_ISSC01[i])) for i in 1:1:length(sol_ISSC01)];
 
 fig = Plots.plot();
 Plots.plot!(fig, out, linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
