@@ -826,6 +826,32 @@ function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
 end
 =#
 
+# concrete projection of a TemplateReachSet for a given direction
+function project(R::TemplateReachSet, V::AbstractVector; vars=nothing)
+    e1 = nothing
+    e2 = nothing
+    for (i,d) in enumerate(R.dirs)
+        if iszero(norm(V-d))
+            e1 = R.sf[i]
+        elseif iszero(norm(-V-d))
+            e2 = -R.sf[i]
+        end
+    end
+    if isnothing(e1)
+        e1 = ρ(V,R)
+    end
+    if isnothing(e2)
+        e2 = -ρ(-V,R)
+    end
+    πR = ReachSet(Interval(min(e1,e2),max(e1,e2)),tspan(R))
+    return isnothing(vars) ? πR : project(πR, vars)
+end
+
+# concrete projection of a vector of TemplateReachSet for a given direction
+function project(Xk::Vector{RT}, M::AbstractVector; vars=nothing) where {RT<:TemplateReachSet}
+    πfp = Flowpipe(map(X -> project(X, M, vars=vars), Xk))
+end
+
 # convenience functions to get support directions of a given set
 _getdirs(X::LazySet) = [c.a for c in constraints_list(X)]
 LazySets.CustomDirections(X::LazySet) = CustomDirections(_getdirs(X), dim(X)) # TODO may use isboundedtype trait
