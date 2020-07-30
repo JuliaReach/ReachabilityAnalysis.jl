@@ -341,7 +341,7 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     end
 end
 
-project(fp::Flowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
+project(fp::Flowpipe, vars::AbstractVector{<:Int}) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
 
@@ -357,9 +357,9 @@ function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
 end
 
 # concrete projection of a flowpipe for a given direction
-function project(fp::Flowpipe, M::AbstractVector; vars=nothing)
+function project(fp::Flowpipe, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
     Xk = array(fp)
-    πfp = Flowpipe(map(X -> project(X, M, vars=vars), Xk))
+    return Flowpipe(map(X -> project(X, dir, vars=vars), Xk))
 end
 
 # concrete linear map of a flowpipe for a given matrix
