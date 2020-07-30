@@ -125,9 +125,9 @@ function project(sol::ReachSolution{FT}, M::AbstractMatrix; vars=nothing) where 
     return project(sol.F, M; vars=vars)
 end
 
-# concrete projection  for a given direction
-function project(sol::ReachSolution{FT}, M::AbstractVector; vars=nothing) where {FT<:AbstractFlowpipe}
-    return project(sol.F, M; vars=vars)
+# concrete projection of a solution for a given direction
+function project(sol::ReachSolution{<:AbstractFlowpipe}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    return project(sol.F, dir; vars=vars)
 end
 
 # LazySets interface falls back to the associated flowpipe

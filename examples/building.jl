@@ -8,16 +8,21 @@
 #
 # ## Model description
 #
-# This benchmark is quite straightforward: The system is described by
-# ``\dot{x}(t) = Ax(t) + Bu(t)``, ``u(t) \in \mathcal{U}``, ``y(t) = Cx(t)``
+# The system is described by the linear differential equations:
 #
-# Discrete-time analysis for the building system should use a step size of ``0.01``.
+# ```math
+#   \begin{array}{lcl}
+#   \dot{x}(t) &=& Ax(t) + Bu(t),\qquad u(t) \in \mathcal{U} \\
+#   y(t) &=& C x(t)
+#   \end{array}
+# ```
+#
 # There are two versions of this benchmark:
-# - The inputs can change arbitrarily over time: $\forall t: u(t)\in \mathcal{U}$.
-# - (constant inputs) The inputs are uncertain only in their initial value, and
-#    constant over time: ``u(0)\in \mathcal{U}``, ``\dot u (t)= 0``. The purpose
-#    of this model instance is to accommodate tools that cannot handle
-#    time-varying inputs.
+#
+# - *(time-varying inputs):* The inputs can change arbitrarily over time: $\forall t: u(t)\in \mathcal{U}$.
+#
+# - *(constant inputs):* The inputs are uncertain only in their initial value, and
+#    constant over time: ``u(0)\in \mathcal{U}``, ``\dot u (t)= 0``.
 
 using ReachabilityAnalysis, SparseArrays, JLD2
 
@@ -94,8 +99,9 @@ end
 #    account. A tool should be run with the same accuracy settings on BLDF01-BDU02
 #    and BLDC01-BDU02, returning UNSAT on the former and SAT on the latter.
 
-
 # ## Results
+
+# For the discrete-time analysis we use a step size of ``0.01``.
 
 using Plots
 

@@ -781,13 +781,13 @@ representation.
 Apart from the getter functions inherited from the `AbstractReachSet` interface,
 the following methods are available:
 
-- `directions(R)`  -- return the set of directions normal to the faces of this reach-set
-- `sup_func(R)`    -- return the vector of support function evaluations
-- `sup_func(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
+- `directions(R)`           -- return the set of directions normal to the faces of this reach-set
+- `support_functions(R)`    -- return the vector of support function evaluations
+- `support_functions(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
 """
 struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}, SN<:AbstractVector{N}} <: AbstractLazyReachSet{N}
     dirs::TN
-    sf::SN # TODO fix sf::Vector{N} ?
+    sf::SN
     Δt::TimeInterval
 end
 
@@ -802,54 +802,58 @@ function TemplateReachSet(dirs::AbstractDirections, R::AbstractLazyReachSet)
     return TemplateReachSet(dirs, set(R), tspan(R))
 end
 
-# implement abstract reachset interface
-# TODO: use HPolyhedron or HPolytope if the template directions are bounded
-set(R::TemplateReachSet) = HPolytope([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
+# abstract reachset interface
+function set(R::TemplateReachSet)
+    T = isbounding(R.dirs) ? HPolytope : HPolyhedron
+    return T([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
+end
+
+# FIXME requires adding boundedness property as a type parameter
 setrep(::Type{<:TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
 setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
+
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
 vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
 
-directions(R::TemplateReachSet) = R.dirs # TODO rename to dirs ?
-sup_func(R::TemplateReachSet) = R.sf # TODO rename?
-sup_func(R::TemplateReachSet, i) = R.sf[i]
+directions(R::TemplateReachSet) = R.dirs
+support_functions(R::TemplateReachSet) = R.sf
+support_functions(R::TemplateReachSet, i::Int) = R.sf[i]
 
-# overapproximate a given reach set with the template, concretely
-#= TODO: remove?
-function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
-    Δt = tspan(R)
-    sup_func = map(d -> ρ(d, R), dirs)
-    return TemplateReachSet(dirs, sup_func, Δt)
+# overapproximate a given reach-set with a template
+function overapproximate(R::AbstractLazyReachSet, dirs::AbstractDirections) where {VN}
+    return TemplateReachSet(dirs, R)
 end
-=#
+function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
+    return TemplateReachSet(CustomDirections(dirs), R)
+end
 
 # concrete projection of a TemplateReachSet for a given direction
-function project(R::TemplateReachSet, V::AbstractVector; vars=nothing)
-    e1 = nothing
-    e2 = nothing
-    for (i,d) in enumerate(R.dirs)
-        if iszero(norm(V-d))
-            e1 = R.sf[i]
-        elseif iszero(norm(-V-d))
-            e2 = -R.sf[i]
+function project(R::TemplateReachSet, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    ρdir = ρdir₋ = nothing
+    dir₋ = -dir
+    @inbounds for (i, d) in enumerate(R.dirs)
+        if iszero(norm(dir - d))
+            ρdir = R.sf[i]
+        elseif iszero(norm(dir₋ - d))
+            ρdir₋ = -R.sf[i]
         end
     end
-    if isnothing(e1)
-        e1 = ρ(V,R)
+    if isnothing(ρdir)
+        ρdir = ρ(dir, R)
     end
-    if isnothing(e2)
-        e2 = -ρ(-V,R)
+    if isnothing(ρdir₋)
+        ρdir₋ = -ρ(ρdir₋, R)
     end
-    πR = ReachSet(Interval(min(e1,e2),max(e1,e2)),tspan(R))
+    πR = ReachSet(Interval(min(ρdir, ρdir₋), max(ρdir, ρdir₋)), tspan(R))
     return isnothing(vars) ? πR : project(πR, vars)
 end
 
 # concrete projection of a vector of TemplateReachSet for a given direction
-function project(Xk::Vector{RT}, M::AbstractVector; vars=nothing) where {RT<:TemplateReachSet}
-    πfp = Flowpipe(map(X -> project(X, M, vars=vars), Xk))
+function project(Xk::Vector{<:TemplateReachSet}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    return map(X -> project(X, dir, vars=vars), Xk)
 end
 
 # convenience functions to get support directions of a given set

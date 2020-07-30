@@ -38,8 +38,7 @@ makedocs(
                           "Platoon" => "models/platoon.md",
                           "Quadrotor" => "models/quadrotor.md",
                           "SEIR model" => "models/seir.md",
-                          "Spacecraft" => "models/spacecraft.md",
-                          "Platoon" => "models/platoon.md"],
+                          "Spacecraft" => "models/spacecraft.md"],
                           # "Electromechanic break" => "man/applications/embrake.md"
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
