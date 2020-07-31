@@ -182,7 +182,7 @@ function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:Abstrac
 end
 
 #=
-# TODO: add to LazySets
+# TODO: use LazySets#2299
 # specialize to cartesian product of Interval vs Zonotopic set
 function Base.convert(::Type{Zonotope}, cp::CartesianProduct{N, <:AbstractZonotope{N}, <:AbstractZonotope{N}}) where {N<:Real}
     Z1, Z2 = cp.X, cp.Y
