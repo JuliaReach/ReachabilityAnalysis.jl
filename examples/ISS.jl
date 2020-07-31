@@ -8,7 +8,7 @@
 #
 # ## Model description
 #
-# The International Space Station (ISS) is a continuous linear time-invariant
+# The International Space Station (ISS) model is a continuous linear time-invariant
 # system
 #
 # ```math
