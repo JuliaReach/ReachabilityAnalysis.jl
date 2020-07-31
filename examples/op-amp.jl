@@ -1,4 +1,4 @@
-# # International Space Station
+# # Operational amplifiers ("op-amp")
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/op-amp.ipynb)
 #
 #md # !!! note "Overview"
@@ -18,6 +18,7 @@
 # - output terminal (right)
 
 # ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/fig/opamp.png?raw=true)
+# ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/dfcaporale/op-amp/examples/fig/opamp.png?raw=true)
 
 # The output voltage is ``e_o = K(e_B - e_A)``, where ``K`` is the voltage gain
 # of the op-amp. ``K`` is usually vey large (the order of ``10^5 V / V``).
@@ -40,7 +41,7 @@
 
 # ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/fig/opamp_c.png?raw=true)
 
-# We can show that the output satisfied the following ODE
+# We can show that the output satisfies the following ODE
 
 # ``\dfrac{de_o(t)}{dt} = -\dfrac{1}{R_2 C}e_o(t) - \dfrac{1}{R_1C}e_{in}(t)``
 
@@ -55,17 +56,13 @@
 # ## Reachability settings
 
 using ReachabilityAnalysis, ModelingToolkit
-using Plots, Plots.PlotMeasures, LaTeXStrings
-
-LazySets.set_ztol(Float64, 1e-14);
 
 # ``\gamma`` and ``\delta`` control the shape of the input voltage ``ein``
-
-const var = @variables eₒ ein
 
 function opamp_circuit_with_saturation_MT(; X0 = BallInf(zeros(2), 0.0),
                                             R₁ = 2., R₂ = 6., C = 1.e-3,
                                             γ = 100., δ = 100., Es = 2.)
+    var = @variables eₒ ein
     α = hcat(-1/(R₂ * C))
     β = hcat(-1/(R₁ * C))
     ## transition graph
@@ -79,7 +76,7 @@ function opamp_circuit_with_saturation_MT(; X0 = BallInf(zeros(2), 0.0),
     mode2 = @system(x' = Ax, x ∈ Universe(2))
     modes = [mode1, mode2]
     ## transition mode1 -> mode2
-    guard = Hyperplane([0.; 1.], Es) # ein == Es
+    guard = Hyperplane(ein == Es, var)
     ## transition annotations
     t1 = ConstrainedIdentityMap(2, guard)
     resetmaps = [t1]
@@ -99,6 +96,7 @@ const_prob = opamp_circuit_with_saturation_MT(X0=X0, γ = 0., δ = 0., Es = 3.);
 const_sol = solve(const_prob, T=0.1, alg=BOX(δ=5e-4));
 
 #-
+using Plots, Plots.PlotMeasures, LaTeXStrings
 
 fig = Plots.plot();
 Plots.plot!(fig, const_sol, linecolor=:black, vars=(0, 2),
