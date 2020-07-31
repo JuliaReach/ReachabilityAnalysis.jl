@@ -201,7 +201,7 @@ Uout_vs_t = [Δt × u for (Δt, u) in zip(times, Uout)];
 
 plot(Uout_vs_t, color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 
-#md # !!! note "Tip"
+#md # !!! tip "Technical note"
 #md #     Since we are only interested in the behavior of ``U_{out}``, we can use
 #md #     algorithm `BFFPSV18` with the options `alg=BFFPSV18(δ=1e-3, dim=statedim(P), vars=[η]))`,
 #md #     which will use an interval (1D) decomposition of the state space and only compute

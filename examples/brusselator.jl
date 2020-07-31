@@ -43,9 +43,9 @@ const B1 = B + 1
     return du
 end
 
-#md # !!! note "Performance tip"
-#md #     The auxiliary variables `B1`, `x²` and `aux` have been defined to make better use of
-#md #     `@taylorize` and help to reduce allocations.
+#md # !!! tip "Performance tip"
+#md #     The auxiliary variables `B1`, `x²` and `aux` have been defined to make
+#md #     better use of `@taylorize` and help to reduce allocations.
 
 # ## Reachability settings
 #

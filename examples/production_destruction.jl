@@ -67,6 +67,11 @@ using ReachabilityAnalysis, ModelingToolkit, Plots
 @variables x y z
 const positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z])
 
+#md # !!! tip "Performance tip"
+#md #     The functions below defines the system using some auxiliary variables to
+#md #     get the most out of the `@taylorize` macro in terms of reducing allocations.
+#md #     That said, defining `du[1] = -x*y / (1+x)` is also fine, but probably slower.
+
 @taylorize function prod_dest_1!(du, u, params, t)
     local a = 0.3
     x, y, z = u[1], u[2], u[3]
@@ -94,10 +99,6 @@ end
     du[4] = zero(x)
     return du
 end
-
-#md # !!! note "Performance tip"
-#md #     The auxiliary variables `B1`, `x²` and `aux` have been defined to make better use of
-#md #     `@taylorize` and help to reduce allocations.
 
 function production_destruction(; case="I")
     if case == "I"
