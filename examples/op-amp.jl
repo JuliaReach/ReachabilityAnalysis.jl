@@ -18,11 +18,9 @@
 # - output terminal (right)
 
 # ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/fig/opamp.png?raw=true)
-# ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/dfcaporale/op-amp/examples/fig/opamp.png?raw=true)
 
 # The output voltage is ``e_o = K(e_B - e_A)``, where ``K`` is the voltage gain
 # of the op-amp. ``K`` is usually vey large (the order of ``10^5 V / V``).
-
 
 # In the *ideal op-amp* scenario, the following assumptions hold:
 # - The input terminals of the op-amp draw negligible current.
@@ -45,19 +43,17 @@
 
 # ``\dfrac{de_o(t)}{dt} = -\dfrac{1}{R_2 C}e_o(t) - \dfrac{1}{R_1C}e_{in}(t)``
 
-# - Equation for the input voltage:
-
+# - The input voltage ``ein`` can by modelled with an ODE:
 # ``\dfrac{d \ ein}{dt} = \gamma \ ein + \delta``
+# so that ``\gamma`` and ``\delta`` control the shape of the input voltage ``ein``
 
+# The solution depends on the parameter ``\gamma``:
 #   - ``\gamma=0`` (Linear growing at rate ``\delta``): ``ein(t) = \delta \ t + ein_0``
 #   - ``\gamma \neq 0`` (Exponential growing at rate ``\gamma``): ``ein(t) = (ein_0 + \delta / \gamma)e^{\gamma t} - \delta / \gamma``
-
 
 # ## Reachability settings
 
 using ReachabilityAnalysis, ModelingToolkit
-
-# ``\gamma`` and ``\delta`` control the shape of the input voltage ``ein``
 
 function opamp_circuit_with_saturation_MT(; X0 = BallInf(zeros(2), 0.0),
                                             R₁ = 2., R₂ = 6., C = 1.e-3,
@@ -89,6 +85,10 @@ end
 # ## Constant input voltage
 
 # - ``ein = Es``: ``\delta = 0``, ``\gamma = 0``
+
+#md # !!! warning "This is a sub-optimal solver for 1-dimensional EDO"
+#md #     The equation in this case results ``e_o = \alpha \ e_o + \beta \ ein``, ``ein \in U`` where ``U`` is an Interval\
+#md #     The optimal solver in this case is `INT`
 
 X0=Hyperrectangle([0., 1.5],[0.0, 0.1]);
 
