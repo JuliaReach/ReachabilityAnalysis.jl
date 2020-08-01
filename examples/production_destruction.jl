@@ -62,7 +62,8 @@
 # similar errors are obtained for $z$ hence the differences in volume are largely due to convergence quality with respect
 # to $x$,$y$, i.e., towards zero. Given these results, improved metrics would distinguish $z$ from $x$ and $y$.
 
-using ReachabilityAnalysis, ModelingToolkit, Plots
+using ReachabilityAnalysis, ModelingToolkit
+using Plots, Plots.PlotMeasures, LaTeXStrings
 
 @variables x y z
 const positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z])
@@ -122,14 +123,14 @@ end
 function prod_dest_property(solz)
     X = project(solz(100.0), vars=(1, 2, 3))
 
-    # check that all variables are nonnegative
+    ## check that all variables are nonnegative
     nonnegative = X ⊆ positive_orthant
 
-    # compute the volume of the last reach-set
+    ## compute the volume of the last reach-set
     H = overapproximate(X, Hyperrectangle)
     vol = volume(H)
 
-    # check that that 10.0 belongs to the minkowski sum of the reach-sets projected in each coordinate
+    ## check that that 10.0 belongs to the minkowski sum of the reach-sets projected in each coordinate
     B = convert(IntervalBox, H) # get the product-of-intervals representation
     contains_10 = 10 ∈ sum(B)
 

@@ -158,7 +158,7 @@ sol_ISSC01 = solve(prob_ISSC01, T=20.0, alg=LGG09(δ=0.01, template=dirs, sparse
 πsol_ISSC01 = project(sol_ISSC01, C3_ext);
 
 fig = Plots.plot();
-Plots.plot!(fig, πsol_ISSC01[1:10:end], vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
+Plots.plot!(fig, πsol_ISSC01, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
 #!nb    #tickfont=font(30, "Times"), guidefontsize=45, !jl
     xlab=L"t",
     ylab=L"y_{3}",
