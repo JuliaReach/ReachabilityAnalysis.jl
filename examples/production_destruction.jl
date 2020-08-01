@@ -62,7 +62,8 @@
 # similar errors are obtained for $z$ hence the differences in volume are largely due to convergence quality with respect
 # to $x$,$y$, i.e., towards zero. Given these results, improved metrics would distinguish $z$ from $x$ and $y$.
 
-using ReachabilityAnalysis, ModelingToolkit, Plots
+using ReachabilityAnalysis, ModelingToolkit
+using Plots, Plots.PlotMeasures, LaTeXStrings
 
 @variables x y z
 const positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z])
