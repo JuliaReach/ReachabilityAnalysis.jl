@@ -7,6 +7,15 @@
 #md #     Application domain: Aerospace Engineering
 #
 # ## Model description
+# # International Space Station
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/ISS.ipynb)
+#
+#md # !!! note "Overview"
+#md #     System type: linear time-invariant continuous system\
+#md #     State dimension: 270\
+#md #     Application domain: Aerospace Engineering
+#
+# ## Model description
 #
 # The International Space Station (ISS) model is a continuous linear time-invariant
 # system
