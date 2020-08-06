@@ -69,7 +69,7 @@ The following types of systems are supported.
 |![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) Coupled van der pol oscillator model  | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendez-vous model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/spacecraft/) |
 
 
-## :blue_book:  Publications
+## :blue_book: Publications
 
 This library has been applied in a number of scientic works. We list them in reverse chronological order. 
 
@@ -92,15 +92,11 @@ Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Veri
 
 [1] **Reach Set Approximation through Decomposition with Low-dimensional Sets and High-dimensional Matrices.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Frédéric Viry, Andreas Podelski and Christian Schilling (2018) [HSCC'18](https://www.hscc2018.deib.polimi.it/) Proceedings of the 21st International Conference on Hybrid Systems: Computation and Control: 41–50. See the [ACM Digital Library link](http://dx.doi.org/10.1145/3178126.3178128), or the [arXiv: 1801.09526](https://arxiv.org/abs/1801.09526).
 
-fNote: Articles [1-5] use the earlier codebase `Reachability.jl`.
-
-
+*Note:* Articles [1-5] use the former codebase `Reachability.jl`.
 
 ## 📜  Citation
 
-Research credit and full references to the scientific papers presenting the algorithms
-implemented in this package can be found in the source code for each algorithm and in the
-[References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
+Research credit and full references to the scientific papers presenting the algorithms implemented in this package can be found in the source code for each algorithm and in the [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
 If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, please **also cite the appropriate originl references to the algorithm(s) used.**
 
