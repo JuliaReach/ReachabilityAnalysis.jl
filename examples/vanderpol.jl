@@ -112,6 +112,7 @@ plot!(line, lw=2.0) #!jl
 # function needs the flowpipe, a line segment that cuts the flowpipe and the
 # indices of the subsets to cut
 
+using Polyhedra, CDDLib
 using ReachabilityAnalysis: ReachSolution #!jl
 function cross_section(line::LineSegment, RS::ReachSolution, idx) #!jl
     i = reduce(convex_hull, map(x -> intersection(line, x), set.(RS[idx]))) #!jl
