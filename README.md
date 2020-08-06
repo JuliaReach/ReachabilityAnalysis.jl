@@ -20,7 +20,8 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 * [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
 * [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
 * [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
-* [References](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--references)
+* [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--publications)
+* [Citation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--citation)
 
 ## 💾  Installation
 
@@ -63,19 +64,40 @@ The following types of systems are supported.
 |![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) Coupled van der pol oscillator model  | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendez-vous model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/spacecraft/) |
 
 
-## 📜  References
+## :blue_book:  Publications
+
+This library has been applied in a number of scientic works. We list them in reverse chronological order. 
+
+[10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
+
+[9] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Zongnan Bao, Marcelo Forets, Daniel Freire, Goran Frehse, Niklas Kochdumper, Yangge Li, Sayan Mitra, Rajarshi Ray, Christian Schilling, Stefan Schupp, and Mark Wetzlinger (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems.
+
+[8] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Nonlinear Dynamics.** Luca Geretti, Julien Alexandre dit Sandretto, Matthias Althoff, Luis Benet, Alexandre Chapoutot, Xin Chen, Pieter Collins, Marcelo Forets, Daniel Freire, Fabian Immler, Niklas Kochdumper, David P. Sanders and Christian
+Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems.
+
+[7] **Reachability analysis of linear hybrid systems via block decomposition.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Kostiantyn Potomkin, Christian Schilling. [Get pdf from arXiv: 1905.02458](https://arxiv.org/abs/1905.02458). Accepted in [Embedded Systems Week 2020](http://esweek.hosting2.acm.org/).
+
+[5] **ARCH-COMP19 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Marcelo Forets, Goran Frehse, Niklas Kochdumper, Rajarshi Ray, Christian Schilling and Stefan Schupp (2019) ARCH19. 6th International Workshop on Applied Verification of Continuous and Hybrid Systems, vol 61, pages 14--40 [doi: 10.29007/bj1w](https://easychair.org/publications/paper/1gbP).
+
+[4] **ARCH-COMP19 Category Report: Continuous and Hybrid Systems with Nonlinear Dynamics.** Fabian Immler, Matthias Althoff, Luis Benet, Alexandre Chapoutot, Xin Chen, Marcelo Forets, Luca Geretti, Niklas Kochdumper, David P. Sanders and Christian Schilling (2019) ARCH19. 6th International Workshop on Applied Verification of Continuous and Hybrid Systems, vol 61, pages 41--61 [doi: 10.29007/bj1w](https://easychair.org/publications/paper/1gbP).
+
+[3] **JuliaReach: a Toolbox for Set-Based Reachability.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Kostiantyn Potomkin, Christian Schilling. Published in Proceedings of [HSCC'19](http://hscc2019.eecs.umich.edu/): 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC'19), see [ACM link here](https://dl.acm.org/citation.cfm?id=3311804). [Get pdf from arXiv: 1901.10736](https://arxiv.org/abs/1901.10736).
+
+[2] **ARCH-COMP18 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Xin Chen, Chuchu Fan, Marcelo Forets, Goran Frehse, Niklas Kochdumper, Yangge Li, Sayan Mitra, Rajarshi Ray, Christian Schilling and Stefan Schupp (2018) ARCH18. 5th International Workshop on Applied Verification of Continuous and Hybrid Systems, 54: 23–52. doi: 10.29007/73mb.
+
+[1] **Reach Set Approximation through Decomposition with Low-dimensional Sets and High-dimensional Matrices.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Frédéric Viry, Andreas Podelski and Christian Schilling (2018) [HSCC'18](https://www.hscc2018.deib.polimi.it/) Proceedings of the 21st International Conference on Hybrid Systems: Computation and Control: 41–50. See the [ACM Digital Library link](http://dx.doi.org/10.1145/3178126.3178128), or the [arXiv: 1801.09526](https://arxiv.org/abs/1801.09526).
+
+fNote: Articles [1-5] use the earlier codebase `Reachability.jl`.
+
+---
+
+## 📜  Citation
 
 Research credit and full references to the scientific papers presenting the algorithms
 implemented in this package can be found in the source code for each algorithm and in the
 [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
-The following articles have used `ReachabilityAnalysis.jl` for their research:
-
-- *Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.* Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
-
----
-
-If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, please also cite the appropriate originl references to the algorithm(s) used.
+If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, please **also cite the appropriate originl references to the algorithm(s) used.**
 
 
 
