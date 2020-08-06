@@ -77,11 +77,28 @@ solz = overapproximate(sol, Zonotope); #!jl
 plot(solz, vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
 plot!(x -> 2.75, color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #!jl
 
-# ### Limit cycle
+# ### Invariant Set
 #
 # We can use the reachability result to examine the limit cycle of the system. In
 # other words, we can see that the flowpipe re-enters from where it started after
-# giving one loop. To examine this we can intersect a line somewhat perpendicular
+# giving one loop.
+
+plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
+plot!(X0, color=:orange, lab="X0") #!jl
+plot!(solz[1:5], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:5]") #!jl
+plot!(solz[200], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[200]") #!jl
+
+# It is seen that the reach-set corresponding to the time-span
+
+tspan(solz[200])  #!jl
+
+# is included in the set union ``F[1] \cup \cdots \cup F[5]`` of previously
+# computed reach-sets. This in fact constitutes a proof that the system has a limit cycle,
+# because all future trajectories starting from `solz[200]` are already covered by the flowpipe.
+
+# ### Limit cycle
+
+# To examine the limit cycle we can intersect a line somewhat perpendicular
 # to the trajectory, that will allow us to get a cross-section of the sets
 
 plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
@@ -94,7 +111,7 @@ plot!(LineSegment([1, 2.], [2., 2.5]), lw=2.0) #!jl
 # function needs the flowpipe, a line segment that cuts the flowpipe and the
 # indices of the subsets to cut
 
-using ReachabilityAnalysis: ReachSolution
+using ReachabilityAnalysis: ReachSolution #!jl
 function cross_section(line::LineSegment, RS::ReachSolution, idx) #!jl
     i = reduce(convex_hull, map(x -> intersection(line, x), set.(RS[idx]))) #!jl
     vl = vertices_list(i) #!jl
@@ -122,10 +139,7 @@ plot!(i2, lw=5.0, alpha=1.0, label="Last subset") #!jl
 
 #-------
 
-i2 ⊆ i1
+i2 ⊆ i1 #!jl
 
 # We can see, the cross section of the las subset is a subset of the first few
 # sets, thus, the cycle will continue, presumably getting smaller each revolution.
-
-# This in fact constitutes a proof that the system has a limit cycle, because all
-# future trajectories starting from `solz[200]` are already covered by the flowpipe.
