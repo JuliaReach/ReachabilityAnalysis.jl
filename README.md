@@ -16,12 +16,17 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 
 ## 🎯  Table of Contents
 
-* [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--installation)
-* [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
-* [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
-* [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
-* [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--publications)
-* [Citation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--citation)
+💾 [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--installation)
+
+📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
+
+🎨 [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
+
+🎨 [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
+
+:blue_book: [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--publications)
+
+📜 [Citation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--citation)
 
 ## 💾  Installation
 
@@ -89,7 +94,7 @@ Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Veri
 
 fNote: Articles [1-5] use the earlier codebase `Reachability.jl`.
 
----
+
 
 ## 📜  Citation
 
