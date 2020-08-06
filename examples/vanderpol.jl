@@ -101,11 +101,12 @@ tspan(solz[200])  #!jl
 # To examine the limit cycle we can intersect a line somewhat perpendicular
 # to the trajectory, that will allow us to get a cross-section of the sets
 
+line = LineSegment([1, 2.], [2., 2.5]) #!jl
 plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
 plot!(X0, color=:orange, lab="X0") #!jl
 plot!(solz[1:5], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:5]") #!jl
 plot!(solz[200], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[200]") #!jl
-plot!(LineSegment([1, 2.], [2., 2.5]), lw=2.0) #!jl
+plot!(line, lw=2.0) #!jl
 
 # Then we can define a function to get the cross section of the flowpipe, the
 # function needs the flowpipe, a line segment that cuts the flowpipe and the
