@@ -327,10 +327,9 @@ end
 # Intersection method: TemplateHullIntersection
 # ===============================================
 
-# general case; compute (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺ first computing the exact intersection
-# of Y := G ∩ I⁻ which are polyhedral, then computing the intersection with X
-# using the template, let K := [X ∩ Y]_dirs, then compute
-# (RK ⊕ W) ∩ I⁺ using again the template, Z := [(RK ⊕ W) ∩ I⁺]_dirs
+# compute (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺ first computing the exact intersection
+# of Y := X ∩ G ∩ I⁻ all of which are polyhedral, using their list of constraints
+# then we compute (RY ⊕ W) ∩ I⁺ using again the given template, Z := [(RY ⊕ W) ∩ I⁺]_dirs
 function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
                X::PT,
                method::TemplateHullIntersection) where {N,
@@ -343,18 +342,16 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     success, Y = _intersection(X, tr.G, tr.I⁻, HRepIntersection())
     !success && return EmptySet(dim(X))
 
-    # compute the intersection K := [X ∩ Y]_dirs using the template
-    K = _intersection(X, HPolyhedron(Y), method)
-    isempty(K) && return EmptySet(dim(X))
+    # compute the intersection [(RY ⊕ W) ∩ I⁺]_dirs using the template
+    K = (tr.R * HPolyhedron(Y)) ⊕ tr.W # lazy affine map
 
-    # compute Z := [(RK ⊕ W) ∩ I⁺]_dirs using the template
-    Km = (tr.R * K) ⊕ tr.W # lazy affine map
-
-    Z = _intersection(Km, tr.I⁺, method)
+    Z = _intersection(K, tr.I⁺, method)
     return Z
 end
 
-# (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺
+# compute (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺ first computing the exact intersection
+# of Y := G ∩ I⁻ all of which are polyhedral, then compute K := [X ∩ Y]_dirs,
+# finally we compute (RK ⊕ W) ∩ I⁺ using again the given template, Z := [(RK ⊕ W) ∩ I⁺]_dirs
 function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
                X::PT,
                method::TemplateHullIntersection) where {N,
@@ -376,6 +373,8 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     return Z
 end
 
+# compute X ∩ G ∩ I⁻ ∩ I⁺ first computing the exact intersection
+# of Y := G ∩ I⁻ ∩ I⁺ all of which are polyhedral, then compute K := [X ∩ Y]_dirs
 function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
                X::PT,
                method::TemplateHullIntersection) where {N,
@@ -390,6 +389,5 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
 
     # compute the intersection K := [X ∩ Y]_dirs using the template
     K = _intersection(X, HPolyhedron(Y), method)
-
     return K
 end
