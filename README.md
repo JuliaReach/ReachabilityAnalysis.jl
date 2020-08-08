@@ -22,7 +22,7 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 
 🎨 [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
 
-🎨 [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
+🐾 [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
 
 :blue_book: [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--blue_book-publications)
 
