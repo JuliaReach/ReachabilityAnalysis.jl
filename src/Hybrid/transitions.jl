@@ -251,6 +251,23 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     return _apply_hrep(R, W, G, I⁻, I⁺, X, method)
 end
 
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
+               X::Zonotope{N},
+               method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
+                                                   IT⁻<:AbstractPolyhedron{N},
+                                                   IT⁺<:AbstractPolyhedron{N}}
+    success, aux = _intersection(tr.G, tr.I⁻, method)
+    !success && return EmptySet(dim(X))
+    P = HPolyhedron(aux)
+    for x in
+        addconstraint!(P, x)
+    end
+    Y = _apply_reset(R, P, W, method)
+
+    success, out = _intersection(Y, tr.I⁺, method)
+    return success ? HPolytope(out) : EmptySet(dim(X))
+end
+
 # ==========================================
 # Intersection method: BoxIntersection
 # ==========================================
