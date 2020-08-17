@@ -12,6 +12,14 @@ DocTestSetup = :(using ReachabilityAnalysis)
     a pull request on the [project's GitHub page](https://github.com/mforets/ReachabilityAnalysis.jl).
     You can also find us at the [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 
+## Installation
+
+In Julia v1.0 or later you can install `ReachabilityAnalysis` from the Pkg REPL (press `]` in the Julia REPL to enter the `pkg>` mode):
+
+```julia
+pkg> add ReachabilityAnalysis
+```
+
 ## Features
 
 This library implements reachability analysis methods for systems of ordinary
@@ -55,11 +63,3 @@ Reachability analysis has applications in diverse domains such as:
   changes in an input image do not cause the network o misclassify it.
 
 We refer to the technical literature for further applications.
-
-## Installation
-
-In Julia v1.0 or later you can install `ReachabilityAnalysis` from the Pkg REPL (press `]` in the Julia REPL to enter the `pkg>` mode):
-
-```julia
-pkg> add ReachabilityAnalysis
-```

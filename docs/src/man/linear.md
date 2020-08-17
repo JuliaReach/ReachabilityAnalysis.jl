@@ -1,56 +1,24 @@
 # Linear ordinary differential equations
 
-In this section we show how to solve initial value problems with sets of initial
-conditions. First we consider the simple *scalar* equation $x'(t) = -x(t)$,
-where $x(0)$ may be any point in a given initial interval $\mathcal{X}_0$.
+## An illustrative example
+
+The textbook example of a damped spring-mass system corresponds to the following linear ODE:
+
+```math
+\dfrac{d^2 x}{dt^2} + 2 \xi \omega_0\dfrac{d x}{dt} + \omega_0^2 x = 0
+```
+
 Then we consider the [spring-mass system](https://en.wikipedia.org/wiki/Simple_harmonic_motion#Examples),
 a second order linear ODE studied in introductory physics courses. For that system
 we show an example of how to compute and project the flowpipe, and then plot the
 variables of interest.
 
-## Example
+The solution process mainly consists of three steps:
 
-Our first example is an initial-value problem for the one-dimensional differential
-equation
-
-```math
-x'(t) = -x(t),\qquad 0 ≤ t ≤ T = 4.0,
-```
-with initial condition $x(0) ∈ [0.45, 0.55]$.
-
-We can compute the flowpipe using `solve`:
-
-```@example linear_scalar
-using ReachabilityAnalysis, Plots
-
-# define the initial-value problem
-prob = @ivp(x' = -x, x(0) ∈ 0.45 .. 0.55)
-
-# solve it
-sol = solve(prob, T=4.0)
-
-# plot the solution, where the index 0 corresponds to the "time" variable
-plot(sol, vars=(0, 1), label="Flowpipe", xlab="t", ylab="x(t)", linewidth=0.3)
-```
-
-In practice, analytic solutons of ODEs are unknown. However, in this simple case
-we know that for an initial point $x_0 \in \mathbb{R}$, the solution is
-$x(t) = x_0 e^{-t}$. We can plot some trajectories in the same plot as the flowpipe,
-to see that the trajectories are indeed inside the flowpipe, as expected.
-
-```@example linear_scalar
-f(t, x0) = x0 * exp(-t)
-
-plot!(t -> f(t, 0.45), xlims=(0, 4), label="Analytic sol., x(0) = 0.45", color="red")
-plot!(t -> f(t, 0.55), xlims=(0, 4), label="Analytic sol., x(0) = 0.55", color="red")
-```
-
-This example illustrates that the solution process mainly consists of three steps:
-
-(1) **Formulating** the mathematical problem, in the form of an initial-value problem
+(1) **Formulating** the mathematical problem, in the form of an initial-value problem (IVP)
     with possibly uncertain initial states or inputs.
 
-(2) **Solving** the problem, either with the default algorithm or specifying the algorithm
+(2) **Solving** the IVP, either with the default algorithm or specifying the algorithm
     and some of its options.
 
 (3) **Extracting** the results, either to visualize with a plot, or to project onto
@@ -59,25 +27,44 @@ This example illustrates that the solution process mainly consists of three step
 Below we give some further details of this solution step for the simple scalar equation
 presented above.
 
-### Problem formulation
 
-Solution process
 
-To illustrate the solution process, we consider a spring-mass system illustrated in the following figure.
+## Set-based recurrences
 
-The mass is $m$ and the elastic constant of the spring is $k$.
+Set-based methods can be applied for verifying safety properties of dynamical systems.
+In this section we overview the set-based reachability problem for affine dynamical systems,
 
-### Solving the initial-value problem
+```math
+x'(t) = Ax(t) + Bu(t), \qquad (1)
+```
+where ``x(t) \in \mathbb{R}^n`` is the state-space vector and ``A`` and ``B`` are
+matrices of the appropriate dimensions. We consider an initial state that can be
+any point in a given set ``x(0) \in \mathcal{X}_0`` and ``u(t) \in \mathcal{U} \subseteq \mathbb{R}^{m}``
+is a non-deterministic input. Both the initial set and the set of input functions
+are assumed to be compact and convex. Here "non-deterministic input" refers to any bounded, measurable,
+input functions $u(t)$ which are included in the given set ``\mathcal{U}``.
+An extension to time-varying input sets is described later on.
 
-In this case the system is not given as a set of first-order ODEs, so we will make that transformation as a first step.
+It is usual that one is interested in computing *observable* outputs,
 
-Transforming higher-order into a first-order system.
+$$
+y(t) = Cx(t) + Du(t),\qquad (2)
+$$
+where $C$ and $D$ are matrices of the appropriate dimension. In mathematical systems theory, equations (1-2) are known as *linear time-invariant* or just LTI systems.
 
-Formulating the mathematical problem involves writing the system as a first-order
+!!! note "Handling non-convex sets"
+    There is increasing support for non-convex set represenations within `Lazyset.jl`.
+    One approach to handle non-convex initial sets is to cover such sets with one or more convex sets;
+    if several sets are used, the split initial sets API can be used and the different flowpipes are computed
+    in parallel.
 
-### Analyzing the solution
+In this context, set- based recurrence relatinos of the form
 
-## Spring-mass system
+$$
+\mathcal{X}(k+1) = \Phi\mathcal{X}(k) \oplus \mathcal{V}(k),\qquad k = 0,1 ,\ldots, N,\qquad (3)
+$$
+arise naturally.
 
-In the following example we consider a spring-mass system which is a linear ODE
-with two-degrees of freedom.
+if you are familiar with ODEs . . . Euler discretization...
+
+## Approximation model
