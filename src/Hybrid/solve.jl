@@ -145,8 +145,16 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 hit_max_jumps = count_jumps > max_jumps
                 if hit_max_jumps
                     @warn "maximum number of jumps reached; try increasing `max_jumps`"
+                end#=
+                function isin(X, Y)
+                    for y in Y
+                        if X == y
+                            return true
+                        end
+                    end
+                    return false
                 end
-
+=##!isin(Xr, explored_list)#
                 if !hit_max_jumps && !(Xr ⊆ explored_list)
                     push!(waiting_list, tprev, Xr)
                 end

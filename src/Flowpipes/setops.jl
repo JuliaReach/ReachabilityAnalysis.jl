@@ -77,7 +77,8 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     elseif applicable(overapproximate, X, T)
         return overapproximate(X, T)
     else
-        return convert(T, overapproximate(X, Hyperrectangle))
+        Z = overapproximate(X, Zonotope, OctDirections, algorithm="cpa")
+        return Zonotope(center(Z), Matrix(genmat(Z)))#convert(T, overapproximate(X, Hyperrectangle))
     end
 end
 
@@ -387,6 +388,10 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Rea
     #    return EmptySet{N}(dim(S))
     #end
     return Hyperrectangle(c, r)
+end
+
+function _overapproximate(S::LazySet{N}, ::Type{<:Zonotope}) where {N<:Real}
+    return overapproximate(S, Zonotope, OctDirections, algorithm="cpa")
 end
 
 # TEMP
@@ -774,6 +779,28 @@ TemplateHullIntersection() = TemplateHullIntersection{Float64, Vector{Float64}}(
 setrep(::TemplateHullIntersection{N, VN}) where {N, VN} = HPolytope{N, VN}
 setrep(::TemplateHullIntersection{N, SEV}) where {N, SEV<:SingleEntryVector{N}} = Union{HPolytope{N, SEV}, HPolytope{N, Vector{N}}}
 setrep(::TemplateHullIntersection{N, SP}) where {N, SP<:SparseVector{N}} = Union{HPolytope{N, SP}, HPolytope{N, Vector{N}}}
+
+
+# For Zonotopes
+struct TemplateHullIntersectionZonotope{N, VN, TN} <: AbstractIntersectionMethod
+    dirs::TN
+end
+
+# constructor with template directions provided
+function TemplateHullIntersectionZonotope(dirs::TN) where {N, VN, TN<:AbstractDirections{N, VN}}
+    TemplateHullIntersectionZonotope{N, VN, TN}(dirs)
+end
+
+# constructor without template directions => directions are missing until evaluated
+function TemplateHullIntersectionZonotope{N, VN}() where {N, VN<:AbstractVector{N}}
+    TemplateHullIntersectionZonotope{N, VN, Missing}(missing)
+end
+TemplateHullIntersectionZonotope() = TemplateHullIntersectionZonotope{Float64, Vector{Float64}}()
+
+setrep(::TemplateHullIntersectionZonotope{N, VN}) where {N, VN} = Zonotope{N, VN}
+setrep(::TemplateHullIntersectionZonotope{N, SEV}) where {N, SEV<:SingleEntryVector{N}} = Union{Zonotope{N, SEV}, Zonotope{N, Vector{N}}}
+setrep(::TemplateHullIntersectionZonotope{N, SP}) where {N, SP<:SparseVector{N}} = Union{Zonotope{N, SP}, Zonotope{N, Vector{N}}}
+
 
 # propagate methods from reach-set to sets
 # TODO always return ReachSets; extend to AbstractLazyReachSet; intersect time spans
