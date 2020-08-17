@@ -251,23 +251,6 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     return _apply_hrep(R, W, G, I⁻, I⁺, X, method)
 end
 
-function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
-               X::Zonotope{N},
-               method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
-                                                   IT⁻<:AbstractPolyhedron{N},
-                                                   IT⁺<:AbstractPolyhedron{N}}
-    success, aux = _intersection(tr.G, tr.I⁻, method)
-    !success && return EmptySet(dim(X))
-    P = HPolyhedron(aux)
-    for x in
-        addconstraint!(P, x)
-    end
-    Y = _apply_reset(R, P, W, method)
-
-    success, out = _intersection(Y, tr.I⁺, method)
-    return success ? HPolytope(out) : EmptySet(dim(X))
-end
-
 # ==========================================
 # Intersection method: BoxIntersection
 # ==========================================
@@ -407,4 +390,26 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     # compute the intersection K := [X ∩ Y]_dirs using the template
     K = _intersection(X, HPolyhedron(Y), method)
     return K
+end
+
+function apply(tr::DiscreteTransition{<:Diagonal, <:Singleton, GT, IT⁻, IT⁺},
+                X::Zonotope{N}, # depende tambien del clustering
+                method::TemplateHullIntersectionZonotope) where {N, GT<:Hyperplane{N},
+                                                            IT⁻<:HalfSpace{N},
+                                                            IT⁺<:HalfSpace{N}}
+    if isequivalent(intersection(tr.G, tr.I⁻), tr.G)
+        success, aux = true, tr.G
+    else
+        success, aux = _intersection(tr.G, tr.I⁻, method)
+    end
+    !success && return EmptySet(dim(X))
+    aux = overapproximate(aux ∩ X, method.dirs)
+    Y = overapproximate(aux, Zonotope, method.dirs, algorithm="cpa")
+    Y = affine_map(tr.R, Y, element(tr.W))
+    if Y ⊆ tr.I⁺
+        return Y
+    else
+        success, out = _intersection(Y, tr.I⁺, method)
+    end
+    return success ? HPolytope(out) : EmptySet(dim(X))
 end
