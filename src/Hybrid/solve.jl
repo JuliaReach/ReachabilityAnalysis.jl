@@ -116,7 +116,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 _is_intersection_empty(X, G, disjointness_method) && continue
                 push!(jump_rset_idx, i)
             end
-
+            println("index of sets that take the jump: $jump_rset_idx")
             # continue if there is no guard enabled for this transition
             isempty(jump_rset_idx) && continue
 

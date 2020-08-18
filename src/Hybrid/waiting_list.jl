@@ -87,9 +87,14 @@ function Base.:⊆(s::StateInLocation, w::WaitingList)
     q = location(s)
     X = state(s)
     for elem in w
-        if (location(elem) == q) && (X ⊆ state(elem))
-            contained = true
-            break
+        if (location(elem) == q) # check X ⊆ state(elem)
+            Z = state(elem)
+            Xbox = overapproximate(X, Hyperrectangle)
+            Xvpoly = VPolytope(vertices_list(Xbox))
+            contained = LazySets._issubset_vertices_list(Xvpoly, state(elem), false)
+            if contained
+                break
+            end
         end
     end
     return contained

@@ -194,8 +194,11 @@ function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering{Missing}) wh
     if length(idx) == 1
         return F[idx]
     elseif length(idx) == 2
+
         X = ConvexHull(set(F[idx[1]]), set(F[idx[2]]))
         Y = overapproximate(X, Zonotope, OctDirections, algorithm="cpa")
+        #Y = overapproximate(X, Zonotope, algorithm="join")
+
         return [ReachSet(Y, tspan(F[idx]))]
     else
         X = ConvexHullArray(set.(F[idx]))

@@ -77,8 +77,12 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     elseif applicable(overapproximate, X, T)
         return overapproximate(X, T)
     else
-        Z = overapproximate(X, Zonotope, OctDirections, algorithm="cpa")
-        return Zonotope(center(Z), Matrix(genmat(Z)))#convert(T, overapproximate(X, Hyperrectangle))
+        #Y = convert(T, overapproximate(X, Hyperrectangle))
+
+        Y = overapproximate(X, Zonotope, OctDirections, algorithm="cpa")
+        Y = Zonotope(center(Y), Matrix(genmat(Y)))
+
+        return Y
     end
 end
 
