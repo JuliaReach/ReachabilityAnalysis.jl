@@ -109,8 +109,8 @@ end
 end
 
 @inline function _apply_reset(R::AbstractMatrix, P::HPolytope, W::LazySet, ::HRepIntersection)
-    Ylm = linear_map(tr.R, P) # TODO pass options here
-    return minkowski_sum(Y, tr.W)
+    Ylm = linear_map(R, P) # TODO pass options here
+    return minkowski_sum(Ylm, W)
 end
 
 # we assume that the reach-set is bounded: it's either a polytopic set
@@ -248,7 +248,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
                method::HRepIntersection) where {N, GT<:AbstractPolyhedron{N},
                                                    IT⁻<:AbstractPolyhedron{N},
                                                    IT⁺<:AbstractPolyhedron{N}}
-    return _apply_hrep(R, W, G, I⁻, I⁺, X, method)
+    return _apply_hrep(tr.R, tr.W, tr.G, tr.I⁻, tr.I⁺, X, method)
 end
 
 # ==========================================
