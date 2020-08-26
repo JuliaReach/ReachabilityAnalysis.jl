@@ -317,12 +317,22 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
-        if statedim(ivp) == 1
+        n = statedim(ivp)
+        if n == 1
             opC = INT(δ=δ)
         else
-            static = haskey(kwargs, :static) ? kwargs[:static] : false
-            # TODO pass order and dimension options as well
-            opC = GLGM06(δ=δ, static=static)
+            # if the static option has been passed, use it
+            got_static = haskey(kwargs, :static)
+            if got_static
+                # TODO pass order and dimension options as well
+                opC = GLGM06(δ=δ, static=kwargs[:static])
+            else
+                if n <= 14
+                    opC = GLGM06(δ=δ, static=true, dim=n, ngens=5n)
+                else
+                    opC = GLGM06(δ=δ, static=false)
+                end
+            end
         end
     else
         # check additional kwargs options if they exist, allowing some aliases
