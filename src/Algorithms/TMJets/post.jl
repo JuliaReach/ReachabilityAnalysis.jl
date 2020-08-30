@@ -1,5 +1,5 @@
 function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              time_shift::N=zero(N), kwargs...) where {N}
+              Δt0::TimeInterval=zeroI, kwargs...) where {N}
 
     @unpack max_steps, abs_tol, orderT, orderQ, disjointness, adaptive, min_abs_tol = alg
 
@@ -32,7 +32,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     sizehint!(F, max_steps)
 
     F, tv, xv, xTM1v, success, _t0 = _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT,
-                                      abs_tol, max_steps, X, disjointness, time_shift, adaptive)
+                                      abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
     if success || !adaptive
         ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v) # keep Any or add the type param?
@@ -70,7 +70,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
             Fk = Vector{TaylorModelReachSet{N}}()
             sizehint!(Fk, max_steps)
             Fk, tv, xv, xTM1v, success, _t0 = _validated_integ!(Fk, f!, q0, δq0, _t0, T, orderQ, orderT,
-                                                                abs_tol, max_steps, X, disjointness, time_shift, adaptive)
+                                                                abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
             # append the new flowpipe to the accumulated flowpipe and extra data
             append!(F, Fk)

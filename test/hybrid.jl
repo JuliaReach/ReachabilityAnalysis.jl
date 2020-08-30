@@ -1,27 +1,28 @@
-using ReachabilityAnalysis: _distribute, WaitingList, StateInLocation, state, location
+using ReachabilityAnalysis: _distribute, WaitingList, StateInLocation, state, location, TimeInterval
 
 @testset "Hybrid utility functions" begin
 
     prob, _ = bouncing_ball()
     X0 = initial_state(prob)
     N = eltype(X0)
+    TN = TimeInterval # TimeInterval{N}
     ST = typeof(X0)
 
     # converting a vector-of-tuples of the form [(X, 1), (Y, 2)] to a waiting list
-    wl = convert(WaitingList{N, ST, Int, StateInLocation{ST, Int}}, [(1, X0)])
+    wl = convert(WaitingList{TN, ST, Int, StateInLocation{ST, Int}}, [(1, X0)])
     @test length(wl) == 1 && state(first(wl)) == X0 && location(first(wl)) == 1
 
     # can also pass a mixture of set types
     Z0 = convert(Zonotope, X0)
     ST = AbstractPolytope{N}
-    wl = convert(WaitingList{N, ST, Int, StateInLocation{ST, Int}}, [(1, X0), (2, Z0)])
+    wl = convert(WaitingList{TN, ST, Int, StateInLocation{ST, Int}}, [(1, X0), (2, Z0)])
     @test length(wl) == 2 && state(first(wl)) == X0 && location(first(wl)) == 1
     @test length(wl) == 2 && state(last(wl)) == Z0 && location(last(wl)) == 2
 
     # can also use [(1, X), (2, Y)]
     Z0 = convert(Zonotope, X0)
     ST = AbstractPolytope{N}
-    wl = convert(WaitingList{N, ST, Int, StateInLocation{ST, Int}}, [(X0, 1), (Z0, 2)])
+    wl = convert(WaitingList{TN, ST, Int, StateInLocation{ST, Int}}, [(X0, 1), (Z0, 2)])
     @test length(wl) == 2 && state(first(wl)) == X0 && location(first(wl)) == 1
     @test length(wl) == 2 && state(last(wl)) == Z0 && location(last(wl)) == 2
 

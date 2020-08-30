@@ -10,7 +10,7 @@ function reach_homog_LGG09!(F::Vector{RT},
                             NSTEPS::Integer,
                             δ::N,
                             X::Universe, # no invariant
-                            time_shift::N,
+                            Δt0::TimeInterval,
                             cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
 
     # transpose coefficients matrix
@@ -25,7 +25,7 @@ function reach_homog_LGG09!(F::Vector{RT},
     end
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds for k in 1:NSTEPS
         F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)
         Δt += δ

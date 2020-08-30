@@ -3,11 +3,11 @@
 # ======================
 
 using LinearAlgebra, SparseArrays, # modules from the Julia standard library
-      Reexport,    # see @reexport macro below
-      RecipesBase, # plotting
+      Reexport,     # see @reexport macro below
+      RecipesBase,  # plotting
       Parameters,   # structs with kwargs
-      StaticArrays,
-      RecursiveArrayTools
+      StaticArrays, # statically sized arrays
+      RecursiveArrayTools # vector of arrays
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -55,6 +55,17 @@ import LazySets: dim, overapproximate, project, Projection,
                  linear_map, LinearMap, _split, split!
 
 import Base: ∈
+
+# ======================
+# Useful constants
+# ======================
+
+@inline zeroBox(m) = IntervalBox(zeroI, m)
+@inline unitBox(m) = IntervalBox(IA.Interval(0.0, 1.0), m)
+@inline symBox(n::Integer) = IntervalBox(symI, n)
+const zeroI = IA.Interval(0.0) # TODO use number type
+const oneI = IA.Interval(1.0)
+const symI = IA.Interval(-1.0, 1.0)
 
 # ======================
 # Optional dependencies
