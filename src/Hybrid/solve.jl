@@ -63,7 +63,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     # stopping criterion ensures that no more elements are added to the waiting
     # list after `max_jumps` discrete jumps
     count_jumps = 0
-    aux = 1
+
     while !isempty(waiting_list)
         (Δt0, elem) = pop!(waiting_list)
         tprev = tstart(Δt0)
