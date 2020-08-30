@@ -45,7 +45,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     # list of (set, loc) tuples which have already been processed
     STwl = setrep(waiting_list)
     MW = locrep(waiting_list)
-    explored_list = WaitingList{N, STwl, MW}()
+    explored_list = WaitingList{TimeInterval, STwl, MW}()
 
     # preallocate output flowpipe strictly contained in each source invariant
     if intersect_source_invariant
@@ -63,9 +63,10 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     # stopping criterion ensures that no more elements are added to the waiting
     # list after `max_jumps` discrete jumps
     count_jumps = 0
-
+    aux = 1
     while !isempty(waiting_list)
-        (tprev, elem) = pop!(waiting_list)
+        (Δt0, elem) = pop!(waiting_list)
+        tprev = tstart(Δt0)
         push!(explored_list, elem)
 
         # compute reachable states by continuous evolution
@@ -73,7 +74,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         X0 = state(elem)
         S = mode(H, q)
         time_span = TimeInterval(t0, T-tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
-        F = post(cpost, IVP(S, X0), time_span; time_shift=tprev, kwargs...)
+        F = post(cpost, IVP(S, X0), time_span; Δt0=Δt0, kwargs...)
 
         # assign location q to this flowpipe
         F.ext[:loc_id] = q
@@ -123,17 +124,13 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # apply clustering method to those sets which intersect the guard
             Xc = cluster(F, jump_rset_idx, clustering_method)
 
-            tprev = tstart(Xc)
-
             for Xci in Xc
-
-                #println(typeof(Xci))
                 # compute reachable states by discrete evolution
                 X = apply(discrete_post, Xci, intersection_method)
 
                 # do not add empty sets; checking `isempty` generalizes
-                #isa(X, EmptySet) && continue # , though it may have to solve a feasibility LP if X is a polyhedron
-                isempty(X) && continue
+                isa(X, EmptySet) && continue
+                #isempty(X) && continue # though it may have to solve a feasibility LP if X is a polyhedron
 
                 count_jumps += 1
 
@@ -148,7 +145,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 end
 
                 if !hit_max_jumps && !(Xr ⊆ explored_list)
-                    push!(waiting_list, tprev, Xr)
+                    push!(waiting_list, tspan(Xci), Xr)
                 end
             end
         end # for
@@ -238,7 +235,7 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
         STwl = ST
     end
 
-    waiting_list = WaitingList{N, STwl, Int}()
+    waiting_list = WaitingList{TimeInterval, STwl, Int}()
 
     if !check_invariant
         for loc in states(H)
@@ -287,7 +284,7 @@ function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{M, ST}}};
     end
 
     N = eltype(ST)
-    WL = WaitingList{N, STwl, Int, StateInLocation{STwl, Int}}
+    WL = WaitingList{TimeInterval, STwl, Int, StateInLocation{STwl, Int}}
 
     if !check_invariant && !intersect_invariant
         waiting_list = convert(WL, X0vec)
@@ -317,7 +314,7 @@ function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{ST, M}}};
     end
 
     N = eltype(ST)
-    WL = WaitingList{N, STwl, Int, StateInLocation{STwl, Int}}
+    WL = WaitingList{TimeInterval, STwl, Int, StateInLocation{STwl, Int}}
 
     if !check_invariant && !intersect_invariant
         waiting_list = convert(WL, X0vec)

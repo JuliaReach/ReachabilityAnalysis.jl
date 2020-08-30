@@ -10,11 +10,11 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
                                  block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N,
+                                 Δt0,
                                  viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -64,11 +64,11 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
                                  ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N,
+                                 Δt0,
                                  viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach-set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -120,11 +120,11 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
                                  block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N,
+                                 Δt0,
                                  viewval::Val{true}) where {NM, IM, MT<:SparseMatrixCSC{NM, IM},
                                                             N, RBLKi, CBLKj}
     # store first element
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -176,11 +176,11 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
                                  block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N,
+                                 Δt0,
                                  viewval::Val{false}) where {NM, IM, MT<:SparseMatrixCSC{NM, IM}, N, RBLKi, CBLKj}
 
     # store first element
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -240,11 +240,11 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::LazySet, U,
                                  ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
-                                 time_shift::N,
+                                 Δt0,
                                  viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
 
     # initial reach-set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix

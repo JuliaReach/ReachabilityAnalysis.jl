@@ -669,9 +669,9 @@ function (fp::HybridFlowpipe{N, RT})(dt::TimeInterval) where {N, RT<:AbstractRea
                             "$(tspan(fp)), of the given flowpipe"))
     end
     vec = Vector{RT}()
-    for (k, fk) in enumerate(array(fp))
+    for (k, fk) in enumerate(array(fp)) # loop over flowpipes
         if dt ⊆ tspan(fk)
-            for R in fk(dt)
+            for R in fk(dt)  # loop over reach-sets
                 push!(vec, R)
             end
         end

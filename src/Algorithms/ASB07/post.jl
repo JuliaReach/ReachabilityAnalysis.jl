@@ -1,5 +1,5 @@
 function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              time_shift::N=zero(N), kwargs...) where {N}
+              Δt0::TimeInterval=zeroI, kwargs...) where {N}
 
     @unpack δ, approx_model, max_order, reduction_method, static, recursive, dim, ngens = alg
 
@@ -41,12 +41,12 @@ function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, recursive, reduction_method, time_shift)
+        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, recursive, reduction_method, Δt0)
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, recursive, reduction_method, time_shift)
+        reach_inhomog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, recursive, reduction_method, Δt0)
     end
 
     return Flowpipe(F)
