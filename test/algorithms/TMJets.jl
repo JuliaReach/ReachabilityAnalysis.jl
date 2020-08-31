@@ -21,6 +21,8 @@
     sol = solve(prob, T=0.2, abstol=1e-11)
     @test sol.alg isa TMJets && sol.alg.abs_tol == 1e-11
 
+    @test ReachabilityAnalysis.tspan(shift(sol,1.0))==ReachabilityAnalysis.tspan(sol)+1.0
+
     # split initial conditions
     X0, S = initial_state(prob), system(prob)
     X0s = split(X0, [2, 1]) # split along direction x

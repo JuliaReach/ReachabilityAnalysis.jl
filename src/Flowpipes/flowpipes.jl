@@ -514,6 +514,11 @@ function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:I
     return SparseReachSet(proj, tspan(R) + t0, vars)
 end
 
+# TODO: improve using mutable ShiftedFlowpipe struct (so that we can modify t0->t0+t1)
+function shift(fp::ShiftedFlowpipe, t1::Number)
+    return ShiftedFlowpipe(shift(fp.F, t1), fp.t0)
+end
+
 # =====================================
 # Flowpipe composition with a lazy map
 # =====================================
