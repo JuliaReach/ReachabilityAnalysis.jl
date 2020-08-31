@@ -369,7 +369,7 @@ function linear_map(M::AbstractMatrix, fp::Flowpipe)
 end
 
 """
-    shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
+    shift(fp::Flowpipe{N, <:AbstractReachSet}, t0::Number) where {N}
 
 Return the time-shifted flowpipe by the given number.
 
@@ -387,7 +387,7 @@ shifted by `t0`.
 
 See also `Shift` for the lazy counterpart.
 """
-function shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
+function shift(fp::Flowpipe{N, <:AbstractReachSet}, t0::Number) where {N}
     return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)
 end
 
@@ -512,6 +512,11 @@ function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:I
     end
 
     return SparseReachSet(proj, tspan(R) + t0, vars)
+end
+
+# TODO: improve using mutable ShiftedFlowpipe struct (so that we can modify t0->t0+t1)
+function shift(fp::ShiftedFlowpipe, t1::Number)
+    return ShiftedFlowpipe(shift(fp.F, t1), fp.t0)
 end
 
 # =====================================

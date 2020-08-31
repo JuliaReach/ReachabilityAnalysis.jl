@@ -131,6 +131,10 @@ function project(sol::ReachSolution{<:AbstractFlowpipe}, dir::AbstractVector{<:A
     return project(sol.F, dir; vars=vars)
 end
 
+function shift(sol::ReachSolution{<:AbstractFlowpipe}, t0::Number)
+    return ReachSolution(shift(sol.F, t0), sol.alg, sol.ext)
+end
+
 # LazySets interface falls back to the associated flowpipe
 LazySets.dim(sol::ReachSolution) = dim(sol.F)
 LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.F)

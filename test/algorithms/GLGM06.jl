@@ -26,6 +26,8 @@
     sol = solve(prob, T=5.0, GLGM06(δ=0.01))
     @test dim(sol) == 5
 
+    @test tspan(shift(sol,1.0))==tspan(sol)+1.0
+
     # use approx model for "discrete-time" reachability
     sol = solve(prob, T=5.0, GLGM06(δ=0.01, approx_model=NoBloating()))
 end

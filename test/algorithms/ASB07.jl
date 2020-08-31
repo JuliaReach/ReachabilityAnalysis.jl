@@ -44,6 +44,8 @@ end
     sol = solve(prob, alg=ASB07(δ=1e-7, max_order=3), max_jumps=2)
     @test dim(sol) == 4
     @test flowpipe(sol) isa HybridFlowpipe
+
+    @test tspan(shift(sol[1],1.0))==tspan(sol[1])+1.0
 end
 
 
