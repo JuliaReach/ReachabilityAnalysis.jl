@@ -15,6 +15,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                first_mode_representative=true, # assume that the first mode is representative of the other modes when checking that the dimension in each mode is consistent
                intersect_source_invariant=true, # take the concrete intersection of the flowpipe with the source invariant
                disjointness_method=NoEnclosure(), # method to compute disjointness
+               fixpoint_check=true, # if true, stop the integration when a fix point is detected
                kwargs...)
 
     # distribute the initial condition across the different locations
@@ -29,7 +30,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     # get time span (or the emptyset if NSTEPS was specified)
     time_span = _get_tspan(args...; kwargs...)
-
+    time_span0 = time_span
     # get the continuous post or find a default one
     cpost = _get_cpost(ivp_distributed, args...; kwargs...)
     if cpost == nothing
@@ -144,8 +145,15 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                     @warn "maximum number of jumps reached; try increasing `max_jumps`"
                 end
 
-                if !hit_max_jumps && !(Xr ⊆ explored_list)
-                    push!(waiting_list, tspan(Xci), Xr)
+                if fixpoint_check
+                    if !hit_max_jumps && !(Xr ⊆ explored_list)
+                        push!(waiting_list, tspan(Xci), Xr)
+                    end
+                else
+                    # We only push the set Xci if it intersects with time_span
+                    if !hit_max_jumps && !IA.isdisjoint(tspan(Xci), time_span0)
+                        push!(waiting_list, tspan(Xci), Xr)
+                    end
                 end
             end
         end # for
