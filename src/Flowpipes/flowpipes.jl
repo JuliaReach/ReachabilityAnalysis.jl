@@ -91,15 +91,6 @@ function LazySets.dim(fp::AbstractFlowpipe)
     return dim(first(fp)) # assumes that the first set is representative
 end
 
-# membership test
-function ∈(x::AbstractVector{N}, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
-    return any(R -> x ∈ set(R), array(fp))
-end
-
-function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
-    return any(R -> x ∈ set(R), fp)
-end
-
 # iteration interface
 @inline Base.iterate(fp::AbstractFlowpipe) = iterate(array(fp))
 @inline Base.iterate(fp::AbstractFlowpipe, state) = iterate(array(fp), state)
@@ -444,6 +435,15 @@ function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
 end
 Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
 Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
+
+# membership test
+function ∈(x::AbstractVector{N}, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
+    return any(R -> x ∈ set(R), array(fp))
+end
+
+function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
+    return any(R -> x ∈ set(R), fp)
+end
 
 # =======================================
 # Flowpipe composition with a time-shift
