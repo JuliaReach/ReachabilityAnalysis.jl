@@ -20,3 +20,18 @@
     @test dim(fp) == 2 # in this set type, the dimension is known
     @test setrep(fp) == Singleton{Float64, Vector{Float64}}
 end
+
+@testset "Hybrid flowpipe time evaluation" begin
+    X = Interval(0 .. 1)
+    δ = 0.1
+    F1 = Flowpipe([ReachSet(X, (0 .. δ) + k*δ) for k in 0:10])
+    F2 = Flowpipe([ReachSet(X, (0 .. δ) + k*δ) for k in 9:20])
+    F2′ = Flowpipe([ReachSet(X, (0 .. δ) + k*δ*0.9) for k in 9:20])
+    H = HybridFlowpipe([F1, F2])
+    H′ = HybridFlowpipe([F1, F2′])
+
+    times = 0:0.01:1.9
+    values = [[x] for x in (@. 1 - exp(-times))]
+    @test all(vi ∈ H(ti) for (ti, vi) in zip(times, values))
+    @test all(vi ∈ H′(ti) for (ti, vi) in zip(times, values))
+end

@@ -265,6 +265,9 @@ function Flowpipe(::UndefInitializer, cpost::AbstractContinuousPost, k::Int)
     return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
 end
 
+# constructor from a single reach-set
+Flowpipe(R::AbstractReachSet) = Flowpipe([R])
+
 function Base.similar(fp::Flowpipe{N, RT, VRT}) where {N, RT, VRT}
    return Flowpipe(VRT())
 end
@@ -432,6 +435,15 @@ function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
 end
 Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
 Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
+
+# membership test
+function ∈(x::AbstractVector{N}, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
+    return any(R -> x ∈ set(R), array(fp))
+end
+
+function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
+    return any(R -> x ∈ set(R), fp)
+end
 
 # =======================================
 # Flowpipe composition with a time-shift
@@ -630,24 +642,6 @@ function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
     return HybridFlowpipe(Vector{FT}())
 end
 
-function (fp::HybridFlowpipe{N, RT})(t::Number) where {N, RT<:AbstractReachSet{N}}
-    if t ∉ tspan(fp)
-        throw(ArgumentError("time $t does not belong to the time span, " *
-                            "$(tspan(fp)), of the given flowpipe"))
-    end
-    vec = Vector{RT}()
-    for (k, fk) in enumerate(array(fp))
-        if t ∈ tspan(fk)
-            for Ri in fk
-                if t ∈ tspan(Ri)
-                    push!(vec, Ri)
-                end
-            end
-        end
-    end
-    return vec
-end
-
 function overapproximate(fp::HybridFlowpipe, args...)
     return HybridFlowpipe([overapproximate(F, args...) for F in fp], fp.ext)
 end
@@ -668,15 +662,35 @@ end
 Base.:⊆(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
 Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
 
+# evaluation for scalars
+function (fp::HybridFlowpipe{N, RT})(t::Number) where {N, RT<:AbstractReachSet{N}}
+    if t ∉ tspan(fp)
+        throw(ArgumentError("time $t does not belong to the time span, " *
+                            "$(tspan(fp)), of the given flowpipe"))
+    end
+    vec = Vector{RT}()
+    for (k, fk) in enumerate(array(fp)) # loop over flowpipes
+        if t ∈ tspan(fk)
+            for Ri in fk  # loop over reach-sets for this flowpipe
+                if t ∈ tspan(Ri)
+                    push!(vec, Ri)
+                end
+            end
+        end
+    end
+    return vec
+end
+
+# evaluation for time intervals
 function (fp::HybridFlowpipe{N, RT})(dt::TimeInterval) where {N, RT<:AbstractReachSet{N}}
-    if dt ⊊ tspan(fp)
+    if !(dt ⊆ tspan(fp)) # TODO IntervalArithmetic#409
         throw(ArgumentError("time interval $dt does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
     vec = Vector{RT}()
     for (k, fk) in enumerate(array(fp)) # loop over flowpipes
-        if dt ⊆ tspan(fk)
-            for R in fk(dt)  # loop over reach-sets
+        if !isdisjoint(dt, tspan(fk))
+            for R in fk(dt)  # loop over reach-sets for this flowpipe
                 push!(vec, R)
             end
         end
