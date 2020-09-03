@@ -36,11 +36,6 @@ end
     @test all(vi ∈ H′(ti) for (ti, vi) in zip(times, values))
 end
 
-
-
-
-using Reachability, Distributions, LazySets, ModelingToolkit
-
 # ============================================================================
 # Switched affine system
 #
@@ -65,6 +60,8 @@ using Reachability, Distributions, LazySets, ModelingToolkit
 # the time when the system jumped into the 𝑓₋ mode. The initial conditions at
 # the begining of each mode 𝑓₊ and 𝑓₋ are 𝜙(𝑡0₊) and 𝜙(𝑡0₋) respectively.
 # ============================================================================
+
+#using ReachabilityAnalysis, Distributions, LazySets, ModelingToolkit
 
 @testset "Switched affine system" begin
 
@@ -276,8 +273,9 @@ using Reachability, Distributions, LazySets, ModelingToolkit
 
     #Verify if the analytical solution is inside the flowpipe:
 
-    t2 = reduce(vcat,reduce(vcat, tiempos));
+    t2 = reduce(vcat,reduce(vcat, times));
     v2 = reduce(vcat,reduce(vcat, sol));
+
     @test all(vi ∈ sol_ext(ti) for (ti, vi) in zip(t2, v2))
 
     sol_extz = overapproximate(sol_ext, Zonotope);
