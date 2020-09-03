@@ -1,5 +1,7 @@
 function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+              Δt0::TimeInterval=zeroI,
+              external::Bool=false,    # if `true`, use the external solver defined in TaylorModels.jl
+              kwargs...) where {N}
 
     @unpack max_steps, abs_tol, orderT, orderQ, disjointness, adaptive, min_abs_tol = alg
 
@@ -26,6 +28,22 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     box_x0 = box_approximation(X0)
     q0 = center(box_x0)
     δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
+
+    # FIXME refactor
+    if external
+        solver_name = haskey(kwargs, :solver_name) : kwargs[:solver_name] : validated_integ
+        tv, xv, xTM1v = TM.solver_name(f!, q0, δq0, t0, T, orderQ, orderT,
+                                       abs_tol, maxsteps=max_steps, kwargs...)
+        # build flowpipe
+        F = Vector{TaylorModelReachSet{N}}()
+        sizehint!(F, max_steps)
+        for # .........
+            Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0) + Δt0))
+            push!(F, Ri)
+        end
+        ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
+        return Flowpipe(F, ext)
+    end
 
     # preallocate output flowpipe
     F = Vector{TaylorModelReachSet{N}}()
