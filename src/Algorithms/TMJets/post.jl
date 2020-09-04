@@ -31,14 +31,16 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # FIXME refactor
     if external
-        solver_name = haskey(kwargs, :solver_name) : kwargs[:solver_name] : validated_integ
-        tv, xv, xTM1v = TM.solver_name(f!, q0, δq0, t0, T, orderQ, orderT,
-                                       abs_tol, maxsteps=max_steps, kwargs...)
+        solver_name = haskey(kwargs, :solver_name) ? kwargs[:solver_name] : TM.validated_integ
+        solver_kwargs = haskey(kwargs, :solver_kwargs) ? kwargs[:solver_kwargs] : Dict(:maxsteps=>max_steps)
+        tv, xv, xTM1v = solver_name(f!, q0, δq0, t0, T, orderQ, orderT,
+                                    abs_tol; solver_kwargs...)
         # build flowpipe
         F = Vector{TaylorModelReachSet{N}}()
         sizehint!(F, max_steps)
-        for # .........
-            Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0) + Δt0))
+        for i in 2:length(tv)
+            δt = TimeInterval(tv[i-1], tv[i])
+            Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
             push!(F, Ri)
         end
         ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
