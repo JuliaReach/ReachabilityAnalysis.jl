@@ -83,16 +83,16 @@ end
 # too coarse, and the UNSAT instance indicates that the over-approximation is
 # indeed conservative.
 #
-# - [BDS01] Bounded time, safe property: For all ``t \in [0, 20]``,
+# - **BDS01:** Bounded time, safe property: For all ``t \in [0, 20]``,
 #    ``y_1(t) \leq 5.1\cdot 10^{-3}``. This property is assumed to be satisfied.
 #
-# - [BDU01] Bounded time, unsafe property: For all ``t \in [0, 20]``,
+# - **BDU01:** Bounded time, unsafe property: For all ``t \in [0, 20]``,
 #    ``y_1(t) \leq 4\cdot 10^{-3}``. This property is assumed to be violated.
 #    Property BDU01 serves as a sanity check. A tool should be run with the same
 #    accuracy settings on BLDF01-BDS01 and BLDF01-BDU01, returning UNSAT on the
 #    former and SAT on the latter.
 #
-# - [BDU02] Bounded time, unsafe property: The forbidden states are
+# - **BDU02:** Bounded time, unsafe property: The forbidden states are
 #    ``\{ y_1(t) \leq -0.78\cdot 10^{-3} \wedge t = 20\}``. This property is
 #    assumed to be violated for BLDF01 and satisfied for BLDC01. Property BDU02
 #    serves as a sanity check to confirm that time-varying inputs are taken into
@@ -117,13 +117,15 @@ plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw
 
 # Safety properties
 
-@show ρ(x25, sol_BLDF01_dense)
-@show ρ(x25, sol_BLDF01_dense) <= 5.1e-3 # BLDF01 - BDS01
-
-@show ρ(x25, sol_BLDF01_dense) <= 4e-3 # BLDF01 - BDU01
-
-@show ρ(x25, sol_BLDF01_dense(20.0))
-@show ρ(x25, sol_BLDF01_dense(20.0)) <= -0.78e-3 # BLDF01 - BDU02
+ρ(x25, sol_BLDF01_dense)
+#-
+ρ(x25, sol_BLDF01_dense) <= 5.1e-3 # BLDF01 - BDS01
+#-
+ρ(x25, sol_BLDF01_dense) <= 4e-3 # BLDF01 - BDU01
+#-
+ρ(x25, sol_BLDF01_dense(20.0))
+#-
+ρ(x25, sol_BLDF01_dense(20.0)) <= -0.78e-3 # BLDF01 - BDU02
 
 # #### Discrete time
 
@@ -133,14 +135,17 @@ plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8,
 
 # Safety properties
 
-@show ρ(x25, sol_BLDF01_discrete)
-@show ρ(x25, sol_BLDF01_discrete) <= 5.1e-3 # BLDF01 - BDS01
-
-@show ρ(x25, sol_BLDF01_discrete)
-@show ρ(x25, sol_BLDF01_discrete) <= 4e-3 # BLDF01 - BDU01
-
-@show ρ(x25, sol_BLDF01_discrete(20.0))
-@show ρ(x25, sol_BLDF01_discrete(20.0)) <= -0.78e-3 # BLDF01 - BDU02
+ρ(x25, sol_BLDF01_discrete)
+#-
+ρ(x25, sol_BLDF01_discrete) <= 5.1e-3 # BLDF01 - BDS01
+#-
+ρ(x25, sol_BLDF01_discrete)
+#-
+ρ(x25, sol_BLDF01_discrete) <= 4e-3 # BLDF01 - BDU01
+#-
+ρ(x25, sol_BLDF01_discrete(20.0))
+#-
+ρ(x25, sol_BLDF01_discrete(20.0)) <= -0.78e-3 # BLDF01 - BDU02
 
 # ### BLDC01
 
@@ -154,13 +159,15 @@ plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw
 
 # Safety properties
 
-@show ρ(x25e, sol_BLDC01_dense)
-@show ρ(x25e, sol_BLDC01_dense) <= 5.1e-3 # BLDC01 - BDS01
-
-@show ρ(x25e, sol_BLDC01_dense) <= 4e-3 # BLDC01 - BDU01
-
-@show ρ(x25, sol_BLDF01_discrete(20.0))
-@show ρ(x25e, sol_BLDC01_dense(20.0)) <= -0.78e-3 # BLDC01 - BDU02
+ρ(x25e, sol_BLDC01_dense)
+#-
+ρ(x25e, sol_BLDC01_dense) <= 5.1e-3 # BLDC01 - BDS01
+#-
+ρ(x25e, sol_BLDC01_dense) <= 4e-3 # BLDC01 - BDU01
+#-
+ρ(x25, sol_BLDF01_discrete(20.0))
+#-
+ρ(x25e, sol_BLDC01_dense(20.0)) <= -0.78e-3 # BLDC01 - BDU02
 
 # #### Discrete time
 
@@ -170,10 +177,18 @@ plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8,
 
 # Safety properties
 
-@show ρ(x25e, sol_BLDC01_discrete)
-@show ρ(x25e, sol_BLDC01_discrete) <= 5.1e-3 # BLDC01 - BDS01
+ρ(x25e, sol_BLDC01_discrete)
+#-
+ρ(x25e, sol_BLDC01_discrete) <= 5.1e-3 # BLDC01 - BDS01
+#-
+ρ(x25e, sol_BLDC01_discrete)
+#-
+ρ(x25e, sol_BLDC01_discrete) <= 4e-3 # BLDC01 - BDU01
+#-
+ρ(x25e, sol_BLDC01_discrete(20.0))
+#-
+ρ(x25e, sol_BLDC01_discrete(20.0)) <= -0.78e-3 # BLDC01 - BDU02
 
-@show ρ(x25e, sol_BLDC01_discrete) <= 4e-3 # BLDC01 - BDU01
+# ## References
 
-@show ρ(x25e, sol_BLDC01_discrete(20.0))
-@show ρ(x25e, sol_BLDC01_discrete(20.0)) <= -0.78e-3 # BLDC01 - BDU02
+# [^]: 
