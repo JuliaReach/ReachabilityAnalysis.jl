@@ -1,7 +1,7 @@
 # ReachabilityAnalysis.jl
 
 [![Build Status](https://travis-ci.org/JuliaReach/ReachabilityAnalysis.jl.svg?branch=master)](https://travis-ci.org/JuliaReach/ReachabilityAnalysis.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/juliareach/ReachabilityAnalysis.jl?svg=true)](https://ci.appveyor.com/project/juliareach/ReachabilityAnalysis-jl)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/juliareach/ReachabilityAnalysis.jl?svg=true)](https://ci.appveyor.com/project/mforets/ReachabilityAnalysis-jl)
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/juliareach/ReachabilityAnalysis.jl/blob/master/LICENSE)
 [![Code coverage](http://codecov.io/github/juliareach/ReachabilityAnalysis.jl/coverage.svg?branch=master)](https://codecov.io/github/juliareach/ReachabilityAnalysis.jl?branch=master)
