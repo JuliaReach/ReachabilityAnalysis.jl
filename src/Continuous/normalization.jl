@@ -394,6 +394,9 @@ end
 # Second order systems
 # ===========================
 
+# we left the n-dimensional second order system to a 2n-dimensional first
+# order system, assuming that the first n variables correspond to "velocities"
+# and the second n variables to "positions" x̃ = [x', x]
 function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K) where {N}
     n = size(M, 1)
     M⁻¹ = inv(Matrix(M))
@@ -429,14 +432,10 @@ function normalize(system::SOCLCCS{N}) where {N}
     B = input_matrix(system)
     X = stateset(system)
     U = inputset(system)
+
     A, M⁻¹ = _second_order_linear_matrix(M, C, K)
-    B̃= vcat(M⁻¹*B, zeros(N, n))
-    if U isa LazySet
-        Ũ = U × Singleton(zeros(N, n))
-    else
-        Ũ = [Ui × Singleton(zeros(N, n)) for Ui in U]
-    end
-    return normalize(CLCCS(A, B̃, X, Ũ))
+    B̃ = vcat(M⁻¹*B, zeros(N, n))
+    return normalize(CLCCS(A, B̃, X, U))
 end
 
 function normalize(system::SOCACCS{N}) where {N}
@@ -448,17 +447,11 @@ function normalize(system::SOCACCS{N}) where {N}
     d = affine_term(system)
     X = stateset(system)
     U = inputset(system)
+
     A, M⁻¹ = _second_order_linear_matrix(M, C, K)
     B̃ = vcat(M⁻¹*B, zeros(N, n))
-
-    if U isa LazySet
-        Ũ = U × Singleton(zeros(N, n))
-    else
-        Ũ = [Ui × Singleton(zeros(N, n)) for Ui in U]
-    end
-
     d̃ = vcat(M⁻¹*d, zeros(N, n))
-    return normalize(CACCS(A, B̃, X, Ũ, d̃))
+    return normalize(CACCS(A, B̃, X, U, d̃))
 end
 
 # ---
