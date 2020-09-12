@@ -27,7 +27,6 @@ const CBBCS = ConstrainedBlackBoxContinuousSystem
 const CBBCCS = ConstrainedBlackBoxControlContinuousSystem
 const SOLCS = SecondOrderLinearContinuousSystem
 const SOACS = SecondOrderAffineContinuousSystem
-
 const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
 const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
 
@@ -44,6 +43,8 @@ iscontinuoussystem(T::Type{<:CBBCS}) = true
 iscontinuoussystem(T::Type{<:CBBCCS}) = true
 iscontinuoussystem(T::Type{<:SOLCS}) = true
 iscontinuoussystem(T::Type{<:SOACS}) = true
+iscontinuoussystem(T::Type{<:SOCLCCS}) = true
+iscontinuoussystem(T::Type{<:SOCACCS}) = true
 
 # hybrid systems that are handled by this library
 ishybridsystem(T::Type{<:AbstractSystem}) = false
