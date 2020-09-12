@@ -430,8 +430,7 @@ function normalize(system::SOCLCCS{N}) where {N}
     X = stateset(system)
     U = inputset(system)
     A, M⁻¹ = _second_order_linear_matrix(M, C, K)
-    ̃B̃ = vcat(M⁻¹*B, zeros(N, n))
-
+    B̃= vcat(M⁻¹*B, zeros(N, n))
     if U isa LazySet
         Ũ = U × Singleton(zeros(N, n))
     else
@@ -449,8 +448,8 @@ function normalize(system::SOCACCS{N}) where {N}
     d = affine_term(system)
     X = stateset(system)
     U = inputset(system)
-                                                A, M⁻¹ = _second_order_linear_matrix(M, C, K)
-    ̃B̃ = vcat(M⁻¹*B, zeros(N, n))
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K)
+    B̃ = vcat(M⁻¹*B, zeros(N, n))
 
     if U isa LazySet
         Ũ = U × Singleton(zeros(N, n))
