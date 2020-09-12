@@ -25,6 +25,11 @@ const CADS = ConstrainedAffineDiscreteSystem
 const BBCS = BlackBoxContinuousSystem
 const CBBCS = ConstrainedBlackBoxContinuousSystem
 const CBBCCS = ConstrainedBlackBoxControlContinuousSystem
+const SOLCS = SecondOrderLinearContinuousSystem
+const SOACS = SecondOrderAffineContinuousSystem
+
+const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
 
 # continuous systems that are handled by this library
 iscontinuoussystem(T::Type{<:AbstractSystem}) = false
@@ -37,6 +42,8 @@ iscontinuoussystem(T::Type{<:CACS}) = true
 iscontinuoussystem(T::Type{<:BBCS}) = true
 iscontinuoussystem(T::Type{<:CBBCS}) = true
 iscontinuoussystem(T::Type{<:CBBCCS}) = true
+iscontinuoussystem(T::Type{<:SOLCS}) = true
+iscontinuoussystem(T::Type{<:SOACS}) = true
 
 # hybrid systems that are handled by this library
 ishybridsystem(T::Type{<:AbstractSystem}) = false
@@ -381,6 +388,80 @@ end
 function _normalize(ivp::IVP{LCS{N, IdentityMultiple{N}}, Interval{N, IA.Interval{N}}}) where {N}
     return IVP(CLCS(ivp.s.A, Universe(1)), ivp.x0)
 end
+
+# ===========================
+# Second order systems
+# ===========================
+
+function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K) where {N}
+    n = size(M, 1)
+    M⁻¹ = inv(Matrix(M))
+    A = [-M⁻¹*C -M⁻¹*K; Matrix(one(N)*I, n, n) zeros(N, n, n)]
+    return A, M⁻¹
+end
+
+function normalize(system::SOLCS{N}) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    A = _second_order_linear_matrix(M, C, K)
+    return normalize(LCS(A))
+end
+
+function normalize(system::SOACS{N}) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K)
+    b = affine_term(system)
+    c = vcat(M⁻¹*b, zeros(N, n))
+    return normalize(ACS(A, c))
+end
+
+function normalize(system::SOCLCCS{N}) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    B = input_matrix(system)
+    X = stateset(system)
+    U = inputset(system)
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K)
+    ̃B̃ = vcat(M⁻¹*B, zeros(N, n))
+
+    if U isa LazySet
+        Ũ = U × Singleton(zeros(N, n))
+    else
+        Ũ = [Ui × Singleton(zeros(N, n)) for Ui in U]
+    end
+    return normalize(CLCCS(A, B̃, X, Ũ))
+end
+
+function normalize(system::SOCACCS{N}) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    B = input_matrix(system)
+    d = affine_term(system)
+    X = stateset(system)
+    U = inputset(system)
+                                                A, M⁻¹ = _second_order_linear_matrix(M, C, K)
+    ̃B̃ = vcat(M⁻¹*B, zeros(N, n))
+
+    if U isa LazySet
+        Ũ = U × Singleton(zeros(N, n))
+    else
+        Ũ = [Ui × Singleton(zeros(N, n)) for Ui in U]
+    end
+
+    d̃ = vcat(M⁻¹*d, zeros(N, n))
+    return normalize(CACCS(A, B̃, X, Ũ, d̃))
+end
+
+# ---
 
 @inline isidentity(B::IdentityMultiple) = B.M.λ == oneunit(B.M.λ)
 
