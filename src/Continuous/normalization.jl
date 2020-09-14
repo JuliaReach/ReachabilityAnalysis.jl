@@ -409,7 +409,7 @@ function normalize(system::SOLCS{N}) where {N}
     M = mass_matrix(system)
     C = viscosity_matrix(system)
     K = stiffness_matrix(system)
-    A = _second_order_linear_matrix(M, C, K)
+    A, _ = _second_order_linear_matrix(M, C, K)
     return normalize(LCS(A))
 end
 

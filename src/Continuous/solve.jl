@@ -168,7 +168,11 @@ function _check_dim(S, X0; throw_error::Bool=true)
     return false
 end
 
-function _check_dim(S::Union{SOLCS, SOACS, SOCLCCS, SOCACCS}, X0; throw_error::Bool=true)
+function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
+                             SecondOrderAffineContinuousSystem,
+                             SecondOrderConstrainedLinearControlContinuousSystem,
+                             SecondOrderConstrainedAffineControlContinuousSystem},
+                             X0; throw_error::Bool=true)
     n = statedim(S)
     d = _dim(X0)
     d == 2*n && return true
