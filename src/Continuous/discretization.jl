@@ -146,7 +146,7 @@ end
 # ============================================================
 
 # TODO : specialize, add option to compute the concrete linear map
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
+function discretize(ivp::IVP{<:CLCCS{T, MTA, MTB, ST, UT}, <:LazySet}, δ, alg::Forward) where {T, MTA, MTB, ST, UT <: ConstantInput}
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
@@ -163,6 +163,34 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
 
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)
+    Ω0 = _apply_setops(Ω0, alg.setops)
+    X = stateset(ivp)
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    return InitialValueProblem(Sdiscr, Ω0)
+end
+
+function discretize(ivp::IVP{<:CLCCS{T, MTA, MTB, ST, UT}, <:LazySet}, δ, alg::Forward) where {T, MTA, MTB, ST, UT <: VaryingInput}
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+
+    Φ = _exp(A, δ, alg.exp)
+    A_abs = _elementwise_abs(A)
+    Phi2A_abs = Φ₂(A_abs, δ, alg.exp)
+
+    Einit = sih(Phi2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+
+    U = inputset(ivp)
+
+    Ud = Vector{LazySet}(undef, length(U)) #TODO make concrete
+    for (k, Uk) in enumerate(U)
+        Eψk = sih(Phi2A_abs * sih(A * Uk, alg.sih), alg.sih)
+        Ud[k] = δ * Uk ⊕ Eψk
+    end
+    #Ud = VaryingInput(Ud)
+
+    In = IdentityMultiple(one(eltype(A)), size(A, 1))
+
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud[1] ⊕ Einit)
     Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)

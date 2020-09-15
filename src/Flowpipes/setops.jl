@@ -85,6 +85,14 @@ function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
 
+function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::Vector{<:LazySet})
+    return [_convert_or_overapproximate(T, Xk) for Xk in X]
+end
+
+function _convert_or_overapproximate(X::Vector{<:LazySet}, T::Type{<:AbstractPolytope})
+    return _convert_or_overapproximate(T, X)
+end
+
 function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N, VT}}) where {N, VT}
     # TODO create overapproximation using VT directly
     Y = overapproximate(X, BoxDirections(dim(X)))
