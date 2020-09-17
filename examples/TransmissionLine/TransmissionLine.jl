@@ -1,11 +1,11 @@
 # # Transmission line circuit
 #
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/transmission_line.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/TransmissionLine.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: linear continuous system\
 #md #     State dimension: parametric, typically between 4 to 40\
-#md #     Application domain: electrical engineering
+#md #     Application domain: Power Systems Stability
 #
 # We consider the transmission line model used in [AKS11].
 # The RLC circuit of the transmission line is shown below.

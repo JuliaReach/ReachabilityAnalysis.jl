@@ -1,5 +1,5 @@
 # # Laub-Loomis
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/laub_loomis.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/LaubLoomis.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: polynomial with quadratic nonlinearities\
@@ -8,7 +8,7 @@
 #
 # ## Model description
 #
-# The Laub-Loomis model is presented in [1] for studying a class of enzymatic activities.
+# The Laub-Loomis model is presented in [^LL98] for studying a class of enzymatic activities.
 # The dynamics can be defined by the following ODE with 7 variables.
 
 using ReachabilityAnalysis, Plots
@@ -29,11 +29,12 @@ end
 # ## Specifications
 #
 # The specification for the analysis is given next.
-# The initial sets are defined according to the ones used in [2].
+# The initial sets are defined according to the ones used in [^TD13].
 # They are boxes centered at
-# x_1 (0) = 1.2, x 2 (0) = 1.05, x 3 (0) = 1.5, x 4 (0) = 2.4, x 5 (0) = 1, x 6 (0) = 0.1, x 7 (0) = 0.45.
-# The range of the box in the i-th dimension is defined by the interval [x i (0) − W, x i (0) + W ].
-# The width W of the initial set is vital to the difficulty of the reachability analysis job.
+# ``x_1(0) = 1.2``, ``x_2(0) = 1.05``, ``x_3(0) = 1.5``, ``x_4(0) = 2.4``,
+# ``x_5(0) = 1``, ``x_6(0) = 0.1``, ``x_7 (0) = 0.45``.
+# The range of the box in the i-th dimension is defined by the interval ``[x_i(0) − W, x_i(0) + W]``.
+# The width ``W`` of the initial set is vital to the difficulty of the reachability analysis job.
 # The larger the initial set the harder the reachability analysis.
 
 function laubloomis(; W=0.01)
@@ -47,12 +48,13 @@ function laubloomis(; W=0.01)
     return prob
 end
 
-# We consider W = 0.01, W = 0.05, and W = 0.1. For W = 0.01 and W = 0.05 we consider
-# the unsafe region defined by x 4 ≥ 4.5, while for W = 0.1, the unsafe set is defined by x 4 ≥ 5.
+# We consider ``W = 0.01``, ``W = 0.05``, and ``W = 0.1``. The specification for each
+# scenario is the following:
+#
+# - ``W = 0.01`` and ``W = 0.05``: the unsafe region is defined by ``x_4 ≥ 4.5
+# - ``W = 0.1``: the unsafe set is defined by ``x_4 ≥ 5``.
+#
 # The time horizon for all cases is [0, 20].
-
-## canonical direction along x₄
-const e4 = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
 
 # ## Results
 
@@ -75,33 +77,40 @@ sol_1 = solve(prob, T=20.0, alg=alg);
 
 sol_1z = overapproximate(sol_1, Zonotope);
 
-## verify that specification holds
-@show ρ(e4, sol_1z)
-@assert ρ(e4, sol_1z) < 4.5
+# Verifying that the specifications hold:
 
-# width of final box
+## canonical direction along x₄
+const e4 = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0];
+
+ρ(e4, sol_1z)
+#-
+ρ(e4, sol_1z) < 4.5
+
+# To compute the width of the final box width of the final box we use support functions:
 @show ρ(e4, sol_1z[end]) + ρ(-e4, sol_1z[end])
 
 # ### Case 2: Intermediate initial states
 
-# In this case we consider thet the width of the initial states is ``W = 0.05``.
+# In this case we consider the the width of the initial states is ``W = 0.05``.
 
 prob = laubloomis(W=0.05)
 alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
 sol_2 = solve(prob, T=20.0, alg=alg)
-sol_2z = overapproximate(sol_2, Zonotope)
+sol_2z = overapproximate(sol_2, Zonotope);
 
-## verify that specification holds
-@show ρ(e4, sol_2z)
-@assert ρ(e4, sol_2z) < 4.5
+# Verifying that the specification holds:
+
+ρ(e4, sol_2z)
+#-
+ρ(e4, sol_2z) < 4.5
 
 ## width of final box
 @show ρ(e4, sol_2z[end]) + ρ(-e4, sol_2z[end])
 
 # ### Case 3: Larger initial states
 
-# In this case we consider thet the width of the initial states is ``W = 0.1``.
+# In this case we consider that the width of the initial states is ``W = 0.1``.
 
 prob = laubloomis(W=0.1)
 alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
@@ -109,9 +118,10 @@ alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
 sol_3 = solve(prob, T=20.0, alg=alg)
 sol_3z = overapproximate(sol_3, Zonotope);
 
-## verify that specification holds
-@show ρ(e4, sol_3z)
-@assert ρ(e4, sol_3z) < 5.0
+# Verifying that the specification holds:
+ρ(e4, sol_3z)
+#-
+ρ(e4, sol_3z) < 5.0
 
 ## width of final box
 @show ρ(e4, sol_3z[end]) + ρ(-e4, sol_3z[end])
@@ -135,8 +145,6 @@ plot!(fig, x->x, x->5., 0., 20., line=2, color="red", linestyle=:dash, legend=no
 
 # ## References
 
-# [1] M. T. Laub and W. F. Loomis. *A molecular network that produces spontaneous oscillations in
-#     excitable cells of dictyostelium.* Molecular Biology of the Cell, 9:3521–3532, 1998.
+# [^LL98]: M. T. Laub and W. F. Loomis. *A molecular network that produces spontaneous oscillations in excitable cells of dictyostelium.* Molecular Biology of the Cell, 9:3521–3532, 1998.
 
-# [2] R. Testylier and T. Dang. *NLTOOLBOX: A library for reachability computation of nonlinear dynamical
-#     systems.* In Proc. of ATVA’13, volume 8172 of LNCS, pages 469–473. Springer, 2013.
+# [^TD13]: R. Testylier and T. Dang. *NLTOOLBOX: A library for reachability computation of nonlinear dynamical systems.* In Proc. of ATVA’13, volume 8172 of LNCS, pages 469–473. Springer, 2013.

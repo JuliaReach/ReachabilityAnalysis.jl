@@ -1,24 +1,40 @@
 import Literate
 using Literate: script, markdown, notebook
 
-src_dirs = [joinpath(@__DIR__, "..", "examples")]
+# source directory for model files written using Literate.jl format
+source_dir = joinpath(@__DIR__, "..", "examples")
 
-trgt_dir_test = joinpath(@__DIR__, "..", "test", "models")
-trgt_dir = joinpath(@__DIR__, "src", "models")
-trgt_dir = joinpath(@__DIR__, "src", "models")
-mkpath(trgt_dir)
+# target directory for the tests files (bare .jl files)
+target_dir_jl = joinpath(@__DIR__, "..", "test", "models")
 
-for src_dir in src_dirs
-    for file in readdir(src_dir)
-        if endswith(file, ".jl")
-            src_path = abspath(joinpath(src_dir, file))
-            text = script(src_path, trgt_dir_test, credit=false)
-            code = strip(read(text, String))
-            mdpost(str) = replace(str, "@__CODE__" => code)
-            markdown(src_path, trgt_dir, postprocess=mdpost, credit=false)
-            notebook(src_path, trgt_dir, execute=true, credit=false)
-        else
-            @warn "ignoring $src_dir/$file"
-        end
-    end
+# target directory for the markdown files (used by Documenter)
+target_dir_md = joinpath(@__DIR__, "src", "models")
+mkpath(target_dir_md)
+
+# model files in sub-directories of source_dir
+MODELS = ["Brusselator/Brusselator.jl",
+          "Building/Building.jl",
+          "EMBrake/EMBrake.jl",
+          "Heat3D/Heat3D.jl",
+          "ISS/ISS.jl",
+          "LaubLoomis/LaubLoomis.jl",
+          "Lorenz/Lorenz.jl",
+          "LotkaVolterra/LotkaVolterra.jl",
+          #"LotkaVolterraTangential/LotkaVolterraTangential.jl",
+          "OpAmp/OpAmp.jl",
+          "Platoon/Platoon.jl",
+          "ProductionDestruction/ProductionDestruction.jl",
+          "Quadrotor/Quadrotor.jl",
+          "SEIR/SEIR.jl",
+          "Spacecraft/Spacecraft.jl",
+          "TransmissionLine/TransmissionLine.jl",
+          "VanDerPol/VanDerPol.jl"]
+
+for file in MODELS
+    source_path = abspath(joinpath(source_dir, file))
+    text = script(source_path, target_dir_jl, credit=false)
+    code = strip(read(text, String))
+    mdpost(str) = replace(str, "@__CODE__" => code)
+    markdown(source_path, target_dir_md, postprocess=mdpost, credit=false)
+    notebook(source_path, target_dir_md, execute=true, credit=false)
 end

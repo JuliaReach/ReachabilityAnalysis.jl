@@ -17,7 +17,7 @@
 #   y(t) & = & C x(t)
 #   \end{array}
 # ```
-# proposed as a benchmark in ARCH 2016 [TLT16]. It has 270 state variables,
+# proposed as a benchmark in ARCH 2016 [^TLT16]. It has 270 state variables,
 # ``A ∈ \mathbb{R}^{270\times 270}``, ``B ∈ \mathbb{R}^{270\times 3}``,
 # ``C ∈ \mathbb{R}^{3\times 270}``.
 
@@ -30,7 +30,9 @@ using ReachabilityAnalysis, JLD2
 using ReachabilityAnalysis: add_dimension
 
 LazySets.set_ztol(Float64, 1e-15);
-ISS_path = joinpath(@__DIR__, "ISS.jld2");
+
+examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
+ISS_path = joinpath(examples_dir, "ISS", "ISS.jld2")
 
 @load ISS_path C;
 const C3 = C[3, :]; # variable y₃
@@ -122,14 +124,14 @@ sol_ISSF01 = solve(prob_ISSF01, T=20.0, alg=LGG09(δ=6e-4, template=dirs, sparse
 
 πsol_ISSF01 = project(sol_ISSF01, C3);
 
-#md # !!! note "Technical note"
-#         Note that projecting the solution along direction ``C_3`` corresponds to computing
-#         the min and max bounds for each reach-set `X`, `Interval(-ρ(-C3, X), ρ(C3, X)`.
-#         However, the method `project(sol_ISSF01, C3)` is more efficient than manually
-#         evaluating the support functions because it doesn't recompute them alongf
-#         directions ``C_3`` and ``-C_3``, because they are already known to the flowpipe
-#         structure, or more precisely, `project` checks and finds that the given
-#         directions belong to those represented by each `TemplatReachSet`.
+#md # !!! tip "Visualization note"
+#md #      Note that projecting the solution along direction ``C_3`` corresponds to computing
+#md #      the min and max bounds for each reach-set `X`, `Interval(-ρ(-C3, X), ρ(C3, X)`.
+#md #      However, the method `project(sol_ISSF01, C3)` is more efficient than manually
+#md #      evaluating the support functions because it doesn't recompute them alongf
+#md #      directions ``C_3`` and ``-C_3``, because they are already known to the flowpipe
+#md #      structure, or more precisely, `project` checks and finds that the given
+#md #      directions belong to those represented by each `TemplatReachSet`.
 
 using Plots, Plots.PlotMeasures, LaTeXStrings
 
@@ -170,6 +172,4 @@ fig
 
 # ## References
 
-# - [TLT16] Tran, Hoang-Dung, Luan Viet Nguyen, and Taylor T. Johnson.
-#   *Large-scale linear systems from order-reduction (benchmark proposal).*
-#   3rd Applied Verification for Continuous and Hybrid Systems Workshop (ARCH), Vienna, Austria. 2016.
+# [^TLT16]: Tran, Hoang-Dung, Luan Viet Nguyen, and Taylor T. Johnson. *Large-scale linear systems from order-reduction (benchmark proposal).* 3rd Applied Verification for Continuous and Hybrid Systems Workshop (ARCH), Vienna, Austria. 2016.

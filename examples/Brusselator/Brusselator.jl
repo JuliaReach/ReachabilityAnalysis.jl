@@ -1,5 +1,5 @@
 # # Brusselator
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/brusselator.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/Brusselator.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: polynomial continuous system\
@@ -50,7 +50,7 @@ end
 # ## Reachability settings
 #
 # The initial set is defined by ``x \in [0.8, 1]``, ``y \in [0, 0.2]``.
-# These settings are taken from [1].
+# These settings are taken from [^CAS13].
 
 U₀ = (0.8 .. 1.0) × (0.0 .. 0.2); #!jl
 prob = @ivp(u' = brusselator!(U), u(0) ∈ U₀, dim: 2); #!jl
@@ -79,6 +79,4 @@ plot!(solz, vars=(0, 2), xlab="t", lw=0.2, color=:red, lab="y(t)")
 
 # ## References
 
-# [1] X. Chen, E. Abraham, S. Sankaranarayanan. *Flow*: An Analyzer for Non-Linear Hybrid Systems.*
-#     In Proceedings of the 25th International Conference on Computer Aided Verification (CAV’13),
-#     Volume 8044 of LNCS, pages 258-263, Springer, 2013.
+# [^CAS13]: X. Chen, E. Abraham, S. Sankaranarayanan. *Flow*: An Analyzer for Non-Linear Hybrid Systems.* In Proceedings of the 25th International Conference on Computer Aided Verification (CAV’13). Volume 8044 of LNCS, pages 258-263, Springer, 2013.
