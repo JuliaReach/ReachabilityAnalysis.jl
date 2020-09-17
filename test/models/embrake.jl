@@ -1,15 +1,8 @@
-# References:
-#
-#  - [SO15] Strathmann, Thomas, and Jens Oehlerking. "Verifying Properties of an
-#    Electro-Mechanical Braking System." ARCH@ CPSWeek. 2015.
-
-using SparseArrays
-
-# adapt default LazySets tolerances
 set_rtol(Float64, 1e-12)
 set_ztol(Float64, 1e-13)
 
-# model without parameter variation
+# Fixed parameters
+
 function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
     # model's constants
     L = 1.e-3
@@ -45,8 +38,8 @@ function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
     return IVP(ha, X₀)
 end
 
-# model with parameter variation changing only 1 coefficient
-# corresponds to the Flow* settings in [SO15]
+# Parameter variation
+
 function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
     # model's constants
     L = 1.e-3
@@ -83,7 +76,8 @@ function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
     return IVP(ha, X₀)
 end
 
-# model varying all constants by χ% with respect to their nominal values
+# Extended parameter variation
+
 function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
     # model's constants
     Δ = -χ/100 .. χ/100
@@ -119,3 +113,4 @@ function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
     ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
     return IVP(ha, X₀)
 end
+

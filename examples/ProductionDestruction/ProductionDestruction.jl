@@ -1,28 +1,27 @@
 # # Production-Destruction
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/production_destruction.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/ProductionDestruction.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: polynomial continuous system\
-#md #     State dimension: 2\
+#md #     State dimension: 3\
 #md #     Application domain: Chemical kinetics
 #
 # ## Model description
 #
-# A production-destruction system consists of an Ordinary Differential Equation and two constraints:
+# A production-destruction system consists of an ordinary differential equation and two constraints:
 # positivity and conservativity. It means that the system states are quantities which are always positive
 # and the sum of these quantities is constant. This particular family of systems is often used to test
 # the stability of integration schemes.
 #
-# As proposed by Michaelis-Menten theory~\cite{kopecz2018order}, a model for three quantities can be defined as follows:
+# As proposed by Michaelis-Menten theory [^KM18], a model for three quantities can be defined as follows:
 #
 # ```math
-# \left\{
-# \begin{array}{lcl}
-# \dot{x} &=& \frac{-xy}{1+x}\\
-# \dot{y} &=& \frac{xy}{1+x} - a y\\
-# \dot{z} &=& ay
-# \end{array}
-# \right.
+#    \begin{array}{lcl}
+#    \dot{x} &=& \frac{-xy}{1+x}\\
+#    \dot{y} &=& \frac{xy}{1+x} - a y\\
+#    \dot{z} &=& ay
+#    \end{array}
+# ```
 #
 # with ``a=0.3`` and the initial condition ```x(0) = 9.98``, ``y(0) = 0.01`` and
 # ``z(0) = 0.01``. In this model, ``x`` is the nutrients, ``y`` the phytoplankton
@@ -203,6 +202,6 @@ Plots.plot!(fig, sol_pd1z(dt), vars=(0, 3), linecolor="yellow", color=:yellow, a
 
 # ## References
 
-# [1] X. Chen, E. Abraham, S. Sankaranarayanan. *Flow*: An Analyzer for Non-Linear Hybrid Systems.*
-#     In Proceedings of the 25th International Conference on Computer Aided Verification (CAV’13),
-#     Volume 8044 of LNCS, pages 258-263, Springer, 2013.
+# [^KM18]: Kopecz, Stefan, and Andreas Meister. *On order conditions for modified Patankar–Runge–Kutta schemes.* Applied Numerical Mathematics 123 (2018): 159-179.
+
+# [^CAS13]: X. Chen, E. Abraham, S. Sankaranarayanan. *Flow*: An Analyzer for Non-Linear Hybrid Systems.* In Proceedings of the 25th International Conference on Computer Aided Verification (CAV’13), Volume 8044 of LNCS, pages 258-263, Springer, 2013.

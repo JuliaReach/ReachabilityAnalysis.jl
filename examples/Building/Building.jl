@@ -1,5 +1,5 @@
 # # Building
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/building.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/Building.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: Affine system\
@@ -30,7 +30,9 @@ LazySets.set_ztol(Float64, 1e-14)
 
 const x25 = [zeros(24); 1.0; zeros(23)]
 const x25e = vcat(x25, 0.0)
-building_path = joinpath(@__DIR__, "building.jld2")
+
+examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
+building_path = joinpath(examples_dir, "Building", "building.jld2")
 
 function building_BLDF01()
     @load building_path H
@@ -191,4 +193,4 @@ plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8,
 
 # ## References
 
-# [^]: 
+# [^]:
