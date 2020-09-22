@@ -86,5 +86,6 @@ export
 # Clustering methods
     NoClustering,
     LazyClustering,
+    UnionClustering,
     BoxClustering,
     ZonotopeClustering
