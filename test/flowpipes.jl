@@ -35,3 +35,15 @@ end
     @test all(vi ∈ H(ti) for (ti, vi) in zip(times, values))
     @test all(vi ∈ H′(ti) for (ti, vi) in zip(times, values))
 end
+
+@testset "Flowpipe clustering" begin
+    X = Interval(0 .. 1)
+    δ = 0.1
+    F1 = Flowpipe([ReachSet(X, (0 .. δ) + k*δ) for k in 0:10])
+
+    # FIXME requires LazySets#2157
+    #N = eltype(X)
+    #U1 = cluster(F1, 8:10, UnionClustering())
+    #@test U1 isa Vector{ReachSet{N, UnionSetArray{N,Interval{N, IA.Interval{N}}}}}
+    #@test set(first(U1)) == UnionSetArray([set(Fi) for Fi in F1[8:10]])
+end

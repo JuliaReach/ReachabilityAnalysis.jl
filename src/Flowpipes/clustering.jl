@@ -182,6 +182,14 @@ end
 # Zonotope clustering
 # =====================================
 
+"""
+    ZonotopeClustering{P} <: AbstractClusteringMethod{P}
+
+### Notes
+
+This method first takes a lazy convex hull for the given partition, then computes
+a zonotope overapproximation of the convex hull.
+"""
 struct ZonotopeClustering{P} <: AbstractClusteringMethod{P}
     partition::P
 end
