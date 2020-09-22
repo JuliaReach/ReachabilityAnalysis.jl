@@ -6,8 +6,8 @@ Abstract supertype for all clustering types, with partition of type `P`.
 ### Notes
 
 A clustering method defines a function which maps reach-sets to one or several
-reach-sets in an over-approximative way, i.e. such that the set union of the input
-reach-sets is included in the set union of the output reach-sets.
+reach-sets. The mapping can possibly be over-approximative, i.e. such that the
+set union of the input reach-sets is included in the set union of the output reach-sets.
 
 By taking the convex hull of the input reach-sets one can reduce the number of
 outputs sets to a single one, overapproximately. This is the method that corresponds
@@ -182,6 +182,14 @@ end
 # Zonotope clustering
 # =====================================
 
+"""
+    ZonotopeClustering{P} <: AbstractClusteringMethod{P}
+
+### Notes
+
+This method first takes a lazy convex hull for the given partition, then computes
+a zonotope overapproximation of the convex hull.
+"""
 struct ZonotopeClustering{P} <: AbstractClusteringMethod{P}
     partition::P
 end
@@ -210,3 +218,43 @@ end
 # convexify and convert to vrep
 #C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])
 #Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
+
+# =====================================
+# Lazy union set array clustering
+# =====================================
+
+"""
+    UnionClustering{P} <: AbstractClusteringMethod{P}
+
+Cluster according to the given partition by applying a lazy representation of the
+set union.
+"""
+struct UnionClustering{P} <: AbstractClusteringMethod{P}
+    partition::P
+end
+
+partition(method::UnionClustering) = method.partition
+
+UnionClustering() = UnionClustering(missing)
+UnionClustering(nchunks::D) where {D<:Integer} = UnionClustering{D}(nchunks)
+UnionClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = UnionClustering{VT}(partition)
+
+function cluster(F, idx, ::UnionClustering{Missing})
+    Fidx = view(F, idx)
+    Δt = tspan(Fidx)
+    Uidx = UnionSetArray([set(R) for R in Fidx])
+    return [ReachSet(Uidx, Δt)]
+end
+
+function cluster(F, idx, method::UnionClustering{P}) where {P}
+    p = _partition(method, idx)
+    return [cluster(F, cj, UnionClustering()) for cj in p]
+end
+
+# for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::UnionClustering) where {N}
+    Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
+
+    # Fx is now indexed from 1 ... length(idx)
+    return cluster(Fz, 1:length(idx), method)
+end
