@@ -252,7 +252,7 @@ function cluster(F, idx, method::UnionClustering{P}) where {P}
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::UnionClustering) where {N}
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::UnionClustering{Missing}) where {N}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
 
     # Fx is now indexed from 1 ... length(idx)
