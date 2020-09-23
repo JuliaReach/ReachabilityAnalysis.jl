@@ -209,6 +209,7 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     return !isempty(out) ? UnionSetArray(out) : EmptySet(dim(X))
 end
 
+
 # -------------------------------------------
 # Cases where the reset map is RX ⊕ W
 # -------------------------------------------
@@ -279,6 +280,72 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     out = apply(tr, X, HRepIntersection())
     return overapproximate(out, Hyperrectangle)
 end
+
+# all sets are polyhedral the reach-set is a set union
+# each successor in the set union X is computed using HRep, then we overapproximate
+# with a box
+function apply(tr::DiscreteTransition{RT, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::UnionSetArray{N},
+               method::BoxIntersection) where {N, RT,
+                                                GT<:AbstractPolyhedron{N},
+                                                IT⁻<:AbstractPolyhedron{N},
+                                                IT⁺<:AbstractPolyhedron{N}}
+    out = Vector{HPolytope{N, Vector{N}}}()
+    for Xi in X.array
+        # compute Yi := X ∩ G ∩ I⁻ exactly
+        success, clist = _intersection(Xi, tr.G, tr.I⁻, HRepIntersection())
+        !success && return EmptySet(dim(X))
+        Yi = HPolytope(clist)
+
+        # compute Ki := R * Yi exactly
+        Ki = linear_map(tr.R, Yi)
+
+        # compute Qi := Ki ∩ I⁺ exactly
+        success, clist = _intersection(Ki, tr.I⁺, HRepIntersection())
+        !success && return EmptySet(dim(X))
+
+        # store the polytope in constraint representation
+        Qi = HPolytope(clist)
+        push!(out, Qi)
+    end
+
+    # overapproximate the result with a hyperrectangle
+    return overapproximate(UnionSetArray(out), Hyperrectangle)
+end
+
+# all sets are polyhedral the reach-set is a set union
+# each successor in the set union X is computed overapproximating with a
+# hyperrectangle (TODO)
+#=
+function apply(tr::DiscreteTransition{RT, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::UnionSetArray{N},
+               method::BoxIntersection) where {N, RT,
+                                                GT<:AbstractPolyhedron{N},
+                                                IT⁻<:AbstractPolyhedron{N},
+                                                IT⁺<:AbstractPolyhedron{N}}
+    out = Vector{HPolytope{N, Vector{N}}}()
+    for Xi in X.array
+        # compute Yi := X ∩ G ∩ I⁻ exactly
+        success, clist = _intersection(Xi, tr.G, tr.I⁻, HRepIntersection())
+        !success && return EmptySet(dim(X))
+        Yi = HPolytope(clist)
+
+        # compute Ki := R * Yi exactly
+        Ki = linear_map(tr.R, Yi)
+
+        # compute Qi := Ki ∩ I⁺ exactly
+        success, clist = _intersection(Ki, tr.I⁺, HRepIntersection())
+        !success && return EmptySet(dim(X))
+
+        # store the polytope in constraint representation
+        Qi = HPolytope(clist)
+        push!(out, Qi)
+    end
+
+    # overapproximate the result with a hyperrectangle
+    return overapproximate(UnionSetArray(out), Hyperrectangle)
+end
+=#
 
 #=
 function _apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},

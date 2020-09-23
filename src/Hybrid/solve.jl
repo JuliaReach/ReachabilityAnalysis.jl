@@ -11,7 +11,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                clustering_method::AbstractClusteringMethod=BoxClustering(), # method to perform clustering of the sets that cross a guard
                check_invariant_initial_states=false, # apply a disjointness check wrt each mode's invariant in the distribution of initial sets
                intersect_invariant_initial_states=false, # take the concrete intersection wrt each mode's invariant when distributing the initial states
-               intersection_source_invariant_method=FallbackIntersection(), # method to take the concrete intersection with the source invariant
+               intersection_source_invariant_method=HRepIntersection(), # method to take the concrete intersection with the source invariant
                first_mode_representative=true, # assume that the first mode is representative of the other modes when checking that the dimension in each mode is consistent
                intersect_source_invariant=true, # take the concrete intersection of the flowpipe with the source invariant
                disjointness_method=NoEnclosure(), # method to compute disjointness
@@ -50,8 +50,9 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     # preallocate output flowpipe strictly contained in each source invariant
     if intersect_source_invariant
-        RTwl = ReachSet{N, STwl}
-        out_in_inv = Vector{Flowpipe{N, RTwl, Vector{RTwl}}}()
+        STinv = setrep(intersection_source_invariant_method)
+        RTinv = ReachSet{N, STinv}
+        out_in_inv = Vector{Flowpipe{N, RTinv, Vector{RTinv}}}()
         sizehint!(out_in_inv, max_jumps+1)
     end
 
@@ -93,11 +94,17 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             I⁻ = stateset(H, q)
 
             # assign location q to this flowpipe
-            F_in_inv = Flowpipe(undef, STwl, 0)
+            F_in_inv = Flowpipe(undef, STinv, 0)
 
             for Ri in F
                 # TODO refactor with reconstruct
-                aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
+                if intersection_source_invariant_method isa HRepIntersection
+                    # TEMP needed since HRepIntersection returns a list of constraints
+                    _, aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
+                    aux = HPolytope(aux)
+                else
+                    aux = _intersection(Ri, I⁻, intersection_source_invariant_method)
+                end
                 Raux = ReachSet(aux, tspan(Ri))
                 push!(F_in_inv, Raux)
             end
