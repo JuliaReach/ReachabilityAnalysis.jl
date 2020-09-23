@@ -242,6 +242,9 @@ end
 
 _Projection(X::LazySet, vars::AbstractVector) =  _Projection(X, Tuple(vars))
 
+# Concrete linear map
+LazySets.linear_map(::IdentityMap, X::LazySet) = X
+
 # ===============================
 # Decompositions and partitions
 # ===============================
