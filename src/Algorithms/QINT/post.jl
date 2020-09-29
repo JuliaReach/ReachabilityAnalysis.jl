@@ -32,7 +32,7 @@ function reach_homog_QINT(alg::QINT{N}, ivp::IVP{<:AbstractContinuousSystem}, ts
 
     if got_homogeneous
         # FIXME consider Δt0
-        F = reach_homog_QINT(a, b, c, Ω0, T, Δ, δ, θ, maxiter)
+        F = reach_homog_QINT(a=a, b=b, c=c, X0=Ω0, T=T, Δ=Δ, δ=δ, θ=θ, maxiter=maxiter)
     else
         error("not implemented yet")
         #U = inputset(ivp_discr)

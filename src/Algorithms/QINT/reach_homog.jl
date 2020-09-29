@@ -12,7 +12,7 @@ function _linearize(a, b, c, x̃)
     return α, β
 end
 
-function reach_homog_QINT(a, b, c, # right-hand side: f(x) = ax^2 + bx + c
+function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
                           X0,      # initial set
                           T,       # time span: [0, T]
                           Δ::N,    # step size for NL reach

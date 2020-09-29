@@ -29,5 +29,6 @@ include("algorithms/LGG09.jl")
 include("algorithms/ASB07.jl")
 include("algorithms/BFFPSV18.jl")
 include("algorithms/TMJets.jl")
+include("algorithms/QINT.jl")
 
 include("hybrid.jl")
