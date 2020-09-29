@@ -799,6 +799,20 @@ function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersectio
     intersection(X, Y)
 end
 
+function _intersection(X::LazySet, Y::LazySet, ::BoxIntersection)
+    #Xbox = box_approximation(X)
+    #Ybox = box_approximation(Y)
+    #intersection(Xbox, Ybox)
+    _intersection(X, Y, TemplateHullIntersection(BoxDirections(dim(X))))
+end
+
+function _intersection(X::LazySet, Y::LazySet, Z::LazySet, ::BoxIntersection)
+    #Xbox = box_approximation(X)
+    #Ybox = box_approximation(Y)
+    #Zbox = box_approximation(Z)
+    _intersection(X, Y, Z, TemplateHullIntersection(BoxDirections(dim(X))))
+end
+
 # TODO overapprox Y with a box if it's bounded?
 function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
     X = set(overapproximate(R, Hyperrectangle))
@@ -903,6 +917,18 @@ function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{
     @inbounds for (i, d) in enumerate(dirs)
         d = convert(VN, d)
         b = min(ρ(d, X), ρ(d, Y))
+        out[i] = HalfSpace(d, b)
+    end
+    return HPolytope(out)
+end
+
+# use ρ(d, X∩Y∩Z) ≤ min(ρ(d, X), ρ(d, Y), ρ(d, Z)) for each d in the template
+function _intersection(X::LazySet, Y::LazySet, Z::LazySet, method::TemplateHullIntersection{N, VN, TN}) where {N, VN, TN<:AbstractDirections{N, VN}}
+    dirs = method.dirs
+    out = Vector{HalfSpace{N, VN}}(undef, length(dirs))
+    @inbounds for (i, d) in enumerate(dirs)
+        d = convert(VN, d)
+        b = min(ρ(d, X), ρ(d, Y), ρ(d, Z))
         out[i] = HalfSpace(d, b)
     end
     return HPolytope(out)
