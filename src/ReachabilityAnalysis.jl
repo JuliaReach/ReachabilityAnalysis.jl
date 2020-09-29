@@ -42,6 +42,7 @@ include("Algorithms/ASB07/ASB07.jl")
 
 # Nonlinear
 include("Algorithms/TMJets/TMJets.jl")
+include("Algorithms/QINT/QINT.jl")
 #include("Algorithms/A13/A13.jl")
 #include("Algorithms/KA19/KA19.jl")
 

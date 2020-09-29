@@ -12,6 +12,7 @@ export
     INT,
     LGG09,
     TMJets,
+    QINT,
 
 # Approximation models
     Forward,
