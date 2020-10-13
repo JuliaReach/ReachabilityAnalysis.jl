@@ -244,9 +244,22 @@ are available:
 abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
 # Implement LazySets interface
-LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
-LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
+
+LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
+LazySets.ρ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = map(Ri -> ρ(d, set(Ri)), R) |> maximum
+LazySets.ρ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = map(Ri -> ρ(d, set(Ri)), R) |> maximum
+
+LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
+LazySets.σ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
+LazySets.σ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
+
+function _σ_vec(d, Rvec)
+    σarray = map(Ri -> σ(d, set(Ri)), R)
+    ρarray = map(vi -> dot(d, vi), σarray)
+    m = argmax(ρarray)
+    return σarray[m]
+end
 
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
@@ -280,19 +293,16 @@ function overapproximate(R::AbstractLazyReachSet, func)
     return reconstruct(R, overapproximate(set(R), func))
 end
 
-# handle generic vars vector
-function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
-    return project(R, Tuple(vars))
-end
+# concrete projection extensions
+project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer} = project(R, Tuple(vars))
+project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
 
-# handle generic kwargs vars
-function project(R::AbstractLazyReachSet; vars)
-    return project(R, Tuple(vars))
-end
-
-function project(R::Vector{<:AbstractLazyReachSet}; vars)
-    return map(Ri -> project(Ri, Tuple(vars)), R)
-end
+# projectin of an array of reach-sets
+_project_vec(R, vars) = map(Ri -> project(Ri, Tuple(vars)), R)
+project(R::Vector{<:AbstractLazyReachSet}, vars::AbstractVector{M}) where {M<:Integer} = _project_vec(R, vars)
+project(R::Vector{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
+project(R::SubArray{<:AbstractLazyReachSet}, vars) = _project_vec(R, vars)
+project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
 
 function project(R::AbstractLazyReachSet, M::AbstractMatrix; vars=nothing)
     πR = linear_map(M, R)

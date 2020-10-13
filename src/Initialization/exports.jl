@@ -52,12 +52,12 @@ export
     project,
     shift,
     complement,
+    convexify,
     cluster,
 
 # Lazy operations on flowpipes
     Projection,
     Shift,
-    Convexify,
 
 # Hybrid types
     HACLD1,

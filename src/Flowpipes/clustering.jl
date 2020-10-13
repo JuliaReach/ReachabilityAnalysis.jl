@@ -95,12 +95,12 @@ LazyClustering(nchunks::D) where {D<:Integer} = LazyClustering{D}(nchunks)
 LazyClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = LazyClustering{VT}(partition)
 
 function cluster(F, idx, ::LazyClustering{Missing})
-    return [Convexify(view(F, idx))]
+    return [convexify(view(F, idx))]
 end
 
 function cluster(F, idx, method::LazyClustering{P}) where {P}
     p = _partition(method, idx)
-    convF = [Convexify(view(F, cj)) for cj in p]
+    convF = [convexify(view(F, cj)) for cj in p]
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
@@ -140,13 +140,13 @@ _out_partition(method::BoxClustering{PI, VT}, idx, n) where {PI, D<:Integer, VT<
 
 # do not partition neither the input nor the output
 function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, ::BoxClustering{Missing, Missing}) where {N}
-    convF = Convexify(view(F, idx))
+    convF = convexify(view(F, idx))
     return [overapproximate(convF, Hyperrectangle)]
 end
 
 # do not partition neither the input but split the output
 function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{Missing, PO}) where {N, PO}
-    convF = Convexify(view(F, idx))
+    convF = convexify(view(F, idx))
     Y = overapproximate(convF, Hyperrectangle)
     p = _out_partition(method, idx, dim(F))
     return split(Y, p)
@@ -156,14 +156,14 @@ end
 #function cluster(F::Flowpipe{N, Union{<:ReachSet, <:SparseReachSet}}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
 function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
     p = _partition(method, idx)
-    convF = [Convexify(view(F, cj)) for cj in p]
+    convF = [convexify(view(F, cj)) for cj in p]
     return [overapproximate(Xc, Hyperrectangle) for Xc in convF]
 end
 
 # partition the input array and do not partition the output
 function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{PI, PO}) where {N, PI, PO}
     p = _partition(method, idx)
-    convF = [Convexify(view(F, cj)) for cj in p]
+    convF = [convexify(view(F, cj)) for cj in p]
     Y = [overapproximate(Xc, Hyperrectangle) for Xc in convF]
     pout = _out_partition(method, idx, dim(F))
     Ys = reduce(vcat, [split(y, pout) for y in Y])
@@ -216,7 +216,7 @@ end
 
 
 # convexify and convert to vrep
-#C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])
+#C = ReachabilityAnalysis.convexify(sol[end-aux+1:end])
 #Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
 
 # =====================================
