@@ -1,4 +1,6 @@
-## Introduction
+# Basics
+
+## Problem statement
 
 In simple terms, reachability analysis is concerned with studying the sets of states
 that a system can reach, starting from a set of initial states and under the
@@ -44,3 +46,22 @@ in this library. The concept of reach-set, flowpipe and safety verification are
 naturally extended to hybrid automata, although there is the additional complication
 that the flowpipe must include the behaviors for all possible transitions between
 discrete modes that are compatible with the dynamics.
+
+
+## Set representations
+
+### Convex sets
+
+### Polyhedra
+
+### Zonotopes
+
+### LazySets
+
+## Reach-sets
+
+We consider as a running example in this section the simple harmonic oscillator,
+
+## Flowpipes
+
+A flowpipe represents a collection of reach-sets that behaves like a set union.

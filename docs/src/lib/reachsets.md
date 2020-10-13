@@ -41,12 +41,6 @@ ReachSet
 SparseReachSet
 ```
 
-## Projections
-
-```@docs
-project
-```
-
 ## Taylor model reach-sets
 
 ```@docs

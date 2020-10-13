@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                    :(using ReachabilityAnalysis); recursive=true)
 
 # generate Literate documentation
-include("generate.jl")
+#include("generate.jl")
 
 makedocs(
     format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),  # disable for local builds
@@ -16,17 +16,16 @@ makedocs(
     strict = false,
     pages = [
         "Home" => "index.md",
-        "Introduction" => "introduction.md",
-        "Manual" => Any["Set representations" => "man/setrep.md",
+        "Manual" => Any["Basics" => "man/basics.md",
                         "Linear ODEs" => "man/linear.md",
-                        "Exploiting structure" => "man/linear_high_dim.md",
                         "Nonlinear ODEs" => "man/nonlinear.md",
                         "Hybrid systems" => "man/hybrid.md",
+                        "Clocked systems" => "man/clocked.md",
+                        "Exploiting structure" => "man/structure.md",
                         "Parametric reachability" => "man/parametric.md",
-                        #"FAQ" => "man/faq.md",
                         "Benchmarks" => "man/benchmarks.md",
-                        "Model library" => "man/library.md"],
-                        # Other topics: Distributed computations. Multithreading.
+                        "Model library" => "man/library.md",
+                        "FAQ" => "man/faq.md"],
         "Examples" => Any["Van der Pol oscillator" => "models/VanDerPol.md",
                           "Transmision line" => "models/TransmissionLine.md",
                           "Laub-Loomis" => "models/LaubLoomis.md",
@@ -53,8 +52,12 @@ makedocs(
         "API Reference" => Any["Reach-sets" => "lib/reachsets.md",
                                "Flowpipes" => "lib/flowpipes.md",
                                "Solutions" => "lib/solutions.md",
+                               "Systems" => "lib/systems.md",
                                "Discretization" => "lib/discretize.md",
-                               "Clustering" => "lib/clustering.md"],
+                               "Projections" => "lib/projections.md",
+                               "Clustering" => "lib/clustering.md",
+                               "Further operations" => "lib/operations.md",
+                               "Distributed computations" => "lib/distributed.md"],
         "References" => "references.md",
         "About" => "about.md"
     ]
