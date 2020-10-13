@@ -69,10 +69,7 @@ In this fallback implementation, the flowpipe behaves like the union of the
 reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
 """
 function LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
-    σarray = map(Ri -> σ(d, set(Ri)), array(fp))
-    ρarray = map(vi -> dot(d, vi), σarray)
-    m = argmax(ρarray)
-    return σarray[m]
+    return _σ_vec(d, array(fp))
 end
 
 """
@@ -394,19 +391,57 @@ function shift(fp::Flowpipe{N, <:AbstractReachSet}, t0::Number) where {N}
     return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)
 end
 
-# return one reach-set by taking the convex hull of the reach-sets in the
-# given flowpipe. TODO add second argument for number of reach-sets
-# return a flowpipe..?
-# TODO: lazily convexify?
-function Convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
+"""
+    convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
+
+Return a reach-set representing the convex hull array of the flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+A reach-set that contains the convex hull array, `ConvexHullArray`, of the given
+flowpipe.
+
+### Notes
+
+The time span of this reach-set is the same as the time-span of the flowpipe.
+
+This function allocates an array to store the sets of the flowpipe.
+"""
+function convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
     Y = ConvexHullArray([set(X) for X in array(fp)])
     return ReachSet(Y, tspan(fp))
 end
 
-function Convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
+"""
+    convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
+
+Return a reach-set representing the convex hull array of the array of the array of
+reach-sets.
+
+### Input
+
+- `fp` -- array of reach-sets
+
+### Output
+
+A reach-set that contains the convex hull array, `ConvexHullArray`, of the given
+flowpipe.
+
+### Notes
+
+The time span of this reach-set corresponds to the minimum (resp. maximum) of the
+time span of each reach-set in `fp`.
+
+This function allocates an array to store the sets of the flowpipe.
+"""
+function convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
     Y = ConvexHullArray([set(X) for X in fp])
-    ti = tstart(fp[1])
-    tf = tend(fp[end])
+    ti = minimum(tstart, fp)
+    tf = minimum(tend, fp)
     return ReachSet(Y, TimeInterval(ti, tf))
 end
 

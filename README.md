@@ -63,23 +63,24 @@ The following types of systems are supported.
 
 |         |      |
 |:--------:|:-----:|
-| ![quadrotor](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-Quadrotor.png?raw=true) [Quadrotor altitude control](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/quadrotor/) |  ![LVHybrid](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-LotkaVolterra.png?raw=true) Lotka-Volterra with tangential guard crossing|
+| ![quadrotor](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-Quadrotor.png?raw=true) [Quadrotor altitude control](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/) |  ![LVHybrid](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-LotkaVolterra.png?raw=true) [Lotka-Volterra with tangential guard crossing](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/LotkaVolterra/lotka_volterra.jl)|
 |         |      |
-| ![LaubLoomis](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-LaubLoomis.png?raw=true) [Laub-Loomis model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/laub_loomis/)    | ![PD](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-ProductionDestruction.png?raw=true)<br> [Production-Destruction model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/production_destruction/)|
+| ![LaubLoomis](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-LaubLoomis.png?raw=true) [Laub-Loomis model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LaubLoomis/)    | ![PD](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-ProductionDestruction.png?raw=true)<br> [Production-Destruction model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/ProductionDestruction/)|
 |         |      |
-|![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) Coupled van der pol oscillator model  | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendez-vous model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/spacecraft/) |
+|![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) [Coupled van der pol oscillator model](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/VanDerPol/vanderpol.jl) | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendez-vous model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/) |
 
 
 ## :blue_book: Publications
 
 This library has been applied in a number of scientic works. We list them in reverse chronological order. 
 
-[10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
+[10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325). Accepted in [18th ACM-IEEE International Conference on Formal Methods and Models for System Design
+](https://iitjammu.ac.in/conferences/memocode2020/index.html).
 
-[9] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Zongnan Bao, Marcelo Forets, Daniel Freire, Goran Frehse, Niklas Kochdumper, Yangge Li, Sayan Mitra, Rajarshi Ray, Christian Schilling, Stefan Schupp, and Mark Wetzlinger (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems.
+[9] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Zongnan Bao, Marcelo Forets, Daniel Freire, Goran Frehse, Niklas Kochdumper, Yangge Li, Sayan Mitra, Rajarshi Ray, Christian Schilling, Stefan Schupp, and Mark Wetzlinger (2020) ARCH20. 7th International Workshop on Applied Verification of Continuous and Hybrid Systems. 7th International Workshop on Applied Verification of Continuous and Hybrid Systems (ARCH20), vol 74, pages 16--48. [10.29007/7dt2](https://easychair.org/publications/paper/DRpS).
 
 [8] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Nonlinear Dynamics.** Luca Geretti, Julien Alexandre dit Sandretto, Matthias Althoff, Luis Benet, Alexandre Chapoutot, Xin Chen, Pieter Collins, Marcelo Forets, Daniel Freire, Fabian Immler, Niklas Kochdumper, David P. Sanders and Christian
-Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems.
+Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems. 7th International Workshop on Applied Verification of Continuous and Hybrid Systems (ARCH20), vol 74, pages 49--75. [10.29007/zkf6](https://easychair.org/publications/paper/nrdD).
 
 [7] **Case Study: Reachability Analysis of a unified Combat-Command-and-Control Model.** Sergiy Bogomolov, Marcelo Forets, Kostiantyn Potomkin. Accepted in [14th International Conference on Reachability Problems 2020](https://www.irif.fr/~rp2020/).
 

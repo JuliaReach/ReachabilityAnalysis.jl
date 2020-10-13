@@ -11,8 +11,8 @@ const IA = IntervalArithmetic
 include("models/exponential1D.jl")
 include("models/motor.jl")
 include("models/linear5D.jl")
-include("models/vanderpol.jl")
-include("models/embrake.jl")
+include("models/VanDerPol.jl")
+include("models/EMBrake.jl")
 include("models/bouncing_ball.jl")
 
 #include("utils.jl")
@@ -29,5 +29,6 @@ include("algorithms/LGG09.jl")
 include("algorithms/ASB07.jl")
 include("algorithms/BFFPSV18.jl")
 include("algorithms/TMJets.jl")
+include("algorithms/QINT.jl")
 
 include("hybrid.jl")

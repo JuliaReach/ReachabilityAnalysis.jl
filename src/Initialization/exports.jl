@@ -12,6 +12,7 @@ export
     INT,
     LGG09,
     TMJets,
+    QINT,
 
 # Approximation models
     Forward,
@@ -51,12 +52,12 @@ export
     project,
     shift,
     complement,
+    convexify,
     cluster,
 
 # Lazy operations on flowpipes
     Projection,
     Shift,
-    Convexify,
 
 # Hybrid types
     HACLD1,
@@ -86,5 +87,6 @@ export
 # Clustering methods
     NoClustering,
     LazyClustering,
+    UnionClustering,
     BoxClustering,
     ZonotopeClustering
