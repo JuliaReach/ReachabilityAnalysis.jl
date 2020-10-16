@@ -163,7 +163,24 @@ function _check_dim(S, X0; throw_error::Bool=true)
     if throw_error
         throw(ArgumentError("the state-space dimension should match " *
                             "the dimension of the initial state, but they are " *
-                            "$n and $(dim(X0)) respectively"))
+                            "$n and $d respectively"))
+    end
+    return false
+end
+
+function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
+                             SecondOrderAffineContinuousSystem,
+                             SecondOrderConstrainedLinearControlContinuousSystem,
+                             SecondOrderConstrainedAffineControlContinuousSystem},
+                             X0; throw_error::Bool=true)
+    n = statedim(S)
+    d = _dim(X0)
+    d == 2*n && return true
+
+    if throw_error
+        throw(ArgumentError("the dimension of the initial state should be " *
+                            "twice the state-space dimension, but they are " *
+                            "$d and $n respectively"))
     end
     return false
 end
@@ -317,7 +334,7 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
-        if statedim(ivp) == 1
+        if statedim(ivp) == 1 && !is_second_order(ivp)
             opC = INT(δ=δ)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
