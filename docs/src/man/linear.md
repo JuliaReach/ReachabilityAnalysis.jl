@@ -81,3 +81,27 @@ Formulating the mathematical problem involves writing the system as a first-orde
 
 In the following example we consider a spring-mass system which is a linear ODE
 with two-degrees of freedom.
+
+## Oscillatory systems
+
+Second order systems of the form
+```math
+    Mx''(t) + Cx'(t) + Kx(t) = f(t)
+```
+can be automatically transformed to linear systems and solved using linear reachability
+solvers. For example, let's solve the damped oscillating system without a forcing
+term,
+```math
+    x''(t) + 0.5~x'(t) + 4x(t) = 0, \qquad x(0) ∈ [0.7 .. 1.3] × [0.7 .. 1.3]
+```
+
+```@example second_order_damped
+# x'' + 0.5x' + 4x = 0
+sys = SecondOrderLinearContinuousSystem(hcat([1.0]), hcat([0.5]), hcat([4.0]))
+
+B0 = BallInf(ones(2), 0.3)
+sol = solve(@ivp(sys, x(0) ∈ B0), tspan=(0.0, 10.0), alg=GLGM06(δ=0.01));
+
+plot(sol, vars=(0, 1), lw=.2, xlab="time", lab="x(t)")
+plot!(sol, vars=(0, 2), lw=.2, xlab="time", lab="v(t)")
+```

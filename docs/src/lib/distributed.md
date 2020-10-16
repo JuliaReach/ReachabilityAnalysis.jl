@@ -1,3 +1,4 @@
+```@meta
 DocTestSetup = :(using ReachabilityAnalysis)
 ```
 

@@ -50,6 +50,11 @@ iscontinuoussystem(T::Type{<:SOCACCS}) = true
 ishybridsystem(T::Type{<:AbstractSystem}) = false
 ishybridsystem(T::Type{<:HybridSystem}) = true
 
+# systems that are second order
+function is_second_order(::ST) where {ST<:AbstractContinuousSystem}
+    ST <: SOLCS || ST <: SOACS || ST <: SOCLCCS || ST <: SOCACCS
+end
+
 #export LCS, LDS, CLCS, CLDS, CLCCS, CLCDS, CACCS, CACDS, CACS, CADS, IVP, BBCS,
 #       CBBCS, CBBCCS
 

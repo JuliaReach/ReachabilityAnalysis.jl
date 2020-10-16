@@ -334,7 +334,7 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
-        if statedim(ivp) == 1
+        if statedim(ivp) == 1 && !is_second_order(ivp)
             opC = INT(δ=δ)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
