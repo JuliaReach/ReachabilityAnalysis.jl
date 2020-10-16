@@ -96,6 +96,8 @@ term,
 ```
 
 ```@example second_order_damped
+using ReachabilityAnalysis, Plots
+
 # x'' + 0.5x' + 4x = 0
 sys = SecondOrderLinearContinuousSystem(hcat([1.0]), hcat([0.5]), hcat([4.0]))
 
