@@ -395,36 +395,58 @@ end
 # ===========================
 
 # we left the n-dimensional second order system to a 2n-dimensional first
-# order system, assuming that the first n variables correspond to "velocities"
-# and the second n variables to "positions" x̃ = [x', x]
-function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K) where {N}
+# order system
+# if derivatives_last = true (Default)
+# we assum that the first n variables correspond to position and the last n
+# to velocities as in x̃ = [x, x']
+#
+# otherwise, if derivatives_last = false
+# we assum that the first n variables correspond to velocities and the last n
+# to position as in x̃ = [x', x]
+function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K; derivatives_last=true) where {N}
     n = size(M, 1)
     M⁻¹ = inv(Matrix(M))
-    A = [-M⁻¹*C -M⁻¹*K; Matrix(one(N)*I, n, n) zeros(N, n, n)]
+    Idn = Matrix(one(N)*I, n, n)
+    Zn = zeros(N, n, n)
+
+    if derivatives_last
+        A = [Zn       Idn   ;
+             -M⁻¹*K   -M⁻¹*C]
+    else
+        A = [-M⁻¹*C   -M⁻¹*K;
+             Idn          Zn]
+    end
     return A, M⁻¹
 end
 
-function normalize(system::SOLCS{N}) where {N}
+function normalize(system::SOLCS{N}; derivatives_last=true) where {N}
     n = statedim(system)
     M = mass_matrix(system)
     C = viscosity_matrix(system)
     K = stiffness_matrix(system)
-    A, _ = _second_order_linear_matrix(M, C, K)
+    A, _ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
     return normalize(LCS(A))
 end
 
-function normalize(system::SOACS{N}) where {N}
+function normalize(system::SOACS{N}; derivatives_last=true) where {N}
     n = statedim(system)
     M = mass_matrix(system)
     C = viscosity_matrix(system)
     K = stiffness_matrix(system)
-    A, M⁻¹ = _second_order_linear_matrix(M, C, K)
+
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+
     b = affine_term(system)
-    c = vcat(M⁻¹*b, zeros(N, n))
+    if derivatives_last
+        c = vcat(zeros(N, n), M⁻¹*b)
+    else
+        c = vcat(M⁻¹*b, zeros(N, n))
+    end
+
     return normalize(ACS(A, c))
 end
 
-function normalize(system::SOCLCCS{N}) where {N}
+function normalize(system::SOCLCCS{N}; derivatives_last=true) where {N}
     n = statedim(system)
     M = mass_matrix(system)
     C = viscosity_matrix(system)
@@ -433,12 +455,16 @@ function normalize(system::SOCLCCS{N}) where {N}
     X = stateset(system)
     U = inputset(system)
 
-    A, M⁻¹ = _second_order_linear_matrix(M, C, K)
-    B̃ = vcat(M⁻¹*B, zeros(N, n))
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+    if derivatives_last
+        B̃ = vcat(zeros(N, n), M⁻¹*B)
+    else
+        B̃ = vcat(M⁻¹*B, zeros(N, n))
+    end
     return normalize(CLCCS(A, B̃, X, U))
 end
 
-function normalize(system::SOCACCS{N}) where {N}
+function normalize(system::SOCACCS{N}; derivatives_last=true) where {N}
     n = statedim(system)
     M = mass_matrix(system)
     C = viscosity_matrix(system)
@@ -448,9 +474,15 @@ function normalize(system::SOCACCS{N}) where {N}
     X = stateset(system)
     U = inputset(system)
 
-    A, M⁻¹ = _second_order_linear_matrix(M, C, K)
-    B̃ = vcat(M⁻¹*B, zeros(N, n))
-    d̃ = vcat(M⁻¹*d, zeros(N, n))
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+
+    if derivatives_last
+        B̃ = vcat(zeros(N, n), M⁻¹*B)
+        d̃ = vcat(zeros(N, n), M⁻¹*d)
+    else
+        B̃ = vcat(M⁻¹*B, zeros(N, n))
+        d̃ = vcat(M⁻¹*d, zeros(N, n))
+    end
     return normalize(CACCS(A, B̃, X, U, d̃))
 end
 

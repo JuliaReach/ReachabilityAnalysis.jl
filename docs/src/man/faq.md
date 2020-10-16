@@ -2,22 +2,24 @@
 
 ### What are good introductory papers on the subject?
 
+
 ### What happens if you consider a chaotic system?
 
 ### Can reachability analysis be used to solve large problems?
 
+### Why did you choose Julia to write this library?
+
 ### Are there other tools that perform reachability analysis?
 
-Yes. The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
+Yes! The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
 contains an extensive list of tools that perform reachability analysis.
 
 ### Can I use ODE solvers with interval initial conditions?
 
-### Why did you choose Julia to write this library?
 
 ### What is the wrapping effect?
 
-Quoting a famous paper by Moore [[M65]](@ref):
+Quoting a famous paper by R. E. Moore [[M65]](@ref):
 
 > Under the flow itself a box is carried after certain time into a set of points
 > which will in general not remain a box excepted for a few simple flows.
@@ -65,11 +67,15 @@ free vibration solution of a standard single degree of freedom system without ph
     x''(t) + 4x(t) = 0, \qquad x(0) = 1,\qquad x'(0) = 0.
 ```
 In this initial-value problem, the initial condition is given as a point that we can
-model as `Singleton([1.0, 0.0])`.
+model as `X0 = Singleton([1.0, 0.0])`, where we associate the first coordinate to
+position, `x(t)`, and the second coordinate to velocity, `x'(t)`.
 
 !!! note
-    Vectors such as `X0 = [1.0, 0.0]` are also a valid input, and are treated as
-    a singleton.
+    Usual Julia vectors such as `X0 = [1.0, 0.0]` are also valid input, and are
+    treated as a singleton.
+
+Below we plot the flowpipe for the same initial condition and different step
+sizes.
 
 ```@example cosine
 using ReachabilityAnalysis, Plots
@@ -92,8 +98,19 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta)
 
 ### Why do I see boxes for single initial conditions?
 
-Even for singleton initial conditions, a reachability computation returns a
-sequence of *sets*.
+As it is seen in the previous question, *Can I solve a for a single initial condition?*,
+even if the initial condition is a singleton, the obtained flowpipe is a sequence
+of sets with non-zero width, e.g. boxes in the x-t plane. Recall that each reach-set
+represents a set that, with certainty, contains the exact solution for the time-span
+associated to the reach-set. The projection of the flowpipe on the time variable thus
+returns a sequence of intervals, in the example of the same width as the step size,
+and when we take the cartesian product with the variation in `x(t)`, we obtain a box.
+
+The plot below shows in more detail what happens if we consider two different step-sizes,
+`ΔT=0.1` and `ΔT=0.05` and evaluate the solution at the time point `3.0`. The projection
+onto `x(t)` (vertical axis) shows that dividing the step size  by half, we can more accurately
+know the exact value of the solution, and the width of the boxes intersecting the
+time point `3.0` decrease by a factor 2.5x.
 
 ```@example cosine
 plot(f(0.1)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.1", color=:lightblue)
@@ -114,3 +131,37 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 ```
 
 ### Why do some trajectories escape the flowpipe?
+
+### Can I compute solutions using parallel programming?
+
+Yes. You can compute multiple flowpipes in parallel by defining an initial-value
+problem with an array of initial conditions. This methods uses Julia's multithreaded parallelism, so you have to set the number of threads to use before starting Julia.
+The following example illustrates this point. For further details we refer to the section
+[Distributed computations](@ref).
+
+```@example parallel
+using ReachabilityAnalysis, Plots
+
+A = [0.0 1.0; -1.0 0.0]
+
+B = [BallInf([0,0.] .+ k, 0.1) for k in 1:5]
+prob = @ivp(x' = Ax, x(0) ∈ B)
+
+# multi-threaded solve
+sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
+plot(sol, vars=(0, 2), c=:red, alpha=.5, lw=0.2, xlab="t", ylab="y")
+```
+On the other hand, please note that in the example of above, you can compute with
+a single integration the flowpipe corresponding to the convex hull of the elements
+in the array `B`.
+
+```@example parallel
+prob = @ivp(x' = Ax, x(0) ∈ ConvexHullArray(B))
+sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
+plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
+```
+
+### How do I use the `@taylorize` macro?
+
+The section [Some common gotchas](@ref) of the user manual details do's and dont's
+for the `@taylorize` macro to speedup reachability computations using Taylor models.
