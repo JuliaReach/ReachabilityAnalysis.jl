@@ -82,14 +82,14 @@ Formulating the mathematical problem involves writing the system as a first-orde
 In the following example we consider a spring-mass system which is a linear ODE
 with two-degrees of freedom.
 
-## Oscillatory systems
+## Oscillating systems
 
-Second order systems of the form
+Second order linear systems of the form
 ```math
-    Mx''(t) + Cx'(t) + Kx(t) = f(t)
+    Mx''(t) + Cx'(t) + Kx(t) = f(t),
 ```
-can be automatically transformed to linear systems and solved using linear reachability
-solvers. For example, let's solve the damped oscillating system without a forcing
+assuming $M$ is invertible, can be solved using linear reachability
+methods. For example, let's solve the damped oscillating system without a forcing
 term,
 ```math
     x''(t) + 0.5~x'(t) + 4x(t) = 0, \qquad x(0) ∈ [0.7 .. 1.3] × [0.7 .. 1.3]
@@ -107,3 +107,5 @@ sol = solve(@ivp(sys, x(0) ∈ B0), tspan=(0.0, 10.0), alg=GLGM06(δ=0.01));
 plot(sol, vars=(0, 1), lw=.2, xlab="time", lab="x(t)")
 plot!(sol, vars=(0, 2), lw=.2, xlab="time", lab="v(t)")
 ```
+Where we have chosen the zonotope-based algorithm `GLGM06` with step-size`δ=0.01` and plotted the flowpipe
+for $x(t)$ and $v(t)$ variables.
