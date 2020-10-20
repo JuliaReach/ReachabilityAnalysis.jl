@@ -49,14 +49,37 @@ Do not hesitate to open a [**issue**](https://github.com/JuliaReach/Reachability
 
 ## 🎨  Features
 
-The following types of systems are supported.
+The following types of systems are supported (click on the left arrow to display a list of examples):
 
-- Continuous ODEs with linear dynamics :heavy_check_mark:
-- Continuous ODEs with linear dynamics and parametric uncertainty :heavy_check_mark:
-- Continuous ODEs with non-linear dynamics  :heavy_check_mark:
-- Hybrid systems with piecewise-affine dynamics :heavy_check_mark:
-- Hybrid systems with non-linear dynamics :heavy_check_mark:
-- Hybrid systems with clocked linear dynamics :heavy_check_mark:
+<details>
+  <summary> Continuous ODEs with linear dynamics :heavy_check_mark: </summary>
+  <p> - [Operational amplifier](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/) </p>
+</details>
+
+<details>
+  <summary> Continuous ODEs with linear dynamics and parametric uncertainty :heavy_check_mark: </summary>
+  <p> - [Transmission line](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/) </p>
+</details>
+
+<details>
+  <summary> Continuous ODEs with non-linear dynamics  :heavy_check_mark: </summary>
+  <p> - [Quadrotor](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/) </p>
+</details>
+
+<details>
+  <summary> Hybrid systems with piecewise-affine dynamics :heavy_check_mark: </summary>
+  <p> - [Platooning](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/) </p>
+</details>
+
+<details>
+  <summary> Hybrid systems with non-linear dynamics :heavy_check_mark: </summary>
+  <p> - [Spacecraft](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/) </p>
+</details>
+
+<details>
+  <summary> Hybrid systems with clocked linear dynamics :heavy_check_mark: </summary>
+  <p> - [Electromechanic break](https://github.com/JuliaReach/ARCH2020_AFF_RE/blob/master/models/EMBrake/embrake.jl) </p>
+</details>
 
 
 ## 🐾  Examples
