@@ -370,7 +370,7 @@ function reach_inhomog_krylov_LGG09!(out, Ω₀::LazySet, V::Vector{<:LazySet}, 
     arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
 
     # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
-    r = Vector{Vector{T}}(undef, NSTEPS)
+    r = [similar(ℓ) for _ in NSTEPS]
     r[1] = deepcopy(ℓ)
     out[1] = ρ(ℓ, Ω₀)
 
