@@ -53,32 +53,32 @@ The following types of systems are supported (click on the left arrow to display
 
 <details>
   <summary> Continuous ODEs with linear dynamics :heavy_check_mark: </summary>
-  <p> - [Operational amplifier](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/) </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/">Operational amplifier</a> </p>
 </details>
 
 <details>
   <summary> Continuous ODEs with linear dynamics and parametric uncertainty :heavy_check_mark: </summary>
-  <p> - [Transmission line](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/) </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
 </details>
 
 <details>
   <summary> Continuous ODEs with non-linear dynamics  :heavy_check_mark: </summary>
-  <p> - [Quadrotor](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/) </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with piecewise-affine dynamics :heavy_check_mark: </summary>
-  <p> - [Platooning](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/) </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/">Platooning</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with non-linear dynamics :heavy_check_mark: </summary>
-  <p> - [Spacecraft](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/) </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/">Spacecraft</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with clocked linear dynamics :heavy_check_mark: </summary>
-  <p> - [Electromechanic break](https://github.com/JuliaReach/ARCH2020_AFF_RE/blob/master/models/EMBrake/embrake.jl) </p>
+  <p> <a href="https://github.com/JuliaReach/ARCH2020_AFF_RE/blob/master/models/EMBrake/embrake.jl">Electromechanic break</a> </p>
 </details>
 
 
