@@ -284,9 +284,11 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     return (success, δt, _t0)
 end
 
-function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
+function validated_integ!(F, f!, Q0::TaylorModelReachSet,
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, Δt0, adaptive::Bool=true, params=nothing;
-        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
+        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {T<:Real}
+
+    N = dim(Q0)
 
     # Set proper parameters for jet transport
     @assert N == get_numvars()
@@ -296,7 +298,7 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
     zI = zero(IA.Interval{T})
     zbox = IntervalBox(zI, Val(N))
     symIbox = IntervalBox(IA.Interval{T}(-1, 1), Val(N))
-    q0 = IntervalBox(qq0)
+    #q0 = IntervalBox(qq0)
     t   = t0 + Taylor1(orderT)
     tI  = t0 + Taylor1(orderT+1)
 
@@ -317,17 +319,20 @@ function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T}
 
     # Set initial conditions
     rem = Array{IA.Interval{T}}(undef, dof)
+    R0 = Q0.X
+    R0set = overapproximate(Q0, Hyperrectangle)
     @inbounds for i in eachindex(x)
-        qaux = normalize_taylor(qq0[i] + TaylorN(i, order=orderQ), δq0, true)
-        x[i] = Taylor1( qaux, orderT)
+        qaux = R0[i].pol  # normalize_taylor(qq0[i] + TaylorN(i, order=orderQ), δq0, true)
+        x[i] = qaux       # Taylor1( qaux, orderT)
         dx[i] = x[i]
-        xTMN[i] = TaylorModelN(qaux, zI, zbox, symIbox)
+        xTMN[i] = TaylorModelN(qaux, R0[i].rem, zbox, symIbox)
         #
-        xI[i] = Taylor1( q0[i]+δq0[i], orderT+1 )
+        # FIXME assumes that Q0 is hyperrectangular
+        xI[i] =  Taylor1(IA.Interval(low(R0set, i), high(R0set, i)), orderT+1) # Taylor1( q0[i]+δq0[i], orderT+1 ) # ???
         dxI[i] = xI[i]
-        rem[i] = zI
+        rem[i] = R0[i].rem
         #
-        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), zI, zI, zI)
+        xTM1v[i, 1] = R0[i] # TaylorModel1(deepcopy(x[i]), zI, zI, zI)
     end
     sign_tstep = copysign(1, tmax-t0)
 
@@ -400,24 +405,24 @@ end
 # case without invariant: this is the same as in TaylorModels.jl but
 # we wrap the each taylor model reach-set in the main loop
 # TODO: do this a posterori? then we can use `validated_integ!` directly
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, disjointness, Δt0, adaptive)
+function _validated_integ!(F, f!, Q0, t0, T, orderQ, orderT, abs_tol, max_steps, X::Universe, disjointness, Δt0, adaptive)
     # the disjointness method option is ignored
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0, adaptive)
+    validated_integ!(F, f!, Q0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0, adaptive)
 end
 
 # case with an invariant
-function _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, Δt0, adaptive)
-    validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+function _validated_integ!(F, f!, Q0, t0, T, orderQ, orderT, abs_tol, max_steps, X::LazySet, disjointness, Δt0, adaptive)
+    validated_integ!(F, f!, Q0, t0, T, orderQ, orderT, abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 end
 
 # this function is the same as validated_integ! but with the addition that
 # we consider an intersection with an invariant X in the main loop
 # moreover we passs
-function validated_integ!(F, f!, qq0::AbstractArray{T,1}, δq0::IntervalBox{N,T},
+function validated_integ!(F, f!, Q0,
         t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int, X::LazySet,
         disjointness::AbstractDisjointnessMethod, Δt0, adaptive::Bool=true, params=nothing;
-        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {N, T<:Real}
-
+        parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {T<:Real}
+    error("fixme")
     # Set proper parameters for jet transport
     @assert N == get_numvars()
     dof = N

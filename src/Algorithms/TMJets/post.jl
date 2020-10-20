@@ -25,12 +25,14 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # initial set
     X0 = initial_state(ivp_norm)
-    box_x0 = box_approximation(X0)
-    q0 = center(box_x0)
-    δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
+    X0 = _init(X0)
 
     # FIXME refactor
     if external
+        box_x0 = box_approximation(X0)
+        q0 = center(box_x0)
+        δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
+
         solver_name = haskey(kwargs, :solver_name) ? kwargs[:solver_name] : TM.validated_integ
         solver_kwargs = haskey(kwargs, :solver_kwargs) ? kwargs[:solver_kwargs] : Dict(:maxsteps=>max_steps)
         tv, xv, xTM1v = solver_name(f!, q0, δq0, t0, T, orderQ, orderT,
@@ -51,7 +53,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, max_steps)
 
-    F, tv, xv, xTM1v, success, _t0 = _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT,
+    F, tv, xv, xTM1v, success, _t0 = _validated_integ!(F, f!, X0, t0, T, orderQ, orderT,
                                       abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
     if success || !adaptive
@@ -82,14 +84,11 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
             if !isempty(F)
                 X0 = overapproximate(F[end], Zonotope) |> set
             end
-            box_x0 = box_approximation(X0)
-            q0 = center(box_x0)
-            δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
 
             # new flowpipe
             Fk = Vector{TaylorModelReachSet{N}}()
             sizehint!(Fk, max_steps)
-            Fk, tv, xv, xTM1v, success, _t0 = _validated_integ!(Fk, f!, q0, δq0, _t0, T, orderQ, orderT,
+            Fk, tv, xv, xTM1v, success, _t0 = _validated_integ!(Fk, f!, X0, _t0, T, orderQ, orderT,
                                                                 abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
             # append the new flowpipe to the accumulated flowpipe and extra data
@@ -102,4 +101,17 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     #ext = Dict{Symbol, Any}(:tv => tv_vec, :xv => xv_vec, :xTM1v => xTM1v_vec) # keep Any or add the type param?
     #return Flowpipe(F, ext)
     return Flowpipe(F)
+end
+
+# TODO pass args to overapproximate
+function _init(X0::AbstractHyperrectangle)
+    R = overapproximate(X0, TaylorModelReachSet)
+    return R
+end
+
+# TODO pass args to overapproximate
+function _init(X0::LazySet)
+    X0z = _convert_or_overapproximate(Zonotope, X0)
+    R = overapproximate(X0z, TaylorModelReachSet)
+    return R
 end
