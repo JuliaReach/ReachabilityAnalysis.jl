@@ -276,3 +276,54 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     return ρℓ
 end
 =#
+
+# ------------------------------------------------------------
+# Functionality that requires ExponentialUtilities.jl
+# ------------------------------------------------------------
+
+function load_krylov_LGG09_inhomog()
+return quote
+
+# Compute the sequence:
+#
+# ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀ ⊕ V), ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V ⊕ V), ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V ⊕ Φ V ⊕ V), ...
+#
+# Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
+# the direction ℓ.
+#
+# Method:
+#
+# out[1] <- ρ(ℓ, Ω₀)
+#
+# out[2] <- ρ(ℓ, Φ Ω₀ ⊕ V) = ρ(ℓ, Φ Ω0) + ρ(ℓ, V) = ρ(Φᵀ ℓ, Ω₀) + ρ(ℓ, V)
+#
+# out[3] <- ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V ⊕ V) = ρ((Φᵀ)^2 ℓ, Ω₀) + ρ(Φᵀ ℓ, V) + ρ(ℓ, V)
+#
+# out[4] <- ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V ⊕ Φ V ⊕ V) = ρ((Φᵀ)^3 ℓ, Ω₀) + ρ((Φᵀ)^2 ℓ, V) + ρ(Φᵀ ℓ, V) + ρ(ℓ, V)
+#
+# and so on.
+#
+#
+function reach_inhomog_krylov_LGG09(Ω₀::LazySet, V::LazySet, Aᵀδ::AbstractMatrix,
+                                    ℓ::AbstractVector, NSTEPS;
+                                    hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
+
+    out = Vector{Float64}(undef, NSTEPS)
+    s = Vector{Float64}(undef, NSTEPS+1)
+    s[1] = zero(Float64)
+
+    TA, Tb = eltype(Aᵀδ), eltype(ℓ)
+    T = promote_type(TA, Tb)
+    Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
+    arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
+    rᵢ = deepcopy(ℓ)
+
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ(rᵢ, Ω0) + s[i]
+        s[i+1] = s[i] + ρ(rᵢ, V)
+        expv!(rᵢ, i*1.0, Ks) # rᵢ <- (Φᵀ)^i ℓ := exp(Aᵀ * δ * i) ℓ
+    end
+    return out
+end
+
+end end  # quote / load_krylov_LGG09_inhomog()

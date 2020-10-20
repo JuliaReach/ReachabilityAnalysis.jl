@@ -115,7 +115,7 @@ end
 # Functionality that requires ExponentialUtilities.jl
 # ------------------------------------------------------------
 
-function load_exponential_utilities_LGG09()
+function load_krylov_LGG09_homog()
 return quote
 
 # recursive version, default expv
@@ -181,4 +181,4 @@ function reach_homog_dir_LGG09_expv_pk2!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursiv
     return out
 end
 
-end end  # quote / load_exponential_utilities_LGG09()
+end end  # quote / load_krylov_LGG09_homog()

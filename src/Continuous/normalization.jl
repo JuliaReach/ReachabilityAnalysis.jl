@@ -443,9 +443,9 @@ function normalize(system::SOACS{N}; derivatives_last=true) where {N}
 
     b = affine_term(system)
     if derivatives_last
-        c = vcat(zeros(N, n), M⁻¹*b)
-    else
         c = vcat(M⁻¹*b, zeros(N, n))
+    else
+        c = vcat(zeros(N, n), M⁻¹*b)
     end
 
     return normalize(ACS(A, c))
@@ -462,9 +462,9 @@ function normalize(system::SOCLCCS{N}; derivatives_last=true) where {N}
 
     A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
     if derivatives_last
-        B̃ = vcat(zeros(N, n), M⁻¹*B)
-    else
         B̃ = vcat(M⁻¹*B, zeros(N, n))
+    else
+        B̃ = vcat(zeros(N, n), M⁻¹*B)
     end
     return normalize(CLCCS(A, B̃, X, U))
 end
@@ -482,11 +482,11 @@ function normalize(system::SOCACCS{N}; derivatives_last=true) where {N}
     A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
 
     if derivatives_last
-        B̃ = vcat(zeros(N, n), M⁻¹*B)
-        d̃ = vcat(zeros(N, n), M⁻¹*d)
-    else
         B̃ = vcat(M⁻¹*B, zeros(N, n))
         d̃ = vcat(M⁻¹*d, zeros(N, n))
+    else
+        B̃ = vcat(zeros(N, n), M⁻¹*B)
+        d̃ = vcat(zeros(N, n), M⁻¹*d)
     end
     return normalize(CACCS(A, B̃, X, U, d̃))
 end
