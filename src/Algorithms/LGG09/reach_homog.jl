@@ -115,70 +115,52 @@ end
 # Functionality that requires ExponentialUtilities.jl
 # ------------------------------------------------------------
 
-function load_exponential_utilities_LGG09()
+function load_krylov_LGG09_homog()
 return quote
 
-# recursive version, default expv
-function reach_homog_dir_LGG09_expv!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:true})
-    rᵢ = copy(ℓ)
-    rᵢ₊₁ = similar(rᵢ)
+# Compute the sequence:
+#
+# ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀), ρ(ℓ, Φ^2 Ω₀), ρ(ℓ, Φ^3 Ω₀), ...
+#
+# Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
+# the direction ℓ.
+#
+# Method (see [1]):
+#
+# out[1] <- ρ(ℓ, Ω₀)
+#
+# out[2] <- ρ(ℓ, Φ Ω₀) = ρ(Φᵀ ℓ, Ω₀)
+#
+# out[3] <- ρ(ℓ, Φ^2 Ω₀) = ρ((Φᵀ)^2 ℓ, Ω₀)
+#
+# out[4] <- ρ(ℓ, Φ^3 Ω₀) = ρ((Φᵀ)^3 ℓ, Ω₀)
+#
+# and so on.
+#
+# [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
+#     High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
+#     Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
+#     Proceedings of the 21st International Conference on Hybrid Systems: Computation
+#     and Control: 41–50.
+#
+function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
+                                   ℓ::AbstractVector, NSTEPS;
+                                   hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
 
-    @inbounds for i in 1:NSTEPS
-        out[i] = ρ(rᵢ, Ω₀)
-
-        # update cache for the next iteration
-        rᵢ₊₁ = expv(1.0, Aᵀ, rᵢ) # computes exp(Aᵀ * 1.0) * rᵢ
-        copy!(rᵢ, rᵢ₊₁)
-    end
-    return out
-end
-
-# ρ(ℓ, Ω₀), ρ(exp(Aᵀ) * ℓ, Ω₀), ρ(exp(2Aᵀ) * ℓ, Ω₀)
-function reach_homog_dir_LGG09_expv!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
-    rᵢ = deepcopy(ℓ) # if ℓ is a sev => this is a sev
-
-    @inbounds for i in 1:NSTEPS
-        out[i] = ρ(rᵢ, Ω₀)
-
-        # update cache for the next iteration
-        rᵢ = expv(i*1.0, Aᵀ, ℓ)
-    end
-    return out
-end
-
-# non-recursive version using precomputed Krylov subspace
-function reach_homog_dir_LGG09_expv_pk!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false})
-    rᵢ = deepcopy(ℓ) # if ℓ is a sev => this is a sev
-    Ks = arnoldi(Aᵀ, ℓ, tol=1e-18)
-
-    @inbounds for i in 1:NSTEPS
-        out[i] = ρ(rᵢ, Ω₀)
-
-        # update cache for the next iteration
-        expv!(rᵢ, i*1.0, Ks)
-    end
-    return out
-end
-
-# this function computes the sequence
-# ``ρ(ℓ, Ω₀)``, ``ρ(exp(Aᵀ) * ℓ, Ω₀)``, ``ρ(exp(2Aᵀ) * ℓ, Ω₀)`` until ``ρ(exp(NSTEPS * Aᵀ) * ℓ, Ω₀)``
-function reach_homog_dir_LGG09_expv_pk2!(out, Ω₀, Aᵀ, ℓ, NSTEPS, recursive::Val{:false};
-                                        hermitian=false, m=min(30, size(Aᵀ, 1)), tol=1e-7)
-
-    TA, Tb = eltype(Aᵀ), eltype(ℓ)
+    # initialization of the krylov subspace
+    TA, Tb = eltype(Aᵀδ), eltype(ℓ)
     T = promote_type(TA, Tb)
     Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
-    arnoldi!(Ks, Aᵀ, ℓ; m=m, ishermitian=hermitian, tol=tol)
+    arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
 
+    # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
     rᵢ = deepcopy(ℓ)
 
     @inbounds for i in 1:NSTEPS
         out[i] = ρ(rᵢ, Ω₀)
-
-        # update cache for the next iteration
         expv!(rᵢ, i*1.0, Ks)
     end
     return out
 end
 
-end end  # quote / load_exponential_utilities_LGG09()
+end end  # quote / load_krylov_LGG09_homog()

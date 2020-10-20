@@ -513,6 +513,11 @@ end
     vars_idx = indexin(variables, all_variables) |> Vector{Int}
 end
 
+# concrete projection onto a single variable
+function project(R::AbstractLazyReachSet, variable::Int; check_vars::Bool=true)
+    return project(R, (variable,), check_vars=check_vars)
+end
+
 # lazy projection of a reach-set
 function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
                     check_vars::Bool=true) where {D, M<:Integer}

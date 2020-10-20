@@ -50,13 +50,57 @@ discrete modes that are compatible with the dynamics.
 
 ## Set representations
 
-### Convex sets
+### Representing sets with support functions
+
+Support functions are one of the central tools in set-based reachability. The *support function* of a closed and bounded convex set $\mathcal{X} \subseteq \mathbb{R}^n$ attributes to a direction vector $d \in \mathbb{R}^n$ the real number
+
+```math
+  ρ(d, \mathcal{X}) = \max \{ d^T x : x \in \mathcal{X} \},
+```
+where $d^T$ denotes the transpose of the (column) vector $d$.
+
+TODO: example with triangle
+A convex set can be represe
+
+The
 
 ### Polyhedra
 
 ### Zonotopes
 
+Zonotopes are a sub-class of polytopes defined as the image of a unit cube under
+
+
+### Hausdorff distance
+
+
+
 ### LazySets
+
+
+### Taylor models
+
+## Taylor models
+
+
+```@example
+
+using ReachabilityAnalysis, Plots
+
+f(x) = -6x^3 + (13/3)x^2 + (31/3)x
+dom = -3.5 .. 3.5
+
+plot(f, -3.5, 3.5, lab="f", xlab="x")
+
+x = Taylor1(5)
+set_taylor1_varname("x")
+f(x)
+
+rem = 0 .. 0
+x0 = 0.0
+dom = -3.5 .. 3.5
+tm = TaylorModel1(f(x), rem, x0, dom)
+```
 
 ## Reach-sets
 

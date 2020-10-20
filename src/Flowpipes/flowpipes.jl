@@ -341,6 +341,7 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     end
 end
 
+project(fp::Flowpipe, vars::Int) = project(fp, (vars,))
 project(fp::Flowpipe, vars::AbstractVector{<:Int}) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
