@@ -2,4 +2,5 @@ eval(quote
     using .ExponentialUtilities: expv, expv!, arnoldi, arnoldi!, KrylovSubspace
 end)
 
-eval(load_exponential_utilities_LGG09())
+eval(load_krylov_LGG09_homog())
+eval(load_krylov_LGG09_inhomog())
