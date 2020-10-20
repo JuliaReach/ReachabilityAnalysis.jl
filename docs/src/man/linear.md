@@ -89,7 +89,11 @@ Second order linear systems of the form
     Mx''(t) + Cx'(t) + Kx(t) = f(t),
 ```
 assuming $M$ is invertible, can be solved using linear reachability
-methods. For example, let's solve the damped oscillating system without a forcing
+methods.
+
+### Free oscillations
+
+For example, let's solve the damped oscillating system without a forcing
 term,
 ```math
     x''(t) + 0.5~x'(t) + 4x(t) = 0, \qquad x(0) ∈ [0.7 .. 1.3] × [0.7 .. 1.3]
@@ -109,3 +113,54 @@ plot!(sol, vars=(0, 2), lw=.2, xlab="time", lab="v(t)")
 ```
 Where we have chosen the zonotope-based algorithm `GLGM06` with step-size`δ=0.01` and plotted the flowpipe
 for $x(t)$ and $v(t)$ variables.
+
+### Constant forcing term
+
+For example, let's solve the damped oscillating system without a forcing
+term,
+```math
+    x''(t) + 0.5~x'(t) + 4x(t) = 0, \qquad x(0) ∈ [0.7 .. 1.3] × [0.7 .. 1.3]
+```
+
+```@example second_order_damped
+using ReachabilityAnalysis, Plots
+
+# x'' + 0.5x' + 4x = 0
+sys = SecondOrderLinearContinuousSystem(hcat([1.0]), hcat([0.5]), hcat([4.0]))
+
+B0 = BallInf(ones(2), 0.3)
+sol = solve(@ivp(sys, x(0) ∈ B0), tspan=(0.0, 10.0), alg=GLGM06(δ=0.01));
+
+plot(sol, vars=(0, 1), lw=.2, xlab="time", lab="x(t)")
+plot!(sol, vars=(0, 2), lw=.2, xlab="time", lab="v(t)")
+```
+Where we have chosen the zonotope-based algorithm `GLGM06` with step-size`δ=0.01` and plotted the flowpipe
+for $x(t)$ and $v(t)$ variables.
+
+### Nonlinear forcing term
+
+In cases where the forcing term is a nonlinear elementary function,
+eg. a combination of trigonometric functions, introducing auxiliary
+variables can be used to represent such function.
+
+For instance, if ``f(t) = F sin (3t)``, let ``u := Fsin(3t)`` and
+``g := F cos(3t)``. Then, it is a simple exercise to see that the system
+```math
+    x''(t) + 3.5~x'(t) + 4x(t) = Fsin(3t), \qquad x(0) ∈ [0.7 .. 1.3] × [0.7 .. 1.3]
+```
+is formally equivalent to the following linear system:
+
+```
+F = 3.0
+A = [ 0    1.0     0   0;
+     -4    -3.5    1   0;
+      0     0      0   F;
+      0     0     -1   0]
+sys = @system(x' = A * x)
+
+B0 = BallInf(ones(2), 0.3) × Singleton([0.0]) × Interval(0.8, 2.1)
+sol = solve(@ivp(sys, x(0) ∈ B0), tspan=(0.0, 15.0), alg=GLGM06(δ=0.01));
+
+plot(sol, vars=(0, 1), c=:magenta, lw=.0, xlab="time", lab="x(t)")
+plot!(sol, vars=(0, 2), c=:green, lw=.0, xlab="time", lab="v(t)", legend=:bottomright)
+```

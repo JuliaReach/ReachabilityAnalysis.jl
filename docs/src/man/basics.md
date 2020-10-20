@@ -80,7 +80,6 @@ Zonotopes are a sub-class of polytopes defined as the image of a unit cube under
 
 ### Taylor models
 
-## Taylor models
 
 
 ```@example
