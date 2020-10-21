@@ -10,16 +10,23 @@ this usually depends on the property to be verified.
 Column `P.V.` refers to the cases
 where the example is presented with at lest one instance with parameter variation.
 
+### Further examples
+
+In addition to those present in this manual, a larger collection of examples
+can be found in the models library [ReachabilityModels.jl](https://github.com/JuliaReach/ReachabilityModels.jl).
+For further instructions see the section [Model library](@ref).
+
 ## Linear continuous
 
 |Name|Area|State dim.|
 |----|------|---------|
 |Damped oscillator|Physics|2|
-|Building|Mechanical Engineering|48|
+|[Building](@ref)|Mechanical Engineering|48|
+|[Transmission line circuit](@ref)|Power Systems Stability|4 to 40|
 |International Space Station|Aerospace Engineering|270|
 |Modified Nodal Analysis 1|Electronics|1002|
 |Modified Nodal Analysis 2|Electronics|10913|
-|Heat PDE|Physics|125, 1000, 8000, 125000|
+|Heat PDE|Physics|125 to 125000|
 
 ## Linear hybrid
 
@@ -30,7 +37,7 @@ where the example is presented with at lest one instance with parameter variatio
 |Gearbox|Mechanical Engineering||
 |Platoon|Autonomous Driving||
 |Powertrain|Mechanical Engineering||
-|Transmission line|Power Systems Stability||
+
 
 ## Nonlinear continuous
 
@@ -49,5 +56,5 @@ where the example is presented with at lest one instance with parameter variatio
 
 |Name|Area|State dim.|
 |----|------|---------|
-|Lotka-Volterra w/crossing|Biology, Nonlinear physics||
 |Spacecraft|||
+|Lotka-Volterra w/crossing|Biology, Nonlinear physics||

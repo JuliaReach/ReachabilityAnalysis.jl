@@ -12,13 +12,13 @@
 # In the circuit, ``U_{in}`` is the voltage at the sending end,
 # and ``U_{out}`` is the voltage at the receiving end.
 
-# ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/fig/tline.png?raw=true)
+# ![](https://raw.githubusercontent.com/JuliaReach/ReachabilityAnalysis.jl/master/examples/TransmissionLine/tline.png)
 
 # ## Model description
 
 # For reference to understand this model we refer to any standard textbook on electrical circuits.
 # The electrical elements law for resistors (R), inductors (L) and capacitors (C) are studied,
-# for instance, in [Chapter 3, K15].
+# for instance, in Chapter 3 of [^K15].
 
 # Let's assume that the network consists of ``η > 2`` nodes.
 # There are ``η`` dynamic equations for the capacitor voltages and ``\eta`` dynamic
@@ -214,8 +214,8 @@ plot(Uout_vs_t, color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 
 # ## References
 
-# - [AKS11] Althoff, Matthias, Bruce H. Krogh, and Olaf Stursberg. [Analyzing reachability of linear dynamic systems with parametric uncertainties.](http://www.i6.in.tum.de/Main/Publications/Althoff2011b.pdf). Modeling, Design, and Simulation of Systems with Uncertainties. Springer, Berlin, Heidelberg, 2011. 69-94.
+# [^AKS11]: Althoff, Matthias, Bruce H. Krogh, and Olaf Stursberg. [Analyzing reachability of linear dynamic systems with parametric uncertainties.](http://www.i6.in.tum.de/Main/Publications/Althoff2011b.pdf). Modeling, Design, and Simulation of Systems with Uncertainties. Springer, Berlin, Heidelberg, 2011. 69-94.
 
-# - [K15] Kluever, Craig A. [Dynamic systems: modeling, simulation, and control.](https://www.wiley.com/en-us/Dynamic+Systems%3A+Modeling%2C+Simulation%2C+and+Control-p-9781118289457). John Wiley & Sons, 2015.
+# [^K15]: Kluever, Craig A. [Dynamic systems: modeling, simulation, and control.](https://www.wiley.com/en-us/Dynamic+Systems%3A+Modeling%2C+Simulation%2C+and+Control-p-9781118289457). John Wiley & Sons, 2015.
 
-# - [GLG08] Girard, Antoine, and Colas Le Guernic. [Efficient reachability analysis for linear systems using support functions.]() IFAC Proceedings Volumes 41.2 (2008): 8966-8971.
+# [^GLG08]: Girard, Antoine, and Colas Le Guernic. [Efficient reachability analysis for linear systems using support functions.]() IFAC Proceedings Volumes 41.2 (2008): 8966-8971.
