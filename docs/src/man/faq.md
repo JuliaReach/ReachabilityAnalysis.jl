@@ -22,8 +22,7 @@ the [References](@ref) section of this manual for further references.
 Yes! The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
 contains an extensive list of tools that perform reachability analysis.
 
-### Can I use ODE solvers with interval initial conditions?
-
+### Can I use ODE solvers with interval initial conditions to perform reachability analysis?
 
 ### What is the wrapping effect?
 
@@ -140,6 +139,10 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 
 ### Why do some trajectories escape the flowpipe?
 
+
+### Does reachability solve for the vertices of the set?
+
+
 ### Can I compute solutions using parallel programming?
 
 Yes. You can compute multiple flowpipes in parallel by defining an initial-value
@@ -173,3 +176,5 @@ plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
 
 The section [Some common gotchas](@ref) of the user manual details do's and dont's
 for the `@taylorize` macro to speedup reachability computations using Taylor models.
+
+### A note on interval types
