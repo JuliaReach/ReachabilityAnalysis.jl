@@ -54,31 +54,47 @@ The following types of systems are supported (click on the left arrow to display
 <details>
   <summary> Continuous ODEs with linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/">Operational amplifier</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/heat.html">Heat</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/ISS/">ISS</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/motor.html">Motor</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Building/">Building</a> </p>
 </details>
 
 <details>
   <summary> Continuous ODEs with linear dynamics and parametric uncertainty :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
 </details>
 
 <details>
   <summary> Continuous ODEs with non-linear dynamics  :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Brusselator/">Brusselator</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/SEIR/">SEIR model</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm.html">Robot arm</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with piecewise-affine dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/">Platooning</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball.html">Bouncing ball</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/navigation_system.html">Navigation system</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/thermostat.html">Thermostat</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with non-linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/">Spacecraft</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/cardiac_cell.html">Cardiatic cell</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/powertrain_control.html">Powetrain control</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/spiking_neuron.html">Spiking neuron</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball_nonlinear.html">Bouncing ball</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with clocked linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://github.com/JuliaReach/ARCH2020_AFF_RE/blob/master/models/EMBrake/embrake.jl">Electromechanic break</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/clocked_thermostat.html">Clocked thermostat</a> </p>
 </details>
 
 
@@ -95,7 +111,7 @@ The following types of systems are supported (click on the left arrow to display
 
 ## :blue_book: Publications
 
-This library has been applied in a number of scientic works. We list them in reverse chronological order. 
+This library has been applied in a number of scientic works. We list them in reverse chronological order.
 
 [10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325). Accepted in [18th ACM-IEEE International Conference on Formal Methods and Models for System Design
 ](https://iitjammu.ac.in/conferences/memocode2020/index.html).
@@ -126,6 +142,3 @@ Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Veri
 Research credit and full references to the scientific papers presenting the algorithms implemented in this package can be found in the source code for each algorithm and in the [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
 If you use this package for your research, we kindly ask you to cite the following paper, see [CITATION.bib](http://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/CITATION.bib). Moreover, please **also cite the appropriate original references to the algorithms used.**
-
-
-
