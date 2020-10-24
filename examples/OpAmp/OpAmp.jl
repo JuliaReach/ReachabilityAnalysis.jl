@@ -31,7 +31,7 @@
 # Consider the following circuit, which consists of an ideal op-amp in the so-called inverting
 # configuration.
 
-# ![](https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/OpAmp/opamp_c.png?raw=true)
+# ![](https://raw.githubusercontent.com/JuliaReach/ReachabilityAnalysis.jl/master/examples/OpAmp/opamp_c.png)
 
 # It is not hard to show [^KLU15] that the output satisfies the following ODE:
 
