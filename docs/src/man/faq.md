@@ -2,6 +2,14 @@
 
 ### What are good introductory papers on the subject?
 
+An elementary introduction to the principles of set-based numerical integration
+can be found in [Oded Maler's](http://www-verimag.imag.fr/~maler/) article
+[Computing Reachable Sets: An Introduction](https://www.semanticscholar.org/paper/Computing-Reachable-Sets-%3A-An-Introduction-Maler/299949aef669b547a36c091b768cade091d35532). For an introduction to hybrid systems reachability
+we recommend the lecture notes of [Prof. Goran Frehse](https://sites.google.com/site/frehseg/),
+[Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/goog_304137952)
+(DigiCosme Spring School, Paris, May 2016). Most up-to-date material related to reachability
+analysis can be found in journals, conference articles or in PhD theses. We refer to
+the [References](@ref) section of this manual for further links to the relevant literature.
 
 ### What happens if you consider a chaotic system?
 
@@ -15,7 +23,6 @@ Yes! The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis
 contains an extensive list of tools that perform reachability analysis.
 
 ### Can I use ODE solvers with interval initial conditions?
-
 
 ### What is the wrapping effect?
 
@@ -132,6 +139,10 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 
 ### Why do some trajectories escape the flowpipe?
 
+
+### Does reachability solve for the vertices of the set?
+
+
 ### Can I compute solutions using parallel programming?
 
 Yes. You can compute multiple flowpipes in parallel by defining an initial-value
@@ -165,3 +176,5 @@ plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
 
 The section [Some common gotchas](@ref) of the user manual details do's and dont's
 for the `@taylorize` macro to speedup reachability computations using Taylor models.
+
+### A note on interval types
