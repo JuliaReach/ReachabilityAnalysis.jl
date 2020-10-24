@@ -2,8 +2,6 @@
 import LazySets: dim, overapproximate
 import Base: ∈
 
-import TaylorModels: domain, remainder, polynomial, get_order
-
 # ================================================================
 # Reach set interfaces
 # ================================================================
