@@ -25,6 +25,10 @@ const CADS = ConstrainedAffineDiscreteSystem
 const BBCS = BlackBoxContinuousSystem
 const CBBCS = ConstrainedBlackBoxContinuousSystem
 const CBBCCS = ConstrainedBlackBoxControlContinuousSystem
+const SOLCS = SecondOrderLinearContinuousSystem
+const SOACS = SecondOrderAffineContinuousSystem
+const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
 
 # continuous systems that are handled by this library
 iscontinuoussystem(T::Type{<:AbstractSystem}) = false
@@ -37,10 +41,19 @@ iscontinuoussystem(T::Type{<:CACS}) = true
 iscontinuoussystem(T::Type{<:BBCS}) = true
 iscontinuoussystem(T::Type{<:CBBCS}) = true
 iscontinuoussystem(T::Type{<:CBBCCS}) = true
+iscontinuoussystem(T::Type{<:SOLCS}) = true
+iscontinuoussystem(T::Type{<:SOACS}) = true
+iscontinuoussystem(T::Type{<:SOCLCCS}) = true
+iscontinuoussystem(T::Type{<:SOCACCS}) = true
 
 # hybrid systems that are handled by this library
 ishybridsystem(T::Type{<:AbstractSystem}) = false
 ishybridsystem(T::Type{<:HybridSystem}) = true
+
+# systems that are second order
+function is_second_order(::ST) where {ST<:AbstractContinuousSystem}
+    ST <: SOLCS || ST <: SOACS || ST <: SOCLCCS || ST <: SOCACCS
+end
 
 #export LCS, LDS, CLCS, CLDS, CLCCS, CLCDS, CACCS, CACDS, CACS, CADS, IVP, BBCS,
 #       CBBCS, CBBCCS
@@ -317,7 +330,7 @@ end
 # x+ = Ax, x ∈ X in the discrete case
 for CL_S in (:CLCS, :CLDS)
     @eval begin
-        function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, XT<:XNCF{N}}
+        function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, M, XT<:XNCF{M}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             return $CL_S(state_matrix(system), X)
@@ -329,7 +342,7 @@ end
 # x+ = Ax + Bu, x ∈ X, u ∈ U in the discrete case
 for CLC_S in (:CLCCS, :CLCDS)
     @eval begin
-        function normalize(system::$CLC_S{N, AN, BN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, XT<:XNCF{N}, UT<:UNCF{N}}
+        function normalize(system::$CLC_S{N, AN, BN, XT, UT}) where {N, AN<:AbstractMatrix{N}, NN, BN<:AbstractMatrix{NN}, M, XT<:XNCF{M}, UT<:UNCF{M}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system))
@@ -370,8 +383,8 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
     @eval begin
         function normalize(system::$CAC_S{N, AN, BN, VN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, VN<:AbstractVector{N}, XT<:XNCF{N}, UT<:UNCF{N}}
             n = statedim(system)
-            X = _wrap_invariant(stateset(X), n)
-            U = _wrap_inputs(inputset(U), input_matrix(system), affine_term(system))
+            X = _wrap_invariant(stateset(system), n)
+            U = _wrap_inputs(inputset(system), input_matrix(system), affine_term(system))
             $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
@@ -381,6 +394,104 @@ end
 function _normalize(ivp::IVP{LCS{N, IdentityMultiple{N}}, Interval{N, IA.Interval{N}}}) where {N}
     return IVP(CLCS(ivp.s.A, Universe(1)), ivp.x0)
 end
+
+# ===========================
+# Second order systems
+# ===========================
+
+# we left the n-dimensional second order system to a 2n-dimensional first
+# order system
+# if derivatives_last = true (Default)
+# we assum that the first n variables correspond to position and the last n
+# to velocities as in x̃ = [x, x']
+#
+# otherwise, if derivatives_last = false
+# we assum that the first n variables correspond to velocities and the last n
+# to position as in x̃ = [x', x]
+function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K; derivatives_last=true) where {N}
+    n = size(M, 1)
+    M⁻¹ = inv(Matrix(M))
+    Idn = Matrix(one(N)*I, n, n)
+    Zn = zeros(N, n, n)
+
+    if derivatives_last
+        A = [Zn       Idn   ;
+             -M⁻¹*K   -M⁻¹*C]
+    else
+        A = [-M⁻¹*C   -M⁻¹*K;
+             Idn          Zn]
+    end
+    return A, M⁻¹
+end
+
+function normalize(system::SOLCS{N}; derivatives_last=true) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    A, _ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+    return normalize(LCS(A))
+end
+
+function normalize(system::SOACS{N}; derivatives_last=true) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+
+    b = affine_term(system)
+    if derivatives_last
+        c = vcat(zeros(N, n), M⁻¹*b)
+    else
+        c = vcat(M⁻¹*b, zeros(N, n))
+    end
+
+    return normalize(ACS(A, c))
+end
+
+function normalize(system::SOCLCCS{N}; derivatives_last=true) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    B = input_matrix(system)
+    X = stateset(system)
+    U = inputset(system)
+
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+    if derivatives_last
+        B̃ = vcat(zeros(N, n), M⁻¹*B)
+    else
+        B̃ = vcat(M⁻¹*B, zeros(N, n))
+    end
+    return normalize(CLCCS(A, B̃, X, U))
+end
+
+function normalize(system::SOCACCS{N}; derivatives_last=true) where {N}
+    n = statedim(system)
+    M = mass_matrix(system)
+    C = viscosity_matrix(system)
+    K = stiffness_matrix(system)
+    B = input_matrix(system)
+    d = affine_term(system)
+    X = stateset(system)
+    U = inputset(system)
+
+    A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
+
+    if derivatives_last
+        B̃ = vcat(zeros(N, n), M⁻¹*B)
+        d̃ = vcat(zeros(N, n), M⁻¹*d)
+    else
+        B̃ = vcat(M⁻¹*B, zeros(N, n))
+        d̃ = vcat(M⁻¹*d, zeros(N, n))
+    end
+    return normalize(CACCS(A, B̃, X, U, d̃))
+end
+
+# ---
 
 @inline isidentity(B::IdentityMultiple) = B.M.λ == oneunit(B.M.λ)
 
@@ -406,6 +517,14 @@ _wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple, c::AbstractVector) = isi
 _wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector) = VaryingInput(map(u -> B*u ⊕ c, U))
 
 _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
+
+# TODO refactor to MathematicalSystems.jl ?
+function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{<:IntervalArithmetic.Interval}, B::SparseMatrixCSC, X::XT, U::UT) where {XT, UT}
+    CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
+end
+function MathematicalSystems.ConstrainedLinearControlDiscreteSystem(A::IntervalMatrix, B::Matrix, X::XT, U::UT) where {XT, UT}
+    CLCDS(A, IntervalMatrix(B), X, U)
+end
 
 # ==========================================================
 # Shared functionality for linear continuous post operators

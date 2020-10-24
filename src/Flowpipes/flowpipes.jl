@@ -69,10 +69,7 @@ In this fallback implementation, the flowpipe behaves like the union of the
 reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
 """
 function LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
-    σarray = map(Ri -> σ(d, set(Ri)), array(fp))
-    ρarray = map(vi -> dot(d, vi), σarray)
-    m = argmax(ρarray)
-    return σarray[m]
+    return _σ_vec(d, array(fp))
 end
 
 """
@@ -207,6 +204,14 @@ function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer
 end
 =#
 
+# further setops
+LazySets.is_intersection_empty(F::AbstractFlowpipe, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+Base.:⊆(F::AbstractFlowpipe, X::LazySet) = all(R ⊆ X for R in F)
+Base.:⊆(F::AbstractFlowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
+
+# getter functions for hybrid systems
+location(F::AbstractFlowpipe) = get(F.ext, :loc_id, missing)
+
 # ================================
 # Flowpipes
 # ================================
@@ -257,6 +262,9 @@ function Flowpipe(::UndefInitializer, cpost::AbstractContinuousPost, k::Int)
     return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
 end
 
+# constructor from a single reach-set
+Flowpipe(R::AbstractReachSet) = Flowpipe([R])
+
 function Base.similar(fp::Flowpipe{N, RT, VRT}) where {N, RT, VRT}
    return Flowpipe(VRT())
 end
@@ -267,10 +275,12 @@ Base.size(fp::Flowpipe) = (length(fp.Xk),)
 Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
 Base.push!(F::Flowpipe, args...) = push!(F.Xk, args...)
 
+numtype(::Flowpipe{N}) where {N} = N
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
 setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
 rsetrep(fp::Flowpipe{N, RT}) where {N, RT} = RT
 rsetrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = RT
+numrsets(fp::Flowpipe) = length(fp)
 
 function location(fp::Flowpipe)
     @assert haskey(fp.ext, :loc_id) "this flowpipe has not been assigned a location identifier"
@@ -331,18 +341,36 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     end
 end
 
-project(fp::Flowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
+project(fp::Flowpipe, vars::Int) = project(fp, (vars,))
+project(fp::Flowpipe, vars::AbstractVector{<:Int}) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
 
 # concrete projection of a flowpipe for a given matrix
-function project(fp::Flowpipe, M::AbstractMatrix)
+function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
+    Xk = array(fp)
+    πfp = Flowpipe(map(X -> linear_map(M, X), Xk))
+    if isnothing(vars)
+        return πfp
+    else
+        return project(πfp, vars)
+    end
+end
+
+# concrete projection of a flowpipe for a given direction
+function project(fp::Flowpipe, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    Xk = array(fp)
+    return Flowpipe(map(X -> project(X, dir, vars=vars), Xk))
+end
+
+# concrete linear map of a flowpipe for a given matrix
+function linear_map(M::AbstractMatrix, fp::Flowpipe)
     Xk = array(fp)
     return Flowpipe(map(X -> linear_map(M, X), Xk))
 end
 
 """
-    shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
+    shift(fp::Flowpipe{N, <:AbstractReachSet}, t0::Number) where {N}
 
 Return the time-shifted flowpipe by the given number.
 
@@ -360,23 +388,61 @@ shifted by `t0`.
 
 See also `Shift` for the lazy counterpart.
 """
-function shift(fp::Flowpipe{N, ReachSet{N, ST}}, t0::Number) where {N, ST}
+function shift(fp::Flowpipe{N, <:AbstractReachSet}, t0::Number) where {N}
     return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)
 end
 
-# return one reach-set by taking the convex hull of the reach-sets in the
-# given flowpipe. TODO add second argument for number of reach-sets
-# return a flowpipe..?
-# TODO: lazily convexify?
-function Convexify(fp::Flowpipe{N, ReachSet{N, ST}}) where {N, ST}
+"""
+    convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
+
+Return a reach-set representing the convex hull array of the flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+A reach-set that contains the convex hull array, `ConvexHullArray`, of the given
+flowpipe.
+
+### Notes
+
+The time span of this reach-set is the same as the time-span of the flowpipe.
+
+This function allocates an array to store the sets of the flowpipe.
+"""
+function convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
     Y = ConvexHullArray([set(X) for X in array(fp)])
     return ReachSet(Y, tspan(fp))
 end
 
-function Convexify(fp::AbstractVector{ReachSet{N, ST}}) where {N, ST}
+"""
+    convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
+
+Return a reach-set representing the convex hull array of the array of the array of
+reach-sets.
+
+### Input
+
+- `fp` -- array of reach-sets
+
+### Output
+
+A reach-set that contains the convex hull array, `ConvexHullArray`, of the given
+flowpipe.
+
+### Notes
+
+The time span of this reach-set corresponds to the minimum (resp. maximum) of the
+time span of each reach-set in `fp`.
+
+This function allocates an array to store the sets of the flowpipe.
+"""
+function convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
     Y = ConvexHullArray([set(X) for X in fp])
-    ti = tstart(fp[1])
-    tf = tend(fp[end])
+    ti = minimum(tstart, fp)
+    tf = minimum(tend, fp)
     return ReachSet(Y, TimeInterval(ti, tf))
 end
 
@@ -391,6 +457,29 @@ tend(F::Flowpipe, arr::UnitRange) = tend(view(array(F), arr), contiguous=true)
 tend(F::Flowpipe, arr::AbstractVector) = tend(view(array(F), arr))
 tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr), contiguous=true)
 tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
+
+# further setops
+LazySets.is_intersection_empty(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
+Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
+
+# lazy projection of a flowpipe
+function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Xk = array(F)
+    out = map(X -> Projection(X, vars), Xk)
+    return Flowpipe(out)
+end
+Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
+Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
+
+# membership test
+function ∈(x::AbstractVector{N}, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
+    return any(R -> x ∈ set(R), array(fp))
+end
+
+function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
+    return any(R -> x ∈ set(R), fp)
+end
 
 # =======================================
 # Flowpipe composition with a time-shift
@@ -473,6 +562,11 @@ function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:I
     return SparseReachSet(proj, tspan(R) + t0, vars)
 end
 
+# TODO: improve using mutable ShiftedFlowpipe struct (so that we can modify t0->t0+t1)
+function shift(fp::ShiftedFlowpipe, t1::Number)
+    return ShiftedFlowpipe(shift(fp.F, t1), fp.t0)
+end
+
 # =====================================
 # Flowpipe composition with a lazy map
 # =====================================
@@ -513,6 +607,10 @@ function LazySets.Projection(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D,
 end
 
 function overapproximate(fp::Flowpipe, args...)
+    return Flowpipe(map(R -> overapproximate(R, args...), fp), fp.ext)
+end
+
+function overapproximate(fp::VRT, args...) where {RT, VRT<:AbstractVector{RT}}
     return Flowpipe(map(R -> overapproximate(R, args...), fp))
 end
 
@@ -533,8 +631,8 @@ contiguous in time.
 
 ### Notes
 
-This type assumes that the flowpipes are *contiguous* in time. This means that
-the final time the `i`-th flowpipe matches the start time of the `i+1`-th flowpipe.
+The evaluation functions (in time) for this type do not assume that the flowpipes are contiguous in time.
+That is, the final time of the `i`-th flowpipe does not match the start time of the `i+1`-th flowpipe.
 """
 struct HybridFlowpipe{N, RT<:AbstractReachSet{N}, FT<:AbstractFlowpipe} <: AbstractFlowpipe
     Fk::VectorOfArray{RT, 2, Vector{FT}}
@@ -561,44 +659,27 @@ end
 # interface functions
 array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
-setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+numtype(::HybridFlowpipe{N}) where {N} = N
+setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = setrep(RT)
+setrep(::HybridFlowpipe{N, RT, FT}) where {N, RT, FT} = setrep(RT)
+rsetrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+numrsets(fp::HybridFlowpipe) = mapreduce(length, +, fp)
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 
-# assumes that the flowpipes are contiguous in time
-tspan(fp::HybridFlowpipe) = TimeInterval(tstart(fp.Fk[1]), tend(fp.Fk[end]))
+function tspan(fp::HybridFlowpipe)
+    ti = minimum(tstart, fp)
+    tf = maximum(tend, fp)
+    return TimeInterval(ti, tf)
+end
 
 function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
     return HybridFlowpipe(Vector{FT}())
 end
 
-# first searches the flowpipe that contains `t` in its time-span, then searches
-# inside that flowpipe for the corresponding reach-set
-function (fp::HybridFlowpipe)(t::Number)
-    Fk = array(fp)
-    i = 1
-    while t ∉ tspan(Fk[i])
-        i += 1
-    end
-    i > length(Fk) && @goto error_msg
-    F = Fk[i]
-    @inbounds for (j, X) in enumerate(F)
-        if t ∈ tspan(X) # exit on the first occurrence
-            if j < length(F) && t ∈ tspan(F[i+1])
-                return view(Fk, j:j+1, i)
-            else
-                return X
-            end
-        end
-    end
-    @label error_msg
-    throw(ArgumentError("time $t does not belong to the time span, " *
-                        "$(tspan(fp)), of the given flowpipe"))
-end
-
 function overapproximate(fp::HybridFlowpipe, args...)
-    return HybridFlowpipe([overapproximate(F, args...) for F in fp])
+    return HybridFlowpipe([overapproximate(F, args...) for F in fp], fp.ext)
 end
 
 function project(fp::HybridFlowpipe, args...)
@@ -610,50 +691,48 @@ function LazySets.ρ(d::AbstractVector, fp::HybridFlowpipe)
     return maximum(ρ(d, F) for F in array(fp))
 end
 
-function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
-    error("not implemented")
-end
+#function LazySets.σ(d::AbstractVector, fp::HybridFlowpipe)
+#    error("not implemented")
+#end
 
-#=
-function (fp::HybridFlowpipe)(dt::TimeInterval)
-    # here we assume that indices are one-based, ie. form 1 .. n
-    firstidx = 0
-    lastidx = 0
-    α = inf(dt)
-    β = sup(dt)
-    Fk = array(fp)
+Base.:⊆(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
+Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
 
-    # search first intersecting flowpipe
-    i = 1
-    while α ∉ tspan(Fk[i])
-        i += 1
-    end
-    i > length(Fk) && @goto error_msg
-    firstfp = i
-
-    # search last intersecting flowpipe
-    i = 1
-    while t ∉ tspan(Fk[i])
-        i += 1
-    end
-    i > length(Fk) && @goto error_msg
-    firstfp = i
-
-    for (i, X) in enumerate(Xk)
-        if α ∈ tspan(X)
-            firstidx = i
-        end
-        if β ∈ tspan(X)
-            lastidx = i
-        end
-    end
-    if firstidx == 0 || lastidx == 0
-        throw(ArgumentError("the time interval $dt is not contained in the time span, " *
+# evaluation for scalars
+function (fp::HybridFlowpipe{N, RT})(t::Number) where {N, RT<:AbstractReachSet{N}}
+    if t ∉ tspan(fp)
+        throw(ArgumentError("time $t does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
-    return view(Xk, firstidx:lastidx)
+    vec = Vector{RT}()
+    for (k, fk) in enumerate(array(fp)) # loop over flowpipes
+        if t ∈ tspan(fk)
+            for Ri in fk  # loop over reach-sets for this flowpipe
+                if t ∈ tspan(Ri)
+                    push!(vec, Ri)
+                end
+            end
+        end
+    end
+    return vec
 end
-=#
+
+# evaluation for time intervals
+function (fp::HybridFlowpipe{N, RT})(dt::TimeInterval) where {N, RT<:AbstractReachSet{N}}
+    if !(dt ⊆ tspan(fp)) # TODO IntervalArithmetic#409
+        throw(ArgumentError("time interval $dt does not belong to the time span, " *
+                            "$(tspan(fp)), of the given flowpipe"))
+    end
+    vec = Vector{RT}()
+    for (k, fk) in enumerate(array(fp)) # loop over flowpipes
+        if !isdisjoint(dt, tspan(fk))
+            for R in fk(dt)  # loop over reach-sets for this flowpipe
+                push!(vec, R)
+            end
+        end
+    end
+    return vec
+end
 
 # ============================================
 # Flowpipes not contiguous in time
@@ -694,6 +773,7 @@ end
 array(fp::MixedFlowpipe) = fp.Fk
 flowpipe(fp::MixedFlowpipe) = fp
 setrep(::Type{MixedFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+numrsets(fp::MixedFlowpipe) = mapreduce(length, +, fp)
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(fp::MixedFlowpipe, I::Int...) = getindex(fp.Fk, I...)
@@ -714,7 +794,7 @@ function (fp::MixedFlowpipe)(dt::TimeInterval)
 end
 
 function overapproximate(fp::MixedFlowpipe, args...)
-    return MixedFlowpipe([overapproximate(Fi, args...) for Fi in fp])
+    return MixedFlowpipe([overapproximate(Fi, args...) for Fi in fp], fp.ext)
 end
 
 function project(fp::MixedFlowpipe, args...)

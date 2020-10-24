@@ -13,6 +13,11 @@ _reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}, dim) where
 _reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens) = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 
 # convert any zonotope to be represented with static arrays
+function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Missing, ngens::Missing) where {N, VN, MN}
+    n, m = size(Ω0.generators)
+    _reconvert(Ω0, static, Val(n), Val(m))
+end
+
 function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
     G = Ω0.generators
     m = size(G, 2)
@@ -53,7 +58,7 @@ _reconvert(Φ::Matrix{N}, static::Val{false}, dim) where {N} = Φ
 _reconvert(Φ::IntervalMatrix{N}, static::Val{false}, dim) where {N} = Φ
 _reconvert(Φ::AbstractMatrix, static::Val{false}, dim) = Matrix(Φ)
 _reconvert(Φ::SMatrix, static::Val{true}, dim) = Φ
-_reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing) = nodim_msg()
+_reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing) = _reconvert(Φ, static, Val(size(Φ, 1)))
 
 function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}, dim::Val{n}) where {N, n}
     #n = size(Φ, 1)
@@ -89,20 +94,19 @@ end
 Base.convert(::Type{HPolytope{N, VT}}, P::HPolytope{N, VT}) where {N, VT} = P
 Base.convert(::Type{HPolytope{N, VT}}, P) where {N, VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
 
+function Base.convert(::Type{Hyperrectangle{N, Vector{N}, Vector{N}}},
+                      H::Hyperrectangle{N, SVector{L, N}, SVector{L, N}}) where {N, L}
+    return Hyperrectangle(Vector(H.center), Vector(H.radius))
+end
+
 # =========================
 # In-place ops
 # =========================
 
 # Extension of some common LazySets operations, some of them in-place
 
-# TODO: remove
-function _minkowski_sum(Z1::Zonotope{N}, Z2::Zonotope{N}) where {N}
-    cnew = center(Z1) + center(Z2)
-    Gnew = hcat(genmat(Z1), genmat(Z2))
-    return Zonotope(cnew, Gnew)
-end
-
 # in-place scale of a zonotope
+# TODO update after LazySets#2274
 function scale!(α::Real, Z::Zonotope)
     c = Z.center
     G = Z.generators
@@ -112,6 +116,7 @@ function scale!(α::Real, Z::Zonotope)
 end
 
 # in-place linear map of a zonotope
+# TODO update after LazySets#2063
 @inline function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
     mul!(Zout.center, M, Z.center)
     mul!(Zout.generators, M, Z.generators)
@@ -125,18 +130,29 @@ end
 # Projection
 # =========================
 
+# extend LazySets concrete projection for other arg fomats
+LazySets.project(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = project(X, collect(vars))
+LazySets.project(X::LazySet; vars) where {D} = project(X, collect(vars))
+
+# extend LazySets lazy projection for other arg fomats
+LazySets.Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = Projection(X, collect(vars))
+LazySets.Projection(X::LazySet; vars) where {D} = Projection(X, collect(vars))
+
 # fallback concrete projection
-function _project(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
-    return LazySets.project(X, collect(vars))
+function _project(X::LazySet, vars::NTuple{D, <:Integer}) where {D}
+    return project(X, collect(vars))
 end
 
+_project(X::LazySet, vars::AbstractVector) = _project(X, Tuple(vars))
+
 # more efficient concrete projection for zonotopic sets (see LazySets#2013)
-function _project(Z::AbstractZonotope{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
+function _project(Z::AbstractZonotope{N}, vars::NTuple{D, <:Integer}) where {N, D}
     M = projection_matrix(collect(vars), dim(Z), N)
-    return linear_map(M, Z)  # return _project!(copy(Z), vars)
+    return linear_map(M, Z)
 end
 
 # cartesian product of an interval and a hyperrectangular set
+# TODO refactor to LazySets
 function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:AbstractHyperrectangle{N}}, vars::NTuple{D, T}) where {N, D, T<:Integer}
     # NOTE: can be optimized further, eg. for the case that 1 ∉ vars and
     # without copying the full center and radius vectors of H
@@ -149,6 +165,7 @@ function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:Abstrac
 end
 
 # hyperrectangular set
+# TODO refactor after LazySets#2190
 function _project(H::AbstractHyperrectangle{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
     cH = center(H)
     rH = radius_hyperrectangle(H)
@@ -165,7 +182,7 @@ function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:Abstrac
 end
 
 #=
-# TODO: add to LazySets
+# TODO: use LazySets#2299
 # specialize to cartesian product of Interval vs Zonotopic set
 function Base.convert(::Type{Zonotope}, cp::CartesianProduct{N, <:AbstractZonotope{N}, <:AbstractZonotope{N}}) where {N<:Real}
     Z1, Z2 = cp.X, cp.Y
@@ -219,9 +236,11 @@ end
 #end
 
 # fallback lazy projection
-function _Projection(X::LazySet, vars::NTuple{D, T}) where {D, T<:Integer}
+function _Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D}
     return LazySets.Projection(X, collect(vars))
 end
+
+_Projection(X::LazySet, vars::AbstractVector) =  _Projection(X, Tuple(vars))
 
 # ===============================
 # Decompositions and partitions
@@ -277,10 +296,12 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
             dvec[i] += abs(G[i, j])
         end
     end
-    DV = zeros(N, n, n)
-    α = Ms * dvec
-    @inbounds for i in 1:n
-        DV[i, i] = α[i]
+    q = size(Mc, 1)
+    α = Ms * dvec # vector of length q
+    αnz = findall(!iszero, α)
+    DV = zeros(N, q, length(αnz))
+    @inbounds for (j, idx) in enumerate(αnz)
+        DV[j, idx] = α[idx]
     end
     G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
@@ -300,10 +321,12 @@ function _overapproximate_interval_linear_map(Mc::SMatrix{n, n, N, LM},
             dvec[i] += abs(G[i, j])
         end
     end
-    DV = zeros(MMatrix{n, n, N}) # NOTE: sole difference with regular arrays, may refactor
-    α = Ms * dvec
-    @inbounds for i in 1:n
-        DV[i, i] = α[i]
+    q = size(Mc, 1)
+    α = Ms * dvec # vector of length q
+    αnz = findall(!iszero, α)
+    DV = zeros(MMatrix{q, q, N}) # NOTE: sole difference with regular arrays, may refactor
+    @inbounds for (j, idx) in enumerate(αnz)
+        DV[j, idx] = α[idx]
     end
     G_oa = hcat(Ggens, DV)
     return Zonotope(c_oa, G_oa)
@@ -430,55 +453,13 @@ end
     return c, r
 end
 
-# ==================================
-# Zonotope splitting methods
-# ==================================
-
-function _split(Z::Zonotope{N, Vector{N}, Matrix{N}}, j::Int) where {N}
-    c, G = Z.center, Z.generators
-    n, p = size(G)
-    @assert 1 <= j <= p "cannot split a zonotope with $p generators along index $j"
-
-    c₁ = Vector{N}(undef, n)
-    c₂ = Vector{N}(undef, n)
-
-    G₁ = copy(G)
-    G₂ = copy(G)
-
-    @inbounds for i in 1:n
-        α = G[i, j] / 2
-        c₁[i] = c[i] - α
-        c₂[i] = c[i] + α
-        G₁[i, j] = α
-        G₁[i, j] = α
-    end
-
-    Z₁ = Zonotope(c₁, G₁)
-    Z₂ = Zonotope(c₂, G₂)
-    return Z₁, Z₂
-end
-
-function _split(Z::Zonotope{N, SVector{n, N}, <:SMatrix{n, p, N}}, j::Int) where {N, n, p}
-    @assert 1 <= j <= p "cannot split a zonotope with $p generators along index $j"
-    c, G = Z.center, Z.generators
-
-    c₁ = MVector{n, N}(undef)
-    c₂ = MVector{n, N}(undef)
-
-    G₁ = MMatrix{n, p}(G)
-    G₂ = MMatrix{n, p}(G)
-
-    @inbounds for i in 1:n
-        α = G[i, j] / 2
-        c₁[i] = c[i] - α
-        c₂[i] = c[i] + α
-        G₁[i, j] = α
-        G₁[i, j] = α
-    end
-
-    Z₁ = Zonotope(SVector{n}(c₁), SMatrix{n, p}(G₁))
-    Z₂ = Zonotope(SVector{n}(c₂), SMatrix{n, p}(G₂))
-    return Z₁, Z₂
+# overapproximate a hyperrectangular set with a polytope
+# TODO clean-up
+_overapproximate(H::AbstractHyperrectangle, T::Type{<:HPolytope}) = _overapproximate_hyperrectangle(H, T)
+_overapproximate(H::Hyperrectangle, T::Type{<:HPolytope}) = _overapproximate_hyperrectangle(H, T)
+function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
+    P = overapproximate(H, Hyperrectangle)
+    HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
 # ==================================
@@ -641,19 +622,20 @@ struct BoxEnclosure <: AbstractDisjointnessMethod end
 # we pass the sets to the disjointness check algorithm without pre-processing
 struct NoEnclosure <: AbstractDisjointnessMethod end
 
-# fallbacks
-_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
-_is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
-
-# symmetric case
-_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
-
 # this is a dummy disjointness check which returns "false" irrespective of the value of its arguments
 struct Dummy <: AbstractDisjointnessMethod end
 
 # --------------------------------------------------------------------
 # Methods to evaluate disjointness between a reach-set and a lazy set
 # --------------------------------------------------------------------
+
+# fallbacks
+_is_intersection_empty(X::LazySet, Y::LazySet) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(X::LazySet, Y::LazySet, ::NoEnclosure) = LazySets.is_intersection_empty(X, Y)
+_is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y, NoEnclosure())
+
+# symmetric case
+_is_intersection_empty(X::LazySet, R::AbstractReachSet, method=NoEnclosure()) = _is_intersection_empty(R, X, method)
 
 function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::NoEnclosure)
     return _is_intersection_empty(set(R), Y)
@@ -672,6 +654,15 @@ end
 # in this method we assume that the intersection is non-empty
 function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::Dummy)
     return false
+end
+
+# TODO refactor?
+function overapproximate(R::TaylorModelReachSet{N}, ::BoxEnclosure) where {N}
+    return overapproximate(R, Hyperrectangle)
+end
+# TODO refactor?
+function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
+    return overapproximate(R, Zonotope)
 end
 
 # -----------------------------------------------
@@ -705,6 +696,26 @@ end
 # symmetric case
 _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H)
 
+# if X is polyhedral and Y is the set union of half-spaces, X ∩ Y is empty iff
+# X ∩ Hi is empty for each half-space Hi in Y
+# NOTE the algorithm below solves an LP for each X ∩ Hi; however, we can proceed
+# more efficintly using support functions
+# see LazySets.is_intersection_empty_helper_halfspace
+function LazySets.is_intersection_empty(X::AbstractPolytope{N},
+                                        Y::UnionSetArray{N, HT}
+                                        ) where {N<:Real, VN<:AbstractVector{N}, HT<:HalfSpace{N, VN}}
+    clist_X = constraints_list(X)
+    for ci in Y.array
+        # using support functions
+        #!(-ρ(-hs.a, X) > hs.b) && return false # TODO use robust check
+
+        # using LP
+        Y_ci = vcat(clist_X, ci)
+        remove_redundant_constraints!(Y_ci) && return false
+    end
+    return true
+end
+
 # ==================================
 # Concrete intersection
 # ==================================
@@ -715,6 +726,11 @@ _is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H
 
 abstract type AbstractIntersectionMethod end
 
+#= TODO annotate normal vector types?
+struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod end
+setrep(int_method::HRepIntersection{SX<:AbstractPolytope}, SY<:AbstractPolyhedron}) = SX
+=#
+
 # evaluate X ∩ Y exactly using the constraint representation of X and Y
 # evaluate X₁ ∩ ⋯ ∩ Xₖ using the constraint representation of each Xᵢ
 struct HRepIntersection <: AbstractIntersectionMethod
@@ -723,38 +739,107 @@ end
 
 setrep(::HRepIntersection) = HPolytope{Float64, Vector{Float64}}
 
-# evaluate X ∩ Y approximately using support function evaluations, through the
+# "fallback" implementation that uses LazySets intersection(X, Y)
+struct FallbackIntersection <: AbstractIntersectionMethod
+#
+end
+
+struct BoxIntersection <: AbstractIntersectionMethod
+#
+end
+
+setrep(::BoxIntersection) = Hyperrectangle{Float64, Vector{Float64}, Vector{Float64}}
+
+# evaluate X ∩ Y approximately using support function evaluations, with the
 # property that the support function of X ∩ Y along direction d is not greater
-# min(ρ(d, X), ρ(d, Y))
+# ρ(d, X ∩ Y) <= min(ρ(d, X), ρ(d, Y))
 # by the same token, compute X₁ ∩ ⋯ ∩ Xₖ approximately using the same property
-struct SupportFunctionIntersection <: AbstractIntersectionMethod
-#
+# if the template is provided, we have TN<:AbstractDirections{N, VN}
+# otherwise, the constraints of X and Y are used and TN is Missing
+struct TemplateHullIntersection{N, VN, TN} <: AbstractIntersectionMethod
+    dirs::TN
 end
 
-#
-# TODO: add some "Fallback" implementation that uses LazySets intersection(X, Y)
-#
-
-# = METHODS WITH TYPE ANNOTATION
-#=
-struct HRepIntersection{SX, SY} <: AbstractIntersectionMethod
-#
+# constructor with template directions provided
+function TemplateHullIntersection(dirs::TN) where {N, VN, TN<:AbstractDirections{N, VN}}
+    TemplateHullIntersection{N, VN, TN}(dirs)
 end
 
-setrep(int_method::HRepIntersection{SX<:AbstractPolytope}, SY<:AbstractPolyhedron}) = SX
-
-struct SupportFunctionIntersection <: AbstractIntersectionMethod
-
+# constructor without template directions => directions are missing until evaluated
+function TemplateHullIntersection{N, VN}() where {N, VN<:AbstractVector{N}}
+    TemplateHullIntersection{N, VN, Missing}(missing)
 end
-=#
+TemplateHullIntersection() = TemplateHullIntersection{Float64, Vector{Float64}}()
 
-# concatenate with "promotion"
+setrep(::TemplateHullIntersection{N, VN}) where {N, VN} = HPolytope{N, VN}
+setrep(::TemplateHullIntersection{N, SEV}) where {N, SEV<:SingleEntryVector{N}} = Union{HPolytope{N, SEV}, HPolytope{N, Vector{N}}}
+setrep(::TemplateHullIntersection{N, SP}) where {N, SP<:SparseVector{N}} = Union{HPolytope{N, SP}, HPolytope{N, Vector{N}}}
+
+# propagate methods from reach-set to sets
+# TODO always return ReachSets; extend to AbstractLazyReachSet; intersect time spans
+_intersection(R::AbstractReachSet, X::LazySet, method::AbstractIntersectionMethod) = _intersection(set(R), X, method)
+_intersection(X::LazySet, R::AbstractReachSet, method::AbstractIntersectionMethod) = _intersection(X, set(R), method)
+
+# TODO intersect time spans?
+#_intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod) = _intersection(set(R), set(S), method)
+
+_intersection(X::LazySet, Y::LazySet, ::FallbackIntersection) = intersection(X, Y)
+_intersection(X::LazySet, Y::LazySet) = _intersection(X, Y, FallbackIntersection())
+
+# for TMs, we overapproximate with a zonotope
+function _intersection(R::TaylorModelReachSet, Y::LazySet)
+    _intersection(R, Y, FallbackIntersection())
+end
+
+function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersection)
+    X = set(overapproximate(R, Zonotope))
+    intersection(X, Y)
+end
+
+# TODO overapprox Y with a box if it's bounded?
+function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
+    X = set(overapproximate(R, Hyperrectangle))
+    out = intersection(X, Y)
+    return isempty(out) ? EmptySet(dim(out)) : overapproximate(out, Hyperrectangle)
+end
+
+# TODO refactor? See LazySets#2158
+function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N, HT}, ::BoxIntersection) where {N, HT<:HalfSpace{N}}
+    X = set(overapproximate(R, Hyperrectangle))
+
+    # find first non-empty intersection
+    m = length(Y.array) # can't use array(Y) ?
+    i = 1
+    local W
+    @inbounds while i <= m
+        W = intersection(X, Y.array[i])
+        !isempty(W) && break
+        i += 1
+    end
+    if i == m+1
+        return EmptySet(dim(Y))
+    end
+
+    # add all other non-empty intersections
+    out = [W]
+    @inbounds for j in i+1:m
+        W = intersection(X, Y.array[j])
+        !isempty(W) && push!(out, W)
+    end
+    #println(typeof(overapproximate(UnionSetArray(out), Hyperrectangle)))
+    return isempty(out) ? EmptySet(dim(out)) : overapproximate(UnionSetArray(out), Hyperrectangle)
+end
+
+# converts the normal vector of a list of half-spaces to be a Vector
 const VECH{N, VT} = Vector{HalfSpace{N, VT}}
+_to_vec(c::HalfSpace{N, Vector{N}}) where {N} = c
+_to_vec(c::HalfSpace{N, VT}) where {N, VT<:AbstractVector{N}} = HalfSpace(Vector(c.a), c.b)
+_to_vec(x::VECH{N, Vector{N}}) where {N} = x
+_to_vec(x::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = broadcast(_to_vec, x)
 
-_vcat(x::VECH{N, VT}, y::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y)
-_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z)
-_vcat(x::VECH{N, VT}, y::VECH{N, VT}, z::VECH{N, VT}, w::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat(x, y, z, w)
-_vcat(x::VECH{N, SingleEntryVector{N}}, y::VECH{N, VT}, z::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = vcat([HalfSpace(Vector(c.a), c.b) for c in x], y, z)
+# concatenates lists of half-spaces such that the normal vectors of the final list
+# are all Vector
+_vcat(args::VECH...) = vcat(map(_to_vec, args)...)
 
 # TODO use LazySets intersection
 function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
@@ -774,7 +859,7 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     return (success, out)
 end
 
-function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::AbstractPolyhedron, W::AbstractPolyhedron, ::HRepIntersection)
+function _intersection(X::LazySet, Y::AbstractPolyhedron, Z::AbstractPolyhedron, W::AbstractPolyhedron, ::HRepIntersection)
     clist_X = constraints_list(X)
     clist_Y = constraints_list(Y)
     clist_Z = constraints_list(Z)
@@ -784,62 +869,41 @@ function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, Z::Abstract
     return (success, out)
 end
 
-# =====================================
-# Clustering methods
-# =====================================
+# if the template directions is missing => use the constraints of both X and Y
+# TODO remove redundant constraints?
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, Missing}) where {N, VN}
+    clist_X = constraints_list(X)
+    clist_Y = constraints_list(Y)
 
-abstract type AbstractClusteringMethod end
+    out = Vector{HalfSpace{N, VN}}()
+    sizehint!(out, length(clist_X) + length(clist_Y))
 
-struct NoClustering <: AbstractClusteringMethod
-#
-end
-
-function cluster(F, idx, ::NoClustering)
-    return view(F, idx) # F[idx]
-end
-
-struct BoxClustering <: AbstractClusteringMethod
-#
-end
-
-function cluster(F, idx, ::BoxClustering)
-    convF = Convexify(view(F, idx))  # Convexify(F[idx])
-    return overapproximate(convF, Hyperrectangle)
-end
-
-struct LazyCHClustering <: AbstractClusteringMethod
-#
-end
-
-function cluster(F, idx, ::LazyCHClustering)
-    return Convexify(view(F, idx)) # Convexify(F[idx])
-end
-
-struct ZonotopeClustering <: AbstractClusteringMethod
-#
-end
-
-# for the generalization to > 2 ses, we iteratively apply the overapprox of the
-# CH of two zonotopes, cf LazySets #2154
-function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
-    if length(idx) == 1
-        return F[idx]
-    elseif length(idx) == 2
-        X = ConvexHull(set(F[idx[1]]), set(F[idx[2]]))
-        Y = overapproximate(X, Zonotope) # TODO pass algorithm
-        return ReachSet(Y, tspan(F[idx]))
-    else
-        Zaux = overapproximate(ConvexHull(set(F[idx[1]]), set(F[idx[2]])), Zonotope)
-        for k in 3:length(idx)
-            Zaux = overapproximate(ConvexHull(Zaux, set(F[idx[k]])), Zonotope)
-        end
-        return ReachSet(Zaux, tspan(F[idx]))
+    @inbounds for (i, c) in enumerate(clist_X)
+        d = convert(VN, c.a) # normal vector
+        b = min(c.b, ρ(d, Y)) # we know that ρ(d, X) = b
+        push!(out, HalfSpace(d, b))
     end
+
+    @inbounds for (i, c) in enumerate(clist_Y)
+        d = convert(VN, c.a) # normal vector
+        b = min(ρ(d, X), c.b) # we know that ρ(d, Y) = b
+        push!(out, HalfSpace(d, b))
+    end
+
+    return HPolytope(out)
 end
 
-# convexify and convert to vrep
-#C = ReachabilityAnalysis.Convexify(sol[end-aux+1:end])
-#Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
+# use ρ(d, X∩Y) ≤ min(ρ(d, X), ρ(d, Y)) for each d in the template
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, TN}) where {N, VN, TN<:AbstractDirections{N, VN}}
+    dirs = method.dirs
+    out = Vector{HalfSpace{N, VN}}(undef, length(dirs))
+    @inbounds for (i, d) in enumerate(dirs)
+        d = convert(VN, d)
+        b = min(ρ(d, X), ρ(d, Y))
+        out[i] = HalfSpace(d, b)
+    end
+    return HPolytope(out)
+end
 
 #=
 # =====================================

@@ -9,7 +9,19 @@
     sol = solve(prob, tspan=tspan, TMJets())
     @test sol.alg isa TMJets
 
-    # TODO: try other options
+    # pass options outside algorithm
+    sol = solve(prob, T=0.2, max_steps=2100)
+    @test sol.alg isa TMJets && sol.alg.max_steps == 2100
+    sol = solve(prob, T=0.2, maxsteps=2100) # alias
+    @test sol.alg isa TMJets && sol.alg.max_steps == 2100
+    sol = solve(prob, T=0.2, orderT=7, orderQ=1)
+    @test sol.alg isa TMJets && sol.alg.orderT == 7 && sol.alg.orderQ == 1
+    sol = solve(prob, T=0.2, abs_tol=1e-11)
+    @test sol.alg isa TMJets && sol.alg.abs_tol == 1e-11
+    sol = solve(prob, T=0.2, abstol=1e-11)
+    @test sol.alg isa TMJets && sol.alg.abs_tol == 1e-11
+
+    @test ReachabilityAnalysis.tspan(shift(sol,1.0))==ReachabilityAnalysis.tspan(sol)+1.0
 
     # split initial conditions
     X0, S = initial_state(prob), system(prob)

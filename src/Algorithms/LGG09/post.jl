@@ -1,7 +1,7 @@
-function post(alg::LGG09{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              time_shift::N=zero(N), kwargs...) where {N}
+function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N, AM, VN, TN}
 
-    @unpack δ, approx_model = alg
+    @unpack δ, approx_model, template, static, threaded = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -18,35 +18,32 @@ function post(alg::LGG09{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # discretize system
     ivp_discr = discretize(ivp_norm, δ, approx_model)
     Φ = state_matrix(ivp_discr)
-    Ω0 = initial_state(ivp_discr)
+    Ω₀ = initial_state(ivp_discr)
     X = stateset(ivp_discr)
+
+    if alg.sparse # ad-hoc conversion of Φ to sparse representation
+        Φ = sparse(Φ)
+    end
+
+    cacheval = Val(alg.cache)
 
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
     got_homogeneous = !hasinput(ivp_discr)
 
-    # this algorithm requires Ω0 to be a zonotope
-    Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
-    Ω0 = _reduce_order(Ω0, max_order)
-
-    # reconvert the set of initial states and state matrix, if needed
-    static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
-    Ω0 = _reconvert(Ω0, Val(static))
-    Φ = _reconvert(Φ, Val(static))
+    # NOTE: option :static currently ignored!
 
     # preallocate output flowpipe
-    #N = eltype(Ω0)
-    ST = typeof(Ω0)
-    F = Vector{TemplateReachSet{N, ZT}}(undef, NSTEPS)
+    SN = SubArray{N, 1, Matrix{N}, Tuple{Base.Slice{Base.OneTo{Int}}, Int}, true}
+    RT = TemplateReachSet{N, VN, TN, SN}
+    F = Vector{RT}(undef, NSTEPS)
 
     if got_homogeneous
-        reach_homog_LGG09!(F, Ω0, Φ, NSTEPS, δ, max_order, X, time_shift)
+        ρℓ = reach_homog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, Δt0, cacheval)
     else
-        error("not implemented yet")
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
-        U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog_LGG09!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, time_shift)
+        ρℓ = reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, Δt0, cacheval)
     end
 
-    return Flowpipe(F)
+    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ))
 end

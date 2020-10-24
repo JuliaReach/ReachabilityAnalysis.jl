@@ -1,41 +1,62 @@
 # Nonlinear ordinary differential equations
 
-In this section we illustrate the flowpipe computation for a nonlinear system.
+## Overview
 
-## Model description
+Reachability analysis applies to nonlinear systems, i.e. those where the right-hand
+side of the ODE is a nonlinear function of the state variables. Such systems
+play a central role in applied mathematics. In this section we explain how to solve
+nonlinear reachability problems using `ReachabilityAnalysis.jl` and comment on some
+noteworthy differences between the user interface of nonlinear vs. linear systems.
+Since nonlinear reachability methods suffer from wrapping effects, we explain some
+common techniques to improve error bounds, such as splitting and refinement.
+Computing accurately and efficiently the sets of states reachable by nonlinear ODEs
+is a hard mathematical and computational problem. The methods available in this
+library are just a small portion of the active and rapidly evolving research
+literature.
 
-Our running example is the [Lotka-Volterra model](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations).
-The 2-dimensional Lotka-Volterra system depicts the populations change of a class of predators and a class of
-preys. The growth rate of preys’ population $x$ over time is given by
+In the rest of this section we take, as our running example, the well-known
+[Lotka-Volterra equations](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations).
+The two-dimensional Lotka-Volterra system depicts the populations change of a class of predators and a class of preys. The growth rate of preys' population $x$ over time is given by
 
 ```math
 \dot{x} = x\cdot (\alpha - \beta \cdot y)
 ```
 wherein  $\alpha, \beta$ are constant parameters and $y$ is the population of predators.
-
-It gives that the number of preys grows exponentially without predation.
-
-The population growth of predators is governed by the differential equation
+This equation states that the number of preys grows exponentially without predation.
+On the other hand, the population growth of predators is governed by the differential
+equation
 
 ```math
 \dot{y} = -y\cdot (\gamma - \delta\cdot x)
 ```
 wherein  $\gamma, \delta$ are constant parameters.
 
-We set those parameters as  $\alpha = 1.5 ,  \beta = 1 ,  \gamma = 3$  and  $\delta = 1$.
+A typical choice of parameter values is $\alpha = 1.5$, $\beta = 1$,
+$\gamma = 3$ and $\delta = 1$. In the next section we consider these values, and
+compute the set of states reachable varying the initial condition. After, we assume
+that the paramters are only known within given intervals, and compute the flowpipe
+for all possible values of the parameters and initial conditions.
+
+## Problem formulation
+
+nonlinear systems can be computed by stating and solving an initial-value
+problem for the given , similarly to the case of linear systems, but using different algorithms
+
+The first set
+We introduce the vector $\
 
 ```@example lotka_volterra
 using ReachabilityAnalysis
 
 @taylorize function lotka_volterra!(du, u, p, t)
     local α, β, γ, δ = 1.5, 1.0, 3.0, 1.0
-    du[1] = u[1] * (α - β*u[2])
-    du[2] = -u[2] * (γ - δ*u[1])
-    return du
+    x, y = u
+    du[1] = x * (α - β*y)
+    du[2] = -y * (γ - δ*x)
 end
 ```
 
-## Reachability settings
+## Computing with Taylor models
 
 The reachability settings are taken from [this resource](https://ths.rwth-aachen.de/research/projects/hypro/lotka-volterra/).
 
@@ -75,7 +96,30 @@ plot(sol, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:lightblue, lab="Flowpi
 plot!(X₀, color=:orange, lab="Xo")
 ```
 
+## Domain splitting
+
+A common technique to reduce wrapping effects is to split the set of initial
+states. If an initial-value problem has been setup with an *array of sets*, then
+the flowpipe starting from each initial set scomputed in parallel, using Julia's
+built-in multithreaded support.
+
+```julia
+
+```
+
+!!! note
+    To turn off multithreading, pass the `multithreaded=false` option flag to
+    `solve` method. It is `true` by default.
+
+
+!!! note
+    To change the number of threads being used, change the `THREADS` flag in . . .
+
+
 ## Some common gotchas
+
+We end this section with some technical aspects regarding the formulation of
+initial-value problems for nonlinear systems.
 
 ### What is `@taylorize`? Do I need it?
 

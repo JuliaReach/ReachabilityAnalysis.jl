@@ -15,8 +15,13 @@ struct Forward{EM, SO, SI} <: AbstractApproximationModel
 end
 
 # convenience constructor using symbols
-function Forward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concrete)
-    Forward(Val(exp), Val(setops), Val(sih))
+function Forward(; exp::Symbol=:base, setops=nothing, sih::Symbol=:concrete)
+    if isnothing(setops)
+        setops = Val(:lazy)
+    elseif isa(setops, Symbol)
+        setops = Val(setops)
+    end
+    return Forward(Val(exp), setops, Val(sih))
 end
 
 # TODO: improve display of Forward()
@@ -32,8 +37,20 @@ function Backward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concre
     Backward(Val(exp), Val(setops), Val(sih))
 end
 
-struct Discrete <: AbstractApproximationModel
-#
+# no bloating or "discrete time" approximation model ref Eqs. (14) in [[BFFPSV18]]
+struct NoBloating{EM, SO} <: AbstractApproximationModel
+    exp::EM
+    setops::SO
+end
+
+# convenience constructor using symbols
+function NoBloating(; exp::Symbol=:base, setops=nothing)
+    if isnothing(setops)
+        setops = Val(:lazy)
+    elseif isa(setops, Symbol)
+        setops = Val(setops)
+    end
+    return NoBloating(Val(exp), setops)
 end
 
 struct CorrectionHull{EM} <: AbstractApproximationModel
@@ -49,6 +66,10 @@ end
 function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
     return Forward()
 end
+
+_apply_setops(X, ::Val{:lazy}) = X  # no-op
+_apply_setops(X, ::Val{:interval}) = convert(Interval, X)
+_apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
 
 # ============================================================
 # Forward Approximation: Homogeneous case
@@ -67,6 +88,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
 
     Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
+    Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -141,6 +163,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
 
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)
+    Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -153,12 +176,14 @@ end
 # homogeneous case x' = Ax, x in X
 # implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
 # where F is the correction (interval) matrix
-# if A is an interval matix, the exponential is overapproximated
+# if A is an interval matrix, the exponential is overapproximated
 function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
 
+    # compute exp(A*δ) * X0
+    # TODO refactor / dispatch
     X0z = _convert_or_overapproximate(Zonotope, X0)
     if A isa IntervalMatrix
         Φ = exp_overapproximation(A, δ, alg.order)
@@ -173,8 +198,103 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
     R = _overapproximate(F * X0z, Zonotope)
-    Ω0 = _minkowski_sum(H, R)
+    Ω0 = minkowski_sum(H, R)
 
-    ivp_discr = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(ivp_discr, Ω0)
+    S_discr = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(S_discr, Ω0)
+end
+
+# inhomogeneous case x' = Ax + u, x in X, u ∈ U
+# implements: Ω0 = CH(X0, exp(A*δ) * X0) ⊕ F*X0
+# where F is the correction (interval) matrix
+# if A is an interval matrix, the exponential is overapproximated
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+    X = stateset(ivp)
+    U = next_set(inputset(ivp), 1) # inputset(ivp)
+    n = size(A, 1)
+
+    # here U is an interval matrix map of a lazyset, TODO refactor / dispatch
+    if isa(U, LinearMap)
+        Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
+        B = matrix(U)
+        if isa(B, IntervalMatrix)
+            Uz = _overapproximate(B * Uz, Zonotope)
+        else
+            Uz = _linear_map(B, Uz)
+        end
+    else # LazySet
+        Uz = _convert_or_overapproximate(Zonotope, U)
+    end
+    if zeros(dim(U)) ∉ Uz
+        error("this function is not implemented, see issue #253")
+    end
+
+    # TODO refactor Ω0_homog
+    # TODO refactor / dispatch
+    X0z = _convert_or_overapproximate(Zonotope, X0)
+    if A isa IntervalMatrix
+        Φ = exp_overapproximation(A, δ, alg.order)
+
+        #Φ = IntervalMatrices.scale_and_square(A, 10, δ, 10)
+        Y = _overapproximate(Φ * X0z, Zonotope)
+    else
+        Φ = _exp(A, δ, alg.exp)
+        Y = _linear_map(Φ, X0z)
+    end
+
+    H = overapproximate(CH(X0z, Y), Zonotope)
+    F = correction_hull(A, δ, alg.order)
+    R = _overapproximate(F * X0z, Zonotope)
+    Ω0_homog = minkowski_sum(H, R)
+
+    # compute C(δ) * U
+    Cδ = _Cδ(A, δ, alg.order)
+    Ud = _overapproximate(Cδ * Uz, Zonotope)
+    Ω0 = minkowski_sum(Ω0_homog, Ud)
+    Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
+    return InitialValueProblem(Sdiscr, Ω0)
+end
+
+# ============================================================
+# NoBloating Approximation
+# ============================================================
+
+# homogeneous case
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+
+    if A isa IntervalMatrix
+        order = 10 # default order
+        Φ = exp_overapproximation(A, δ, order)
+    else
+        Φ = _exp(A, δ, alg.exp)
+    end
+
+    Ω0 = copy(X0)
+    Ω0 = _apply_setops(Ω0, alg.setops)
+    X = stateset(ivp)
+    Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(Sdiscr, Ω0)
+end
+
+# inhomogeneous case
+function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+
+    Φ = _exp(A, δ, alg.exp)
+    M = Φ₁(A, δ, alg.exp)
+    U = next_set(inputset(ivp), 1) # inputset(ivp)
+    Ud = M * U # TODO assert alg.setops  / alg.inputsetops are lazy
+    In = IdentityMultiple(one(eltype(A)), size(A, 1))
+
+    Ω0 = copy(X0)
+    Ω0 = _apply_setops(Ω0, alg.setops)
+    X = stateset(ivp)
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    return InitialValueProblem(Sdiscr, Ω0)
 end

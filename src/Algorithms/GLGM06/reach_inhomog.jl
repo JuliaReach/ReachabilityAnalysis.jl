@@ -12,10 +12,11 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                X::Universe,
                                U::LazySet,
                                reduction_method::AbstractReductionMethod,
-                               time_shift::N) where {N, VN, MN}
+                               Δt0::TimeInterval,
+                               disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
@@ -24,12 +25,12 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = _minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
+        Rₖ = minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
-        Wk₊ = _minkowski_sum(Wk₊, _linear_map(Φ_power_k, U))
+        Wk₊ = minkowski_sum(Wk₊, _linear_map(Φ_power_k, U))
         Wk₊ = _reduce_order(Wk₊, max_order, reduction_method)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
@@ -49,10 +50,11 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                X::LazySet,
                                U::LazySet,
                                reduction_method::AbstractReductionMethod,
-                               time_shift::N) where {N, VN, MN}
+                               Δt0::TimeInterval,
+                               disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
@@ -61,13 +63,13 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = _minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
+        Rₖ = minkowski_sum(_linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
-        _is_intersection_empty(X, Rₖ) && break
+        _is_intersection_empty(X, Rₖ, disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
-        Wk₊ = _minkowski_sum(Wk₊, _linear_map(Φ_power_k, U))
+        Wk₊ = minkowski_sum(Wk₊, _linear_map(Φ_power_k, U))
         Wk₊ = _reduce_order(Wk₊, max_order, reduction_method)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)

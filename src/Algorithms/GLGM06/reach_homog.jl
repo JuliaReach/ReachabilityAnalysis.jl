@@ -14,10 +14,11 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              max_order::Integer,
                              X::Universe,
                              preallocate::Val{false},
-                             time_shift::N) where {N, VN, MN}
+                             Δt0::TimeInterval,
+                             disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -39,10 +40,11 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
                              max_order::Integer,
                              X::Universe,
                              preallocate::Val{true},
-                             time_shift::N) where {N}
+                             Δt0::TimeInterval,
+                             disjointness_method::AbstractDisjointnessMethod) where {N}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)
@@ -82,15 +84,16 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              max_order::Integer,
                              X::LazySet,
                              preallocate::Val{false},
-                             time_shift::N) where {N, VN, MN}
+                             Δt0::TimeInterval,
+                             disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
     while k <= NSTEPS
         Rₖ = linear_map(Φ, set(F[k-1]))
-        _is_intersection_empty(X, Rₖ) && break
+        _is_intersection_empty(X, Rₖ, disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -110,9 +113,10 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
                              max_order::Integer,
                              X::LazySet,
                              preallocate::Val{true},
-                             time_shift::N) where {N, VN, MN}
+                             Δt0::TimeInterval,
+                             disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)
@@ -136,7 +140,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
     k = 2
     while k <= NSTEPS
         _linear_map!(Zout[k], Φ, Zout[k-1])
-        _is_intersection_empty(X, Zout[k]) && break
+        _is_intersection_empty(X, Zout[k], disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Zout[k], Δt)
         k += 1

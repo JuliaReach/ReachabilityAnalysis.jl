@@ -1,7 +1,8 @@
 function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              time_shift::N=zero(N), kwargs...) where {N, ST}
+              Δt0::TimeInterval, kwargs...) where {N, ST}
 
-    @unpack δ, approx_model, vars, block_indices, row_blocks, column_blocks, partition, sparse = alg
+    @unpack δ, approx_model, vars, block_indices,
+            row_blocks, column_blocks = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -27,22 +28,37 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     got_homogeneous = !hasinput(ivp_discr)
 
     # decompose the initial states into a cartesian product
+    # TODO add option to do the lazy decomposition
     Xhat0 = _decompose(Ω0, column_blocks, ST)
     Φ = state_matrix(ivp_discr)
     X = stateset(ivp_discr) # invariant
+
+    # force using sparse type for the matrix exponential
+    if alg.sparse
+        Φ = SparseArrays.sparse(Φ)
+    end
+
+    # variables that are actually computed
+    vars = reduce(vcat, alg.row_blocks)
 
     # preallocate output flowpipe
     CP = CartesianProductArray{N, ST}
     F = Vector{SparseReachSet{N, CP, length(vars)}}(undef, NSTEPS)
 
+    # option to use array views
+    viewval = Val(alg.view)
+
     if got_homogeneous
         reach_homog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, ST,
-                              vars, block_indices, row_blocks, column_blocks, time_shift)
+                              vars, block_indices,
+                              row_blocks, column_blocks, Δt0, viewval)
+
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         reach_inhomog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, U, ST,
-                                vars, block_indices, row_blocks, column_blocks, time_shift)
+                                vars, block_indices,
+                                row_blocks, column_blocks, Δt0, viewval)
     end
     return Flowpipe(F)
 end

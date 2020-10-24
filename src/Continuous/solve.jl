@@ -99,7 +99,7 @@ end
 
 function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...)
     nsets = length(X0)
-    FT = Flowpipe{numtype(cpost), rsetrep(cpost)}
+    FT = Flowpipe{numtype(cpost), rsetrep(cpost)} # TODO add third parameter
     sol_tot = Vector{FT}(undef, nsets)
 
     Threads.@threads for i in 1:length(X0)
@@ -163,7 +163,24 @@ function _check_dim(S, X0; throw_error::Bool=true)
     if throw_error
         throw(ArgumentError("the state-space dimension should match " *
                             "the dimension of the initial state, but they are " *
-                            "$n and $(dim(X0)) respectively"))
+                            "$n and $d respectively"))
+    end
+    return false
+end
+
+function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
+                             SecondOrderAffineContinuousSystem,
+                             SecondOrderConstrainedLinearControlContinuousSystem,
+                             SecondOrderConstrainedAffineControlContinuousSystem},
+                             X0; throw_error::Bool=true)
+    n = statedim(S)
+    d = _dim(X0)
+    d == 2*n && return true
+
+    if throw_error
+        throw(ArgumentError("the dimension of the initial state should be " *
+                            "twice the state-space dimension, but they are " *
+                            "$d and $n respectively"))
     end
     return false
 end
@@ -317,7 +334,7 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
-        if statedim(ivp) == 1
+        if statedim(ivp) == 1 && !is_second_order(ivp)
             opC = INT(δ=δ)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
@@ -325,7 +342,27 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
             opC = GLGM06(δ=δ, static=static)
         end
     else
-        opC = TMJets()
+        # check additional kwargs options if they exist, allowing some aliases
+        if haskey(kwargs, :max_steps)
+            max_steps = kwargs[:max_steps]
+        elseif haskey(kwargs, :maxsteps)
+            max_steps = kwargs[:maxsteps]
+        else
+            max_steps = DEFAULT_MAX_STEPS_TMJETS
+        end
+
+        if haskey(kwargs, :abs_tol)
+            abs_tol = kwargs[:abs_tol]
+        elseif haskey(kwargs, :abstol)
+            abs_tol = kwargs[:abstol]
+        else
+            abs_tol = DEFAULT_ABS_TOL_TMJETS
+        end
+
+        orderT = haskey(kwargs, :orderT) ? kwargs[:orderT] : DEFAULT_ORDER_T_TMJETS
+        orderQ = haskey(kwargs, :orderQ) ? kwargs[:orderQ] : DEFAULT_ORDER_Q_TMJETS
+
+        opC = TMJets(max_steps=max_steps, abs_tol=abs_tol, orderT=orderT, orderQ=orderQ)
     end
     return opC
 end

@@ -1,7 +1,3 @@
-# method extensions
-import LazySets: dim, overapproximate
-import Base: ∈
-
 # ================================================================
 # Reach set interfaces
 # ================================================================
@@ -248,9 +244,22 @@ are available:
 abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
 # Implement LazySets interface
-LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
-LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
+
+LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
+LazySets.ρ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = map(Ri -> ρ(d, set(Ri)), R) |> maximum
+LazySets.ρ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = map(Ri -> ρ(d, set(Ri)), R) |> maximum
+
+LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
+LazySets.σ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
+LazySets.σ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
+
+function _σ_vec(d, Rvec)
+    σarray = map(Ri -> σ(d, set(Ri)), R)
+    ρarray = map(vi -> dot(d, vi), σarray)
+    m = argmax(ρarray)
+    return σarray[m]
+end
 
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
@@ -264,31 +273,57 @@ Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(
 Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalBox, set(R))
 complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 
-function LazySets.LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
+# forward to internal function _is_intersection_empty, which admit a pre-processing
+# step for the reach-set / algorithm choice
+LazySets.is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y)
+
+function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end
 
-function LazySets.linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
+function linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
     return reconstruct(R, linear_map(M, set(R)))
 end
 
-function LazySets.overapproximate(R::AbstractLazyReachSet, func)
+function linear_map(M::AbstractMatrix, R::Vector{<:AbstractLazyReachSet})
+    return map(Ri -> reconstruct(Ri, linear_map(M, set(Ri))), R)
+end
+
+function overapproximate(R::AbstractLazyReachSet, func)
     return reconstruct(R, overapproximate(set(R), func))
 end
 
-# handle generic vars vector
-function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
-    return project(R, Tuple(vars))
+# concrete projection extensions
+project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer} = project(R, Tuple(vars))
+project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
+
+# projectin of an array of reach-sets
+_project_vec(R, vars) = map(Ri -> project(Ri, Tuple(vars)), R)
+project(R::Vector{<:AbstractLazyReachSet}, vars::AbstractVector{M}) where {M<:Integer} = _project_vec(R, vars)
+project(R::Vector{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
+project(R::SubArray{<:AbstractLazyReachSet}, vars) = _project_vec(R, vars)
+project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
+
+function project(R::AbstractLazyReachSet, M::AbstractMatrix; vars=nothing)
+    πR = linear_map(M, R)
+    return isnothing(vars) ? πR : project(πR, vars)
 end
 
-# handle generic kwargs vars
-function project(R::AbstractLazyReachSet; vars)
-    return project(R, Tuple(vars))
+function project(R::Vector{<:AbstractLazyReachSet}, M::AbstractMatrix; vars=nothing)
+    πR = map(Ri -> linear_map(M, Ri), R)
+    return isnothing(vars) ? πR : project(πR, vars)
 end
 
 # membership test
 function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
     return ∈(x, set(R))
+end
+
+# splitting a reach-set according to a given partition; the partition should be
+# a vector of integers
+function LazySets.split(R::AbstractLazyReachSet, partition)
+    Y = split(set(R), partition)
+    [reconstruct(R, y) for y in Y]
 end
 
 # ================================================================
@@ -415,8 +450,8 @@ function reconstruct(R::SparseReachSet, Y::LazySet)
 end
 
 """
-    project(R::Union{ReachSet, SparseReachSet}, variables::NTuple{D, Int};
-            [check_vars]::Bool=true) where {D}
+    project(R::AbstractLazyReachSet, variables::NTuple{D, M};
+            check_vars::Bool=true) where {D, M<:Integer}
 
 Projects a reach-set onto the subspace spanned by the given variables.
 
@@ -452,46 +487,70 @@ onto the time variable and the first variable in `R`.
 function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
                  check_vars::Bool=true) where {D, M<:Integer}
 
+    vR = vars(R)
+    vRvec = collect(vR)
+
     # TODO: make vars check faster, specific for ReachSets and number of vars D
-    if check_vars && !(setdiff(variables, 0) ⊆ vars(R))
+    if check_vars && !(setdiff(variables, 0) ⊆ vR)
         throw(ArgumentError("the variables $vars do not belong to the variables " *
-                            " of this reach-set, $(vars(R))"))
+                            " of this reach-set, $(vR)"))
     end
 
-    if 0 ∈ variables
-        # if the projection involves "time", we shift the vars indices by one as
-        # we will take the Cartesian product of the reach-set with the time interval
-        aux = variables .+ 1
+    if 0 ∈ variables  # the projection involves "time"
+        vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  _project(Δt × set(R), aux)
+        proj =  _project(Δt × set(R), vars_idx)
     else
-        proj = _project(set(R), variables)
+        vars_idx = _get_vars_idx(variables, vRvec)
+        proj = _project(set(R), vars_idx)
     end
 
     return SparseReachSet(proj, tspan(R), variables)
+end
+
+# assumes that variables is a subset of all_variables
+@inline function _get_vars_idx(variables, all_variables)
+    vars_idx = indexin(variables, all_variables) |> Vector{Int}
+end
+
+# concrete projection onto a single variable
+function project(R::AbstractLazyReachSet, variable::Int; check_vars::Bool=true)
+    return project(R, (variable,), check_vars=check_vars)
 end
 
 # lazy projection of a reach-set
 function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
                     check_vars::Bool=true) where {D, M<:Integer}
 
+    vR = vars(R)
+    vRvec = collect(vR)
+
     # TODO: make vars check faster, specific for ReachSets and number of vars D
-    if check_vars && !(setdiff(variables, 0) ⊆ vars(R))
+    if check_vars && !(setdiff(variables, 0) ⊆ vR)
         throw(ArgumentError("the variables $variables do not belong to the variables " *
-                            " of this reach-set, $(vars(R))"))
+                            " of this reach-set, $(vR)"))
     end
 
-    if 0 ∈ variables
-        # if the projection involves "time", we shift the vars indices by one as
-        # we will take the Cartesian product of the reach-set with the time interval
-        aux = variables .+ 1
+    if 0 ∈ variables  # the projection involves "time"
+        vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  _Projection(Δt × set(R), aux)
+        proj =  _Projection(Δt × set(R), vars_idx)
     else
-        proj = _Projection(set(R), variables)
+        vars_idx = _get_vars_idx(variables, vRvec)
+        proj = _Projection(set(R), vars_idx)
     end
 
     return SparseReachSet(proj, tspan(R), variables)
+end
+
+# handle generic vars vector
+function Projection(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
+    return Projection(R, Tuple(vars))
+end
+
+# handle generic kwargs vars
+function Projection(R::AbstractLazyReachSet; vars)
+    return Projection(R, Tuple(vars))
 end
 
 # ================================================================
@@ -531,7 +590,7 @@ using TaylorModels: TaylorModel1, TaylorN
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
 
-Taylor model reach-set represented as a vector taylor models in one variable
+Taylor model reach-set represented as a vector of taylor models in one variable
 (namely, the "time" variable) whose coefficients are multivariate polynomials
 (namely in the "space" variables). It is assumed that the time domain is the same
 for all components.
@@ -594,10 +653,14 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) wh
     # pick the time domain of the given TM (same in all dimensions)
     t0 = tstart(R)
     Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = TM.evaluate(set(R), Δt - t0)
+    X_Δt = TM.evaluate(set(R), tdom)
 
     # evaluate the spatial variables in the symmetric box
     Bn = symBox(D)
@@ -614,10 +677,14 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, np
     # pick the time domain of the given TM (same in all dimensions)
     t0 = tstart(R)
     Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = TM.evaluate(set(R), Δt - t0)
+    X_Δt = TM.evaluate(set(R), tdom)
 
     # evaluate the spatial variables in the symmetric box
     partition = IA.mince(symBox(D), nparts)
@@ -637,11 +704,15 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     # pick the time domain of the given TM (same in all dimensions)
     t0 = tstart(R)
     Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X = set(R)
-    X_Δt = TM.evaluate(X, Δt - t0)
+    X_Δt = TM.evaluate(X, tdom)
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
@@ -654,6 +725,62 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     # LazySets can overapproximate a Taylor model with a Zonotope
     Zi = overapproximate(fX̂, Zonotope)
     return ReachSet(Zi, Δt)
+end
+
+function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
+                 orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+
+    n = dim(H)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of H
+    for i in 1:n
+        α = radius_hyperrectangle(H, i)
+        β = center(H, i)
+        pi = α * x[i] + β
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δt)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
+function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
+end
+
+function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
+                         indices=1:dim(Z)) where {N}
+
+    n = dim(Z)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    if order(Z) > 1
+        # indices selects the indices that we want to keep
+        Z = LazySets.Approximations._overapproximate_hparallelotope(Z, indices)
+
+        # diagonal generators matrix
+        # Z = _reduce_order(Z, 1)
+    end
+    c = center(Z)
+    G = genmat(Z)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of X
+    @inbounds for i in 1:n
+        pi = c[i] + sum(view(G, i, :) .* x)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δt)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
 end
 
 # ================================================================
@@ -685,9 +812,9 @@ representation.
 Apart from the getter functions inherited from the `AbstractReachSet` interface,
 the following methods are available:
 
-- `directions(R)`  -- return the set of directions normal to the faces of this reach-set
-- `sup_func(R)`    -- return the vector of support function evaluations
-- `sup_func(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
+- `directions(R)`           -- return the set of directions normal to the faces of this reach-set
+- `support_functions(R)`    -- return the vector of support function evaluations
+- `support_functions(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
 """
 struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}, SN<:AbstractVector{N}} <: AbstractLazyReachSet{N}
     dirs::TN
@@ -706,29 +833,59 @@ function TemplateReachSet(dirs::AbstractDirections, R::AbstractLazyReachSet)
     return TemplateReachSet(dirs, set(R), tspan(R))
 end
 
-# implement abstract reachset interface
-# TODO: use HPolyhedron or HPolytope if the set is bounded or not
-set(R::TemplateReachSet) = HPolytope([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
-setrep(::Type{TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
+# abstract reachset interface
+function set(R::TemplateReachSet)
+    T = isbounding(R.dirs) ? HPolytope : HPolyhedron
+    return T([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
+end
+
+# FIXME requires adding boundedness property as a type parameter
+setrep(::Type{<:TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
 setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
+
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
-vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),) # TODO rename to vars ?
+vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
 
-directions(R::TemplateReachSet) = R.dirs # TODO rename to dirs ?
-sup_func(R::TemplateReachSet) = R.sf # TODO rename?
-sup_func(R::TemplateReachSet, i) = R.sf[i]
+directions(R::TemplateReachSet) = R.dirs
+support_functions(R::TemplateReachSet) = R.sf
+support_functions(R::TemplateReachSet, i::Int) = R.sf[i]
 
-# overapproximate a given reach set with the template, concretely
-#= TODO: remove?
-function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
-    Δt = tspan(R)
-    sup_func = map(d -> ρ(d, R), dirs)
-    return TemplateReachSet(dirs, sup_func, Δt)
+# overapproximate a given reach-set with a template
+function overapproximate(R::AbstractLazyReachSet, dirs::AbstractDirections) where {VN}
+    return TemplateReachSet(dirs, R)
 end
-=#
+function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
+    return TemplateReachSet(CustomDirections(dirs), R)
+end
+
+# concrete projection of a TemplateReachSet for a given direction
+function project(R::TemplateReachSet, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    ρdir = ρdir₋ = nothing
+    dir₋ = -dir
+    @inbounds for (i, d) in enumerate(R.dirs)
+        if iszero(norm(dir - d))
+            ρdir = R.sf[i]
+        elseif iszero(norm(dir₋ - d))
+            ρdir₋ = -R.sf[i]
+        end
+    end
+    if isnothing(ρdir)
+        ρdir = ρ(dir, R)
+    end
+    if isnothing(ρdir₋)
+        ρdir₋ = -ρ(ρdir₋, R)
+    end
+    πR = ReachSet(Interval(min(ρdir, ρdir₋), max(ρdir, ρdir₋)), tspan(R))
+    return isnothing(vars) ? πR : project(πR, vars)
+end
+
+# concrete projection of a vector of TemplateReachSet for a given direction
+function project(Xk::Vector{<:TemplateReachSet}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    return map(X -> project(X, dir, vars=vars), Xk)
+end
 
 # convenience functions to get support directions of a given set
 _getdirs(X::LazySet) = [c.a for c in constraints_list(X)]

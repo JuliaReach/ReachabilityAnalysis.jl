@@ -3,11 +3,11 @@
 # ======================
 
 using LinearAlgebra, SparseArrays, # modules from the Julia standard library
-      Reexport,    # see @reexport macro below
-      RecipesBase, # plotting
+      Reexport,     # see @reexport macro below
+      RecipesBase,  # plotting
       Parameters,   # structs with kwargs
-      StaticArrays,
-      RecursiveArrayTools
+      StaticArrays, # statically sized arrays
+      RecursiveArrayTools # vector of arrays
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -50,6 +50,26 @@ const CPA = CartesianProductArray
 #const LCS = LinearContinuousSystem
 #const CLCCS = ConstrainedLinearControlContinuousSystem
 
+# convenience union for dispatch on structs that are admissible as initial sets or inputs
+const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox}
+
+# method extensions
+import LazySets: dim, overapproximate, project, Projection,
+                 linear_map, LinearMap, _split, split!
+
+import Base: ∈, convert
+
+# ======================
+# Useful constants
+# ======================
+
+@inline zeroBox(m) = IntervalBox(zeroI, m)
+@inline unitBox(m) = IntervalBox(IA.Interval(0.0, 1.0), m)
+@inline symBox(n::Integer) = IntervalBox(symI, n)
+const zeroI = IA.Interval(0.0) # TODO use number type
+const oneI = IA.Interval(1.0)
+const symI = IA.Interval(-1.0, 1.0)
+
 # ======================
 # Optional dependencies
 # ======================
@@ -70,4 +90,6 @@ end
 
 function __init__()
     @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
+    @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
+    @require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
 end

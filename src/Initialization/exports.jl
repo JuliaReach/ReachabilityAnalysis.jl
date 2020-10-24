@@ -12,12 +12,14 @@ export
     INT,
     LGG09,
     TMJets,
+    QINT,
 
 # Approximation models
     Forward,
     Backward,
     Discrete,
     CorrectionHull,
+    NoBloating,
 
 # Flowpipes
     flowpipe,
@@ -50,16 +52,18 @@ export
     target_invariant,
     # getter functions for Taylor model reach-sets
     domain, remainder, polynomial, get_order, expansion_point,
+    numrsets,
 
 # Concrete operations
     project,
     shift,
     complement,
+    convexify,
+    cluster,
 
-# Lazy operations
+# Lazy operations on flowpipes
     Projection,
     Shift,
-    Convexify,
 
 # Hybrid types
     HACLD1,
@@ -67,4 +71,28 @@ export
 
 # Getter functions for hybrid systems
     jitter,
-    switching
+    switching,
+    location,
+    reset_map,
+    guard,
+    source_invariant,
+    target_invariant,
+
+# Algorithms for intersection operations
+    FallbackIntersection,
+    HRepIntersection,
+    BoxIntersection,
+    TemplateHullIntersection,
+
+# Algorithms for disjointness operations
+    NoEnclosure,
+    BoxEnclosure,
+    ZonotopeEnclosure,
+    Dummy,
+
+# Clustering methods
+    NoClustering,
+    LazyClustering,
+    UnionClustering,
+    BoxClustering,
+    ZonotopeClustering

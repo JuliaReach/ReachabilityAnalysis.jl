@@ -1,17 +1,17 @@
 # case with input and without invariant
-function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                            Ω0::Zonotope{N, VN, MN},
-                            Φ::AbstractMatrix,
-                            NSTEPS::Integer,
-                            δ::N,
-                            max_order::Integer,
-                            X::Universe,
-                            U::Zonotope,
-                            recursive::Val{true},
-                            reduction_method::AbstractReductionMethod,
-                            time_shift::N) where {N, VN, MN}
+function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                              Ω0::Zonotope{N, VN, MN},
+                              Φ::AbstractMatrix,
+                              NSTEPS::Integer,
+                              δ::N,
+                              max_order::Integer,
+                              X::Universe,
+                              U::Zonotope,
+                              recursive::Val{true},
+                              reduction_method::AbstractReductionMethod,
+                              Δt0::TN) where {N, TN, VN, MN}
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # input sequence
@@ -27,13 +27,12 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gₖ₋₁ = Zₖ₋₁.generators
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
-        Zₖ = _minkowski_sum(Wk₊, Zₖ)
+        Zₖ = minkowski_sum(Wk₊, Zₖ)
         Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
 
-        k += 1
         Δt += δ
         F[k] = ReachSet(Zₖʳ, Δt)
-
+        k += 1
         Wk₊ = _overapproximate_interval_linear_map(Φc, Φs, Wk₊.center, Wk₊.generators)
         Wk₊ = _reduce_order(Wk₊, max_order, reduction_method)
     end
@@ -41,19 +40,19 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 end
 
 # case with input and with invariant
-function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                            Ω0::Zonotope{N, VN, MN},
-                            Φ::AbstractMatrix,
-                            NSTEPS::Integer,
-                            δ::N,
-                            max_order::Integer,
-                            X::LazySet,
-                            U::Zonotope,
-                            recursive::Val{true},
-                            reduction_method::AbstractReductionMethod,
-                            time_shift::N) where {N, VN, MN}
+function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
+                              Ω0::Zonotope{N, VN, MN},
+                              Φ::AbstractMatrix,
+                              NSTEPS::Integer,
+                              δ::N,
+                              max_order::Integer,
+                              X::LazySet,
+                              U::Zonotope,
+                              recursive::Val{true},
+                              reduction_method::AbstractReductionMethod,
+                              Δt0::TN) where {N, TN, VN, MN}
     # initial reach set
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # input sequence
@@ -69,13 +68,13 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Gₖ₋₁ = Zₖ₋₁.generators
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
-        Zₖ = _minkowski_sum(Wk₊, Zₖ)
+        Zₖ = minkowski_sum(Wk₊, Zₖ)
         Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
         _is_intersection_empty(X, Zₖʳ) && break
 
-        k += 1
         Δt += δ
         F[k] = ReachSet(Zₖʳ, Δt)
+        k += 1
 
         Wk₊ = _overapproximate_interval_linear_map(Φc, Φs, Wk₊.center, Wk₊.generators)
         Wk₊ = _reduce_order(Wk₊, max_order, reduction_method)

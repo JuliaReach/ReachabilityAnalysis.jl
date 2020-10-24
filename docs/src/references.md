@@ -347,6 +347,23 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [M65]
+
+- Moore, Ramon E. *Automatic local coordinate transformations to reduce the growth of error bounds in interval computation of solutions of ordinary differential equations.* Error in digital computation 2 (1965): 103-140.
+
+```
+@article{moore1965automatic,
+  title={Automatic local coordinate transformations to reduce the growth of error bounds in interval computation of solutions of ordinary differential equations},
+  author={Moore, Ramon E},
+  journal={Error in digital computation},
+  volume={2},
+  pages={103--140},
+  year={1965}
+}
+```
+
+---
+
 #### [RAY12]
 
 - Ray, Rajarshi. [*Calcul d'Atteignabilité des systèmes hybrides avec des fonctions de support*](https://www.theses.fr/2012GRENM021/document).

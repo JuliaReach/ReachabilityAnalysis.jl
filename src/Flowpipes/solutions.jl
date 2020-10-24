@@ -83,6 +83,7 @@ tspan(sol::ReachSolution, arr::AbstractVector) = tspan(sol.F, arr)
 setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
 rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(FT)
 vars(sol::ReachSolution) = vars(sol.F)
+numrsets(sol::ReachSolution) = numrsets(sol.F)
 
 # iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
@@ -99,6 +100,7 @@ Base.getindex(sol::ReachSolution, I::AbstractVector) = getindex(sol.F, I)
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(sol::ReachSolution, I::Int...) = getindex(sol.F, I...)
+Base.eachindex(sol::ReachSolution) = eachindex(sol.F)
 
 # evaluation interface
 Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
@@ -119,7 +121,30 @@ function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
+# concrete projection given a projection matrix
+function project(sol::ReachSolution{FT}, M::AbstractMatrix; vars=nothing) where {FT<:AbstractFlowpipe}
+    return project(sol.F, M; vars=vars)
+end
+
+# concrete projection of a solution for a given direction
+function project(sol::ReachSolution{<:AbstractFlowpipe}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    return project(sol.F, dir; vars=vars)
+end
+
+function shift(sol::ReachSolution{<:AbstractFlowpipe}, t0::Number)
+    return ReachSolution(shift(sol.F, t0), sol.alg, sol.ext)
+end
+
 # LazySets interface falls back to the associated flowpipe
 LazySets.dim(sol::ReachSolution) = dim(sol.F)
 LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.F)
 LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.F)
+
+# further setops functions acting on solutions' flowpipes
+LazySets.is_intersection_empty(sol::ReachSolution, Y::LazySet) = is_intersection_empty(sol.F, Y)
+LazySets.is_intersection_empty(sol::ReachSolution, Y::AbstractLazyReachSet) = is_intersection_empty(sol.F, set(Y))
+linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
+
+# inclusion checks
+Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
+Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))

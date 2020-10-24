@@ -135,11 +135,11 @@ end
         # TODO: can we use dispach and remove this branch?
         sol[NLOW] |> set
     else
-        view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+        view(array(sol), NLOW:NHIGH) |> Flowpipe |> convexify |> set
     end
 end
 
 # non-deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::NonDeterministicSwitching)
-    view(array(sol), NLOW:NHIGH) |> Flowpipe |> Convexify |> set
+    view(array(sol), NLOW:NHIGH) |> Flowpipe |> convexify |> set
 end

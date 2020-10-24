@@ -1,0 +1,318 @@
+# # Lotka-Voltera with Nonlinear Guard
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/LotkaVolterraGuard.ipynb)
+#
+#md # !!! note "Overview"
+#md #     System type: hybrid system with nonlinear guard\
+#md #     State dimension: 4\
+#md #     Application domain: Population Dynamics
+#
+# ## Model description
+#
+# The benchmark described below refers to the Lotka-Volterra equations,
+# or predator-prey equations, which are well-known in the literature.
+# We refer to the wikipedia article [Lotka-Volterra equations](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
+# for additional background.
+
+# The system is defined as follows:
+
+\begin{equation}
+\label{eq:lv}\left\{
+\begin{array}{ll}
+\dot{x} = 3 x - 3 x y \\
+\dot{y} = x y - y
+\end{array}
+\right.
+\end{equation}
+%
+which produces cyclic trajectories around the equilibrium point $(1,1)$ dependent on the initial state.
+
+We are interested to see how this nonlinear dynamics plays with a nonlinear guard, whose boundary is:
+
+\begin{equation}
+\label{eq:guard}
+\sqrt{\left(x - 1\right)^2 + \left(y - 1\right)^2} = 0.15
+\end{equation}
+%
+which is a circle of radius $0.15$ around the equilibrium.
+
+By choosing an initial state $I = (1.3,1.0)$ the cycle has a period of approximately $3.64$ time units. The trajectory of the Lotka--Volterra system trajectory is almost tangent (externally) to the guard circle. Hence, small variations in the width of the initial set would put the trajectory partially within the guard. Consequently we are interested in evaluating the time spent within the circle by introducing a continuous counter variable called $cnt$.
+
+The corresponding hybrid automaton is used to model the system:
+\begin{itemize}
+\item Continuous variables: $x$, $y$ and $cnt$;
+\item Locations: {\em outside} and {\em inside};
+\item Dynamics: those from Eq.~\ref{eq:lv} for $x,y$ in both locations, and
+\begin{equation}
+\dot{cnt} = \left\{
+\begin{array}{ll}
+0, \,\, \mbox{in {\em outside}} \\
+1, \,\, \mbox{in {\em inside}}
+\end{array}
+\right.
+\end{equation}
+\item Guards:
+\begin{equation}
+\left\{
+\begin{array}{ll}
+\left(x - Q_x\right)^2 + \left(y - Q_y\right)^2 \leq R^2 \,\,\mbox{from {\em outside} to  {\em inside}} \\
+\left(x - Q_x\right)^2 + \left(y - Q_y\right)^2 \geq R^2 \,\,\mbox{from {\em inside} to  {\em outside}}
+\end{array}
+\right.
+\end{equation}
+\item Invariants: the complement of the corresponding guards (i.e., transitions are urgent);
+\item Resets: none, i.e., the identity for both transitions.
+\end{itemize}
+
+\subsubsection{Analysis}
+
+We want to start the system from $I = \left(1.3 \pm \epsilon, 1.0 \right)$, with $\epsilon = 0.008$, and evolve it for $T = 3.64$ time units. Since the original system was close to tangency, by enlarging the initial set we expect to produce different sequences of discrete events due to the distinction between crossing and not crossing, and possibly by distinguishing the crossing sets based on the different crossing times.
+
+The following two properties must be verified:
+\begin{enumerate}
+\item At least one final set must not cross the guard, and at least one final set must cross it twice by entering and exiting the reference circle;
+\item $cnt < 0.2$ holds for all final sets.
+\end{enumerate}
+
+\subsubsection{Evaluation}
+
+In terms of metrics, it is required to supply the following:
+\begin{enumerate}
+\item The execution time for computing the reachable set and checking the properties;
+\item The area $x \times y$ of the box hull enclosing all the final sets;
+\item The maximum of the $cnt$ value obtained from all the final sets.
+\end{enumerate}
+In addition, a figure showing the reachable set along with the circular guard shall be provided. The axes are $[0.6, 1.4] \times [0.6, 1.4]$.
+
+\subsubsection{Results}
+
+This benchmark produced polarizing results: those tools that could handle it easily with good performance, and those that were not able to handle the hybrid nature of the problem. Table~\ref{tab:compTimes:lotkavolterra} gives the timing/quality results, while Fig.~\ref{fig:lotkavolterra} shows the graphical output. A future improvement could be to focus on the section of the figure that displays the crossing and the subsequent trajectories.
+
+
+
+# The nonlinear dynamic equations describe the two-dimensional, planar motion of
+# the space-craft on an orbital plane towards a space station:
+#
+# ```math
+#   \left\{ \begin{array}{lcl}
+#   \dot{x} & = & v_x \\
+#   \dot{y} & = & v_y \\
+#   \dot{v_x} & = & n^2x + 2nv_y + \frac{\mu}{r^2} - \frac{\mu}{r^3} (r +x) + \frac{u_x}{m_c} \\
+#   \dot{v_y} & = & n^2y - 2nv_x - \frac{\mu}{r^3_c}y + \frac{u_y}{m_c}
+#   \end{array} \right.
+# ```
+#
+# The model consists of position (relative to the target) ``x``, ``y`` [m], time
+# ``t`` [min], as well as horizontal and vertical velocity ``v_x``, ``v_y`` [m / min].
+# The parameters are ``µ = 3.986 × 10^{14} × 60^2`` [``m^3 / min^2``],
+# ``r = 42164 × 10^3 [m], m_c = 500 [kg], n = \sqrt{\frac{\mu}{r^3}}`` and
+# ``r_c = \sqrt{(r + x)^2 + y^2}``.
+#
+# The hybrid nature of this benchmark originates from a switched controller. In
+# particular, the modes are approaching (``x ∈ [−1000, −100] [m]``), rendezvous
+# attempt (``x ≥ −100 [m]``), and aborting. A transition to mode aborting occurs
+# nondeterministically at ``t ∈ [120, 150] [min]``.
+#
+# The linear feedback controllers for the diﬀerent modes are deﬁned as
+# ``\binom{u_x}{u_y} = K_1\underline{x}`` for mode approaching, and
+# ``\binom{u_x}{u_y} = K_2\underline{x}`` for mode rendezvous attempt, where
+# ``\underline{x} = (x, y, v_x, v_y)^T`` is the vector of system states. The
+# feedback matrices ``K_i`` were determined with an LQR-approach applied to the
+# linearized system dynamics, which resulted in the following numerical values:
+# ```math
+# K_1 =
+# \begin{pmatrix}
+# −28.8287 & 0.1005 & −1449.9754 & 0.0046 \\
+# −0.087 & −33.2562 & 0.00462 & −1451.5013
+# \end{pmatrix}
+# ```
+# ```math
+# K_2 =
+# \begin{pmatrix}
+# −288.0288 & 0.1312 & −9614.9898 & 0 \\
+# −0.1312 & −288 & 0 & −9614.9883
+# \end{pmatrix}
+# ```
+# In the mode aborting, the system is uncontrolled ``\binom{u_x}{u_y} = \binom{0}{0}``.
+
+using ReachabilityAnalysis, Plots
+
+const T_lv = 3.64
+
+@taylorize function lotka_volterra!(du, u, p, t)
+    u1u2 = u[1] * u[2]
+    du[1] = 3.0 * (u[1] - u1u2)
+    du[2] = u1u2 - u[2]
+    return du
+end
+
+function lotka_volterra(; nsplit=4,
+                          ε = 0.008,
+                          ε_ext=1e-4, # threshold for the outer approximation
+                          n_int=50)   # number of directions for the inner approximation
+
+    # generate external / internal polytopic approximations of the guard
+    B = Ball2([1.0, 1.0], 0.15) # "exact"
+    B_ext = overapproximate(B, ε_ext) # outer approximation
+    B_int = underapproximate(B, PolarDirections(n_int)) # inner approximation
+    B_int = tohrep(convert(VPolygon, B_int)) # cast to Hrep
+    B_intᶜ = complement(B_int)
+
+    # define modes
+    aut = LightAutomaton(3)
+    outside = @system(x' = lotka_volterra!(x), dim: 2, x ∈ B_intᶜ)
+    inside = @system(x' = lotka_volterra!(x), dim: 2, x ∈ B_ext)
+    outside_unconstrained = @system(x' = lotka_volterra!(x), dim: 2, x ∈ Universe(2))
+
+    # define the transition graph
+    add_transition!(aut, 1, 2, 1)
+    add_transition!(aut, 2, 3, 2)
+    T_out_in = @map(x -> x, dim:2, x ∈ B_ext)
+    T_in_out = @map(x -> x, dim:2, x ∈ B_intᶜ)
+
+    # initial-value problem
+    H = HybridSystem(automaton=aut, modes=[outside, inside, outside_unconstrained],
+                                           resetmaps=[T_out_in, T_in_out])
+
+    # initial states with splitting
+    X0 = Hyperrectangle(low=[1.3-ε, 1.], high=[1.3+ε, 1.])
+    X0s = split(X0, [nsplit, 1])
+    X0st = [(X0s_i, 1) for X0s_i in X0s]
+
+    return InitialValueProblem(H, X0st)
+end
+
+@inline function lv_property(solz, ε_ext)
+
+    # Sets intersecting the nonlinear guard
+    B = Ball2([1.0, 1.0], 0.15) # "exact"
+    B_ext = overapproximate(B, ε_ext) # outer approximation
+    intersecting_reachsets = []
+    for (i, Fi) in enumerate(solz)
+        for (j, Xj) in enumerate(Fi)
+            !is_intersection_empty(Xj, B_ext) && push!(intersecting_reachsets, (i, j))
+        end
+    end
+
+    # Compute time spent inside non-linear guard
+    times = [tspan(solz[ind[1]][ind[2]]) for ind in intersecting_reachsets]
+    tmin = minimum(tstart, times)
+    tmax = maximum(tend, times)
+    @show(tmin, tmax, tmax-tmin)
+
+    indxs = Int[]
+    for (i, e) in enumerate(tspan.(solz))
+        T_lv ∈ tspan(e) && push!(indxs, i)
+    end
+    chlast = ConvexHullArray([set(solz[i](T_lv)) for i in indxs])
+    chlasth = overapproximate(chlast, Hyperrectangle)
+    a = low(chlasth)
+    b = high(chlasth)
+    return (b[1] - a[1]) * (b[2] - a[2]), tmax-tmin
+end
+
+using BenchmarkTools, Plots, Plots.PlotMeasures, LaTeXStrings
+using BenchmarkTools: minimum, median
+
+SUITE = BenchmarkGroup()
+model = "LOVO20"
+cases = [""]
+SUITE[model] = BenchmarkGroup()
+
+include("lotka_volterra.jl")
+validation = []
+final_area = []
+intersect_time = []
+
+# ----------------------------------------
+#  Case 1:
+# ----------------------------------------
+ε_ext = 1e-4
+prob = lotka_volterra(; nsplit=4, ε_ext=ε_ext)
+alg = TMJets(abs_tol=1e-14, orderT=7, orderQ=1)
+
+# warm-up run
+sol_lv = solve(prob, T=T_lv,
+                  alg=alg,
+                  max_jumps=100,
+                  intersect_source_invariant=false,
+                  intersection_method=BoxIntersection(),
+                  clustering_method=BoxClustering(3),
+                  disjointness_method=BoxEnclosure());
+solz_lv = overapproximate(sol_lv, Zonotope);
+
+# obtain area
+area, time_in_guard = lv_property(solz_lv, ε_ext)
+push!(validation, Int(true))
+push!(final_area, trunc(area, sigdigits=3))
+push!(intersect_time, trunc(time_in_guard, sigdigits=3))
+println("Final area, case $(cases[1]) : $(area)")
+println("Time spent in guard, case $(cases[1]) : $(time_in_guard)")
+
+# benchmark
+SUITE[model][cases[1]] = @benchmarkable solve($prob,
+                  T = $T_lv,
+                  alg = $alg,
+                  max_jumps = 100,
+                  intersect_source_invariant = false,
+                  intersection_method = BoxIntersection(),
+                  clustering_method = BoxClustering(3),
+                  disjointness_method = BoxEnclosure())
+
+
+# ==============================================================================
+# Execute benchmarks and save benchmark results
+# ==============================================================================
+
+# tune parameters
+tune!(SUITE)
+
+# run the benchmarks
+results = run(SUITE, verbose=true)
+
+# return the sample with the smallest time value in each test
+println("minimum time for each benchmark:\n", minimum(results))
+
+# return the median for each test
+println("median time for each benchmark:\n", median(results))
+
+# export runtimes
+runtimes = Dict()
+for (i, c) in enumerate(cases)
+    t = median(results[model][c]).time * 1e-9
+    runtimes[c] = t
+end
+
+for (i, c) in enumerate(cases)
+    print(io, "JuliaReach, $model, $c, $(validation[i]), $(runtimes[c])," *
+        " $(final_area[i]), $(intersect_time[i])\n")
+end
+
+# ==============================================================================
+# Create plots
+# ==============================================================================
+
+fig = plot()
+
+outside_idx = findall(x -> x == 1, location.(sol_lv))
+inside_idx = findall(x -> x == 2 || x == 3, location.(sol_lv))
+
+for i in outside_idx
+    plot!(fig, solz_lv[i], vars=(1, 2), lw=0.0, alpha=1.0, color=:blue)
+end
+
+for i in inside_idx
+    plot!(fig, solz_lv[i], vars=(1, 2), lw=0.0, alpha=1.0, color=:lightgreen)
+end
+
+B = Ball2([1.0, 1.0], 0.15) # "exact"
+B_ext = overapproximate(B, ε_ext) # outer approximation
+plot!(fig, B, 1e-4, color=:white, lw=2.0, linecolor=:red, tickfont=font(30, "Times"),
+        guidefontsize=45,
+        xlab=L"x",
+        ylab=L"y",
+        xtick=[0.8, 1.0, 1.2], ytick=[0.6, 0.8, 1.0, 1.2],
+        xlims=(0.6, 1.4), ylims=(0.6, 1.4),
+        bottom_margin=6mm, left_margin=2mm, right_margin=8mm, top_margin=3mm,
+        size=(1000, 1000))
+
+savefig("ARCH-COMP20-JuliaReach-LotkaVolterra.png")
