@@ -7,6 +7,8 @@ using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
 import IntervalArithmetic
 const IA = IntervalArithmetic
 
+const IA = IntervalArithmetic
+
 # load test models
 include("models/exponential1D.jl")
 include("models/motor.jl")

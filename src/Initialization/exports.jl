@@ -46,6 +46,12 @@ export
     sup_func, # TODO keep?
     setrep,
     rsetrep,
+    reset_map,
+    guard,
+    source_invariant,
+    target_invariant,
+    # getter functions for Taylor model reach-sets
+    domain, remainder, polynomial, get_order, expansion_point,
     numrsets,
 
 # Concrete operations
