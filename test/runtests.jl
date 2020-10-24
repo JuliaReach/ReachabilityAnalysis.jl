@@ -3,6 +3,8 @@ using Test, ReachabilityAnalysis, StaticArrays
 using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
                            DeterministicSwitching, NonDeterministicSwitching
 
+const IA = IntervalArithmetic
+
 # load test models
 include("models/linear/exponential1D.jl")
 include("models/linear/motor.jl")

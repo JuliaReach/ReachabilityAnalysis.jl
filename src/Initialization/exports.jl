@@ -48,6 +48,8 @@ export
     guard,
     source_invariant,
     target_invariant,
+    # getter functions for Taylor model reach-sets
+    domain, remainder, polynomial, get_order, expansion_point,
 
 # Concrete operations
     project,

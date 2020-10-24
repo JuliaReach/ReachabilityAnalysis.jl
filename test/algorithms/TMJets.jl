@@ -1,6 +1,3 @@
-using ReachabilityAnalysis: domain, remainder, polynomial, get_order, expansion_point
-const IA = IntervalArithmetic
-
 @testset "TMJets algorithm" begin
     prob, tspan = vanderpol()
 
@@ -25,11 +22,11 @@ const IA = IntervalArithmetic
 end
 
 @testset "TMJets algorithm: linear IVPs" begin
-    prob, tspan = exponential_1d()
-    sol = solve(prob, tspan=tspan, TMJets())
+    prob, dt = exponential_1d()
+    sol = solve(prob, tspan=dt, TMJets())
     @test sol.alg isa TMJets
 
-    # getter functins for the taylor model reach-set
+    # getter functions for a taylor model reach-set
     R = sol[1]
     @test domain(R) == tspan(R)
     @test diam(remainder(R)[1]) < 1e-13
@@ -38,8 +35,8 @@ end
     @test expansion_point(R) ≈ [IA.Interval(0.0)]
 
     # test intersection with invariant
-    prob, tspan = exponential_1d(invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
-    sol_inv = solve(prob, tspan=tspan, TMJets())
+    prob, dt = exponential_1d(invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
+    sol_inv = solve(prob, tspan=dt, TMJets())
     @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
     m = length(sol_inv)
     # check that the following reach-set escapes the invariant
