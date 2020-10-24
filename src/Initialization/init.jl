@@ -34,6 +34,9 @@ const TimeInterval = IA.Interval{Float64}
 import TaylorModels
 const TM = TaylorModels
 
+# method extensions for Taylor model reach-sets
+import TaylorModels: domain, remainder, polynomial, get_order
+
 @inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
     return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
 end
