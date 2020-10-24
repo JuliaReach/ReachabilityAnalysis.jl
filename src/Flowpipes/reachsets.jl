@@ -710,18 +710,17 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
-function overapproximate(X::AbstractHyperrectangle{N}, ::Type{<:TaylorModelReachSet};
-                         orderQ::Integer=2, orderT::Integer=8,
-                         Δt::TimeInterval=zeroI) where {N}
+function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
+                 orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
 
-    n = dim(X)
+    n = dim(H)
     x = set_variables("x", numvars=n, order=2*orderQ)
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
-    # the line segment corresponding to the i-th edge of X
+    # the line segment corresponding to the i-th edge of H
     for i in 1:n
         α = radius_hyperrectangle(H, i)
         β = center(H, i)
@@ -732,18 +731,27 @@ function overapproximate(X::AbstractHyperrectangle{N}, ::Type{<:TaylorModelReach
     return TaylorModelReachSet(vTM, Δt)
 end
 
-function overapproximate(X::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
-                         orderQ::Integer=2, orderT::Integer=8,
-                         Δt::TimeInterval=RA.zeroI) where {N}
+function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
+end
 
-    n = dim(X)
+function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
+                         indices=1:dim(Z)) where {N}
+
+    n = dim(Z)
     x = set_variables("x", numvars=n, order=2*orderQ)
 
-    if order(X) > 1
-        X = _reduce_order(X, 1)
+    if order(Z) > 1
+        # indices selects the indices that we want to keep
+        Z = LazySets.Approximations._overapproximate_hparallelotope(Z, indices)
+
+        # diagonal generators matrix
+        # Z = _reduce_order(Z, 1)
     end
-    c = center(X)
-    G = genmat(X)
+    c = center(Z)
+    G = genmat(Z)
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
@@ -757,7 +765,6 @@ function overapproximate(X::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
 
     return TaylorModelReachSet(vTM, Δt)
 end
-
 
 # ================================================================
 # Template reach set
