@@ -33,6 +33,17 @@ the sets of initial states, inputs, or parameter variation.
 We refer to the `Algorithms` section for detailed descriptions of the algorithms
 available, as well as the references to the technical literature.
 
+## What can `ReachabilityAnalysis` do?
+
+## How to install the package?
+
+You can easily install `ReachabilityAnalysis.jl` from your Julia console
+(press `]` in the Julia REPL to enter the `pkg>` mode):
+
+```julia
+pkg> add ReachabilityAnalysis
+```
+
 ## Application domains
 
 Reachability analysis has applications in diverse domains such as:
@@ -56,10 +67,6 @@ Reachability analysis has applications in diverse domains such as:
 
 We refer to the technical literature for further applications.
 
-## Installation
+## On the problem of verification
 
-In Julia v1.0 or later you can install `ReachabilityAnalysis` from the Pkg REPL (press `]` in the Julia REPL to enter the `pkg>` mode):
-
-```julia
-pkg> add ReachabilityAnalysis
-```
+## How to read this manual

@@ -133,7 +133,7 @@ Aδ && δI_n && 0 \\\\
 \\end{pmatrix}.
 ```
 It can be shown that `Φ₁(A, δ) = P[1:n, (n+1):2*n]`.
-We refer to [[FRE11]] for details.
+We refer to [[FRE11]](@ref) for details.
 """
 function Φ₁(A::AbstractMatrix, δ, method)
     n = checksquare(A)
@@ -186,7 +186,7 @@ Aδ && δI_n && 0 \\\\
 \\end{pmatrix}.
 ```
 It can be shown that `Φ₂(A, δ) = P[1:n, (2*n+1):3*n]`.
-We refer to [[FRE11]] for details.
+We refer to [[FRE11]](@ref) for details.
 """
 function Φ₂(A::AbstractMatrix, δ, method)
     n = checksquare(A)

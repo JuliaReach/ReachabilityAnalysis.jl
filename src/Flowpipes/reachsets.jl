@@ -624,14 +624,6 @@ polynomial(R::TaylorModelReachSet) = polynomial.(R.X)
 get_order(R::TaylorModelReachSet) = get_order.(R.X)
 expansion_point(R::TaylorModelReachSet) = [Xi.x0 for Xi in R.X]
 
-# useful constants
-@inline zeroBox(m) = IntervalBox(zeroI, m)
-@inline unitBox(m) = IntervalBox(IA.Interval(0.0, 1.0), m)
-@inline symBox(n::Integer) = IntervalBox(symI, n)
-const zeroI = IA.Interval(0.0) # TODO use number type
-const oneI = IA.Interval(1.0)
-const symI = IA.Interval(-1.0, 1.0)
-
 function shift(R::TaylorModelReachSet, t0::Number)
     return TaylorModelReachSet(set(R), tspan(R) + t0)
 end
