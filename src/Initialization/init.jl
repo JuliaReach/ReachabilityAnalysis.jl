@@ -3,11 +3,12 @@
 # ======================
 
 using LinearAlgebra, SparseArrays, # modules from the Julia standard library
-      Reexport,     # see @reexport macro below
-      RecipesBase,  # plotting
-      Parameters,   # structs with kwargs
-      StaticArrays, # statically sized arrays
-      RecursiveArrayTools # vector of arrays
+      Reexport,                    # see @reexport macro below
+      RecipesBase,                 # plotting
+      Parameters,                  # structs with kwargs
+      StaticArrays,                # statically sized arrays
+      RecursiveArrayTools,         # vector of arrays
+      ExponentialUtilities         # Krylov subspace approximations
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -90,6 +91,5 @@ end
 
 function __init__()
     @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
-    @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
     @require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
 end

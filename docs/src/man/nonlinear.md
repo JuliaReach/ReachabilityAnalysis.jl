@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Nonlinear ordinary differential equations
 
 ## Overview

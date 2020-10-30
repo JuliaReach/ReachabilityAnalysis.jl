@@ -462,6 +462,23 @@ function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
     HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
+# This function measures the relative error between an interval x and a
+# reference interval x_ref accounting for it the lower and the
+# upper range bounds separately; see Eq. (20) in [1].
+#
+# [1] Althoff, Matthias, Dmitry Grebenyuk, and Niklas Kochdumper.
+#     "Implementation of Taylor models in CORA 2018." Proc. of the 5th International Workshop on Applied
+#     Verification for Continuous and Hybrid Systems. 2018.
+# https://easychair.org/publications/paper/9Tz3
+function relative_error(x, x_ref)
+    x_low, x_high = inf(x), sup(x)
+    x_ref_low, x_ref_high = inf(x_ref), sup(x_ref)
+    denom = x_ref_high - x_ref_low
+    rel_low = -(x_low - x_ref_low) / denom
+    rel_high = (x_high - x_ref_high) / denom
+    return 100 * IntervalArithmetic.Interval(rel_low, rel_high)
+end
+
 # ==================================
 # Zonotope order reduction methods
 # ==================================

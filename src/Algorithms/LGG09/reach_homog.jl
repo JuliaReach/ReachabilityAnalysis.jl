@@ -115,34 +115,43 @@ end
 # Functionality that requires ExponentialUtilities.jl
 # ------------------------------------------------------------
 
-function load_krylov_LGG09_homog()
-return quote
+"""
+    reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
+                              ℓ::AbstractVector, NSTEPS;
+                              hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
 
-# Compute the sequence:
-#
-# ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀), ρ(ℓ, Φ^2 Ω₀), ρ(ℓ, Φ^3 Ω₀), ...
-#
-# Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
-# the direction ℓ.
-#
-# Method (see [1]):
-#
-# out[1] <- ρ(ℓ, Ω₀)
-#
-# out[2] <- ρ(ℓ, Φ Ω₀) = ρ(Φᵀ ℓ, Ω₀)
-#
-# out[3] <- ρ(ℓ, Φ^2 Ω₀) = ρ((Φᵀ)^2 ℓ, Ω₀)
-#
-# out[4] <- ρ(ℓ, Φ^3 Ω₀) = ρ((Φᵀ)^3 ℓ, Ω₀)
-#
-# and so on.
-#
-# [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
-#     High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
-#     Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
-#     Proceedings of the 21st International Conference on Hybrid Systems: Computation
-#     and Control: 41–50.
-#
+### Algorithm
+
+We compute the sequence:
+
+```math
+    ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀), ρ(ℓ, Φ^2 Ω₀), ρ(ℓ, Φ^3 Ω₀), ...
+```
+
+Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
+the direction ℓ.
+
+The method is (see [1]):
+
+```julia
+out[1] <- ρ(ℓ, Ω₀)
+
+out[2] <- ρ(ℓ, Φ Ω₀) = ρ(Φᵀ ℓ, Ω₀)
+
+out[3] <- ρ(ℓ, Φ^2 Ω₀) = ρ((Φᵀ)^2 ℓ, Ω₀)
+
+out[4] <- ρ(ℓ, Φ^3 Ω₀) = ρ((Φᵀ)^3 ℓ, Ω₀)
+```
+ and so on.
+
+### References
+
+[1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
+    High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
+    Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
+    Proceedings of the 21st International Conference on Hybrid Systems: Computation
+    and Control: 41–50.
+"""
 function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
                                    ℓ::AbstractVector, NSTEPS;
                                    hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
@@ -162,5 +171,3 @@ function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
     end
     return out
 end
-
-end end  # quote / load_krylov_LGG09_homog()

@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Linear ordinary differential equations
 
 ## Introduction
@@ -23,8 +28,8 @@ sol = solve(prob, T=4.0)
 fig = plot(sol, vars=(0, 1), label="Flowpipe", xlab="t", ylab="x(t)")
 
 # plot some trajectories
-x0sample = [0.45, 0.50, 0.55]
-[plot!(fig, t -> x0*exp(-t), xlims=(0, 4), label="Analytic with x(0) = $x0") for x0 in x0sample]
+x0vals = [0.45, 0.50, 0.55]
+[plot!(fig, t -> x0*exp(-t), xlims=(0, 4), label="Analytic with x(0) = $x0") for x0 in x0vals]
 fig
 ```
 The figure shows the flowpipe of the initial-value problem
@@ -76,16 +81,102 @@ It is worth noting that theoretical estimates on the [Hausdorff distance](@ref) 
 the exact flowpipe and the computed flowpipe for a given time-step are known, but
 are often not very useful in practice since they tend to provide too coarse bounds.
 
----
+The specification of constraints on the evolution can be given in terms of
+*state invariants.* For example,
+Supose that we restrict to the set $X ≥ 0.1$.
 
-This section is about initial-value problems for linear differential equations of the form
+```@example linear_scalar
+f(δ) = solve(prob, T=4.0, alg=INT(δ=δ))
+
+# plot over the full time span
+fig = plot(xlab="t", ylab="x(t)")
+plot!(fig, sol, vars=(0, 1), label="", xlab="t", ylab="x(t)" , lw=0.1, c=:orange)
+plot!(fig, HalfSpace([0.0, -1.0], -0.1), alpha=.2, c=:green, lab="X")
+plot!(fig, f(1e-2), vars=(0, 1), label="", , lw=0.0, c=:blue)
+x0sample = [0.45, 0.50, 0.55]
+[plot!(fig, t -> x0*exp(-t), xlims=(0, 4), label="") for x0 in x0sample]
+plot!(fig, Hyperrectangle(low=[1.09, 0.05], high=[2.0, 0.15]), alpha=0.2, lw=2.0, c=:black, linestyle=:dot)
+
+# zoomed plot
+figz =
+
+
+```
+
+For illustration, suppose that we are interested in the behavior of trajectories
+escaping the invariant. Define the *guard set* as the (one-dimensinal) hyperplane
+$\partial X := \{x \in \mathbb{R} : x = 1\}$, i.e. it is in this case the border
+of our invariant $X$. We can analytically compute the time at which the trajectory
+with initial condition $x(0) = x_0$ exits the invariant
+by solving for $t$ in the analytic equation, $x(t) = x_0 e^{-t}$, giving
+$t = -log_e(0.1/x_0)$. Evaluating for the extremal values of $$\mathcal{X}_0 = [0.45, 0.55]$$,
+we get:
+
+```@example linear_scalar
+xref = -log(0.1 / 0.45) .. -log(0.1 / 0.55)
+```
+For comparison, let's compare the *reference interval* `xref` computed above with the
+bracketing interval obtained with reachability analysis, for different values of the
+step size ``δ``.
+
+```@example linear_scalar
+using ReachabilityAnalysis: relative_error
+
+using PrettyTables, BenchmarkTools
+
+steps = 10 .^ range(-2, -7, length=5)
+data = Matrix{Any}(undef, length(steps), 4)
+
+for (i, δ) in enumerate(steps)
+    bench = @benchmark sol($δ)
+    btime = minimum(bench.times) * 1e-6 # ns to ms
+
+    sol = f(δ)
+    idx = findall(R -> [0.1] ∈ R, sol)
+    x = tspan(sol[idx])
+    rerr = relative_error(x, xref)
+
+    data[i, :] = Any[δ, x, rerr, btime]
+end
+
+tags = ["δ", "Bracketing interval", "Relative error (%)", "Runtime (ms)"]
+pretty_table(data, tags; formatters = ft_printf("%5.4f", 4))
+```
+
+!!! note "Performance tip"
+    In this simple example we used a fixed step-size $\delta$. It is
+    an interesting exercise to write an algorithm that dynamically chooses the step-size,
+    by refining only the subset of the flowpipe that reaches the boundary. On one hand,
+    such dynamic algorithm shall converge faster; on the other hand, it has the increase
+    in complexity of having to handle several flowpipes -- an exponentially
+    increasing number of flowpipes -- hence, taking the convex hull (called
+    *convexification* in this library) shall be considered.
+
+## Linear reachability
+
+In this section of the manual we focus on initial-value problems for linear differential
+equations of the form
 
 ```math
-x'(t) = Ax(t) + u(t), \qquad x(0) \in \mathcal{X}_0, u(t) \in \mathcal{U}(t),
+x'(t) = Ax(t) + u(t), \qquad x(0) \in \mathcal{X}_0, x(t) ∈ \mathcal{X}, u(t) \in \mathcal{U}(t),\qquad (1)
 ```
 where ``x(t) \in \mathbb{R}^n`` is the state vector, ``A \in \mathbb{R}^{n \times n}``
 is the state (or coefficients) matrix, ``\mathcal{X}_0`` is the set of initial states,
-and ``\mathcal{U}(t)`` is the (possibly time-varying) set of uncertain inputs.
+``\mathcal{U}(t) \subseteq \mathcal{R}^m`` is the (possibly time-varying) set of uncertain inputs, and
+``\mathcal{X} \in \subseteq \mathcal{R}^n`` is the state invariant.
+We also consider observable outputs,
+
+```math
+  y(t) = Cx(t) + Du(t),\qquad (2)
+```
+where $C$ and $D$ are matrices of appropriate dimension. In mathematical systems parlance, Eqs. (1) and (2) above encompasses the class of state-constrained linear time-invariant (LTI) systems with uncertain initial states and uncertain input sets. With respect to the time domain, we consider a finite time span, typically of the form ``[0, T]``, where ``T`` is called the time horizon. Applications that require reasoning about an infinite (unbounded, eg. ``[0, \infty]``) time horizon can make use of so-called invariant set computations; see e.g. the [Van der Pol](@ref) model for a practical example.
+
+!!! note "Extension tip"
+    Please note that systems of the form ``x'(t) = Ax(t) + Bu(t)`` can be brought
+    to the canonical form ``x'(t) = Ax(t) + v(t)`` by constraining ``v(t)`` to be
+    in the set ``B \mathcal{U}``. Such transformation is implemented in the function
+    [normalize](@ref).
+
 Although many systems can be formulated in this manner, arguably most systems of interest
 in science and engineering have additional complexities, e.g. the state matrix `A`
 can depend on time, the inputs can be state-dependent, or more generally right-hand
@@ -93,9 +184,7 @@ side can contain powers or other nonlinear functions of the state `x`, etc. More
 in several situations of interest the coefficients of ``A`` are only known approximately.
 On the other hand, studying linear systems is of central interest for our purposes
 
-!!! note "Extension tip"
-    Please note that equations of the form ``x'(t) = Ax(t) + Bu(t)`` are also considered
-    in this context, since . . . .
+For example, . . .
 
 Although many differential equations can be formulated in such form,
 
@@ -124,7 +213,52 @@ variables of interest.
 
 ## Zonotope methods
 
+```@example zonotope_methods
+using Revise, ReachabilityAnalysis, Plots, Colors
+
+red, green, blue, purple = Colors.JULIA_LOGO_COLORS
+
+A = [0 1; -1 0.]
+B = Ball2([0.0, 1.0], 0.1)
+prob = @ivp(x' = A * x, x(0) ∈ B)
+ω = 2π
+
+sol = solve(prob, tspan=(0.0, 0.9ω), alg=GLGM06(δ=0.2, max_order=10));
+
+plot(sol, vars=(1, 2), lw=0.0, ratio=1.)
+plot!(sol(0.0), vars=(1, 2), c=red, alpha=1.)
+plot!(sol(.2ω), vars=(1, 2), c=green, alpha=1.)
+plot!(sol(.4ω), vars=(1, 2), c=blue, alpha=1.)
+plot!(sol(.75ω), vars=(1, 2), c=purple, alpha=1.)
+```
+
 ## Support function methods
+
+```@example support_function_methods
+using Revise, ReachabilityAnalysis, Plots, Colors
+
+red, green, blue, purple = Colors.JULIA_LOGO_COLORS
+
+A = [0 1; -1 0.]
+B = Ball2([0.0, 1.0], 0.1)
+prob = @ivp(x' = A * x, x(0) ∈ B)
+ω = 2π
+
+dirs = PolarDirections(100)
+sol = solve(prob, tspan=(0.0, 0.9ω), alg=LGG09(δ=0.2, template=dirs));
+
+plot(sol, vars=(1, 2), lw=0.0, ratio=1.)
+plot!(sol(0.0), vars=(1, 2), c=red, alpha=1.)
+plot!(sol(.2ω), vars=(1, 2), c=green, alpha=1.)
+plot!(sol(.4ω), vars=(1, 2), c=blue, alpha=1.)
+plot!(sol(.75ω), vars=(1, 2), c=purple, alpha=1.)
+```
+
+```@example support_function_methods
+plot(B, ratio=1., lab="B")
+plot!(sol[1], vars=(1, 2), lab="R[1]")
+plot!(sol[2], vars=(1, 2), lab="R[2]")
+```
 
 Our first example is an initial-value problem for the one-dimensional differential
 equation
@@ -191,7 +325,7 @@ Transforming higher-order into a first-order system.
 
 Formulating the mathematical problem involves writing the system as a first-order
 
-## Template polyhedra 
+## Template polyhedra
 
 
 
@@ -277,7 +411,8 @@ For instance, if ``f(t) = F \sin (3t)``, let ``u := F\sin(3t)`` and
 ```
 is formally equivalent to the following linear system:
 
-```@example
+```@example second_order_damped
+
 F = 3.0
 A = [ 0    1.0     0   0;
      -4    -3.5    1   0;

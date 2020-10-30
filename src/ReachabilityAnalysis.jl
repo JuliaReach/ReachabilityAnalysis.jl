@@ -31,6 +31,7 @@ include("Continuous/discretization.jl")
 # ===========================================================
 
 # Linear
+include("Algorithms/A20/A20.jl")
 include("Algorithms/LGG09/LGG09.jl")
 include("Algorithms/GLGM06/GLGM06.jl")
 include("Algorithms/INT/INT.jl")

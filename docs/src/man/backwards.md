@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Backwards reachability
 
 ```@example

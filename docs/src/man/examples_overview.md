@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 ## Overview
 
 We organize the models by the type of nonlinearities (if there are some), and

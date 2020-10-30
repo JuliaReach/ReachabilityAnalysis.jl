@@ -19,11 +19,22 @@ using LazySets: plot_recipe,
                 _bounding_hyperrectangle,
                 _update_plot_limits!
 
-# projection of a reach-set either concretely or lazily
-function _project_reachset(R, vars, ε)
+# heuristics for projecting a reach-set either concretely or lazily
+function _project_reachset(R::AbstractLazyReachSet{N}, vars, ε=N(PLOT_PRECISION)) where {N}
     if setrep(R) <: AbstractZonotope
-        πR = project(R, vars) # concrete projection
+        # concrete projection is efficient for zonotopic sets
+        πR = project(R, vars)
         X = set(πR)
+    elseif (setrep(R) <: AbstractPolyhedron) && (dim(R) == 2) && (vars == 1:2)
+        # 2D polyhedral sets do not need to be projected (nor refined) unless one of the
+        # coordinates of interest is time; in that case, we take the lazy projection
+        # and then overapproximate with a box without loss
+        if vars == 1:2
+            X = set(R)
+        else
+            πR = Projection(R, vars)
+            X = overapproximate(set(πR))
+        end
     else
         πR = Projection(R, vars) # lazy projection
         X = overapproximate(set(πR), ε)
