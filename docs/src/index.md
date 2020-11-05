@@ -35,6 +35,8 @@ available, as well as the references to the technical literature.
 
 ## What can `ReachabilityAnalysis` do?
 
+- Solve the same ODE repeatedly for an *infinite* number of different initial conditions.
+
 ## How to install the package?
 
 You can easily install `ReachabilityAnalysis.jl` from your Julia console

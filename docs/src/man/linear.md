@@ -131,7 +131,7 @@ for (i, δ) in enumerate(steps)
     bench = @benchmark sol($δ)
     btime = minimum(bench.times) * 1e-6 # ns to ms
 
-    sol = f(δ)
+    local sol = f(δ)
     idx = findall(R -> [0.1] ∈ R, sol)
     x = tspan(sol[idx])
     rerr = relative_error(x, xref)
