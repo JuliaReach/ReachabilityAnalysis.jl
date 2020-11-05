@@ -439,11 +439,13 @@ The time span of this reach-set corresponds to the minimum (resp. maximum) of th
 time span of each reach-set in `fp`.
 
 This function allocates an array to store the sets of the flowpipe.
+
+The function doesn't assume that the reach-sets are time ordered.
 """
 function convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
     Y = ConvexHullArray([set(X) for X in fp])
     ti = minimum(tstart, fp)
-    tf = minimum(tend, fp)
+    tf = maximum(tend, fp)
     return ReachSet(Y, TimeInterval(ti, tf))
 end
 
