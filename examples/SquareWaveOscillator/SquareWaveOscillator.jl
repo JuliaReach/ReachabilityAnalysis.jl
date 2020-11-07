@@ -60,10 +60,6 @@ plot(sol, vars=(0, 1), xlab="t", ylab="v-")
 
 #-
 
-plot(sol, vars=(0, 1), xlab="t", ylab="v-")
-
-#-
-
 tspan.(sol)
 
 #-
