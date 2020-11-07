@@ -42,6 +42,11 @@ function _project_reachset(R::AbstractLazyReachSet{N}, vars, ε=N(PLOT_PRECISION
     return X
 end
 
+function _project_reachset(T::TaylorModelReachSet, vars, ε=N(PLOT_PRECISION))
+    R = overapproximate(T, Zonotope)
+    _project_reachset(R, vars, ε)
+end
+
 function _check_vars(vars)
     if vars == nothing
         throw(ArgumentError("default ploting variables not implemented yet; you need " *

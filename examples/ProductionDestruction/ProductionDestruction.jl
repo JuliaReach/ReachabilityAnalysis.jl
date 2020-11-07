@@ -13,7 +13,7 @@
 # and the sum of these quantities is constant. This particular family of systems is often used to test
 # the stability of integration schemes.
 #
-# As proposed by Michaelis-Menten theory [^KM18], a model for three quantities can be defined as follows:
+# As proposed by **Michaelis-Menten** theory [^KM18], a model for three quantities can be defined as follows:
 #
 # ```math
 #    \left\{ \begin{array}{lcl}
@@ -130,7 +130,7 @@ end
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01)
 prob = @ivp(x'= prod_dest_I!(x), dim:3, x(0) ∈ X0)
 
-solI = solve(prob, T=100.0)
+solI = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1))
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solI)
@@ -158,7 +158,7 @@ end
 X0 = (9.98 .. 9.98) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solP = solve(prob, T=100.0);
+solP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1))
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solP)
@@ -178,7 +178,7 @@ plot(solPz, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solIP = solve(prob, T=100.0);
+solIP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1))
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solIP)
@@ -231,10 +231,6 @@ end
 # tolerance with initial value ``10^{-11}`` (resp ``10^{-12}``) for ``I``
 # and ``I`` and ``P`` (resp. ``P``). This choice offers a good balance between runtime
 # and precision.
-
-alg_a = TMJets(abs_tol=1e-11, orderT=7, orderQ=1)
-
-alg_b = TMJets(abs_tol=1e-12, orderT=7, orderQ=1)
 
 # ## References
 
