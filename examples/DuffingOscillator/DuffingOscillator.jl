@@ -10,6 +10,8 @@
 
 using ReachabilityAnalysis, Plots
 
+LazySets.set_ztol(Float64, 1e-15)
+
 @taylorize function duffing!(du, u, p, t)
     local α = -1.0
     local β = 1.0
