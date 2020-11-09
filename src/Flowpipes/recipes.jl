@@ -19,16 +19,47 @@ using LazySets: plot_recipe,
                 _bounding_hyperrectangle,
                 _update_plot_limits!
 
-# projection of a reach-set either concretely or lazily
-function _project_reachset(R, vars, ε)
+# heuristics for projecting a reach-set either concretely or lazily
+function _project_reachset(R::AbstractLazyReachSet{N}, vars, ε=N(PLOT_PRECISION)) where {N}
     if setrep(R) <: AbstractZonotope
-        πR = project(R, vars) # concrete projection
+        # concrete projection is efficient for zonotopic sets
+        πR = project(R, vars)
         X = set(πR)
+    elseif (setrep(R) <: AbstractPolyhedron) && (dim(R) == 2)
+
+        # TODO : << cleanup plotting heuristics for polyhedral sets with / without projection
+
+        # 2D polyhedral sets do not need to be projected unless one of the
+        # coordinates of interest is time; in that case, we take the lazy projection
+        # and then overapproximate with a box without loss
+        # NOTE: ε option is currently ignored
+        #if vars == 1:2
+        #    X = set(R)
+        #else
+        #    πR = Projection(R, vars)
+        #    X = overapproximate(set(πR), Hyperrectangle)
+        #end
+
+        # - if the set is polyhedral and 2D
+        #   - if time is not requried -> don't project
+        #   - otherwise, make the projection (lazily)
+        if 0 ∈ vars
+            πR = Projection(R, vars) # lazy projection
+            #X = overapproximate(set(πR), ε)
+            X = set(πR)
+        else
+            X = set(R)
+        end
     else
         πR = Projection(R, vars) # lazy projection
         X = overapproximate(set(πR), ε)
     end
     return X
+end
+
+function _project_reachset(T::TaylorModelReachSet, vars, ε=N(PLOT_PRECISION))
+    R = overapproximate(T, Zonotope)
+    _project_reachset(R, vars, ε)
 end
 
 function _check_vars(vars)

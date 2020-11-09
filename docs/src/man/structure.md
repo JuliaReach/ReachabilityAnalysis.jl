@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Exploiting structure
 
 In this section we consider reachability analysis for subsets of variables

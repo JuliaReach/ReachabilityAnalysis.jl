@@ -10,3 +10,9 @@ CurrentModule = ReachabilityAnalysis
 ```@docs
 convexify
 ```
+
+## Quality measures
+
+```@docs
+ReachabilityAnalysis.relative_error
+```

@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Commonly asked questions (FAQ)
 
 ### What are good introductory papers on the subject?

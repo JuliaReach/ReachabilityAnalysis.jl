@@ -462,6 +462,47 @@ function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
     HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
+"""
+    relative_error(x, x_ref)
+
+Compute the relative error between interval `x` and a reference interval `xref`.
+
+### Input
+
+- `x`    -- interval
+- `xref` -- reference interval
+
+### Output
+
+An interval representing the relative error (in percentage) of `x` with respect to
+the reference interval `xref`.
+
+### Algorithm
+
+If ``x = [x_L, x_H]``` and ``xref = [xref_L, xref_H]``, the output is the interval
+``y = 100 * [y_L, y_H]`` computed as ``y_L = -(x_L - xref_L) / den`` and
+``y_H = (x_H - xref_H) / den``, where ``den = xref_H - xref_L``.
+
+This function measures the relative error between an interval `x` and a reference
+interval `x_ref` accounting for it the lower and the upper range bounds separately
+(see  Eq. (20) in [1]).
+
+### References
+
+- [1] Althoff, Matthias, Dmitry Grebenyuk, and Niklas Kochdumper.
+      "Implementation of Taylor models in CORA 2018."
+      Proc. of the 5th International Workshop on Applied Verification for Continuous
+      and Hybrid Systems. 2018. [pdf](https://easychair.org/publications/paper/9Tz3)
+"""
+function relative_error(x, x_ref)
+    x_low, x_high = inf(x), sup(x)
+    x_ref_low, x_ref_high = inf(x_ref), sup(x_ref)
+    denom = x_ref_high - x_ref_low
+    rel_low = -(x_low - x_ref_low) / denom
+    rel_high = (x_high - x_ref_high) / denom
+    return 100 * IntervalArithmetic.Interval(rel_low, rel_high)
+end
+
 # ==================================
 # Zonotope order reduction methods
 # ==================================
@@ -664,6 +705,9 @@ end
 function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
     return overapproximate(R, Zonotope)
 end
+
+# patch LazySets#2414
+LazySets.Approximations.overapproximate(∅::EmptySet, ::Real) = ∅
 
 # -----------------------------------------------
 # Disjointness checks between specific set types

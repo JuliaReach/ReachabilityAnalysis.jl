@@ -101,6 +101,7 @@ Base.getindex(sol::ReachSolution, I::AbstractVector) = getindex(sol.F, I)
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
 Base.getindex(sol::ReachSolution, I::Int...) = getindex(sol.F, I...)
 Base.eachindex(sol::ReachSolution) = eachindex(sol.F)
+Base.keys(sol::ReachSolution) = keys(sol.F)
 
 # evaluation interface
 Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)

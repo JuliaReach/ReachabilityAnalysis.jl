@@ -273,7 +273,8 @@ Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
 Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
 Base.size(fp::Flowpipe) = (length(fp.Xk),)
 Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
-Base.push!(F::Flowpipe, args...) = push!(F.Xk, args...)
+Base.push!(fp::Flowpipe, args...) = push!(fp.Xk, args...)
+Base.keys(fp::Flowpipe) = keys(fp.Xk)
 
 numtype(::Flowpipe{N}) where {N} = N
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
@@ -438,11 +439,13 @@ The time span of this reach-set corresponds to the minimum (resp. maximum) of th
 time span of each reach-set in `fp`.
 
 This function allocates an array to store the sets of the flowpipe.
+
+The function doesn't assume that the reach-sets are time ordered.
 """
 function convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
     Y = ConvexHullArray([set(X) for X in fp])
     ti = minimum(tstart, fp)
-    tf = minimum(tend, fp)
+    tf = maximum(tend, fp)
     return ReachSet(Y, TimeInterval(ti, tf))
 end
 

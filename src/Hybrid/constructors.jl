@@ -2,16 +2,24 @@
 # Convenience hybrid automaton constructors
 # ==========================================
 
+import HybridSystems: HybridSystem
+
 # hybrid automaton with one location and a self-loop TODO comparare / use OneStateAutomaton
-function HybridSystems.HybridSystem(mode::AbstractContinuousSystem, reset_map::AbstractMap)
+function HybridSystem(mode::AbstractContinuousSystem, reset_map::AbstractMap)
     automaton = LightAutomaton(1)
     add_transition!(automaton, 1, 1, 1)
     return HybridSystem(automaton, [mode], [reset_map], [AutonomousSwitching()])
 end
 
-# hybrid automaton with kwargs and default switchings
-function HybridSystems.HybridSystem(; automaton, modes, resetmaps)
-    return HybridSystem(automaton, modes, resetmaps, [AutonomousSwitching()])
+# hybrid automaton constructors with default switchings
+function HybridSystem(automaton, modes, resetmaps)
+    m = nmodes(automaton)
+    switchings = fill(AutonomousSwitching(), m)
+    return HybridSystem(automaton, modes, resetmaps, switchings)
+end
+
+function HybridSystem(; automaton, modes, resetmaps)
+    return HybridSystem(automaton, modes, resetmaps)
 end
 
 #=
@@ -27,7 +35,6 @@ function HA1(sys::AbstractSystem, tr::AbstractMap)
     # normalize(sys) ? for cases without invariant
     HA1(sys, stateset(sys), tr, stateset(tr))
 end
-
 =#
 
 # TODO refactor => MathematicalSystems (?)

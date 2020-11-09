@@ -5,6 +5,7 @@ export
     discretize,
 
 # Algorithms
+    A20,
     ASB07,
     BFFPSV18,
     BOX,

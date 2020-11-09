@@ -1,8 +1,13 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Parametric reachability
 
 ## Theory
 
-Parametric reachability consist of . . . 
+Parametric reachability consist of . . .
 
 ## Example
 

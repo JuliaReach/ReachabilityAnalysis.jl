@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 # Basics
 
 ## Problem statement
@@ -47,12 +52,37 @@ naturally extended to hybrid automata, although there is the additional complica
 that the flowpipe must include the behaviors for all possible transitions between
 discrete modes that are compatible with the dynamics.
 
+## Set operations
+
+Given a set ``\mathcal{X} \subseteq \mathbb{R}^n``, any subset of ``\mathcal{X}``
+is said to be an *underapproximation*. Conversely, any set containing ``\mathcal{X}``
+is said to be an *overapproximation*. In this section we recall the definitions
+and give some examples of the basic set operations commonly used to construct
+reachability algorithms. Such operations are not only required to propagate
+reachable sets
+
+We begin with the
+notion of Hausdorff distance which, as a way to *measure* (in the informal sense)
+the distance between sets, constitutes a practical tool to quantify the quality
+of an approximation.
+
+### Hausdorff distance
+
+```math
+  d_H(\mathcal{X}, \mathcal{Y}) = \max \left( \sup_{x \in \mathcal{X}}\inf_{y \in \mathcal{Y}} \Vert x - y \Vert, \sup_{y \in \mathcal{Y}}\inf_{x \in \mathcal{X}} \Vert x - y \Vert \right)
+```
 
 ## Set representations
 
+In this section we consider
+
+### Zonotope set representation
+
 ### Representing sets with support functions
 
-Support functions are one of the central tools in set-based reachability. The *support function* of a closed and bounded convex set $\mathcal{X} \subseteq \mathbb{R}^n$ attributes to a direction vector $d \in \mathbb{R}^n$ the real number
+Support functions are one of the central tools in set-based reachability, because
+
+ Let $\mathcal{X}$ be a non-empty subset of a finite dimensional space $\mathcal{X} \subseteq \mathbb{R}^n$. The *support function* of $\mathcal{X} \subseteq \mathbb{R}^n$ attributes to each vector $d \in \mathbb{R}^n$ the real number
 
 ```math
   ρ(d, \mathcal{X}) = \max \{ d^T x : x \in \mathcal{X} \},

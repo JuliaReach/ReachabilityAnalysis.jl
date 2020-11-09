@@ -3,11 +3,12 @@
 # ======================
 
 using LinearAlgebra, SparseArrays, # modules from the Julia standard library
-      Reexport,     # see @reexport macro below
-      RecipesBase,  # plotting
-      Parameters,   # structs with kwargs
-      StaticArrays, # statically sized arrays
-      RecursiveArrayTools # vector of arrays
+      Reexport,                    # see @reexport macro below
+      RecipesBase,                 # plotting
+      Parameters,                  # structs with kwargs
+      StaticArrays,                # statically sized arrays
+      RecursiveArrayTools          # vector of arrays
+      #ExponentialUtilities        # (optional) Krylov subspace approximations
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
