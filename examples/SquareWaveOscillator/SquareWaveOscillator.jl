@@ -71,7 +71,7 @@ location.(sol)
 # last 3 actually intersect the guard:
 
 plot(sol[1][end-10:end], vars=(0, 1), xlab="t", ylab="v-")
-plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard")
+plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 
 # We now cluster those reach-sets into a single hyperrectangle:
 
@@ -81,7 +81,7 @@ Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
 
 plot(sol[1][end-10:end], vars=(0, 1))
 plot!(sol[2][1:10], vars=(0, 1))
-plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0)
+plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 plot!(Xc[1], vars=(0, 1), c=:grey)
 
 # Finally, we note that the algorithm finds an invariant of the system after the first
