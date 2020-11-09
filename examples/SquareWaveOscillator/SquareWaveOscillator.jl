@@ -81,10 +81,12 @@ Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
 
 plot(sol[1][end-10:end], vars=(0, 1))
 plot!(sol[2][1:10], vars=(0, 1))
-plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard")
+plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0)
 plot!(Xc[1], vars=(0, 1), c=:grey)
 
-# Finally, we note that we find an invariant of the system by activating `fixpoint_check`.
+# Finally, we note that the algorithm finds an invariant of the system after the first
+# period. To activate such check pass the `fixpoint_check=true` flag to the hybrid
+# solve API.
 
 sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=true);
 

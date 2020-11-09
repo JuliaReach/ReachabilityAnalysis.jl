@@ -152,6 +152,8 @@ pretty_table(data, tags; formatters = ft_printf("%5.4f", 4))
     increasing number of flowpipes -- hence, taking the convex hull (called
     *convexification* in this library) shall be considered.
 
+![](assets/tennis_ball_sport_equipment.jpg)
+
 ## Linear reachability
 
 In this section of the manual we focus on initial-value problems for linear differential
@@ -214,7 +216,7 @@ variables of interest.
 ## Zonotope methods
 
 ```@example zonotope_methods
-using Revise, ReachabilityAnalysis, Plots, Colors
+using ReachabilityAnalysis, Plots, Colors
 
 red, green, blue, purple = Colors.JULIA_LOGO_COLORS
 
@@ -235,7 +237,7 @@ plot!(sol(.75ω), vars=(1, 2), c=purple, alpha=1.)
 ## Support function methods
 
 ```@example support_function_methods
-using Revise, ReachabilityAnalysis, Plots, Colors
+using ReachabilityAnalysis, Plots, Colors
 
 red, green, blue, purple = Colors.JULIA_LOGO_COLORS
 
@@ -424,5 +426,5 @@ B0 = BallInf(ones(2), 0.3) × Singleton([0.0]) × Interval(0.8, 2.1)
 sol = solve(@ivp(sys, x(0) ∈ B0), tspan=(0.0, 15.0), alg=GLGM06(δ=0.01));
 
 plot(sol, vars=(0, 1), c=:magenta, lw=.0, xlab="time", lab="x(t)")
-plot!(sol, vars=(0, 2), c=:green, lw=.0, xlab="time", lab="v(t)", legend=:bottomright)
+plot!(sol, vars=(0, 2), c=:green, lw=.0, xlab="time", lab="v(t)")
 ```

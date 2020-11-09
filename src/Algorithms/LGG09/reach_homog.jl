@@ -115,6 +115,9 @@ end
 # Functionality that requires ExponentialUtilities.jl
 # ------------------------------------------------------------
 
+function load_krylov_LGG09_homog()
+return quote
+
 """
     reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
                               ℓ::AbstractVector, NSTEPS;
@@ -171,3 +174,5 @@ function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
     end
     return out
 end
+
+end end  # quote / load_krylov_LGG09_homog()
