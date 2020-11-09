@@ -152,8 +152,6 @@ pretty_table(data, tags; formatters = ft_printf("%5.4f", 4))
     increasing number of flowpipes -- hence, taking the convex hull (called
     *convexification* in this library) shall be considered.
 
-![](assets/tennis_ball_sport_equipment.jpg)
-
 ## Linear reachability
 
 In this section of the manual we focus on initial-value problems for linear differential
