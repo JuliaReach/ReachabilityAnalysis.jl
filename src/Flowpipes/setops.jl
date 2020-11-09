@@ -706,6 +706,9 @@ function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {
     return overapproximate(R, Zonotope)
 end
 
+# patch LazySets#2414
+LazySets.Approximations.overapproximate(∅::EmptySet, ::Real) = ∅
+
 # -----------------------------------------------
 # Disjointness checks between specific set types
 # -----------------------------------------------

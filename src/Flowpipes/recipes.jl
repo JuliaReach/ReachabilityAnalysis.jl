@@ -26,15 +26,29 @@ function _project_reachset(R::AbstractLazyReachSet{N}, vars, ε=N(PLOT_PRECISION
         πR = project(R, vars)
         X = set(πR)
     elseif (setrep(R) <: AbstractPolyhedron) && (dim(R) == 2)
+
+        # TODO : << cleanup plotting heuristics for polyhedral sets with / without projection
+
         # 2D polyhedral sets do not need to be projected unless one of the
         # coordinates of interest is time; in that case, we take the lazy projection
         # and then overapproximate with a box without loss
-        # NOTE: ε option is currently ignored 
-        if vars == 1:2
-            X = set(R)
+        # NOTE: ε option is currently ignored
+        #if vars == 1:2
+        #    X = set(R)
+        #else
+        #    πR = Projection(R, vars)
+        #    X = overapproximate(set(πR), Hyperrectangle)
+        #end
+
+        # - if the set is polyhedral and 2D
+        #   - if time is not requried -> don't project
+        #   - otherwise, make the projection (lazily)
+        if 0 ∈ vars
+            πR = Projection(R, vars) # lazy projection
+            #X = overapproximate(set(πR), ε)
+            X = set(πR)
         else
-            πR = Projection(R, vars)
-            X = overapproximate(set(πR), Hyperrectangle)
+            X = set(R)
         end
     else
         πR = Projection(R, vars) # lazy projection
@@ -64,7 +78,7 @@ end
 # └ @ RecipesBase ~/.julia/packages/RecipesBase/zBoFG/src/RecipesBase.jl:112
 @recipe function plot_reachset(R::AbstractLazyReachSet{N};
                                vars=nothing,
-                               ε=nothing
+                               ε=N(PLOT_PRECISION)
                                ) where {N<:Real}
 
 
