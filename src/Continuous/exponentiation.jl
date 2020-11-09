@@ -146,6 +146,35 @@ end
 @inline _Φ₁(P, n, ::Val{:lazy}) = sparse(get_columns(P, (n+1):2*n)[1:n, :])
 @inline _Φ₁(P, n, ::Val{:pade}) = P[1:n, (n+1):2*n]
 
+# compute Φ₁(A, δ)U = A^{-1}(exp(Aδ) - I) U, where U is a vector
+# assumes that A is invertible
+function Φ₁(A::AbstractMatrix{N}, δ, ::Val{:inverse}) where {N}
+    Φ = exp(Matrix(A) * δ) #  TODO cache
+    n = size(A, 1)
+    In = Matrix(one(N)*I, n, n)
+    Ainv = inv(A)
+    return Ainv * (Φ - In)
+end
+
+# compute Φ₁(A, δ)U = A^{-1}(exp(Aδ) - I) U, where U is a vector
+# assumes that A is invertible
+function Φ₁(A::AbstractMatrix, δ, U::AbstractVector, ::Val{:inverse})
+    Φ = exp(Matrix(A) * δ) #  TODO cache
+    x = Φ * U - U
+    return A \ x
+end
+
+function load_Φ₁_krylov()
+return quote
+
+function Φ₁(A::AbstractMatrix, δ, U::AbstractVector, ::Val{:krylov}; m=30, tol=1e-10)
+    w = expv(1.0 * δ, A, U, m=m, tol=tol)
+    x = w - U
+    return A \ x
+end
+
+end end  # quote / load_Φ₁_krylov()
+
 """
     Φ₂(A::AbstractMatrix, δ, method)
 
@@ -199,13 +228,18 @@ end
 @inline _Φ₂(P, n, ::Val{:lazy}) = sparse(get_columns(P, (2*n+1):3*n)[1:n, :])
 @inline _Φ₂(P, n, ::Val{:pade}) = P[1:n, (2*n+1):3*n]
 
-#=
-TODO define and use inverse method
-if method == :inverse
-    return _Φ₂_inverse(A, δ)
+# Φ₂ = A^{-2} (exp(A*δ) - I - A*δ)
+function Φ₂(A::AbstractMatrix{N}, δ, ::Val{:inverse}) where {N}
+    Φ = exp(Matrix(A) * δ)
+    n = size(A, 1)
+    In = Matrix(1.0I, n, n)
+    B = Φ - In - Aδ
+    Ainv = inv(A)
+    Ainvsqr = Ainv^2
+    return Ainvsqr * B
 end
-=#
 
+# TODO cleanup
 @inline function _Φ₂_inverse(A::IdentityMultiple, δ::Float64)
     λ = A.M.λ
     @assert !iszero(λ) "the given identity multiple is not invertible"
@@ -214,6 +248,7 @@ end
     return IdentityMultiple(α, size(A, 1))
 end
 
+# TODO cleanup
 @inline function _Φ₂_inverse(A::AbstractMatrix, δ::Float64)
     @assert isinvertible(A) "the given matrix should be invertible"
     Ainv = inv(A)

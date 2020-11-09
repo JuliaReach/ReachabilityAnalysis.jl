@@ -68,14 +68,19 @@ end
 step_size(alg::BOX) = alg.δ
 numtype(::BOX{N}) where {N} = N
 
-function rsetrep(::BOX{N, AM, Val{false}, D, R}) where {N, AM, D, R}
+function setrep(::BOX{N, AM, Val{false}, D, R}) where {N, AM, D, R}
     VT = Vector{N}
-    RT = ReachSet{N, Hyperrectangle{N, VT, VT}}
+    ST = Hyperrectangle{N, VT, VT}
 end
 
 function rsetrep(::BOX{N, AM, Val{true}, Val{n}, R}) where {N, AM, n, R}
     VT = SVector{n, N}
-    RT = ReachSet{N, Hyperrectangle{N, VT, VT}}
+    ST = Hyperrectangle{N, VT, VT}
+end
+
+function rsetrep(alg::BOX{N}) where {N}
+    ST = setrep(alg)
+    RT = ReachSet{N, ST}
 end
 
 include("post.jl")

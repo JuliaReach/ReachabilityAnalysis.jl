@@ -40,6 +40,7 @@ include("Algorithms/BFFPSV18/BFFPSV18.jl")
 include("Algorithms/ASB07/ASB07.jl")
 #include("Algorithms/ASB07d/ASB07d.jl")
 #include("Algorithms/A17/A17.jl")
+include("Algorithms/ORBIT/ORBIT.jl")
 
 # Nonlinear
 include("Algorithms/TMJets/TMJets.jl")
