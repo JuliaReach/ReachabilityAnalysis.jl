@@ -96,3 +96,32 @@ function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::Singleton, V::Singleton, NSTEP
     end
     return out
 end
+
+function load_krylov_ORBIT()
+return quote
+
+    # case Ω0 = 0 and vector V
+    function _orbit_krylov!(A::AbstractMatrix, V::AbstractVector, NSTEPS;
+                            hermitian=false, m=min(30, size(A, 1)), tol=1e-7)
+
+        T = eltype(A)
+        Ks = KrylovSubspace{T, real(T)}(length(V), m)
+        arnoldi!(Ks, A, V; m=m, ishermitian=hermitian, tol=tol)
+
+        out = Vector{typeof(V)}(undef, NSTEPS)
+        @inbounds for i in 1:NSTEPS
+            out[i] = similar(V)
+        end
+        out[1] = copy(V)
+
+        @inbounds for i in 1:NSTEPS-1
+            expv!(out[i+1], i*1.0, Ks)
+            out[i+1] += out[i]
+        end
+        return out
+    end
+
+    # TODO : general case for vectors Ω0 and V
+    # ...
+
+end end  # quote / load_krylov_ORBIT()
