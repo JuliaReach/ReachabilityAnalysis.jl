@@ -99,6 +99,13 @@ function Base.convert(::Type{Hyperrectangle{N, Vector{N}, Vector{N}}},
     return Hyperrectangle(Vector(H.center), Vector(H.radius))
 end
 
+function Base.convert(::Type{Singleton},
+                      cp::CartesianProduct{N, S1, S2}) where{N, S1<:Singleton{N}, S2<:Singleton{N}}
+    x = element(cp.X)
+    y = element(cp.Y)
+    return Singleton(vcat(x, y))
+end
+
 # =========================
 # In-place ops
 # =========================
