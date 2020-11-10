@@ -29,6 +29,7 @@ const SOLCS = SecondOrderLinearContinuousSystem
 const SOACS = SecondOrderAffineContinuousSystem
 const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
 const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
+const SecondOrderSystem = Union{SOLCS, SOACS, SOCLCCS, SOCACCS}
 
 # continuous systems that are handled by this library
 iscontinuoussystem(T::Type{<:AbstractSystem}) = false
@@ -568,7 +569,12 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonline
     throw(ArgumentError("can't normalize this nonlinear initial-value problemof type $(typeof(ivp))"))
 end
 
-
+_normalize_initial_state(ivp, X0) = X0
+_normalize_initial_state(ivp, X0::AbstractVector) = Singleton(X0)
+_normalize_initial_state(ivp, X0::IA.Interval) = convert(Interval, X0)
+_normalize_initial_state(ivp, X0::IA.IntervalBox) = convert(Hyperrectangle, X0)
+_normalize_initial_state(ivp, X0::Number) = Singleton([X0])
+_normalize_initial_state(ivp::IVP{<:SecondOrderSystem}, X0::Tuple{<:AbstractVector, <:AbstractVector}) = Singleton(vcat(X0[1], X0[2]))
 
 const CanonicalLinearContinuousSystem = Union{CLCS, CLCCS}
 
@@ -576,29 +582,16 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractLinearC
 
     # initial states normalization
     X0 = initial_state(ivp)
-    if X0 isa AbstractVector
-        X0_norm = Singleton(X0)
-    elseif X0 isa IA.Interval
-        X0_norm = convert(Interval, X0)
-    elseif X0 isa IA.IntervalBox
-        X0_norm = convert(Hyperrectangle, X0)
-    elseif X0 isa Number
-        X0_norm = Singleton([X0])
-    else
-        X0_norm = X0
-    end
+    X0_norm = _normalize_initial_state(ivp, X0)
 
     # system's normalization
     S = system(ivp)
     S_norm = normalize(S)
 
-    #=
     if S_norm === S && X0_norm === X0
         ivp_norm = ivp
     else
         ivp_norm = IVP(S_norm, X0_norm)
     end
-    =#
-    ivp_norm = IVP(S_norm, X0_norm)
     return ivp_norm
 end

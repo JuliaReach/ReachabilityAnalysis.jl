@@ -7,7 +7,7 @@ step_size(alg::ORBIT) = alg.δ
 numtype(::ORBIT{N}) where {N} = N
 
 # convenience constructor using symbols
-function ORBIT(; δ::N, approx_model::AM=NoBloating()) where {N, AM}
+function ORBIT(; δ::N, approx_model::AM=NoBloating(exp=:base, setops=:concrete)) where {N, AM}
     VT = Vector{N}
     return ORBIT{N, VT, AM}(δ, approx_model)
 end

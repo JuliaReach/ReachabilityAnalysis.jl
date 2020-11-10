@@ -168,11 +168,13 @@ function _check_dim(S, X0; throw_error::Bool=true)
     return false
 end
 
+_dim(X0::Tuple{VT, VT}) where {N, VT<:AbstractVector{N}} = length(X0[1]) + length(X0[2])
+
 function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
                              SecondOrderAffineContinuousSystem,
                              SecondOrderConstrainedLinearControlContinuousSystem,
                              SecondOrderConstrainedAffineControlContinuousSystem},
-                             X0; throw_error::Bool=true)
+                    X0; throw_error::Bool=true)
     n = statedim(S)
     d = _dim(X0)
     d == 2*n && return true

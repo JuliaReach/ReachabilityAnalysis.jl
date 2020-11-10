@@ -21,6 +21,7 @@ function post(alg::ORBIT{N, VT, AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan
     ivp_discr = discretize(ivp_norm, δ, approx_model)
     Φ = state_matrix(ivp_discr)
     Ω0 = initial_state(ivp_discr)
+
     X = stateset(ivp_discr)
     V = inputset(ivp_discr)
 

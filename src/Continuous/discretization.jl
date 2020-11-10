@@ -274,8 +274,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
         Φ = _exp(A, δ, alg.exp)
     end
 
-    Ω0 = copy(X0)
-    Ω0 = _apply_setops(Ω0, alg.setops)
+    Ω0 = copy(X0) # setops don't apply
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -285,16 +284,30 @@ end
 function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
+    U = next_set(inputset(ivp), 1)
 
     Φ = _exp(A, δ, alg.exp)
-    M = Φ₁(A, δ, alg.exp)
-    U = next_set(inputset(ivp), 1) # inputset(ivp)
-    Ud = M * U # TODO assert alg.setops  / alg.inputsetops are lazy
-    In = IdentityMultiple(one(eltype(A)), size(A, 1))
+    Ω0, V = _discretize_nobloating(A, X0, U, δ, alg)
 
-    Ω0 = copy(X0)
-    Ω0 = _apply_setops(Ω0, alg.setops)
+    In = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
-    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, V)
     return InitialValueProblem(Sdiscr, Ω0)
 end
+
+function _discretize_nobloating(A, X0, U, δ, alg::NoBloating{EM, Val{:lazy}}) where {EM}
+    M = Φ₁(A, δ, alg.exp)
+    V = M * U
+    Ω0 = _initial_state(X0)
+    return Ω0, V
+end
+
+function _discretize_nobloating(A, X0, U, δ, alg::NoBloating{EM, Val{:concrete}}) where {EM}
+    M = Φ₁(A, δ, alg.exp)
+    V = linear_map(M, U)
+    Ω0 = _initial_state(X0)
+    return Ω0, V
+end
+
+_initial_state(X0::CartesianProduct{N, <:Singleton{N}, <:Singleton{N}}) where {N} = convert(Singleton, X0)
+_initial_state(X0) = X0
