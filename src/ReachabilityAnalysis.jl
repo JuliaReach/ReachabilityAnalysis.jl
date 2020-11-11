@@ -16,7 +16,6 @@ include("Flowpipes/setops.jl")
 include("Flowpipes/clustering.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
-include("Flowpipes/recipes.jl")
 #include("Flowpipes/symbolics.jl")
 
 # ===========================================================
@@ -57,5 +56,7 @@ include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
 include("Hybrid/solve.jl")
 
+# visualization
+include("Flowpipes/recipes.jl")
 
 end # module

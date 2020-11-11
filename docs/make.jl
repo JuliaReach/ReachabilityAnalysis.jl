@@ -51,6 +51,8 @@ makedocs(
                             "GLGM06" => "lib/algorithms/GLGM06.md",
                             "INT" => "lib/algorithms/INT.md",
                             "LGG09" => "lib/algorithms/LGG09.md",
+                            "ORBIT" => "lib/algorithms/ORBIT.md",
+                            "QINT" => "lib/algorithms/QINT.md",
                             "TMJets" => "lib/algorithms/TMJets.md"],
                             #
         "API Reference" => Any["Reach-sets" => "lib/reachsets.md",
