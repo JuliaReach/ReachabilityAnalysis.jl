@@ -516,6 +516,9 @@ end
 
 abstract type AbstractReductionMethod end
 
+# used to dispatch on methods without zonotope order reduction
+struct NoReduction <: AbstractReductionMethod end
+
 # These methods split the given zonotope Z into two zonotopes, K and L, where
 # K contains the most "representative" generators and L contains the generators
 # that are reduced, Lred using a box overapproximation
