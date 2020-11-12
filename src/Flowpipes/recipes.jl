@@ -576,3 +576,32 @@ end
     error("not implemented yet")
 end
 =#
+
+# solution from computation without bloating and singleton initial condition
+# (eg. with ORBIT) is presened as a scatter plot
+@recipe function plot_list(sol::ReachSolution{FT, <:ORBIT}; vars=nothing) where {N, RT<:ReachSet{N, <:Singleton{N}}, FT<:Flowpipe{N, RT}}
+   label --> DEFAULT_LABEL
+   grid --> DEFAULT_GRID
+   if DEFAULT_ASPECT_RATIO != :none
+       aspect_ratio --> DEFAULT_ASPECT_RATIO
+   end
+   seriesalpha --> DEFAULT_ALPHA
+   seriescolor --> DEFAULT_COLOR
+   seriestype --> :scatter
+   markershape --> :circle
+
+   _check_vars(vars)
+   vx, vy = vars[1], vars[2]
+   X(k) = (vx == 0) ? tstart(sol[k]) : element(set(sol[k]))[vx]
+   Y(k) = (vy == 0) ? tstart(sol[k]) : element(set(sol[k]))[vy]
+
+   x = Vector{N}()
+   y = Vector{N}()
+   for k in 1:length(sol)
+       x_new = X(k)
+       y_new = Y(k)
+       append!(x, x_new)
+       append!(y, y_new)
+   end
+   x, y
+end

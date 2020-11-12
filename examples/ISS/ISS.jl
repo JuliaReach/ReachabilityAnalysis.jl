@@ -124,11 +124,11 @@ sol_ISSF01 = solve(prob_ISSF01, T=20.0, alg=LGG09(δ=6e-4, template=dirs, sparse
 
 πsol_ISSF01 = project(sol_ISSF01, C3);
 
-#md # !!! tip "Visualization note"
+#md # !!! tip "Performance tip"
 #md #      Note that projecting the solution along direction ``C_3`` corresponds to computing
 #md #      the min and max bounds for each reach-set `X`, `Interval(-ρ(-C3, X), ρ(C3, X)`.
 #md #      However, the method `project(sol_ISSF01, C3)` is more efficient than manually
-#md #      evaluating the support functions because it doesn't recompute them alongf
+#md #      evaluating the support functions because it doesn't recompute them along
 #md #      directions ``C_3`` and ``-C_3``, because they are already known to the flowpipe
 #md #      structure, or more precisely, `project` checks and finds that the given
 #md #      directions belong to those represented by each `TemplatReachSet`.
