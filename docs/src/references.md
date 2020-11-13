@@ -89,6 +89,27 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [BFFPS19]
+
+- Bogomolov, S., Forets, M., Frehse, G., Potomkin, K., & Schilling, C. (2020).
+  Reachability analysis of linear hybrid systems via block decomposition.
+  IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 39(11), 4018-4029.
+
+```
+@article{bogomolov2020reachability,
+  title={Reachability analysis of linear hybrid systems via block decomposition},
+  author={Bogomolov, Sergiy and Forets, Marcelo and Frehse, Goran and Potomkin, Kostiantyn and Schilling, Christian},
+  journal={IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems},
+  volume={39},
+  number={11},
+  pages={4018--4029},
+  year={2020},
+  publisher={IEEE}
+}
+```
+
+---
+
 #### [CHEN15]
 
 - Chen, Xin. [*Reachability Analysis of Non-Linear Hybrid Systems Using Taylor Models*](https://www.cs.colorado.edu/~xich8622/papers/thesis.pdf).
