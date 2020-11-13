@@ -1,5 +1,7 @@
 ```@meta
-DocTestSetup = :(using ReachabilityAnalysis)
+DocTestSetup  = quote
+    using ReachabilityAnalysis
+end
 CurrentModule = ReachabilityAnalysis
 ```
 
@@ -111,29 +113,9 @@ Zonotopes are a sub-class of polytopes defined as the image of a unit cube under
 ### Taylor models
 
 
-
-```@example
-
-using ReachabilityAnalysis, Plots
-
-f(x) = -6x^3 + (13/3)x^2 + (31/3)x
-dom = -3.5 .. 3.5
-
-plot(f, -3.5, 3.5, lab="f", xlab="x")
-
-x = Taylor1(5)
-set_taylor1_varname("x")
-f(x)
-
-rem = 0 .. 0
-x0 = 0.0
-dom = -3.5 .. 3.5
-tm = TaylorModel1(f(x), rem, x0, dom)
-```
-
 ## Reach-sets
 
-We consider as a running example in this section the simple harmonic oscillator,
+
 
 ## Flowpipes
 

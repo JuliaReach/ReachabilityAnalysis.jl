@@ -169,6 +169,7 @@ function _check_dim(S, X0; throw_error::Bool=true)
 end
 
 _dim(X0::Tuple{VT, VT}) where {N, VT<:AbstractVector{N}} = length(X0[1]) + length(X0[2])
+_dim(X0::Tuple{<:LazySet{N}, <:LazySet{N}}) where {N} = dim(X0[1]) + dim(X0[2])
 
 function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
                              SecondOrderAffineContinuousSystem,

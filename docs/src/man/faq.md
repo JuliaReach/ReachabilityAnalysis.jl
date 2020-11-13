@@ -14,7 +14,7 @@ we recommend the lecture notes of [Prof. Goran Frehse](https://sites.google.com/
 [Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/goog_304137952)
 (DigiCosme Spring School, Paris, May 2016). Most up-to-date material related to reachability
 analysis can be found in journals, conference articles or in PhD theses. We refer to
-the [References](@ref) section of this manual for further links to the relevant literature.
+the [References](@ref all_ref) section of this manual for further links to the relevant literature.
 
 ### What happens if you consider a chaotic system?
 
@@ -72,7 +72,7 @@ plot!(□B′′, lw=2.0, style=:solid)
 ### Can I solve a for a single initial condition?
 
 To solve for a single initial condition, i.e. a "point", use `Singleton` as the
-initial set; singleton means a set with one element. For example, here we plot the
+initial set (singleton means a set with one element). For example, here we plot the
 free vibration solution of a standard single degree of freedom system without physical damping,
 
 ```math
@@ -84,7 +84,8 @@ position, `x(t)`, and the second coordinate to velocity, `x'(t)`.
 
 !!! note
     Usual Julia vectors such as `X0 = [1.0, 0.0]` are also valid input, and are
-    treated as a singleton.
+    treated as a singleton. It is also valid to use tuples in second order systems,
+    e.g. `prob = @ivp(X' = AX, X(0) ∈ ([1.0], [0.0]))`.
 
 Below we plot the flowpipe for the same initial condition and different step
 sizes.
@@ -110,19 +111,25 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta)
 
 ### Why do I see boxes for single initial conditions?
 
-As it is seen in the previous question, *Can I solve a for a single initial condition?*,
+As it is seen in the question *Can I solve a for a single initial condition?*,
 even if the initial condition is a singleton, the obtained flowpipe is a sequence
-of sets with non-zero width, e.g. boxes in the x-t plane. Recall that each reach-set
-represents a set that, with certainty, contains the exact solution for the time-span
-associated to the reach-set. The projection of the flowpipe on the time variable thus
-returns a sequence of intervals, in the example of the same width as the step size,
-and when we take the cartesian product with the variation in `x(t)`, we obtain a box.
+of boxes in the `x-t` plane, i.e. we obtain sets with non-zero width both in time
+and in space. This behavior may seem confusing at first, because the initial conditions
+where determinitic. The catch is that reach-sets represents a set of states
+reachable over a *time interval*, that certainly contains the exact solution for
+the time-span associated to the reach-set, `tspan(R)`. The projection of the flowpipe
+on the time axis thus returns a sequence of intervals, their width being the
+step size of the method (in case the method has fixed step size). When we take the
+Cartesian product of each time span with the projection of the flowpipe in `x(t)`,
+we obtain a box.
 
-The plot below shows in more detail what happens if we consider two different step-sizes,
-`ΔT=0.1` and `ΔT=0.05` and evaluate the solution at the time point `3.0`. The projection
-onto `x(t)` (vertical axis) shows that dividing the step size  by half, we can more accurately
-know the exact value of the solution, and the width of the boxes intersecting the
-time point `3.0` decrease by a factor 2.5x.
+If we consider two different step-sizes, the area of the boxes shrinks. It is known
+theoretically that the flowpipe converges, in Hausdorff norm, to the exact flowpipe.
+The plot below illustrates the convergence for aspects for two different step sizes,
+`ΔT=0.1` and `ΔT=0.05`, evaluating the solution around the time point `3.0`.
+The projection onto `x(t)` (vertical axis) shows that dividing the step size by half,
+we can more accurately know the exact value of the solution, and the width of the
+boxes intersecting the time point `3.0` decrease by a factor 2.5x.
 
 ```@example cosine
 plot(f(0.1)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.1", color=:lightblue)
