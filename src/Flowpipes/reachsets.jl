@@ -845,6 +845,9 @@ directions(R::TemplateReachSet) = R.dirs
 support_functions(R::TemplateReachSet) = R.sf
 support_functions(R::TemplateReachSet, i::Int) = R.sf[i]
 
+_collect(dirs::AbstractDirections) = collect(dirs)
+_collect(dirs::CustomDirections) = dirs.directions
+
 # overapproximate a given reach-set with a template
 function overapproximate(R::AbstractLazyReachSet, dirs::AbstractDirections) where {VN}
     return TemplateReachSet(dirs, R)
