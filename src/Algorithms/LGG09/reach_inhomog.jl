@@ -181,7 +181,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     @inbounds while k <= NSTEPS
 
         #Loop dispatch in threaded
-        _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, sᵢ, ndirs, threaded)
+        _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, ndirs, threaded)
 
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
@@ -198,7 +198,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     return ρmat
 end
 
-function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, sᵢ, ndirs, threaded::Val{false})
+function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, ndirs, threaded::Val{false})
     for j in 1:ndirs
         d = view(rᵢ, :, j)
         ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
@@ -206,7 +206,7 @@ function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, sᵢ, ndirs, threaded::
     end
 end
 
-function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, sᵢ, ndirs, threaded::Val{true})
+function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, ndirs, threaded::Val{true})
     Threads.@threads for j in 1:ndirs
         d = view(rᵢ, :, j)
         ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
