@@ -1,4 +1,4 @@
-# References
+# [References](@id all_ref)
 
 This page includes references to the scientific works that we have applied
 throughout this library. Although the list is not meant to be exhaustive, we think
