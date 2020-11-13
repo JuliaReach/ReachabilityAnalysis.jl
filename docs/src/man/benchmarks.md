@@ -181,15 +181,15 @@ can be used to run and reproduce the results from the paper in a host machine.
 Fortunately, the tools available for the Julia language are very convenenient
 to prepare and distribute RE packages. The following RE packages are available:
 
-- [ARCH2020_NLN_RE](https://github.com/JuliaReach/ARCH2020_NLN_RE) -- Repeatability Evaluation package for the ARCH2020 Nonlinear Continuous and Hybrid Systems Competition.
+- [ARCH2020 NLN RE](https://github.com/JuliaReach/ARCH2020_NLN_RE) -- Repeatability Evaluation package for the ARCH2020 Nonlinear Continuous and Hybrid Systems Competition.
 
-- [ARCH2020_AFF_RE](https://github.com/JuliaReach/ARCH2020_AFF_RE) -- Repeatability Evaluation package for the ARCH2020 Linear and Hybrid Systems Competition.
+- [ARCH2020 AFF RE](https://github.com/JuliaReach/ARCH2020_AFF_RE) -- Repeatability Evaluation package for the ARCH2020 Linear and Hybrid Systems Competition.
 
-- [HSCC2019_RE](https://github.com/JuliaReach/HSCC2019_RE) -- Repeatability Evaluation (RE) package for the paper *JuliaReach: a Toolbox for Set-Based Reachability* published at the HSCC'2019 conference.
+- [HSCC2019 RE](https://github.com/JuliaReach/HSCC2019_RE) -- Repeatability Evaluation (RE) package for the paper *JuliaReach: a Toolbox for Set-Based Reachability* published at the HSCC'2019 conference.
 
-- [ARCH2019_RE](https://github.com/JuliaReach/ARCH2019_RE) -- Repeatability Evaluation package for the ARCH2019 Competition.
+- [ARCH2019 RE](https://github.com/JuliaReach/ARCH2019_RE) -- Repeatability Evaluation package for the ARCH2019 Competition.
 
-- [ARCH2018_RE](https://github.com/JuliaReach/ARCH2018_RE) -- Repeatability Evaluation package for the ARCH2018 Competition.
+- [ARCH2018 RE](https://github.com/JuliaReach/ARCH2018_RE) -- Repeatability Evaluation package for the ARCH2018 Competition.
 
 For installation instructions, see the `README` file in each package.
 We have examples using virtual machines, and also using Docker containers for RE packages.
