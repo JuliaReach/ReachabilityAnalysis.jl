@@ -11,7 +11,8 @@ function reach_inhomog_LGG09!(F::Vector{RT},
                               X::Universe,
                               U::LazySet,
                               Δt0::TimeInterval,
-                              cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                              cache,
+                              threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -19,10 +20,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     # preallocate output sequence
     ρℓ = Matrix{N}(undef, length(dirs), NSTEPS)
 
-    # for each direction, compute NSTEPS iterations
-    @inbounds for (j, ℓ) in enumerate(dirs)
-        reach_inhomog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, U, ℓ, NSTEPS, cache)
-    end
+    _reach_inhomog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, U, dirs, NSTEPS, cache, threaded)
 
     # fill template reach-set sequence
     Δt = (zero(N) .. δ) + Δt0
@@ -32,6 +30,20 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     end
 
     return ρℓ
+end
+
+function _reach_inhomog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, U, dirs, NSTEPS, cache, threaded::Val{true})
+    ℓ = _collect(dirs)
+    Threads.@threads for j in 1:length(dirs.directions)
+        reach_inhomog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, U, ℓ[j], NSTEPS, cache)
+    end
+end
+
+function _reach_inhomog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, U, dirs, NSTEPS, cache, threaded::Val{false})
+    #for each direction, compute NSTEPS iterations
+    @inbounds for (j, ℓ) in enumerate(dirs)
+        reach_inhomog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, U, ℓ, NSTEPS, cache)
+    end
 end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
@@ -149,7 +161,8 @@ function reach_inhomog_LGG09!(F::Vector{RT},
                               X::LazySet,
                               U::LazySet,
                               Δt0::TimeInterval,
-                              cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                              cache,
+                              threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -166,11 +179,10 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     Δt = (zero(N) .. δ) + Δt0
     k = 1
     @inbounds while k <= NSTEPS
-        for j in 1:ndirs
-            d = view(rᵢ, :, j)
-            ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
-            sᵢ[j] += ρ(d, U)
-        end
+
+        #Loop dispatch in threaded
+        _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, k, ndirs, threaded)
+
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
         copy!(rᵢ, rᵢ₊₁)
@@ -186,6 +198,21 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     return ρmat
 end
 
+function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, k, ndirs, threaded::Val{false})
+    for j in 1:ndirs
+        d = view(rᵢ, :, j)
+        ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
+        sᵢ[j] += ρ(d, U)
+    end
+end
+
+function _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, k, ndirs, threaded::Val{true})
+    Threads.@threads for j in 1:ndirs
+        d = view(rᵢ, :, j)
+        ρmat[j, k] = ρ(d, Ω₀) + sᵢ[j]
+        sᵢ[j] += ρ(d, U)
+    end
+end
 
 #=
 # in this version we use several matrix-vector products for each direction

@@ -11,7 +11,8 @@ function reach_homog_LGG09!(F::Vector{RT},
                             δ::N,
                             X::Universe, # no invariant
                             Δt0::TimeInterval,
-                            cache) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                            cache,
+                            threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -19,10 +20,7 @@ function reach_homog_LGG09!(F::Vector{RT},
     # preallocate output sequence
     ρℓ = Matrix{N}(undef, length(dirs), NSTEPS)
 
-    # for each direction, compute NSTEPS iterations
-    @inbounds for (j, ℓ) in enumerate(dirs)
-        reach_homog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, ℓ, NSTEPS, cache)
-    end
+    _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threaded)
 
     # fill template reach-set sequence
     Δt = (zero(N) .. δ) + Δt0
@@ -32,6 +30,20 @@ function reach_homog_LGG09!(F::Vector{RT},
     end
 
     return ρℓ
+end
+
+function _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threaded::Val{true})
+    ℓ = _collect(dirs)
+    Threads.@threads for j in 1:length(dirs.directions)
+        reach_homog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, ℓ[j], NSTEPS, cache)
+    end
+end
+
+function _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threaded::Val{false})
+    #for each direction, compute NSTEPS iterations
+    @inbounds for (j, ℓ) in enumerate(dirs)
+        reach_homog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, ℓ, NSTEPS, cache)
+    end
 end
 
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{true}) where {N}
