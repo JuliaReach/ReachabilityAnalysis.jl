@@ -34,7 +34,7 @@ end
 
 function _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threaded::Val{true})
     ℓ = _collect(dirs)
-    Threads.@threads for j in 1:length(dirs.directions)
+    Threads.@threads for j in 1:length(ℓ)
         reach_homog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, ℓ[j], NSTEPS, cache)
     end
 end
