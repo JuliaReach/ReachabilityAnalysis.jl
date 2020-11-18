@@ -106,7 +106,7 @@ function add_dimension(A::AbstractMatrix, m=1)
 end
 
 """
-    add_dimension(X::LazySet, m=1)::LazySet
+    add_dimension(X::LazySet, m=1)
 
 Adds an extra dimension to a LazySet through a Cartesian product.
 
@@ -151,11 +151,11 @@ julia> dim(Xext)
 In the special case that the given set is a zero set, instead of cartesian product
 a new zero set with extended dimensions is returned.
 """
-function add_dimension(X::LazySet, m=1)::LazySet
+function add_dimension(X::LazySet, m=1)
     return X * ZeroSet(m)
 end
 
-function add_dimension(X::ZeroSet, m=1)::ZeroSet
+function add_dimension(X::ZeroSet, m=1)
     return ZeroSet(dim(X)+m)
 end
 

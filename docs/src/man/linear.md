@@ -458,7 +458,7 @@ Let us first compare the analytic solution with the reachability computation
 in discrete time (i.e. without bloating) and singleton initial conditions, obtained
 using the `ORBIT` algorithm. This algorithm returns a sequence of singletons that
 match the exact solution of the ODE at multiples of the step size. In the same
-plot we show the reachability computation with step size ``δ=1-2`` using the
+plot we show the reachability computation with step size ``δ=0.01`` using the
 algorithm `GLGM06`.
 
 ```@example second_order_damped
