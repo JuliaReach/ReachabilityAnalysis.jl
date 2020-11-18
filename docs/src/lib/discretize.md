@@ -9,6 +9,12 @@ Pages = ["discretize.md"]
 Depth = 3
 ```
 
+## Discretize API
+
+```@docs
+discretize
+```
+
 ## Approximation models
 
 ```@docs
@@ -17,12 +23,6 @@ Forward
 Backward
 CorrectionHull
 NoBloating
-```
-
-## Discretize API
-
-```@docs
-discretize
 ```
 
 ## Exponentiation

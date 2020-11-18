@@ -258,9 +258,10 @@ end
 
 # compute the matrix Φ₂ = A^{-2} (exp(A*δ) - I - A*δ) assuing A is invertible
 function _Φ₂(A::AbstractMatrix{N}, δ, method, isinv::Val{:true}, Φ=nothing) where {N}
+    Aδ = A * δ
     # @assert isinvertible(A) "the given matrix should be invertible"
     if isnothing(Φ)
-        Φ = _exp(A, δ, method)
+        Φ = _exp(Aδ, method)
     end
     n = size(A, 1)
     In = Matrix(one(N)*I, n, n)
