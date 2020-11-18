@@ -80,21 +80,77 @@ In this section we consider
 
 ### Zonotope set representation
 
+A zonotope $Z ⊆ \mathbb{R}^n$ is defined by a center $c ∈ \mathbb{R}^n$ and a finite number of generators $v1, . . . , vk ∈ \mathbb{R}^n$:
+```math
+Z = \{ c + \sum_{k}^{i=1} α_i v_i | α_i ∈ [−1, 1]\}.
+```
+A common denotation for zonotopes is $Z = (c, \langle v1, . . . , vk \rangle)$. We introduce the order of a zonotope as $o = \frac{k}{n}$.
+The order of a Zonotope `Z` in LazySets can be calculated using the function `order(Z)`.
+A zonotope can be seen as the Minkowski addition of line segments resulting in centrally symmetric
+convex polytopes as shown in the following figure, which illustrates how each generator spans the zonotope.
+
+$Z_1 = (c, \langle v_1, \dotsb, v_k \rangle), Z_2 = (d, \langle w_1, \dotsb, w_m \rangle) \subset \mathbb{R}^n, M \in \mathbb{R}^{m \times n}$
+
+$Z_1 \oplus Z_2 = (c+d, \langle v_1, \dotsb, v_k, w_1, \dotsb, w_m \rangle)$
+
+$MZ_1 = (Mc, \langle Mv_1, \dotsb, Mv_k \rangle)$
+
+$CH(Z_1, e^{A\delta}Z_1) \subseteq \frac{1}{2}(c + e^{A\delta}c,\langle v_1 + e^{A\delta}v_1, \dotsb, v_k+e^{A\delta}v_k, v_1 - e^{A\delta}v_1, v_k - e^{A\delta}v_k, c - e^{A\delta}c \rangle )$
+
+| Operation                 | Cost                |
+|---------------------------|---------------------|
+| $Z_1 \oplus Z_2$          | $n$                 |
+| $MZ_1$                    | $2mn(k+1)$          |
+| $CH(Z_1, e^{A\delta}Z_1)$ | $2n^2(k+1)+2n(k+2)$ |
+
+```@example zonotope_example_1
+using LazySets, Plots
+Z = Zonotope([1, 1.], [-1 0.3 1.5 0.3; 0 0.1 -0.3 0.3])
+plot(Z)
+quiver!(fill(1., 4), fill(1., 4), quiver=(genmat(Z)[1, :], genmat(Z)[2, :]), color=:black)
+```
+
 ### Representing sets with support functions
 
-Support functions are one of the central tools in set-based reachability, because
 
- Let $\mathcal{X}$ be a non-empty subset of a finite dimensional space $\mathcal{X} \subseteq \mathbb{R}^n$. The *support function* of $\mathcal{X} \subseteq \mathbb{R}^n$ attributes to each vector $d \in \mathbb{R}^n$ the real number
-
+In this subsection, we provide definitions for polyhedra and support functions, and recall some fundamental properties.
+A halfspace $\mathcal{H} = \{x ∈ \mathbb{R}^n | a^Tx ≤ b\}$, with normal vector $a ∈ \mathbb{R}^n$ and $b ∈ \mathbb{R}$ is one half of the space after dividing it by a hyperplane.
+A polyhedron $\mathcal{P} ⊆ \mathbb{R}^n$ is the intersection of a finite number of halfspaces, written as
 ```math
-  ρ(d, \mathcal{X}) = \max \{ d^T x : x \in \mathcal{X} \},
+    \mathcal{P} = \{x \in \mathbb{R}^n | \bigcap_{i=1}^m a^T_i x \leq b_i \},
 ```
-where $d^T$ denotes the transpose of the (column) vector $d$.
+where $a_i \in \mathbb{R}^n$ and $b_i \in \mathbb{R}$. A polytope is a bounded polyhedron. The support function of a compact set $\mathcal{X}$ attributes to a direction $\ell \in \mathbb{R}^n$
+```math
+    \rho_{\mathcal{X}} (\ell) = max\{ \ell^T x | x \in \mathcal{X} \}.
+```
+for a given direction $\ell$, it defines the position of a halfspace
+```math
+    \mathcal{H}_{\ell} = \{x \in \mathbb{R}^n | \ell^T x \leq \rho_{\mathcal{X}}(\ell)\},
+```
 
-TODO: example with triangle
-A convex set can be represe
 
-The
+
+
+$\rho_{\mathcal{X} \oplus \mathcal{Y}}(\ell) = \rho_{\mathcal{X}}(\ell) + \rho_{\mathcal{Y}}(\ell)$
+
+$\rho_{M\mathcal{X}}(\ell) = \rho_{\mathcal{X}}(M^T\ell), (M \in \mathbb{R}^{m \times n})$
+
+$\rho_{CH(\mathcal{X}, \mathcal{Y})}(\ell) = max{\rho_{\mathcal{X}(\ell)}, \rho_{\mathcal{Y}(\ell)}}$
+
+| Operation                                     | Cost  |
+|-----------------------------------------------|-------|
+| $\rho_{\mathcal{X} \oplus \mathcal{Y}}(\ell)$ | $1$   |
+| $\rho_{M\mathcal{X}}(\ell)$                   | $2mn$ |
+| $\rho_{CH(\mathcal{X}, \mathcal{Y})}(\ell)$   | $1$   |
+
+which touches and contains $\mathcal{X}$ . If $\ell$ is of unit length, then
+$\rho_{\mathcal{X}}(\ell)$ is the signed distance of $\mathcal{H}_{\ell}$ to the origin.
+Evaluating the support function for a set of directions $L ⊆ \mathbb{R}^n$ provides an overapproximation
+```math
+    \lceil \mathcal{X} \rceil _L = \bigcap_{\ell \in L} \{ x \in \mathbb{R}^n | \ell^T x \leq \rho_{\mathcal{X}}(\ell) \}
+```
+
+i.e., $\mathcal{X} ⊆ \lceil \mathcal{X} \rceil _L$. If $L = \mathbb{R}^n$, then $\mathcal{X} = \lceil \mathcal{X} \rceil _L$, so the support function represents any convex set $\mathcal{X}$ exactly. If $L$ is a finite set of directions $L = {\ell_1, . . . , \ell_m}$, then $\lceil \mathcal{X} \rceil _L$ is a polyhedron.
 
 ### Polyhedra
 
@@ -113,9 +169,30 @@ Zonotopes are a sub-class of polytopes defined as the image of a unit cube under
 ### Taylor models
 
 
+
+```@example
+#=
+using ReachabilityAnalysis, Plots
+
+f(x) = -6x^3 + (13/3)x^2 + (31/3)x
+dom = -3.5 .. 3.5
+
+plot(f, -3.5, 3.5, lab="f", xlab="x")
+
+x = Taylor1(5)
+set_taylor1_varname("x")
+f(x)
+
+rem = 0 .. 0
+x0 = 0.0
+dom = -3.5 .. 3.5
+tm = TaylorModel1(f(x), rem, x0, dom)
+=#
+```
+
 ## Reach-sets
 
-
+We consider as a running example in this section the simple harmonic oscillator,
 
 ## Flowpipes
 
