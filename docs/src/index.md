@@ -71,6 +71,11 @@ We refer to the technical literature for further applications.
 
 ## What is the verification problem?
 
+Consider a dynamical system over some state space $\mathcal{X} \subset \mathbb{R}^n$ defined via a differential equation of the form $x'(t) = f(x, u)$,
+where $u(t) \in \mathcal{U}(t)$ ranges over some specified set of admissible input signals. Given a set of initial states initial states $\mathcal{X}_0 \subseteq \mathcal{X}$, a set of unsafe states, and a time bound, the time-bounded safety verification problem is to check if there exists an initial state and a time within the bound such that the solution of the system enters the unsafe set.
+
+The safety verification problem applies for the generalized case in which the
+problem has uncertain parameters, or dynamical systems which are hybrid, i.e. mixing continuous dynamics and discrete transitions.
 
 ## A warning note
 
