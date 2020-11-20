@@ -2,8 +2,13 @@
 # Structs to work with waiting lists
 # =====================================
 
-# association of a set with a hybrid automaton location: (set, index of the mode)
-struct StateInLocation{ST, M<:Integer}
+"""
+    StateInLocation{ST, M<:Integer}
+
+Struct that associates a set with a hybrid automaton's location index,
+usually an integer.
+"""
+struct StateInLocation{ST, M}
     X::ST     # set representation
     loc_id::M # discrete location index
 end
@@ -16,6 +21,15 @@ function Base.convert(::Type{StateInLocation{ST, M}}, s::StateInLocation{WT, M})
     StateInLocation{ST, M}(s.X, s.loc_id)
 end
 
+# ===============================================================
+# Abstract interface
+# ===============================================================
+
+"""
+    AbstractWaitingList
+
+Abstract supertype for all waiting list types.
+"""
 abstract type AbstractWaitingList end
 
 # iterator interface
@@ -34,13 +48,31 @@ abstract type AbstractWaitingList end
 @inline Base.lastindex(w::AbstractWaitingList) = length(array(w))
 @inline Base.eachindex(w::AbstractWaitingList) = eachindex(array(w))
 
-# A `WaitingList` is a list of pairs ``(set_i, loc_i)` for `i in 1..k`
-# times is a vector with a time interval associated to each state
-# This waiting list allows for a unique set representation (ST)
+# ===============================================================
+# Waiting list with all sets of the same type
+# ===============================================================
+
+"""
+    WaitingList{TN, ST, M, QT<:StateInLocation{ST, M}} <: AbstractWaitingList
+
+Iterable container representing a list of pairs `(set, mode)` of a hybrid automaton.
+
+### Fields
+
+- `times`  -- vector with a time interval associated to each state
+- `array`  -- vector of `StateInLocation`
+
+### Notes
+
+A `WaitingList` is a list of pairs ``(set_i, loc_i)` for `i in 1..k` where
+`times` is a vector with a time interval associated to each state.
+
+This waiting list allows for a unique set representation (`ST`) for all elements
+of the list.
+"""
 struct WaitingList{TN, ST, M, QT<:StateInLocation{ST, M}} <: AbstractWaitingList
     times::Vector{TN}
     array::Vector{QT}
-    # TODO add inner constructor that checks that the lengths of times and array are the same
 
     function WaitingList(times::Vector{TN}, array::Vector{QT}) where {TN, ST, M, QT<:StateInLocation{ST, M}}
         @assert length(times) == length(array) || throw(ArgumentError("the lengths of the time " *
@@ -82,6 +114,7 @@ end
 
 @inline Base.pop!(w::WaitingList) = (pop!(w.times), pop!(w.array))
 
+# containment check
 function Base.:⊆(s::StateInLocation, w::WaitingList)
     contained = false
     q = location(s)
@@ -115,7 +148,23 @@ function Base.convert(::Type{TW}, Q::Vector{Tuple{ST, M}}) where {TW<:WaitingLis
     return waiting_list
 end
 
-#
-# TODO MixedWaitingList : allow mixed types, such as small unions of
-# StateInLocation with different set representations
-#
+# ===============================================================
+# Waiting list allowing storage of sets of different types
+# ===============================================================
+
+# non-strictly typed waiting list, useful for cases in which the set reprsentation
+# to be added in the list is not known a priori
+struct MixedWaitingList{TN, QT<:StateInLocation} <: AbstractWaitingList
+    times::Vector{TN}
+    array::Vector{QT}
+
+    function MixedWaitingList(times::Vector{TN}, array::Vector{QT}) where {TN, QT<:StateInLocation}
+        @assert length(times) == length(array) || throw(ArgumentError("the lengths of the time " *
+        "stamps and the array of sets should match, but they are $(length(times)) and $(length(array)) respectively"))
+
+        return new{TN, QT}(times, array)
+    end
+end
+
+# constructor of empty waiting list
+MixedWaitingList{TN, QT}() where {TN, QT} = MixedWaitingList(Vector{TN}(), Vector{StateInLocation}())
