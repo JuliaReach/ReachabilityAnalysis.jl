@@ -15,6 +15,11 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)
 
+    # homogeneize the initial-value problem
+    if haskey(kwargs, :homogeneize) && kwargs[:homogeneize] == true
+        ivp_norm = homogeneize(ivp_norm)
+    end
+
     # discretize system
     ivp_discr = discretize(ivp_norm, δ, approx_model)
     Φ = state_matrix(ivp_discr)
