@@ -616,7 +616,7 @@ function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI
 
     X = stateset(ivp)
     Y = _homogeneize_stateset(X)
-    ivph = IVP(CLCS(Â, X), Y0)
+    ivph = IVP(CLCS(Â, Y), Y0)
     return ivph
 end
 
@@ -647,4 +647,9 @@ end
 
 function _homogeneize_stateset(X::LazySet)
     X × Universe(1)
+end
+
+function _homogeneize_stateset(X::HalfSpace{N}) where {N}
+    a′ = vcat(X.a, zero(N))
+    HalfSpace(a′, X.b)
 end
