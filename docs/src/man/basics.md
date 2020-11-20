@@ -29,6 +29,24 @@ parameters, or dynamical systems which are hybrid, i.e. mixing continuous dynami
 In order to compute with sets, we need to find convenient ways to represent and operate with them.
 In the next section we consider some common set representations and show how to work with `LazySets.jl`.
 
+
+----
+
+More technically, we define the reachable set at a given time point
+$\delta \in \mathbb{R}$, also known as the *reach-set* for the ODE
+```math
+x'(t) = f(x(t), u(t), p(t), t),
+```
+as given by
+```math
+\mathcal{R}(δ) := \left\{ x(δ) = \int_0^δ f(x(t), u(t), p(t), t) dt, x(0) ∈ X_0, u(t) ∈ \mathcal{U}, p(t) ∈ \mathcal{P} \right\}.
+```
+Here $X_0$ denotes the set of initial states, $\mathcal{U}$ denotes the input set,
+and $\mathcal{P}$ denotes the parameter values. For practical problems, the set
+$\mathcal{R}(δ)$ cannot be obtained exactly, and reachability methods aim at
+computing suitable over-approximations (or under-approximations) of it.
+
+
 ## Set representations
 
 Subets of $\mathbb{R}^n$ can be represented in different ways. Depending on the
@@ -205,52 +223,6 @@ tm = TaylorModel1(f(x), rem, x0, dom)
 
 ## Reach-sets
 
-We consider as a running example in this section the simple harmonic oscillator,
-
-## Flowpipes
-
-A flowpipe represents a collection of reach-sets that behaves like a set union.
-
-
-
----
-
-
-
-
-
-
-
-
-## (TO CLEANUP)
-
-Given a set ``\mathcal{X} \subseteq \mathbb{R}^n``, any subset of ``\mathcal{X}``
-is said to be an *underapproximation*. Conversely, any set containing ``\mathcal{X}``
-is said to be an *overapproximation*. In this section we recall the definitions
-and give some examples of the basic set operations commonly used to construct
-reachability algorithms. Such operations are not only required to propagate
-reachable sets
-
-We begin with the notion of Hausdorff distance which, as a way to *measure* (in the informal sense) the distance between sets, constitutes a practical tool to quantify the quality
-of an approximation.
-
-
-## Formal definition
-
-More technically, we define the reachable set at a given time point
-$\delta \in \mathbb{R}$, also known as the *reach-set* for the ODE
-```math
-x'(t) = f(x(t), u(t), p(t), t),
-```
-as given by
-```math
-\mathcal{R}(δ) := \left\{ x(δ) = \int_0^δ f(x(t), u(t), p(t), t) dt, x(0) ∈ X_0, u(t) ∈ \mathcal{U}, p(t) ∈ \mathcal{P} \right\}.
-```
-Here $X_0$ denotes the set of initial states, $\mathcal{U}$ denotes the input set,
-and $\mathcal{P}$ denotes the parameter values. For practical problems, the set
-$\mathcal{R}(δ)$ cannot be obtained exactly, and reachability methods aim at
-computing suitable over-approximations (or under-approximations) of it.
-
 We define the reachable set associated to a time interval $[0, δ]$,
 also known as the *flowpipe*, as
 ```math
@@ -267,6 +239,29 @@ particular problem statement. One notable example is *safety verification*,
 which simply stated requires to prove that the flowpipe does not intersect a region
 of "bad states". In this setting, one can often reason about the flowpipe lazily,
 i.e. without actually computing it in full.
+
+
+We consider as a running example in this section the simple harmonic oscillator,
+
+## Flowpipes
+
+A flowpipe represents a collection of reach-sets and behaves like their set union.
+
+
+## (TO CLEANUP)
+
+Given a set ``\mathcal{X} \subseteq \mathbb{R}^n``, any subset of ``\mathcal{X}``
+is said to be an *underapproximation*. Conversely, any set containing ``\mathcal{X}``
+is said to be an *overapproximation*. In this section we recall the definitions
+and give some examples of the basic set operations commonly used to construct
+reachability algorithms. Such operations are not only required to propagate
+reachable sets
+
+We begin with the notion of Hausdorff distance which, as a way to *measure*
+(in the informal sense) the distance between sets, constitutes a practical tool to
+quantify the quality of an approximation.
+
+## Hybrid systems
 
 Up to now we have discussed about the continuous case only, but there is a rich
 literature in hybrid systems reachability; *hybrid* here means those dynamical
