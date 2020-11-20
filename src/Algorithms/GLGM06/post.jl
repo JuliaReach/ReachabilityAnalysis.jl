@@ -23,7 +23,6 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # homogeneize the initial-value problem
     if haskey(kwargs, :homogeneize) && kwargs[:homogeneize] == true
         ivp_norm = homogeneize(ivp_norm)
-        println(state_matrix(ivp_norm))
     end
 
     # discretize system
