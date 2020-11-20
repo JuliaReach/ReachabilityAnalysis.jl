@@ -596,3 +596,44 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractLinearC
     end
     return ivp_norm
 end
+
+# ====================================================
+# Homogeneization of linear systems
+# ====================================================
+
+# Transform the initial-value problem x' = Ax + u,
+# with u(0) ∈ U = {u} is a singleton into the homogeneized problem y' = Â * y
+function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
+    # homogeneized state matrix
+    U = inputset(ivp) |> ReachabilityAnalysis.next_set
+    A = state_matrix(ivp)
+    Â = _homogeneize_state_matrix(A, U)
+
+    # homogeneized input set
+    X0 = initial_state(ivp)
+    Y0 = _homogeneize_initial_state(X0)
+
+    ivph = InitialValueProblem(LinearContinuousSystem(Â), Y0)
+    return ivph
+end
+
+function _homogeneize_state_matrix(A::AbstractMatrix, U::Singleton)
+    u = element(U)
+    n = size(A, 1)
+    Â = zeros(n+1, n+1)
+    Â[1:n, 1:n] .= A
+    Â[1:n, n+1] .= u
+    return Â
+end
+
+function _homogeneize_initial_state(X0::Singleton{N}) where {N}
+    x0 = element(X0)
+    x0h = vcat(x0, one(N))
+    X0h = Singleton(x0h)
+    return X0h
+end
+
+function _homogeneize_initial_state(X0::LazySet{N}) where {N}
+    X0h = X0 × Singleton(ones(N, 1))
+    return X0h
+end
