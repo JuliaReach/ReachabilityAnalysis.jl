@@ -601,8 +601,9 @@ end
 # Homogeneization of linear systems
 # ====================================================
 
-# Transform the initial-value problem x' = Ax + u,
-# with u(0) ∈ U = {u} is a singleton into the homogeneized problem y' = Â * y
+# Transform the canonical initial-value problem x' = Ax + u, x ∈ X
+# with u(0) ∈ U = {u} is a singleton into the (also canonical)
+# homogeneous problem y' = Â * y, y ∈ Y
 function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
     # homogeneized state matrix
     U = inputset(ivp) |> ReachabilityAnalysis.next_set
@@ -613,7 +614,9 @@ function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI
     X0 = initial_state(ivp)
     Y0 = _homogeneize_initial_state(X0)
 
-    ivph = InitialValueProblem(LinearContinuousSystem(Â), Y0)
+    X = stateset(ivp)
+    Y = _homogeneize_stateset(X)
+    ivph = IVP(CLCS(Â, Y), Y0)
     return ivph
 end
 
@@ -628,12 +631,25 @@ end
 
 function _homogeneize_initial_state(X0::Singleton{N}) where {N}
     x0 = element(X0)
-    x0h = vcat(x0, one(N))
-    X0h = Singleton(x0h)
-    return X0h
+    y0 = vcat(x0, one(N))
+    Y0 = Singleton(y0)
+    return Y0
 end
 
 function _homogeneize_initial_state(X0::LazySet{N}) where {N}
-    X0h = X0 × Singleton(ones(N, 1))
-    return X0h
+    Y0 = X0 × Singleton(ones(N, 1))
+    return Y0
+end
+
+function _homogeneize_stateset(X::Universe)
+    Universe(dim(X) + 1)
+end
+
+function _homogeneize_stateset(X::LazySet)
+    X × Universe(1)
+end
+
+function _homogeneize_stateset(X::HalfSpace{N}) where {N}
+    a′ = vcat(X.a, zero(N))
+    HalfSpace(a′, X.b)
 end
