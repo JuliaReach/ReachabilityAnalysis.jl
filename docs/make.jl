@@ -19,6 +19,7 @@ makedocs(
         "Manual" => Any["Basics" => "man/basics.md",
                         "Linear ODEs" => "man/linear.md",
                         "Nonlinear ODEs" => "man/nonlinear.md",
+                        "Semidiscrete PDEs" => "man/pde.md",
                         "Hybrid systems" => "man/hybrid.md",
                         "Clocked systems" => "man/clocked.md",
                         "Exploiting structure" => "man/structure.md",
