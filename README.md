@@ -19,7 +19,7 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 
 💾 [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--installation)
 
-📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
+📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation) << WORK-IN-PROGRESS
 
 🎨 [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
 
