@@ -601,10 +601,36 @@ end
 # Homogeneization of linear systems
 # ====================================================
 
-# Transform the canonical initial-value problem x' = Ax + u, x ∈ X
-# with u(0) ∈ U = {u} is a singleton into the (also canonical)
-# homogeneous problem y' = Â * y, y ∈ Y
-function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
+"""
+    homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{UT}},ST}) where {N, MT, XT, UT, ST}
+
+Transform an inhomogeneous system into an homogeneous one by adding auxiliary variables.
+
+### Input
+
+- `ivp` -- initial-value problem of a `ConstrainedLinearControlContinuousSystem with
+           constant input and input matrix `B` being the identity matrix
+
+### Output
+
+Initial-value problem of a `ConstrainedLinearContinuousSystem` which is formally
+equivalent to the given `ivp`.
+
+### Notes
+
+This function transforms an IVP in the canonical form ``x' = Ax + u``,
+``x(0) ∈ X0``x ∈ X`` into the IVP ``y' = Ây`` by adding auxilary variables
+for the uncertain inputs.
+
+The following special cases are considered:
+
+(i) `U` is a singleton.
+
+(ii) `U` is a hyperrectangular set.
+
+(iii) `U` is the lazy linear map of a hyperrectangular set.
+"""
+function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{UT}},ST}) where {N, MT, XT, UT, ST}
     # homogeneized state matrix
     U = inputset(ivp) |> ReachabilityAnalysis.next_set
     A = state_matrix(ivp)
@@ -612,7 +638,7 @@ function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI
 
     # homogeneized input set
     X0 = initial_state(ivp)
-    Y0 = _homogeneize_initial_state(X0)
+    Y0 = _homogeneize_initial_state(X0, U)
 
     X = stateset(ivp)
     Y = _homogeneize_stateset(X)
@@ -626,27 +652,47 @@ function _homogeneize_state_matrix(A::AbstractMatrix, U::Singleton)
     Â = zeros(n+1, n+1)
     Â[1:n, 1:n] .= A
     Â[1:n, n+1] .= u
+    return Â.
+end
+
+function _homogeneize_state_matrix(A::AbstractMatrix, U::LinearMap{N, AH}) where {N, AH<:AbstractHyperrectangle{N}}
+    n = size(A, 1)
+    B = matrix(U)
+    m = size(B, 2)
+    Â = zeros(n+m, n+m)
+    Â[1:n, 1:n] .= A
+    Â[1:n, n+1:n+m] .= B
     return Â
 end
 
-function _homogeneize_initial_state(X0::Singleton{N}) where {N}
+function _homogeneize_state_matrix(A::AbstractMatrix, U::AbstractHyperrectangle{N}) where {N}
+    # .....
+end
+
+function _homogeneize_initial_state(X0::Singleton{N}, U::Singleton) where {N}
     x0 = element(X0)
     y0 = vcat(x0, one(N))
     Y0 = Singleton(y0)
     return Y0
 end
 
-function _homogeneize_initial_state(X0::LazySet{N}) where {N}
+function _homogeneize_initial_state(X0::LazySet{N}, U::Singleton) where {N}
     Y0 = X0 × Singleton(ones(N, 1))
     return Y0
 end
 
-function _homogeneize_stateset(X::Universe)
-    Universe(dim(X) + 1)
+function _homogeneize_initial_state(X0::LazySet{N}, U::LinearMap{N, AH}) where {N, AH<:AbstractHyperrectangle{N}}
+    Y0 = X0 × set(U)
+    return Y0
 end
 
-function _homogeneize_stateset(X::LazySet)
-    X × Universe(1)
+
+function _homogeneize_stateset(X::Universe, m=1)
+    Universe(dim(X) + m)
+end
+
+function _homogeneize_stateset(X::LazySet, m=1)
+    X × Universe(m)
 end
 
 function _homogeneize_stateset(X::HalfSpace{N}) where {N}
