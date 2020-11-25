@@ -419,12 +419,6 @@ function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:Abstract
     return out
 end
 
-# TODO pass backend
-function LazySets.vertices_list(X::ConvexHullArray{N, PT}) where {N, PT<:AbstractPolytope{N}}
-    vlist = [vertices_list(Xi) for Xi in array(X)]
-    return convex_hull(vcat(vlist...))
-end
-
 LazySets.box_approximation(S::UnionSetArray) = overapproximate(S, Hyperrectangle)
 
 function LazySets.overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
