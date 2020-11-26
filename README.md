@@ -60,18 +60,19 @@ The following types of systems are supported (click on the left arrow to display
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Building/">Building</a> </p>
 </details>
 
-<details>
-  <summary> Continuous ODEs with linear dynamics and parametric uncertainty :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
-</details>
 
 <details>
-  <summary> Continuous ODEs with non-linear dynamics  :heavy_check_mark: </summary>
+  <summary> Continuous ODEs with non-linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Brusselator/">Brusselator</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/SEIR/">SEIR model</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm.html">Robot arm</a> </p>
+</details>
+
+<details>
+  <summary> Continuous ODEs with parametric uncertainty :heavy_check_mark: </summary>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
 </details>
 
 <details>
