@@ -1,8 +1,6 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
-authors = ["mforets <mforets@gmail.com>",
-           "schillic <christian.schilling@ist.ac.at>",
-           "dfcaporale <dfcaporale@gmail.com>"]
+authors = ["mforets <mforets@gmail.com>", "schillic <christian.schilling@ist.ac.at>", "dfcaporale <dfcaporale@gmail.com>"]
 version = "0.9.0"
 
 [deps]
@@ -46,7 +44,7 @@ RecipesBase = "0.6, 0.7, 0.8, 1.0"
 RecursiveArrayTools = "2.0, 2.1"
 Reexport = "0.2"
 Requires = "0.5, 1.0"
-StaticArrays = "0.12"
+StaticArrays = "0.12, 1.0"
 TaylorIntegration = "0.6, 0.7, 0.8"
 TaylorModels = "0.3"
 TaylorSeries = "0.10"
