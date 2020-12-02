@@ -21,4 +21,10 @@
     # doesn't work for higher dimensional systems
     prob, tspan = linear5D_homog()
     @test_throws ArgumentError solve(prob, tspan=tspan, INT(δ=0.01))
+
+    # linear systems without input constraints
+    #b = [1.0]
+    #prob = @ivp(x' = x + b, x(0) ∈ Singleton([1.0]))
+    #sol = solve(prob, T=4.0)
+
 end

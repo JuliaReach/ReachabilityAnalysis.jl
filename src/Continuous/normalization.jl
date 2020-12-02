@@ -12,6 +12,8 @@ import LazySets.constrained_dimensions
 # common aliases for system's names
 const LCS = LinearContinuousSystem
 const LDS = LinearDiscreteSystem
+const LCCS = LinearControlContinuousSystem
+const LCDS = LinearControlDiscreteSystem
 const CLCS = ConstrainedLinearContinuousSystem
 const CLDS = ConstrainedLinearDiscreteSystem
 const CLCCS = ConstrainedLinearControlContinuousSystem
@@ -386,6 +388,21 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system), affine_term(system))
+            $CLC_S(state_matrix(system), I(n, N), X, U)
+        end
+    end
+end
+
+# x' = Ax + Bu in the continuous case (LCCS)
+# x+ = Ax + Bu in the discrete case (LCDS)
+for (LC_S, CLC_S) in ((:LCCS, :CLCCS), (:LCDS, :CLCDS))
+    @eval begin
+        function normalize(system::$LC_S{N, AN, BN}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}}
+            n = statedim(system)
+            X = Universe(n)
+            B = input_matrix(system)
+            m = size(B, 2)
+            U = _wrap_inputs(Universe(m), B)
             $CLC_S(state_matrix(system), I(n, N), X, U)
         end
     end
