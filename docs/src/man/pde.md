@@ -9,28 +9,29 @@ CurrentModule = ReachabilityAnalysis
 
 ## Introduction
 
-In this section we consider systems of linear differential equations of second order,
+Let's revisit linear systems but a from a different angle. Consider a system of linear differential equations of second order,
 
 ```math
     Mx''(t) + Cx'(t) + Kx(t) = f(t),\qquad t \in [0, T], \qquad (1)
 ```
-where ``M``, ``C`` and ``K`` are the mass, viscosity (or damping) and stiffness matrices respectively, and ``f(t)`` is the vector of externally applied loads. A noteworthy application of such systems is the equation of equilibrium governing the linear dynamic response of a system of finite elements (FEM). Here, `x(t)`, `v(t) = x'(t)` and `a(t) = x''(t)` are the displacement, velocity, and acceleration vectors of the finite element assemblage. Moreover, due to physical considerations it is often the case that ``M``, ``C`` and ``K`` are symmetric; ``M`` is positive-definite and ``C`` and ``K`` are positive-semidefinite. We refer to [^BAT06] for further details on the FEM context.
+where ``M``, ``C`` and ``K`` will be called the mass, viscosity (or damping) and stiffness matrices respectively, and ``f(t)`` is the vector of externally applied loads. A noteworthy application of such systems is the equation of equilibrium governing the linear dynamic response of a system of finite elements (FEM). Here, ``x(t)``, ``v(t) = x'(t)`` and ``a(t) = x''(t)`` are the displacement, velocity, and acceleration vectors of the finite element assemblage. Moreover, due to physical considerations it is often the case that ``M``, ``C`` and ``K`` are symmetric; ``M`` is positive-definite and ``C`` and ``K`` are positive-semidefinite. We refer to [^BAT06] for further details on the FEM context.
 
-The initial-value problem for Eq.~(1) is consists of finding a displacement ``x(t)`` satisfying Eq.~(1) and given initial data,
+The initial-value problem for Eq. (1) is consists of finding a displacement ``x(t)`` satisfying Eq. (1) and given initial data,
 
 ```math
 x(0) \in X_0,\qquad v(0) ∈ V_0.
 ```
 
-In the rest of this section we formulate and solve problem (1) in dense time for uncertain initial conditions and input forces using linear reachability methods. We assume that ``M`` is invertible, in which case Eq.~(1) can be transformed into a system of first order ODEs by multiplying with ``M^{-1}`` on the left and introducing the auxiliary vector ``[x(t),~v(t)]``.
+In the rest of this section we formulate and solve problem (1) in dense time for uncertain initial conditions and input forces using linear reachability methods. We assume that ``M`` is invertible, in which case Eq. (1) can be transformed into a system of first order ODEs by multiplying with ``M^{-1}`` on the left and introducing the auxiliary vector ``[x(t),~v(t)]``.
 
 ## Free oscillations
 
 Our first example is a damped oscillating system without forcing term,
 ```math
-    x''(t) + 0.5~x'(t) + 4x(t) = 0, \qquad x(0) ∈ [0.7 .. 1.3], v(0) ∈ [0.2 .. 0.8].
+    x''(t) + 0.5~x'(t) + 4x(t) = 0, \qquad x(0) ∈ 0.7 .. 1.3, v(0) ∈ 0.2 .. 0.8.
 ```
-The implementation and solution is straightforward.
+The implementation and solution is straightforward. The system type [`SecondOrderContinuousSystem`](https://juliareach.github.io/MathematicalSystems.jl/latest/lib/types/#MathematicalSystems.SecondOrderLinearContinuousSystem) receives matrices
+`M`, `C` and `K`; the system is assumed to be homogeneous.
 
 ```@example second_order_damped
 using ReachabilityAnalysis, Plots
@@ -41,14 +42,14 @@ sys = SecondOrderLinearContinuousSystem(hcat([1.0]), hcat([0.5]), hcat([4.0]))
 X0 = Interval(0.7, 1.3)
 V0 = Interval(0.2, 0.8)
 prob = @ivp(sys, x(0) ∈ (X0, V0))
-sol = solve(prob, tspan=(0.0, 20.0), alg=GLGM06(δ=0.01));
+sol = solve(prob, tspan=(0.0, 20.0), alg=GLGM06(δ=0.01))
 
 plot(sol, vars=(0, 1), lw=.1, xlab="time", lab="x(t)")
 plot!(sol, vars=(0, 2), lw=0.1, xlab="time", lab="v(t)")
 ```
-We used the zonotope-based algorithm `GLGM06` with step-size`δ=0.01` and
-plotted the flowpipe for $x(t)$ and $v(t)$ variables. The time horizon was chosen large enough
-as to show the damping effect.
+We used the zonotope-based algorithm [`GLGM06`](@ref) with step-size`δ=0.01` and
+plotted the flowpipe for position $x(t)$ and velocity $v(t)$ variables.
+The time horizon was chosen large enough as to show the damping effect.
 
 As a simple illustration of working with solutions, suppose that we are interested
 in the maximum and minimum values of the velocity ``v(t)`` of this system for
@@ -226,7 +227,7 @@ variables can be used to represent such function.
 For instance, if ``f(t) = F \sin (3t)``, let ``u := F\sin(3t)`` and
 ``g := F \cos(3t)``. Then, it is a simple exercise to see that the system
 ```math
-    x''(t) + 3.5~x'(t) + 4x(t) = F\sin(3t), \qquad x(0) ∈ [0.7 .. 1.3] × [0.7 .. 1.3]
+    x''(t) + 3.5~x'(t) + 4x(t) = F\sin(3t), \qquad x(0) ∈ 0.7 .. 1.3 × 0.7 .. 1.3
 ```
 is formally equivalent to the following linear system:
 
