@@ -11,7 +11,7 @@ An elementary introduction to the principles of set-based numerical integration
 can be found in [Oded Maler's](http://www-verimag.imag.fr/~maler/) article
 [Computing Reachable Sets: An Introduction](https://www.semanticscholar.org/paper/Computing-Reachable-Sets-%3A-An-Introduction-Maler/299949aef669b547a36c091b768cade091d35532). For an introduction to hybrid systems reachability
 we recommend the lecture notes of [Prof. Goran Frehse](https://sites.google.com/site/frehseg/),
-[Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/goog_304137952)
+[Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/home#h.p_ID_132)
 (DigiCosme Spring School, Paris, May 2016). Most up-to-date material related to reachability
 analysis can be found in journals, conference articles or in PhD theses. We refer to
 the [References](@ref all_ref) section of this manual for further links to the relevant literature.
