@@ -14,8 +14,8 @@ using support functions.
 - `template`     -- struct that holds the directions (either lazily or concretely)
                     for each support function evaluation defining the template
 - `static`       -- (optional, default: `false`) if `true`, use statically sized arrays
-- `threaded`     -- (optional, default: `true`) if `true`, use multi-threading parallelism
-                    to compute the support function along each direction
+- `threaded`     -- (optional, default: `false`) if `true`, use multi-threading
+                    to compute different template directions in parallel
 - `sparse`       -- (optional, default: `false`) if `true`, convert the matrix exponential
                     obtained after discretization to a sparse matrix
 - `cache`        -- (optional, default: `true`) if `true`, use a cache for intermediate
@@ -29,16 +29,21 @@ The type fields are:
 - `AM`       -- type of the approximation model
 - `TN`       -- type of the abstract directions that define the template
 
+The flag `threaded=true` specifies that the support functions
+along different directions should be computed in parallel.
+See the section on [Multi-threading](@ref) for details on how to setup
+the number of threads.
+
 ## References
 
-The is an implementation of the algorithm from [[LGG09]](@ref).
+This is an implementation of the algorithm from [[LGG09]](@ref).
 
 These methods are described at length in the dissertation [[LG09]](@ref).
 """
 struct LGG09{N, AM, VN, TN<:AbstractDirections{N, VN}, S} <: AbstractContinuousPost
     δ::N
     approx_model::AM
-    template::TN # TODO rename -> dirs (see usage in the algorithm)
+    template::TN
     static::S
     threaded::Bool
     sparse::Bool
@@ -48,13 +53,13 @@ end
 # convenience constructor using symbols
 function LGG09(; δ::N,
                approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
-               template::TN,
+               template,
                static::Bool=false,
                threaded::Bool=false,
                sparse::Bool=false,
-               cache::Bool=true) where {N, AM, TN}
-    dirs = _get_template(template)
-    return LGG09(δ, approx_model, dirs, Val(static), threaded, sparse, cache)
+               cache::Bool=true) where {N, AM}
+
+    return LGG09(δ, approx_model, _get_template(template), Val(static), threaded, sparse, cache)
 end
 
 _get_template(template::AbstractDirections) = template
