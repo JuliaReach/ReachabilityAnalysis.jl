@@ -24,10 +24,29 @@ the [References](@ref all_ref) section of this manual for further links to the r
 
 ### Are there other tools that perform reachability analysis?
 
-Yes! The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
-contains an extensive list of tools that perform reachability analysis.
+The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
+contains an extensive list of pointers related to reachability analysis tools for
+dynamical systems. A subset of such tools has participated in recent editions of
+of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
+[ARCH-COMP](https://cps-vo.org/group/ARCH).
+In alphabetic order:
+[CORA](https://tumcps.github.io/CORA/),
+[C2E2](http://publish.illinois.edu/c2e2-tool/),
+[HyDRA](https://ths.rwth-aachen.de/research/projects/hypro/),
+[Hylaa](http://stanleybak.com/hylaa/),
+[SpaceEx](http://spaceex.imag.fr/),
+[XSpeed](http://xspeed.nitmeghalaya.in/),
+[Ariadne](http://www.ariadne-cps.org/),
+[DynIbex](https://perso.ensta-paris.fr/~chapoutot/dynibex/),
+[Flow*](https://flowstar.org/),
+[Isabelle/HOL-ODE-Numerics](https://home.in.tum.de/~hoelzl/documents/immler2012ode.pdf).
+
+Languages and tools for hybrid systems design (as of 2006) are described in the
+review article [[CPPSV06]](@ref).
 
 ### Can I use ODE solvers with interval initial conditions?
+
+Although it is in principle possible to  ODE solvers for
 
 ### What is the wrapping effect?
 
@@ -158,7 +177,8 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 ### Can I compute solutions using parallel programming?
 
 Yes. You can compute multiple flowpipes in parallel by defining an initial-value
-problem with an array of initial conditions. This methods uses Julia's multithreaded parallelism, so you have to set the number of threads to use before starting Julia.
+problem with an array of initial conditions. This methods uses Julia's multithreaded parallelism,
+so you have to set the number of threads to use before starting Julia.
 The following example illustrates this point. For further details we refer to the section
 [Distributed computations](@ref).
 

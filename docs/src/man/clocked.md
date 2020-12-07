@@ -12,3 +12,8 @@ If the system under consideration has transitions governed by time variables,
 i.e. by variables whose dynamics are of the form ``t' = 1``, then decoupling the
 spatial variables with the clock variables gives a computational advantage.
 We refer to [[HG19]].
+
+
+![assets/clocked_simple.png](assets/clocked_simple.png)
+
+![assets/clocked_timeline.png](assets/clocked_timeline.png)
