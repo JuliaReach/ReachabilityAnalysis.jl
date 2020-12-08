@@ -14,6 +14,6 @@ spatial variables with the clock variables gives a computational advantage.
 We refer to [[HG19]].
 
 
-![assets/clocked_simple.png](assets/clocked_simple.png)
+![Hybrid automaton of the clocked model](../assets/clocked_simple.png)
 
-![assets/clocked_timeline.png](assets/clocked_timeline.png)
+![Timeline of relevant events](../assets/clocked_timeline.png)
