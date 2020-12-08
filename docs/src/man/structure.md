@@ -21,7 +21,7 @@ of a given linear system.
 
 - A section about BFFPSV18.
 
-![assets/decomposition.png](assets/decomposition.png)
+![Cartesian decomposition](../assets/decomposition.png)
 
 ## Sparse systems
 
