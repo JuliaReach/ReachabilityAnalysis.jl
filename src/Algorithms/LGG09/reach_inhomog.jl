@@ -413,3 +413,97 @@ function reach_inhomog_krylov_LGG09!(out, Ω₀::LazySet, V::Vector{<:LazySet}, 
 end
 
 end end  # quote / load_krylov_LGG09_inhomog()
+
+# ------------------------------------------------------------
+# Methods using eigenvalues of the transition matrix
+# ------------------------------------------------------------
+
+# it is assumed that (λ, d) is an eigenvalue-eigenvector pair of the matrix Φᵀ
+function reach_inhomog_dir_eig_LGG09!(out::AbstractVector{N}, X₀, V, d::AbstractVector{N}, λ::N, NSTEPS) where {N}
+    if iszero(λ)
+        _reach_inhomog_dir_eig_LGG09_zero!(out, V, NSTEPS)
+    elseif λ > zero(N)
+        _reach_inhomog_dir_eig_LGG09_positive!(out, X₀, V, d, λ, NSTEPS)
+    else
+        _reach_inhomog_dir_eig_LGG09_negative!(out, X₀, V, d, λ, NSTEPS)
+    end
+    return out
+end
+
+function _reach_inhomog_dir_eig_LGG09_zero!(out::AbstractVector{N}, V::LazySet, NSTEPS) where {N}
+    ρ_d_V = ρ(d, V)
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ_d_V
+    end
+end
+
+function _reach_inhomog_dir_eig_LGG09_zero!(out::AbstractVector{N}, V::AbstractVector{<:LazySet}, NSTEPS) where {N}
+    @inbounds for i in 1:NSTEPS
+        out[i] = ρ(d, V[i])
+    end
+end
+
+function _reach_inhomog_dir_eig_LGG09_positive!(out::AbstractVector{N}, X₀, V::LazySet, d, λ, NSTEPS) where {N}
+    ρ_d_X₀ = ρ(d, X₀)
+    ρ_d_V = ρ(d, V)
+    @inbounds begin
+        out[1] = ρ_d_X₀
+        λⁱ = λ
+        λacc = one(N)
+        for i in 2:NSTEPS
+            out[i] = λⁱ * ρ_d_X₀ + λacc * ρ_d_V
+            λacc = λacc + λⁱ
+            λⁱ = λⁱ * λ
+        end
+    end
+end
+
+function _reach_inhomog_dir_eig_LGG09_positive!(out::AbstractVector{N}, X₀, V::AbstractVector{<:LazySet}, d, λ, NSTEPS) where {N}
+    ρ_d_X₀ = ρ(d, X₀)
+    @inbounds begin
+        out[1] = ρ_d_X₀
+        ρ_d_V_acc = ρ(d, V[1])
+        λⁱ = λ
+        for i in 2:NSTEPS
+            out[i] = λⁱ * ρ_d_X₀ + ρ_d_V_acc
+            ρ_d_V_acc = λ * ρ_d_V_acc + ρ(d, V[i])
+            λⁱ = λⁱ * λ
+        end
+    end
+end
+
+function _reach_inhomog_dir_eig_LGG09_negative!(out::AbstractVector{N}, X₀, V::LazySet, d, λ, NSTEPS) where {N}
+    ρ_d_X₀ = ρ(d, X₀)
+    ρ_md_X₀ = ρ(-d, X₀)
+    ρ_d_V = ρ(d, V)
+    ρ_md_V = ρ(-d, V)
+    λⁱ = λ
+    @inbounds begin
+        out[1] = ρ_d_X₀
+        for i in 2:NSTEPS
+            if iseven(i)
+                out[i] = -λⁱ * ρ_md_X₀
+            else
+                out[i] = λⁱ * ρ_d_X₀
+            end
+            λⁱ = λⁱ * λ
+        end
+    end
+end
+
+function _reach_inhomog_dir_eig_LGG09_negative!(out::AbstractVector{N}, X₀, V::AbstractVector{<:LazySet}, d, λ, NSTEPS) where {N}
+    ρ_d_X₀ = ρ(d, X₀)
+    ρ_md_X₀ = ρ(-d, X₀)
+    λⁱ = λ
+    @inbounds begin
+        out[1] = ρ_d_X₀
+        for i in 2:NSTEPS
+            if iseven(i)
+                out[i] = -λⁱ * ρ_md_X₀
+            else
+                out[i] = λⁱ * ρ_d_X₀
+            end
+            λⁱ = λⁱ * λ
+        end
+    end
+end

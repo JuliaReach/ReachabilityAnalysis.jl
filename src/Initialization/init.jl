@@ -58,6 +58,7 @@ import LazySets: dim, overapproximate, project, Projection,
                  linear_map, LinearMap, _split, split!, set, array
 
 import Base: ∈, convert
+import LinearAlgebra: normalize
 
 # ======================
 # Useful constants

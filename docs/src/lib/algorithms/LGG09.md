@@ -93,6 +93,7 @@ for the general inhomogeneous and possibly time-varying inputs case:
 ```math
 \rho(d, X_k) = \rho(\lambda^k d, X_0) + \sum_{i=0}^{k-1} \rho(\lambda^{k-i-1} d, V_i).
 ```
+To further simplify this formula, we analyze different cases of $\lambda$.
 If $\lambda = 0$, then $\rho(d, X_k) = \rho(d, V_k)$ for all $k \geq 0$, so we focus
 on either $\lambda$ being positive or negative. To further simplify the computation
 of $\rho(d, X_k)$, we can use the property $\rho(\lambda d, X) = \lambda \rho(d, X)$
