@@ -11,7 +11,7 @@ CurrentModule = ReachabilityAnalysis
 Our running example is the *bouncing ball* model; although it is a very hybrid automaton,
 it can be used to introduce the main notions involved in hybrid systems reachability.
 
-![Hybrid automaton of the bouncing ball model](../assets/bouncing_ball_automaton.png)
+![Hybrid automaton of the bouncing ball model](../assets/bouncing_ball_annotations.png)
 
 ## Formalism
 
