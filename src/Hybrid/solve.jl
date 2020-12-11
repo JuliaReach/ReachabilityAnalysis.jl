@@ -16,12 +16,13 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                intersect_source_invariant=true, # take the concrete intersection of the flowpipe with the source invariant
                disjointness_method=NoEnclosure(), # method to compute disjointness
                fixpoint_check=true, # if true, stop the integration when a fix point is detected
+               WLtype=WaitingList, # type of waiting list used
                kwargs...)
 
     # distribute the initial condition across the different locations
-    ivp_distributed = _distribute(ivp; intersection_method=intersection_method,
-                                       check_invariant=check_invariant_initial_states,
-                                       intersect_invariant=intersect_invariant_initial_states)
+    ivp_distributed = _distribute(ivp, WLtype; intersection_method=intersection_method,
+                                  check_invariant=check_invariant_initial_states,
+                                  intersect_invariant=intersect_invariant_initial_states)
     waiting_list = initial_state(ivp_distributed)
     H = system(ivp_distributed)
 
@@ -44,12 +45,11 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     sizehint!(out, max_jumps+1)
 
     # list of (set, loc) tuples which have already been processed
-    STwl = setrep(waiting_list)
-    MW = locrep(waiting_list)
-    explored_list = WaitingList{TimeInterval, STwl, MW}()
+    explored_list = typeof(waiting_list)()
 
     # preallocate output flowpipe strictly contained in each source invariant
     if intersect_source_invariant
+        STwl = setrep(waiting_list)
         RTwl = ReachSet{N, STwl}
         out_in_inv = Vector{Flowpipe{N, RTwl, Vector{RTwl}}}()
         sizehint!(out_in_inv, max_jumps+1)
@@ -174,7 +174,7 @@ end
 
 # use the first_mode_representative flag to only check dimension of the first
 # element in the waiting list
-function _check_dim(ivp::InitialValueProblem{<:HybridSystem, <:WaitingList};
+function _check_dim(ivp::InitialValueProblem{<:HybridSystem, <:AbstractWaitingList};
                     throw_error::Bool=true,
                     first_mode_representative=false)
 
@@ -197,6 +197,9 @@ function _check_dim(ivp::InitialValueProblem{<:HybridSystem, <:WaitingList};
     return success
 end
 
+_distribute(ivp::IVP, WLtype::Type{<:WaitingList}; kwargs...) = _distribute(ivp; kwargs...)
+_distribute(ivp::IVP, WLtype::Type{<:MixedWaitingList}; kwargs...) = _distribute_mixed(ivp; kwargs...)
+
 """
     _distribute(ivp::InitialValueProblem{HS, ST};
                 intersection_method::AbstractIntersectionMethod=nothing,
@@ -208,11 +211,11 @@ Distribute the set of initial states to each mode of a hybrid system.
 
 ### Input
 
-- `system`          -- an initial value problem wrapping a mathematical system (hybrid)
-                       and a set of initial states
-- `intersection_method`
-- `check_invariant` -- (optional, default: `false`) if `false`, only add those modes
-                       for which the intersection of the initial state with the invariant is non-empty
+- `system`              -- an initial value problem wrapping a mathematical system (hybrid)
+                           and a set of initial states
+- `intersection_method` -- method to perform the flowpipe-guard intersections
+- `check_invariant`     -- (optional, default: `false`) if `false`, only add those modes
+                           for which the intersection of the initial state with the invariant is non-empty
 - `intersect_invariant` -- (optional, default: `false`) if `false`, take the concrete intersection with the invariant
  (and possibly overapproximate to keep `WaitingList` concretely typed)
 
@@ -267,6 +270,45 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
                 X0cut = intersection(X0, Y)
                 X0cut_oa = overapproximate(X0cut, ST)
                 push!(waiting_list, StateInLocation(X0cut_oa, loc))
+            end
+        end
+    end
+    return InitialValueProblem(H, waiting_list)
+end
+
+# in this implementation we use mixed waiting lists
+function _distribute_mixed(ivp::InitialValueProblem{HS, ST};
+                     intersection_method=nothing, # not used
+                     check_invariant=false,
+                     intersect_invariant=false
+                     ) where {HS<:HybridSystem, ST<:AdmissibleSet}
+    H = system(ivp)
+    X0 = initial_state(ivp)
+    N = eltype(X0)
+
+    waiting_list = MixedWaitingList{TimeInterval, Vector{<:AdmissibleSet}}()
+
+    if !check_invariant
+        for loc in states(H)
+            push!(waiting_list, StateInLocation(X0, loc))
+        end
+
+    elseif check_invariant && !intersect_invariant
+        for loc in states(H)
+            Sloc = mode(H, loc)
+            Y = stateset(Sloc)
+            if !_is_intersection_empty(X0, Y)
+                push!(waiting_list, StateInLocation(X0, loc))
+            end
+        end
+
+    else # check_invariant && intersect_invariant
+        for loc in states(H)
+            Sloc = mode(H, loc)
+            Y = stateset(Sloc)
+            if !_is_intersection_empty(X0, Y)
+                X0cut = intersection(X0, Y)
+                push!(waiting_list, StateInLocation(X0cut, loc))
             end
         end
     end
