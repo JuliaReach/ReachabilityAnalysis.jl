@@ -3,6 +3,7 @@ export
     solve,
     normalize,
     discretize,
+    homogeneize,
 
 # Algorithms
     A20,

@@ -19,7 +19,7 @@ extension to so-called hybrid systems where the dynamics changes with discrete e
 
 💾 [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--installation)
 
-📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
+📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation) << WORK-IN-PROGRESS
 
 🎨 [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
 
@@ -60,18 +60,19 @@ The following types of systems are supported (click on the left arrow to display
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Building/">Building</a> </p>
 </details>
 
-<details>
-  <summary> Continuous ODEs with linear dynamics and parametric uncertainty :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
-</details>
 
 <details>
-  <summary> Continuous ODEs with non-linear dynamics  :heavy_check_mark: </summary>
+  <summary> Continuous ODEs with non-linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Brusselator/">Brusselator</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/SEIR/">SEIR model</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm.html">Robot arm</a> </p>
+</details>
+
+<details>
+  <summary> Continuous ODEs with parametric uncertainty :heavy_check_mark: </summary>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
 </details>
 
 <details>
@@ -121,9 +122,9 @@ This library has been applied in a number of scientic works. We list them in rev
 [8] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Nonlinear Dynamics.** Luca Geretti, Julien Alexandre dit Sandretto, Matthias Althoff, Luis Benet, Alexandre Chapoutot, Xin Chen, Pieter Collins, Marcelo Forets, Daniel Freire, Fabian Immler, Niklas Kochdumper, David P. Sanders and Christian
 Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems. 7th International Workshop on Applied Verification of Continuous and Hybrid Systems (ARCH20), vol 74, pages 49--75. [10.29007/zkf6](https://easychair.org/publications/paper/nrdD).
 
-[7] **Case Study: Reachability Analysis of a unified Combat-Command-and-Control Model.** Sergiy Bogomolov, Marcelo Forets, Kostiantyn Potomkin. Accepted in [14th International Conference on Reachability Problems 2020](https://www.irif.fr/~rp2020/). [article](https://link.springer.com/chapter/10.1007/978-3-030-61739-4_4)
+[7] **Case Study: Reachability Analysis of a unified Combat-Command-and-Control Model.** Sergiy Bogomolov, Marcelo Forets, Kostiantyn Potomkin. *International Conference on Reachability Problems (2020). Lecture Notes in Computer Science, vol 12448.* (2020) doi: [10.1007/978-3-030-61739-4_4](https://dx.doi.org/10.1007/978-3-030-61739-4_4). Presented in the [14th International Conference on Reachability Problems 2020](https://www.irif.fr/~rp2020/). [article](https://link.springer.com/chapter/10.1007/978-3-030-61739-4_4)
 
-[6] **Reachability analysis of linear hybrid systems via block decomposition.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Kostiantyn Potomkin, Christian Schilling. [Get pdf from arXiv: 1905.02458](https://arxiv.org/abs/1905.02458). Accepted in [Embedded Systems Week 2020](http://esweek.hosting2.acm.org/).
+[6] **Reachability analysis of linear hybrid systems via block decomposition.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Kostiantyn Potomkin, Christian Schilling. *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 39:11 (2020).* doi: [10.1109/TCAD.2020.3012859](https://dx.doi.org/10.1109/TCAD.2020.3012859). Presented in [Embedded Systems Week 2020](http://esweek.hosting2.acm.org/). [Get pdf from arXiv: 1905.02458](https://arxiv.org/abs/1905.02458).
 
 [5] **ARCH-COMP19 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Marcelo Forets, Goran Frehse, Niklas Kochdumper, Rajarshi Ray, Christian Schilling and Stefan Schupp (2019) ARCH19. 6th International Workshop on Applied Verification of Continuous and Hybrid Systems, vol 61, pages 14--40 [doi: 10.29007/bj1w](https://easychair.org/publications/paper/1gbP).
 
@@ -131,7 +132,7 @@ Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Veri
 
 [3] **JuliaReach: a Toolbox for Set-Based Reachability.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Kostiantyn Potomkin, Christian Schilling. Published in Proceedings of [HSCC'19](http://hscc2019.eecs.umich.edu/): 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC'19), see [ACM link here](https://dl.acm.org/citation.cfm?id=3311804). [Get pdf from arXiv: 1901.10736](https://arxiv.org/abs/1901.10736).
 
-[2] **ARCH-COMP18 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Xin Chen, Chuchu Fan, Marcelo Forets, Goran Frehse, Niklas Kochdumper, Yangge Li, Sayan Mitra, Rajarshi Ray, Christian Schilling and Stefan Schupp (2018) ARCH18. 5th International Workshop on Applied Verification of Continuous and Hybrid Systems, 54: 23–52. doi: 10.29007/73mb.
+[2] **ARCH-COMP18 Category Report: Continuous and Hybrid Systems with Linear Continuous Dynamics.** Matthias Althoff, Stanley Bak, Xin Chen, Chuchu Fan, Marcelo Forets, Goran Frehse, Niklas Kochdumper, Yangge Li, Sayan Mitra, Rajarshi Ray, Christian Schilling and Stefan Schupp (2018) ARCH18. 5th International Workshop on Applied Verification of Continuous and Hybrid Systems, 54: 23–52. doi: [10.29007/73mb](https://dx.doi.org/10.29007/73mb).
 
 [1] **Reach Set Approximation through Decomposition with Low-dimensional Sets and High-dimensional Matrices.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Frédéric Viry, Andreas Podelski and Christian Schilling (2018) [HSCC'18](https://www.hscc2018.deib.polimi.it/) Proceedings of the 21st International Conference on Hybrid Systems: Computation and Control: 41–50. See the [ACM Digital Library link](http://dx.doi.org/10.1145/3178126.3178128), or the [arXiv: 1801.09526](https://arxiv.org/abs/1801.09526).
 

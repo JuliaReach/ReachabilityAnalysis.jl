@@ -277,6 +277,8 @@ complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 # step for the reach-set / algorithm choice
 LazySets.is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y)
 
+LazySets.isdisjoint(R::AbstractLazyReachSet, Y::LazySet) = isdisjoint(set(R), Y)
+
 function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end

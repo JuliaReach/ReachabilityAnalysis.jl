@@ -11,7 +11,7 @@ An elementary introduction to the principles of set-based numerical integration
 can be found in [Oded Maler's](http://www-verimag.imag.fr/~maler/) article
 [Computing Reachable Sets: An Introduction](https://www.semanticscholar.org/paper/Computing-Reachable-Sets-%3A-An-Introduction-Maler/299949aef669b547a36c091b768cade091d35532). For an introduction to hybrid systems reachability
 we recommend the lecture notes of [Prof. Goran Frehse](https://sites.google.com/site/frehseg/),
-[Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/goog_304137952)
+[Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/home#h.p_ID_132)
 (DigiCosme Spring School, Paris, May 2016). Most up-to-date material related to reachability
 analysis can be found in journals, conference articles or in PhD theses. We refer to
 the [References](@ref all_ref) section of this manual for further links to the relevant literature.
@@ -24,10 +24,29 @@ the [References](@ref all_ref) section of this manual for further links to the r
 
 ### Are there other tools that perform reachability analysis?
 
-Yes! The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
-contains an extensive list of tools that perform reachability analysis.
+The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
+contains an extensive list of pointers related to reachability analysis tools for
+dynamical systems. A subset of such tools has participated in recent editions of
+of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
+[ARCH-COMP](https://cps-vo.org/group/ARCH).
+In alphabetic order:
+[CORA](https://tumcps.github.io/CORA/),
+[C2E2](http://publish.illinois.edu/c2e2-tool/),
+[HyDRA](https://ths.rwth-aachen.de/research/projects/hypro/),
+[Hylaa](http://stanleybak.com/hylaa/),
+[SpaceEx](http://spaceex.imag.fr/),
+[XSpeed](http://xspeed.nitmeghalaya.in/),
+[Ariadne](http://www.ariadne-cps.org/),
+[DynIbex](https://perso.ensta-paris.fr/~chapoutot/dynibex/),
+[Flow*](https://flowstar.org/),
+[Isabelle/HOL-ODE-Numerics](https://home.in.tum.de/~hoelzl/documents/immler2012ode.pdf).
+
+Languages and tools for hybrid systems design (as of 2006) are described in the
+review article [[CPPSV06]](@ref).
 
 ### Can I use ODE solvers with interval initial conditions?
+
+Although it is in principle possible to  ODE solvers for
 
 ### What is the wrapping effect?
 
@@ -158,7 +177,8 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 ### Can I compute solutions using parallel programming?
 
 Yes. You can compute multiple flowpipes in parallel by defining an initial-value
-problem with an array of initial conditions. This methods uses Julia's multithreaded parallelism, so you have to set the number of threads to use before starting Julia.
+problem with an array of initial conditions. This methods uses Julia's multithreaded parallelism,
+so you have to set the number of threads to use before starting Julia.
 The following example illustrates this point. For further details we refer to the section
 [Distributed computations](@ref).
 
