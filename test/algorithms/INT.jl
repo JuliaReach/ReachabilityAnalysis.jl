@@ -22,3 +22,9 @@
     prob, tspan = linear5D_homog()
     @test_throws ArgumentError solve(prob, tspan=tspan, INT(δ=0.01))
 end
+
+# Issue #378
+@testset "Scalar affine ODE" begin
+    prob = @ivp(x' = x + [1.0], x(0) ∈ Singleton([1.0]))
+    sol = solve(prob, T=4.0)
+end
