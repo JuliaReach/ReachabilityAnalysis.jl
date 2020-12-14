@@ -664,6 +664,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) wh
     return ReachSet(X̂, Δt)
 end
 
+# overapproximate taylor model reachset with several hyperrectangles
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, nparts) where {N}
     # dimension of the reachset
     D = dim(R)
@@ -691,6 +692,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, np
     return ReachSet(ConvexHullArray(X̂), Δt)
 end
 
+# overapproximate taylor model reachset with one zonotope
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
     # dimension of the reachset
     n = dim(R)
@@ -721,6 +723,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
+# convert a hyperrectangular set to a taylor model reachset
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
                  orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
 
@@ -742,11 +745,13 @@ function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
     return TaylorModelReachSet(vTM, Δt)
 end
 
+# overapproximate a hyperrectangular set with a taylor model reachset, fallback to convert
 function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReachSet};
                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
 end
 
+# overapproximate a zonotopic set with a taylor model reachset
 function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
                          indices=1:dim(Z)) where {N}
@@ -775,6 +780,25 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
     end
 
     return TaylorModelReachSet(vTM, Δt)
+end
+
+# convert a zonotopic set to a taylor model reachset (only if it has order 1)
+function convert(TM::Type{<:TaylorModelReachSet}, Z::AbstractZonotope; kwargs...)
+    if order(Z) == 1
+        return overapproximate(Z, TM; kwargs...)
+
+    else
+        throw(ArgumentError("can't convert a zonotope of order $(order(Z)) to a `TaylorModelReachSet`; " *
+                            "use `overapproximate(Z, TaylorModelReachSet)` instead"))
+    end
+end
+
+function convert(TM::Type{<:TaylorModelReachSet}, R::AbstractLazyReachSet; kwargs...)
+    return convert(TM, set(R); Δt=tspan(R), kwargs...)
+end
+
+function overapproximate(R::AbstractLazyReachSet, TM::Type{<:TaylorModelReachSet}; kwargs...)
+    return overapproximate(set(R), TM; Δt=tspan(R), kwargs...)
 end
 
 # ================================================================
