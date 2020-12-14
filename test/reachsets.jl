@@ -47,3 +47,38 @@
     p4 = Projection(R, vars=[0, 1]);
     @test all(x -> isequivalent(Bt, overapproximate(set(x), Hyperrectangle)), [p1, p2, p3, p4])
 end
+
+@testset "Conversion of Taylor model reach-sets" begin
+    H = Hyperrectangle(ones(2), [0.2, 0.4])
+    a = overapproximate(H, TaylorModelReachSet)
+    b = convert(TaylorModelReachSet, H)
+
+    @test tspan(a) == tspan(b) == 0 .. 0
+    @test isequivalent(set(overapproximate(a, Hyperrectangle)), H)
+    @test isequivalent(set(overapproximate(b, Hyperrectangle)), H)
+
+    R = ReachSet(H, 0 .. 1)
+    c = overapproximate(R, TaylorModelReachSet)
+    d = convert(TaylorModelReachSet, R)
+
+    @test tspan(c) == tspan(d) == 0..1
+    @test isequivalent(set(overapproximate(c, Hyperrectangle)), set(R))
+    @test isequivalent(set(overapproximate(d, Hyperrectangle)), set(R))
+
+    Z = convert(Zonotope, H)
+    a = overapproximate(Z, TaylorModelReachSet)
+    b = convert(TaylorModelReachSet, Z)
+
+    @test tspan(a) == tspan(b) == 0 .. 0
+    @test isequivalent(set(overapproximate(a, Zonotope)), Z)
+    @test isequivalent(set(overapproximate(b, Zonotope)), Z)
+
+    R = ReachSet(Z, 0 .. 1)
+    c = overapproximate(R, TaylorModelReachSet)
+    d = convert(TaylorModelReachSet, R)
+
+    @test tspan(c) == tspan(d) == 0..1
+    @test isequivalent(set(overapproximate(c, Zonotope)), set(R))
+    @test isequivalent(set(overapproximate(d, Zonotope)), set(R))
+
+end
