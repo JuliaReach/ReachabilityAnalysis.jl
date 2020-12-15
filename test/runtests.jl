@@ -23,6 +23,7 @@ include("reachsets.jl")
 include("flowpipes.jl")
 #include("traces.jl")
 include("setops.jl")
+include("arrayops.jl")
 
 # algorithms
 include("algorithms/INT.jl")
