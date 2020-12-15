@@ -206,3 +206,15 @@ end
     # scenario with parameter variation
     # tested in test/algorithms/ASB07.jl
 end
+
+@testset "1D Burgers equation solve" begin
+    L0 = 1. # domain length
+    U0 = 1. # Re = 20.
+    x = range(-0.5*L0, 0.5*L0, length=16)
+    # Initial velocity
+    X0 = Singleton(-U0*sin.(2*π/L0*x))
+    # IVP definition
+    prob = @ivp(x' = burgers!(x), dim=16, x(0) ∈ X0)
+    sol = solve(prob, tspan=(0.0, 1.0), alg=TMJets());
+    @test dim(sol) == 16
+end
