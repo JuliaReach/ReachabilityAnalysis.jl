@@ -1,3 +1,5 @@
+using ReachabilityAnalysis: logarithmic_norm
+
 @testset "Logarithmic norm" begin
 
     # Example 1
