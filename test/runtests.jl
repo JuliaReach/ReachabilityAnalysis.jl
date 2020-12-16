@@ -16,6 +16,7 @@ include("models/linear5D.jl")
 include("models/VanDerPol.jl")
 include("models/EMBrake.jl")
 include("models/bouncing_ball.jl")
+include("models/burgers.jl")
 
 #include("utils.jl")
 include("solve.jl")
