@@ -13,14 +13,12 @@ can be found in [Oded Maler's](http://www-verimag.imag.fr/~maler/) article
 we recommend the lecture notes of [Prof. Goran Frehse](https://sites.google.com/site/frehseg/),
 [Formal Verification of Piecewise Affine Hybrid Systems](https://sites.google.com/site/frehseg/home#h.p_ID_132)
 (DigiCosme Spring School, Paris, May 2016). Most up-to-date material related to reachability
-analysis can be found in journals, conference articles or in PhD theses. We refer to
-the [References](@ref all_ref) section of this manual for further links to the relevant literature.
-
-### What happens if you consider a chaotic system?
-
-### Can reachability analysis be used to solve large problems?
-
-### Why did you choose Julia to write this library?
+analysis can be found in journals, conference articles or in PhD theses.
+For a comprehensive review of different set propagation techniques for linear, nonlinear
+and hybrid systems see [[AFG20]](@ref). The article also contains a discussion of
+successful applications of reachability analysis to real-world problems.
+We refer to the [References](@ref all_ref) section of this manual for further links
+to the relevant literature.
 
 ### Are there other tools that perform reachability analysis?
 
@@ -43,10 +41,6 @@ In alphabetic order:
 
 Languages and tools for hybrid systems design (as of 2006) are described in the
 review article [[CPPSV06]](@ref).
-
-### Can I use ODE solvers with interval initial conditions?
-
-Although it is in principle possible to  ODE solvers for
 
 ### What is the wrapping effect?
 
@@ -173,6 +167,15 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 
 ### Does reachability solve for the vertices of the set?
 
+### What happens if you consider a chaotic system?
+
+### Can reachability analysis be used to solve large problems?
+
+### Why did you choose Julia to write this library?
+
+### Can I use ODE solvers with interval initial conditions?
+
+Although it is in principle possible to  ODE solvers for
 
 ### Can I compute solutions using parallel programming?
 
@@ -210,3 +213,15 @@ The section [Some common gotchas](@ref) of the user manual details do's and dont
 for the `@taylorize` macro to speedup reachability computations using Taylor models.
 
 ### A note on interval types
+
+When using intervals as set representation, `ReachabilityAnalysis.jl` relies on
+rigorous floating-point arithmetic implemented in pure Julia in the library [IntervalArithmetic.jl](https://github.com/JuliaIntervals/IntervalArithmetic.jl) (we often use `const IA = IntervalArithmetic` as an abbreviation).
+The main struct defined in the library is `IA.Interval` (and the corresponding
+multi-dimensional interval is `IA.IntervalBox`). Internally, the set `LazySets.Interval`
+is **wrapper-type** of `IA.Interval` and these two types should not be confused,
+although our user APIs extensively use [duck typing](https://en.wikipedia.org/wiki/Duck_typing),
+in the sense that `x(0) ∈ 0 .. 1` (`IA.Interval` type) and `x(0) ∈ Interval(0, 1)` are valid.
+
+On a technical level, the reason to have `LazySets.Interval` as a wrapper type
+of `IA.Interval` is that Julia doesn't allow multiple inheritance, but it was a design
+choice that intervals should belong to the `LazySets` type hierarchy.

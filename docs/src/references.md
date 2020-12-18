@@ -13,6 +13,25 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [AFG20]
+
+- Althoff, Matthias, Goran Frehse, and Antoine Girard. [*Set Propagation Techniques for
+  Reachability Analysis.*](https://www.annualreviews.org/doi/abs/10.1146/annurev-control-071420-081941).
+  Annual Review of Control, Robotics, and Autonomous Systems 4 (2020).
+
+```
+@article{althoff2020set,
+  title={Set Propagation Techniques for Reachability Analysis},
+  author={Althoff, Matthias and Frehse, Goran and Girard, Antoine},
+  journal={Annual Review of Control, Robotics, and Autonomous Systems},
+  volume={4},
+  year={2020},
+  publisher={Annual Reviews}
+}
+```
+
+---
+
 #### [ALU95]
 
 - Alur, R., Courcoubetis, C., Halbwachs, N., Henzinger, T. A., Ho, P. H., Nicollin,
