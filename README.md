@@ -10,9 +10,13 @@
 
 Reachability analysis is concerned with computing rigorous approximations of the set
 of states reachable by a dynamical system. In the scope of this package are systems
-modeled by ordinary differential equations (ODEs) with uncertain initial states,
-uncertain parameters or non-deterministic inputs. The package also considers the
-extension to so-called hybrid systems where the dynamics changes with discrete events.
+modeled by **continuous** or **hybrid** dynamical systems, where the dynamics changes with discrete events.
+Systems are modelled by ordinary differential equations (ODEs) or semi-discrete partial differential equations (PDEs),
+with uncertain initial states, uncertain parameters or non-deterministic inputs.
+
+The library is oriented towards a class of numerical methods known as **set propagation techniques:**
+to compute the set of states reachable by continuous or hybrid systems, such methods iteratively
+propagate a sequence of sets starting from the set of initial states, according to the systems' dynamics.
 
 ## 🎯  Table of Contents
 
