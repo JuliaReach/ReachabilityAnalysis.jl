@@ -99,7 +99,7 @@ plot(sol_01, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe
 
 plot!(U0(0.01), color=:orange, lab="Uo", xlims=(0.6, 1.3))
 
-# We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon `T = 30.0`. 
+# We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon ``T = 30.0``. 
 # Next we plot the flowpipe zoomed to the last portion and compare ``r = 0.01`` with a set of larger initial states, ``r = 0.1``.
 
 sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets(orderT=6, orderQ=2))
@@ -112,7 +112,7 @@ plot!(sol_01, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="r = 0.0
 
 # The volume at time ``T = 9.0`` can be obtained by evaluating the flowpipe and computing the volume of the hyperrectangular overapproximation:
 
-vol_01 = overapproximate(sol_1(9.0), Hyperrectangle) |> set |> volume
+vol_01 = overapproximate(sol_01(9.0), Hyperrectangle) |> set |> volume
 
 #-
 
