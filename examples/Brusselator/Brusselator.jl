@@ -73,15 +73,15 @@ plot!(U₀, color=:orange, lab="Uo") #!jl
 
 # Below we plot the flowpipes projected into the time domain.
 
-plot(sol, vars=(0, 1), xlab="t", lw=0.2, color=:blue, lab="x(t)", legend=:bottomright)
-plot!(sol, vars=(0, 2), xlab="t", lw=0.2, color=:red, lab="y(t)")
+plot(sol, vars=(0, 1), xlab="t", lw=0.2, color=:blue, lab="x(t)", legend=:bottomright)  #!jl
+plot!(sol, vars=(0, 2), xlab="t", lw=0.2, color=:red, lab="y(t)")  #!jl
 
 # ## Changing the initial volume
 
 # The model was considered in [^GCLASG20] but using a different set of initial conditions. Let us parametrize
 # the initial states as a ball centered at ``x = y = 1`` and radius ``r > 0``:
 
-U0(r) = Singleton([1.0, 1.0]) ⊕ BallInf(zeros(2), r)
+U0(r) = Singleton([1.0, 1.0]) ⊕ BallInf(zeros(2), r)  
 
 #- 
 
@@ -95,20 +95,20 @@ sol_01 = solve(bruss(0.01), T=30.0, alg=TMJets(orderT=6, orderQ=2))
 
 LazySets.set_ztol(Float64, 1e-15)
 
-plot(sol_01, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)", legend=:bottomright)
+plot(sol_01, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)", legend=:bottomright)  #!jl
 
-plot!(U0(0.01), color=:orange, lab="Uo", xlims=(0.6, 1.3))
+plot!(U0(0.01), color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
 
 # We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon ``T = 30.0``. 
 # Next we plot the flowpipe zoomed to the last portion and compare ``r = 0.01`` with a set of larger initial states, ``r = 0.1``.
 
 sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets(orderT=6, orderQ=2))
 
-fig = plot(xlab="x", ylab="y", xlims=(0.9, 1.05), ylims=(1.43, 1.57), legend=:bottomright)
+fig = plot(xlab="x", ylab="y", xlims=(0.9, 1.05), ylims=(1.43, 1.57), legend=:bottomright)  #!jl
 
-plot(sol_1, vars=(1, 2), lw=0.2, color=:red, lab="r = 0.1", alpha=.4)
+plot(sol_1, vars=(1, 2), lw=0.2, color=:red, lab="r = 0.1", alpha=.4)  #!jl
 
-plot!(sol_01, vars=(1, 2), lw=0.2, color=:blue, lab="r = 0.01")
+plot!(sol_01, vars=(1, 2), lw=0.2, color=:blue, lab="r = 0.01")  #!jl
 
 # The volume at time ``T = 9.0`` can be obtained by evaluating the flowpipe and computing the volume of the hyperrectangular overapproximation:
 
