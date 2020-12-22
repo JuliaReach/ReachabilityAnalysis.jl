@@ -16,7 +16,7 @@ with uncertain initial states, uncertain parameters or non-deterministic inputs.
 
 The library is oriented towards a class of numerical methods known as **set propagation techniques:**
 to compute the set of states reachable by continuous or hybrid systems, such methods iteratively
-propagate a sequence of sets starting from the set of initial states, according to the systems' dynamics.
+propagate a sequence of sets starting from the set of initial states, according to the systems' dynamics. See our [Commonly asked questions](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/man/faq/#Commonly-asked-questions-(FAQ)-1) (FAQ) section for pointers to the relevant literature, related tools and more.
 
 ## 🎯  Table of Contents
 
