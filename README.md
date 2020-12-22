@@ -61,9 +61,9 @@ The following types of systems are supported (click on the left arrow to display
 <details>
   <summary> Continuous ODEs with linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/">Operational amplifier</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/heat.html">Heat</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/heat/">Heat</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/ISS/">ISS</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/motor.html">Motor</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/motor">Motor</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Building/">Building</a> </p>
 </details>
 
