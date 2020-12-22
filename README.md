@@ -73,7 +73,7 @@ The following types of systems are supported (click on the left arrow to display
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Brusselator/">Brusselator</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/SEIR/">SEIR model</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm.html">Robot arm</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm">Robot arm</a> </p>
 </details>
 
 <details>
@@ -85,24 +85,24 @@ The following types of systems are supported (click on the left arrow to display
 <details>
   <summary> Hybrid systems with piecewise-affine dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/">Platooning</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball.html">Bouncing ball</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/navigation_system.html">Navigation system</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/thermostat.html">Thermostat</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball">Bouncing ball</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/navigation_system">Navigation system</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/thermostat">Thermostat</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with non-linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/">Spacecraft</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/cardiac_cell.html">Cardiatic cell</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/powertrain_control.html">Powetrain control</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/spiking_neuron.html">Spiking neuron</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball_nonlinear.html">Bouncing ball</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/cardiac_cell">Cardiatic cell</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/powertrain_control">Powetrain control</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/spiking_neuron">Spiking neuron</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball_nonlinear">Bouncing ball</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with clocked linear dynamics :heavy_check_mark: </summary>
   <p> <a href="https://github.com/JuliaReach/ARCH2020_AFF_RE/blob/master/models/EMBrake/embrake.jl">Electromechanic break</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/clocked_thermostat.html">Clocked thermostat</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/clocked_thermostat">Clocked thermostat</a> </p>
 </details>
 
 ## :checkered_flag: Quickstart
