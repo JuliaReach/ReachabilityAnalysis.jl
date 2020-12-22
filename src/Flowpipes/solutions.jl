@@ -20,7 +20,11 @@ Type that wraps the solution of a verification problem.
 
 ### Fields
 
-TODO
+property::PT
+satisfied::Bool
+vidx::Int
+vtspan::TimeInterval
+alg::ST
 
 ### Notes
 
@@ -48,13 +52,14 @@ alg(sol::CheckSolution) = sol.alg
 """
     ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
 
-Type that wraps the solution of a reachability problem as a sequence of lazy
-sets, and a dictionary of options.
+Type that wraps the solution of a reachability problem as a flowpipe, the algorithm
+used to obtain the flowpipe, and a dictionary to store additional data.
 
 ### Fields
 
-- `Xk`       -- the list of [`AbstractReachSet`](@ref)s
-- `options`  -- the dictionary of options
+- `F`    -- flowpipe
+- `alg`  -- algorithm
+- `ext`  -- extension dictionary to store additional data / options
 """
 struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
     F::FT
@@ -68,7 +73,7 @@ function ReachSolution(F::FT, alg::ST) where {FT<:AbstractFlowpipe, ST<:Abstract
 end
 
 # getter functions
-flowpipe(sol::ReachSolution) = flowpipe(sol.F)
+flowpipe(sol::ReachSolution) = sol.F
 tstart(sol::ReachSolution) = tstart(sol.F)
 tend(sol::ReachSolution) = tend(sol.F)
 tspan(sol::ReachSolution) = tspan(sol.F)
@@ -103,37 +108,42 @@ Base.getindex(sol::ReachSolution, I::Int...) = getindex(sol.F, I...)
 Base.eachindex(sol::ReachSolution) = eachindex(sol.F)
 Base.keys(sol::ReachSolution) = keys(sol.F)
 
+# other Base functions
+Base.copy(sol::ReachSolution) = deepcopy(sol)
+
 # evaluation interface
 Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
 (sol::ReachSolution)(t::Float64) = sol.F(t)
 (sol::ReachSolution)(t::Number) = sol.F(t)
 (sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
 
-function overapproximate(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
-    return ReachSolution(overapproximate(sol.F, args...), sol.alg, sol.ext)
+# common set interface
+function overapproximate(sol::ReachSolution, args...)
+    return overapproximate(sol.F, args...)
 end
 
-function project(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
-    return project(sol.F, args...)
-end
+# concrete projection of a solution
+project(sol::ReachSolution, args...) = project(sol.F, args...)
 
 # convenience alias to match the usage in the plot recipe
-function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
-    return project(sol.F, Tuple(vars))
-end
+project(sol::ReachSolution; vars) = project(sol.F, Tuple(vars))
 
 # concrete projection given a projection matrix
-function project(sol::ReachSolution{FT}, M::AbstractMatrix; vars=nothing) where {FT<:AbstractFlowpipe}
+function project(sol::ReachSolution, M::AbstractMatrix; vars=nothing)
     return project(sol.F, M; vars=vars)
 end
 
 # concrete projection of a solution for a given direction
-function project(sol::ReachSolution{<:AbstractFlowpipe}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+function project(sol::ReachSolution, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
     return project(sol.F, dir; vars=vars)
 end
 
+# lazy projection of a solution
+Projection(sol::ReachSolution{<:AbstractFlowpipe}, vars) = Projection(sol.F, vars)
+Projection(sol::ReachSolution{<:AbstractFlowpipe}; vars) = Projection(sol.F, vars)
+
 function shift(sol::ReachSolution{<:AbstractFlowpipe}, t0::Number)
-    return ReachSolution(shift(sol.F, t0), sol.alg, sol.ext)
+    return shift(sol.F, t0)
 end
 
 # LazySets interface falls back to the associated flowpipe

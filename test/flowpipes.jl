@@ -1,3 +1,12 @@
+@testset "Abstract flowpipe interface" begin
+    prob, dt = harmonic_oscillator()
+    sol = solve(prob, tspan=dt)
+    fp = flowpipe(sol)
+
+    @test basetype(fp) == Float64
+end
+
+
 @testset "Flowpipe constructors" begin
 
     # uninitialized array constructor

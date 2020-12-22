@@ -27,6 +27,7 @@ Return the base type of the given flowpipe type (i.e., without type parameters).
 The base type of `T`.
 """
 basetype(T::Type{<:AbstractFlowpipe}) = Base.typename(T).wrapper
+basetype(fp::AbstractFlowpipe) = basetype(typeof(fp))
 
 # LazySets interface: fallback behaves like UnionSetArray
 
@@ -175,8 +176,7 @@ is computed as `(tstart(fp), tend(fp))`, see `tstart(::AbstractFlowpipe)` and
 # assumes first set is representative
 vars(fp::AbstractFlowpipe) = vars(first(fp))
 
-# support indexing with ranges or with vectors of integers
-# TODO add bounds checks?
+# indexing with ranges or with vectors of integers
 Base.getindex(fp::AbstractFlowpipe, i::Int) = getindex(array(fp), i)
 Base.getindex(fp::AbstractFlowpipe, i::Number) = getindex(array(fp), convert(Int, i))
 Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
@@ -186,12 +186,6 @@ Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
     # annotate as a boundscheck
 #    1 <= i <= length(fp) || throw(BoundsError(fp, i))
 #    return getindex(fp, i)
-
-#=
-function Projection(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
-
-end
-=#
 
 #=
 # inplace projection
