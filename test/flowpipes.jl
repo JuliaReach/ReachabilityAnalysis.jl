@@ -3,7 +3,12 @@
     sol = solve(prob, tspan=dt)
     fp = flowpipe(sol)
 
-    @test basetype(fp) == Float64
+    FT = typeof(fp)
+    @test basetype(FT) == basetype(fp) == Flowpipe
+
+    d = ones(2)
+    @test ρ(d, fp) < 2.0
+
 end
 
 
