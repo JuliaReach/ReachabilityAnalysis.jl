@@ -24,6 +24,9 @@ using LazySets: LinearMap, AffineMap, ResetMap
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, isdisjoint, radius, sample, ∅, dim
 
+# in-place set operations
+using LazySets: linear_map!
+
 # LazySets internal functions frequently used
 using LazySets.Arrays: projection_matrix, SingleEntryVector
 
