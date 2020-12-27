@@ -1,7 +1,7 @@
-using .DifferentialEquations
+using .OrdinaryDiffEq
 
 # extend the solve API for initial-value problems
-function DifferentialEquations.solve(ivp::InitialValueProblem, args...; kwargs...)
+function OrdinaryDiffEq.solve(ivp::InitialValueProblem, args...; kwargs...)
     tspan = _get_tspan(args...; kwargs...)
     tspan = (inf(tspan), sup(tspan))
     inplace = haskey(kwargs, :inplace) ? kwargs[:inplace] : true
@@ -11,5 +11,5 @@ function DifferentialEquations.solve(ivp::InitialValueProblem, args...; kwargs..
         field = outofplace_field(ivp)
     end
     odeprob = ODEProblem(field, initial_state(ivp), tspan)
-    return DifferentialEquations.solve(odeprob, args...; kwargs...)
+    return OrdinaryDiffEq.solve(odeprob, args...; kwargs...)
 end
