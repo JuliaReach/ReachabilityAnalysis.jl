@@ -445,7 +445,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
         Y = _overapproximate(Φ * X0z, Zonotope)
     else
         Φ = _exp(A, δ, alg.exp)
-        Y = _linear_map(Φ, X0z)
+        Y = linear_map(Φ, X0z)
     end
 
     H = overapproximate(CH(X0z, Y), Zonotope)
@@ -474,7 +474,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
         if isa(B, IntervalMatrix)
             Uz = _overapproximate(B * Uz, Zonotope)
         else
-            Uz = _linear_map(B, Uz)
+            Uz = linear_map(B, Uz)
         end
     else # LazySet
         Uz = _convert_or_overapproximate(Zonotope, U)
@@ -493,7 +493,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
         Y = _overapproximate(Φ * X0z, Zonotope)
     else
         Φ = _exp(A, δ, alg.exp)
-        Y = _linear_map(Φ, X0z)
+        Y = linear_map(Φ, X0z)
     end
 
     H = overapproximate(CH(X0z, Y), Zonotope)

@@ -23,7 +23,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = _linear_map(Φ, set(F[k-1]))
+        Rₖ = linear_map(Φ, set(F[k-1]))
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -67,7 +67,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
 
     k = 2
     @inbounds while k <= NSTEPS
-        _linear_map!(Zout[k], Φ, Zout[k-1])
+        linear_map!(Zout[k], Φ, Zout[k-1])
         Δt += δ
         F[k] = ReachSet(Zout[k], Δt)
         k += 1
@@ -139,7 +139,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
 
     k = 2
     while k <= NSTEPS
-        _linear_map!(Zout[k], Φ, Zout[k-1])
+        linear_map!(Zout[k], Φ, Zout[k-1])
         _is_intersection_empty(X, Zout[k], disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Zout[k], Δt)
