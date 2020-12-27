@@ -63,8 +63,9 @@ makedocs(
                                "Discretization" => "lib/discretize.md",
                                "Projections" => "lib/projections.md",
                                "Clustering" => "lib/clustering.md",
-                               "Further operations" => "lib/operations.md",
-                               "Distributed computations" => "lib/distributed.md"],
+                               "Further set operations" => "lib/operations.md",
+                               "Distributed computations" => "lib/distributed.md",
+                               "Internal functions and macros" => "lib/internals.md"],
         "References" => "references.md",
         "About" => "about.md"
     ]

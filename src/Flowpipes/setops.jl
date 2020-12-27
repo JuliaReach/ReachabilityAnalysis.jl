@@ -656,18 +656,18 @@ function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::NoEnclosure)
     return _is_intersection_empty(set(R), Y)
 end
 
-function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::ZonotopeEnclosure)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return _is_intersection_empty(set(Z), Y)
 end
 
-function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::BoxEnclosure)
     H = overapproximate(R, Hyperrectangle)
     return _is_intersection_empty(set(H), Y)
 end
 
 # in this method we assume that the intersection is non-empty
-function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::Dummy)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::Dummy)
     return false
 end
 
@@ -680,39 +680,29 @@ function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {
     return overapproximate(R, Zonotope)
 end
 
-# patch LazySets#2414
-#LazySets.Approximations.overapproximate(∅::EmptySet, ::Real) = ∅
-
 # -----------------------------------------------
 # Disjointness checks between specific set types
 # -----------------------------------------------
 
 using LazySets: _geq, _leq
 
-function _is_intersection_empty(I1::Interval{N}, I2::Interval{N}) where {N<:Real}
-    return !_leq(min(I2), max(I1)) || !_leq(min(I1), max(I2))
-end
-
 # H : {x : ax <= b}, one-dimensional with a != 0
-function _is_intersection_empty(X::Interval{N}, H::HalfSpace{N}) where {N<:Real}
+@commutative function _is_intersection_empty(X::Interval, H::HalfSpace)
     a = H.a[1]
     b = H.b
+    N = promote_type(eltype(X), eltype(H))
     if a > zero(N)
         return !_leq(min(X), b/a)
     else
         return !_geq(max(X), b/a)
     end
 end
-# symmetric case
-_is_intersection_empty(H::HalfSpace, X::Interval) = _is_intersection_empty(X, H)
 
 # H : {x : ax = b}, one-dimensional with a != 0
-function _is_intersection_empty(X::Interval{N}, H::Hyperplane{N}) where {N<:Real}
+@commutative function _is_intersection_empty(X::Interval, H::Hyperplane)
     q = H.b / H.a[1]
     return !_geq(q, min(X)) || !_leq(q, max(X))
 end
-# symmetric case
-_is_intersection_empty(H::Hyperplane, X::Interval) = _is_intersection_empty(X, H)
 
 # if X is polyhedral and Y is the set union of half-spaces, X ∩ Y is empty iff
 # X ∩ Hi is empty for each half-space Hi in Y
