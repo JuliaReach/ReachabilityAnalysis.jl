@@ -595,10 +595,28 @@ function _is_intersection_empty(X::LazySet, Y::LazySet, ::ZonotopeEnclosure)
     return is_intersection_empty(Z, Y)
 end
 
-# enclose the first argument with a box
-function _is_intersection_empty(X::LazySet, Y::LazySet, ::BoxEnclosure)
-    Z = overapproximate(X, Hyperrectangle)
-    return is_intersection_empty(Z, Y)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::ZonotopeEnclosure)
+    Z = overapproximate(R, Zonotope)
+    return _is_intersection_empty(set(Z), Y)
+end
+
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::BoxEnclosure)
+    H = overapproximate(R, Hyperrectangle)
+    return _is_intersection_empty(set(H), Y)
+end
+
+# in this method we assume that the intersection is non-empty
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::Dummy)
+    return false
+end
+
+# TODO refactor?
+function overapproximate(R::TaylorModelReachSet{N}, ::BoxEnclosure) where {N}
+    return overapproximate(R, Hyperrectangle)
+end
+# TODO refactor?
+function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
+    return overapproximate(R, Zonotope)
 end
 
 # -----------------------------------------------
@@ -608,9 +626,10 @@ end
 using LazySets: _geq, _leq
 
 # H : {x : ax <= b}, one-dimensional with a != 0
-@commutative function _is_intersection_empty(X::Interval{N}, H::HalfSpace{N}, ::NoEnclosure) where {N<:Real}
+@commutative function _is_intersection_empty(X::Interval, H::HalfSpace, method::NoEnclosure)
     a = H.a[1]
     b = H.b
+    N = promote_type(eltype(X), eltype(H))
     if a > zero(N)
         return !_leq(min(X), b/a)
     else
@@ -619,7 +638,7 @@ using LazySets: _geq, _leq
 end
 
 # H : {x : ax = b}, one-dimensional with a != 0
-@commutative function _is_intersection_empty(X::Interval{N}, H::Hyperplane{N}, ::NoEnclosure) where {N<:Real}
+@commutative function _is_intersection_empty(X::Interval, H::Hyperplane, method::NoEnclosure)
     q = H.b / H.a[1]
     return !_geq(q, min(X)) || !_leq(q, max(X))
 end

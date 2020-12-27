@@ -3,7 +3,7 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Further operations
+# Further set operations
 
 ## Convexification
 
