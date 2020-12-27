@@ -7,8 +7,8 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       RecipesBase,                 # plotting
       Parameters,                  # structs with kwargs
       StaticArrays,                # statically sized arrays
-      RecursiveArrayTools          # vector of arrays
-      #ExponentialUtilities        # (optional) Krylov subspace approximations
+      RecursiveArrayTools,         # vector of arrays type
+      ExprTools                    # manipulate function definition expressions
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -23,6 +23,9 @@ using LazySets: LinearMap, AffineMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, isdisjoint, radius, sample, ∅, dim
+
+# in-place set operations
+using LazySets: linear_map!
 
 # LazySets internal functions frequently used
 using LazySets.Arrays: projection_matrix, SingleEntryVector
@@ -77,20 +80,82 @@ const symI = IA.Interval(-1.0, 1.0)
 
 using Requires
 
-# convenience macro to annotate that a package is required
-# usage:
-# function foo(...)
-#   @require MyPackage
-#   ... # functionality that requires MyPackage to be loaded
-# end
+function __init__()
+    # numerical differential equations suite
+    @require OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed" include("init_DifferentialEquations.jl")
+
+    # exponentiation methods using Krylov subspace approximations
+    @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
+
+    # tools for symbolic computation
+    @require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
+end
+
+# ===========================
+# Utility macros
+# ===========================
+
+"""
+    @requires(module_name)
+
+Convenience macro to annotate that a package is required to use a certain function.
+
+### Input
+
+- `module_name` -- name of the required package
+
+### Output
+
+The macro expands to an assertion that checks whether the module `module_name` is
+known in the calling scope.
+
+### Notes
+
+Usage:
+
+```julia
+function foo(...)
+    @require MyPackage
+    ... # functionality that requires MyPackage to be loaded
+end
+```
+"""
 macro requires(module_name)
     m = Meta.quot(Symbol(module_name))
     return esc(:(@assert isdefined(@__MODULE__, $m) "package `$($m)` is required " *
                     "for this function; do `using $($m)` and try again"))
 end
 
-function __init__()
-    @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
-    @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
-    @require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
+"""
+    @commutative(FUN)
+
+Macro to declare that a given function `FUN` is commutative, returning the original
+`FUN` and a new method of `FUN` where the first and second arguments are swapped.
+
+### Input
+
+- `FUN` -- function name
+
+### Output
+
+A quoted expression containing the function definitions.
+"""
+macro commutative(FUN)
+    # split the function definition expression
+    def = splitdef(FUN)
+    FUNARGS = copy(def[:args])
+
+    # swap arguments 1 and 2
+    aux = def[:args][1]
+    def[:args][1] = def[:args][2]
+    def[:args][2] = aux
+
+    # the new function calls f with swapped arguments
+    def[:body] = quote ($(def[:name]))($(FUNARGS...)) end
+
+    _FUN = combinedef(def)
+    return quote
+        $(esc(FUN))
+        $(esc(_FUN))
+     end
 end
