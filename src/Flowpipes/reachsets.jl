@@ -1,5 +1,5 @@
 # ================================================================
-# Reach set interfaces
+# Abstract reach-set interface
 # ================================================================
 
 """
@@ -195,7 +195,9 @@ Base.copy(R::AbstractReachSet) = deepcopy(R)
     shift(R::AbstractReachSet, t0::Number)
 
 Perform a time-shift of the given reach-set.
-
+function project(Xk::Vector{<:TemplateReachSet}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
+    return map(X -> project(X, dir, vars=vars), Xk)
+end
 ### Input
 
 - `R`  -- reach-set
@@ -207,6 +209,50 @@ A new reach-set of the same type of `R` such that its time-span has been shifted
 by `t0`.
 """
 function shift(R::AbstractReachSet, t0::Number) end
+
+# --------------------------------------------------------------------
+# Methods to evaluate disjointness between a reach-set and a lazy set
+# --------------------------------------------------------------------
+
+function is_intersection_empty(R::AbstractReachSet, S::AbstractReachSet, method::AbstractDisjointnessMethod=NoEnclosure())
+    return _is_intersection_empty(set(R), set(S), method)
+end
+
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::AbstractDisjointnessMethod=NoEnclosure())
+    return _is_intersection_empty(set(R), Y, method)
+end
+
+# enclose the first argument with a zonotope
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::ZonotopeEnclosure)
+    Z = overapproximate(R, Zonotope)
+    return is_intersection_empty(set(Z), Y)
+end
+
+# enclose the first argument with a box
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
+    H = overapproximate(R, Hyperrectangle)
+    return is_intersection_empty(set(H), Y)
+end
+
+# return `false` irrespective of the value of the arguments, i.e. always assume
+# that the intersection is non-empty
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::Dummy)
+    return false
+end
+
+# --------------------------------------------------------------------
+# Methods to evaluate intersection between a reach-set and a lazy set
+# --------------------------------------------------------------------
+
+intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod=FallbackIntersection()) = _intersection(R, S, method)
+
+function _intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod=FallbackIntersection())
+    return _intersection(set(R), set(S), method)
+end
+
+@commutative function _intersection(R::AbstractReachSet, X::LazySet, method::AbstractIntersectionMethod=FallbackIntersection())
+    _intersection(set(R), X, method)
+_intersection(X::LazySet, R::AbstractReachSet, method::AbstractIntersectionMethod) = _intersection(X, set(R), method)
 
 # ============================================================
 # AbstractLazyReachSet: reach-set that behaves like a LazySet
@@ -255,7 +301,7 @@ LazySets.σ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = _σ_vec(d, R
 LazySets.σ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
 
 function _σ_vec(d, Rvec)
-    σarray = map(Ri -> σ(d, set(Ri)), R)
+    σarray = map(Ri -> σ(d, set(Ri)), Rvec)
     ρarray = map(vi -> dot(d, vi), σarray)
     m = argmax(ρarray)
     return σarray[m]
@@ -264,20 +310,21 @@ end
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
 LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
-Base.:⊆(R::AbstractLazyReachSet, X::LazySet) = ⊆(set(R), X)
-Base.:⊆(X::LazySet, R::AbstractLazyReachSet) = ⊆(X, set(R))
-Base.:⊆(R::AbstractLazyReachSet, S::AbstractLazyReachSet) = ⊆(set(R), set(S))
 LazySets.area(R::AbstractLazyReachSet) = area(set(R))
 LazySets.volume(R::AbstractLazyReachSet) = volume(set(R))
 Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(ST, set(R))
 Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalBox, set(R))
 complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 
+Base.:⊆(R::AbstractLazyReachSet, X::LazySet) = ⊆(set(R), X)
+Base.:⊆(X::LazySet, R::AbstractLazyReachSet) = ⊆(X, set(R))
+Base.:⊆(R::AbstractLazyReachSet, S::AbstractLazyReachSet) = ⊆(set(R), set(S))
+
+
 # forward to internal function _is_intersection_empty, which admit a pre-processing
 # step for the reach-set / algorithm choice
 LazySets.is_intersection_empty(R::AbstractReachSet, Y::LazySet) = _is_intersection_empty(R, Y)
-
-LazySets.isdisjoint(R::AbstractLazyReachSet, Y::LazySet) = isdisjoint(set(R), Y)
+LazySets.isdisjoint(R::AbstractLazyReachSet, Y::LazySet, method::AbstractDisjointnessMethod=) = _is_intersection_empty(set(R), Y)
 
 function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
@@ -637,6 +684,223 @@ end
 function project(R::TaylorModelReachSet, vars::NTuple{D, M}) where {D, M<:Integer}
     throw(ArgumentError("the concrete projection of Taylor model reach-set is not " *
             "available; try first to overapproximate the Taylor model and the  project"))
+end
+
+function overapproximate(R::TaylorModelReachSet, ::BoxEnclosure)
+    return overapproximate(R, Hyperrectangle)
+end
+
+function overapproximate(R::TaylorModelReachSet, ::ZonotopeEnclosure)
+    return overapproximate(R, Zonotope)
+end
+
+# for TMs, we overapproximate with a zonotope
+function _intersection(R::TaylorModelReachSet, Y::LazySet)
+    _intersection(R, Y, FallbackIntersection())
+end
+
+function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersection)
+    X = set(overapproximate(R, Zonotope))
+    intersection(X, Y)
+end
+
+# TODO overapprox Y with a box if it's bounded?
+function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
+    X = set(overapproximate(R, Hyperrectangle))
+    out = intersection(X, Y)
+    return isempty(out) ? EmptySet(dim(out)) : overapproximate(out, Hyperrectangle)
+end
+
+# TODO refactor? See LazySets#2158
+function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N, HT}, ::BoxIntersection) where {N, HT<:HalfSpace{N}}
+    X = set(overapproximate(R, Hyperrectangle))
+
+    # find first non-empty intersection
+    m = length(Y.array) # can't use array(Y) ?
+    i = 1
+    local W
+    @inbounds while i <= m
+        W = intersection(X, Y.array[i])
+        !isempty(W) && break
+        i += 1
+    end
+    if i == m+1
+        return EmptySet(dim(Y))
+    end
+
+    # add all other non-empty intersections
+    out = [W]
+    @inbounds for j in i+1:m
+        W = intersection(X, Y.array[j])
+        !isempty(W) && push!(out, W)
+    end
+    return isempty(out) ? EmptySet(dim(out)) : overapproximate(UnionSetArray(out), Hyperrectangle)
+end
+
+# ==============================================================
+# Conversion and overapproximation of Taylor model reach-sets
+# ==============================================================
+
+# overapproximate taylor model reachset with one hyperrectangle
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) where {N}
+    # dimension of the reachset
+    D = dim(R)
+
+    # pick the time domain of the given TM (same in all dimensions)
+    t0 = tstart(R)
+    Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X_Δt = TM.evaluate(set(R), tdom)
+
+    # evaluate the spatial variables in the symmetric box
+    Bn = symBox(D)
+    X̂ib = IntervalBox([TM.evaluate(X_Δt[i], Bn) for i in 1:D]...)
+    X̂ = convert(Hyperrectangle, X̂ib)
+
+    return ReachSet(X̂, Δt)
+end
+
+# overapproximate taylor model reachset with several hyperrectangles
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, nparts) where {N}
+    # dimension of the reachset
+    D = dim(R)
+
+    # pick the time domain of the given TM (same in all dimensions)
+    t0 = tstart(R)
+    Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X_Δt = TM.evaluate(set(R), tdom)
+
+    # evaluate the spatial variables in the symmetric box
+    partition = IA.mince(symBox(D), nparts)
+    X̂ = Vector{Hyperrectangle{N, SVector{D, N}, SVector{D, N}}}(undef, length(partition))
+    @inbounds for (i, Bi) in enumerate(partition)
+        X̂ib = IntervalBox([TM.evaluate(X_Δt[i], Bi) for i in 1:D])
+        X̂[i] = convert(Hyperrectangle, X̂ib)
+    end
+    #return ReachSet(UnionSetArray(X̂), Δt) # but UnionSetArray is not yet a lazyset
+    return ReachSet(ConvexHullArray(X̂), Δt)
+end
+
+# overapproximate taylor model reachset with one zonotope
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
+    # dimension of the reachset
+    n = dim(R)
+
+    # pick the time domain of the given TM (same in all dimensions)
+    t0 = tstart(R)
+    Δt = tspan(R)
+    # tdom defined below is the same as Δt - t0, but the domain inclusion check
+    # in TM.evauate may fail, so we unpack the domain again here; also note that
+    # by construction the TMs in time are centered at zero
+    tdom = TM.domain(first(set(R)))
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X = set(R)
+    X_Δt = TM.evaluate(X, tdom)
+
+    # builds the associated taylor model for each coordinate j = 1...n
+    #  X̂ is a TaylorModelN whose coefficients are intervals
+    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+
+    # compute floating point rigorous polynomial approximation
+    # fX̂ is a TaylorModelN whose coefficients are floats
+    fX̂ = TaylorModels.fp_rpa.(X̂)
+
+    # LazySets can overapproximate a Taylor model with a Zonotope
+    Zi = overapproximate(fX̂, Zonotope)
+    return ReachSet(Zi, Δt)
+end
+
+# convert a hyperrectangular set to a taylor model reachset
+function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
+                 orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+
+    n = dim(H)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of H
+    for i in 1:n
+        α = radius_hyperrectangle(H, i)
+        β = center(H, i)
+        pi = α * x[i] + β
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δt)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
+# overapproximate a hyperrectangular set with a taylor model reachset, fallback to convert
+function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
+end
+
+# overapproximate a zonotopic set with a taylor model reachset
+function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
+                         indices=1:dim(Z)) where {N}
+
+    n = dim(Z)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    if order(Z) > 1
+        # indices selects the indices that we want to keep
+        Z = LazySets.Approximations._overapproximate_hparallelotope(Z, indices)
+
+        # diagonal generators matrix
+        # Z = _reduce_order(Z, 1)
+    end
+    c = center(Z)
+    G = genmat(Z)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of X
+    @inbounds for i in 1:n
+        pi = c[i] + sum(view(G, i, :) .* x)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δt)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
+# convert a zonotopic set to a taylor model reachset (only if it has order 1)
+function convert(TM::Type{<:TaylorModelReachSet}, Z::AbstractZonotope; kwargs...)
+    if order(Z) == 1
+        return overapproximate(Z, TM; kwargs...)
+
+    else
+        throw(ArgumentError("can't convert a zonotope of order $(order(Z)) to a `TaylorModelReachSet`; " *
+                            "use `overapproximate(Z, TaylorModelReachSet)` instead"))
+    end
+end
+
+function convert(TM::Type{<:TaylorModelReachSet}, R::AbstractLazyReachSet; kwargs...)
+    return convert(TM, set(R); Δt=tspan(R), kwargs...)
+end
+
+function overapproximate(R::AbstractLazyReachSet, TM::Type{<:TaylorModelReachSet}; kwargs...)
+    return overapproximate(set(R), TM; Δt=tspan(R), kwargs...)
 end
 
 # ================================================================

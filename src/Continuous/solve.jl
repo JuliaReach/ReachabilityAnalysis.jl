@@ -27,7 +27,7 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
   to solve the initial-value problem. Algorithm-specific options should be passed
   to the algorithm constructor as well.
 
-- Use the `tspan` keyword argument to specifying the time span; it can be:
+- Use the `tspan` keyword argument to specify the time span; it can be:
     - a tuple,
     - an interval, or
     - a vector with two components.
@@ -61,7 +61,7 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     F = post(cpost, ivp, tspan; kwargs...)
 
     if haskey(kwargs, :save_traces) && kwargs[:save_traces]
-        @requires DifferentialEquations
+        @requires OrdinaryDiffEq
         error("saving traces is not implemented yet")
         # compute trajectories, cf. ensemble simulation
         # traces = ...
@@ -342,7 +342,12 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
             # TODO pass order and dimension options as well
-            opC = GLGM06(δ=δ, static=static)
+            if static
+                n = dim(ivp)
+                opC = GLGM06(δ=δ, static=static, dim=n, ngens=5n)
+            else
+                opC = GLGM06(δ=δ)
+            end
         end
     else
         # check additional kwargs options if they exist, allowing some aliases
@@ -369,8 +374,6 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
     end
     return opC
 end
-
-# TODO refactor / update docstring
 
 """
     _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)

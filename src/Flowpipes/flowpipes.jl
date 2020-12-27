@@ -1,5 +1,5 @@
 # ================================
-# Abstract types
+# Abstract type
 # ================================
 
 """
@@ -93,18 +93,33 @@ end
 @inline Base.iterate(fp::AbstractFlowpipe) = iterate(array(fp))
 @inline Base.iterate(fp::AbstractFlowpipe, state) = iterate(array(fp), state)
 @inline Base.length(fp::AbstractFlowpipe) = length(array(fp))
-#@inline Base.size(fp::AbstractFlowpipe) = (length(array(fp)),)
 @inline Base.first(fp::AbstractFlowpipe) = getindex(fp, 1)
 @inline Base.last(fp::AbstractFlowpipe) = getindex(fp, lastindex(fp))
 @inline Base.firstindex(fp::AbstractFlowpipe) = 1
 @inline Base.lastindex(fp::AbstractFlowpipe) = length(array(fp))
 @inline Base.eachindex(fp::AbstractFlowpipe) = eachindex(array(fp))
 
-# support abstract reach set interface
+# fallback implementations of set getter functions
 
-set(fp::AbstractFlowpipe) = throw(ArgumentError("to retrieve the array of sets represented by this flowpipe, " *
-    "use the `array(...)` function, or use the function `set(...)` at a specific index, i.e. " *
-    "`set(F[ind])`, or simply `set(F, ind)`, to get the reach-set with index `ind` of the flowpipe `F`"))
+"""
+    set(fp::AbstractFlowpipe)
+
+Return the geometric set represented by this flowpipe as the union of reach-sets.
+
+### Input
+
+- `fp`  -- flowpipe
+
+### Output
+
+The set union of the array of reach-sets of the flowpipe.
+
+## Notes
+
+To retrieve the array of sets stored in the flowpipe use `array(fp)`. To get
+a set at a particular index, use `set(F[ind])` or `set(F, ind)`.
+"""
+set(fp::AbstractFlowpipe) = UnionSetArray([set(R) for R in array(fp)])
 
 """
     set(fp::AbstractFlowpipe, ind::Integer)
@@ -121,6 +136,22 @@ Return the geometric set represented by this flowpipe at the given index.
 The set wrapped by the flowpipe at the given index.
 """
 set(fp::AbstractFlowpipe, ind::Integer) = set(getindex(array(fp), ind))
+
+"""
+    set(fp::AbstractFlowpipe, ind::AbstractVector)
+
+Return the union of set represented by this flowpipe at the given indices.
+
+## Input
+
+- `fp`  -- flowpipe
+- `ind` -- vector of indices
+
+## Output
+
+The set union stored in the flowpipe at the given indices.
+"""
+set(fp::AbstractFlowpipe, ind::AbstractVector) = UnionSetArray([set(fp, i) for i in ind])
 
 # time domain interface
 
@@ -147,7 +178,7 @@ Return the final time of this flowpipe.
 
 ### Input
 
-- `R` -- reach-set
+- `fp` -- flowpipe
 
 ### Output
 
@@ -173,7 +204,24 @@ is computed as `(tstart(fp), tend(fp))`, see `tstart(::AbstractFlowpipe)` and
 """
 @inline tspan(fp::AbstractFlowpipe) = TimeInterval(tstart(fp), tend(fp))
 
-# assumes first set is representative
+"""
+    vars(fp::AbstractFlowpipe)
+
+Return the tuple of variable indices of the flowpipe.
+
+### Input
+
+- `fp` -- flowpipe
+
+### Output
+
+Tuple of integers with the variable indices of the flowpipe, typically ``1, 2, …, n``
+where ``n`` is the dimension of the flowpipe.
+
+### Notes
+
+The fallback implementation assumes first reach-set is representative.
+"""
 vars(fp::AbstractFlowpipe) = vars(first(fp))
 
 # indexing with ranges or with vectors of integers
@@ -181,33 +229,35 @@ Base.getindex(fp::AbstractFlowpipe, i::Int) = getindex(array(fp), i)
 Base.getindex(fp::AbstractFlowpipe, i::Number) = getindex(array(fp), convert(Int, i))
 Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
 
-# get the set of the flowpipe with the given index
-#function Base.getindex(fp::AbstractFlowpipe, t::Number)
-    # annotate as a boundscheck
-#    1 <= i <= length(fp) || throw(BoundsError(fp, i))
-#    return getindex(fp, i)
-
-#=
-# inplace projection
-function project!(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
-    Xk = array(fp)
-    for X in Xk
-        _project!(set(X), vars)
-    end
-    return fp
+# disjointness
+@commutative function is_intersection_empty(F::AbstractFlowpipe, Y::LazySet, method::AbstractDisjointnessMethod)
+    return all(R -> _is_intersection_empty(set(R), Y, method), array(F))
 end
-=#
 
-# further setops
-LazySets.is_intersection_empty(F::AbstractFlowpipe, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
-Base.:⊆(F::AbstractFlowpipe, X::LazySet) = all(R ⊆ X for R in F)
-Base.:⊆(F::AbstractFlowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
+@commutative function is_intersection_empty(F::AbstractFlowpipe, X::ReachSet, method::AbstractDisjointnessMethod)
+    return _is_intersection_empty(F, set(X), method)
+end
 
-# getter functions for hybrid systems
-location(F::AbstractFlowpipe) = get(F.ext, :loc_id, missing)
+function is_intersection_empty(F::AbstractFlowpipe, G::AbstractFlowpipe, method::AbstractDisjointnessMethod)
+    result = true
+    for R in array(G)
+        result = _is_intersection_empty(F, R, method)
+        !result && break
+    end
+    return result
+end
+
+# inclusion
+function Base.:⊆(F::AbstractFlowpipe, X::LazySet, method::AbstractInclusionMethod)
+    return all(_iscontained(R, X, method) for R in F)
+end
+Base.:⊆(F::AbstractFlowpipe, Y::AbstractReachSet, method::AbstractInclusionMethod) = ⊆(F, set(Y), method)
+
+# membership
+Base.:∈(x::AbstractVector, F::AbstractFlowpipe) = any(x ∈ R for R in F)
 
 # ================================
-# Flowpipes
+# Flowpipe
 # ================================
 
 """
@@ -217,7 +267,7 @@ Type that wraps a flowpipe.
 
 ### Fields
 
-- `Xk`  -- set
+- `Xk`  -- array of reach-sets
 - `ext` -- extension dictionary; field used by extensions
 
 ### Notes
@@ -277,15 +327,30 @@ rsetrep(fp::Flowpipe{N, RT}) where {N, RT} = RT
 rsetrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = RT
 numrsets(fp::Flowpipe) = length(fp)
 
+# getter functions for hybrid systems
+
+"""
+    location(F::AbstractFlowpipe)
+
+Return the location of a flowpipe within a hybrid system, or `missing` if it is
+not defined.
+
+### Input
+
+- `F` -- flowpipe
+
+### Output
+
+The `:loc_id` value of stored in the flowpipe's extension field.
+"""
 function location(fp::Flowpipe)
-    @assert haskey(fp.ext, :loc_id) "this flowpipe has not been assigned a location identifier"
-    return fp.ext[:loc_id]
+    return get(F.ext, :loc_id, missing)
 end
 
 # evaluate a flowpipe at a given time point: gives a reach set
 # here it would be useful to layout the times contiguously in a vector
 # (see again array of struct vs struct of array)
-function (fp::AbstractFlowpipe)(t::Number)
+function (fp::Flowpipe)(t::Number)
     Xk = array(fp)
     @inbounds for (i, X) in enumerate(Xk)
         if t ∈ tspan(X) # exit on the first occurrence
@@ -326,13 +391,13 @@ end
 
 function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
-    # TODO: use projection of the reachsets
-    if 0 ∈ vars # projection includes "time"
-        # we shift the vars indices by one as we take the Cartesian prod with the time spans
+    if 0 ∈ vars
+        # if the projection includes "time", we shift the vars indices by one
+        # as we take the Cartesian product with the time spans
         aux = vars .+ 1
-        return map(X -> _project(convert(Interval, tspan(X)) × set(X), aux), Xk)
+        πRk = map(X -> ReachSet(_project(convert(Interval, tspan(X)) × set(X), aux), tspan(X)), Xk)
     else
-        return map(X -> _project(set(X), vars), Xk) # TODO return Flowpipe ?
+        return map(X -> ReachSet(_project(set(X), vars), Xk), tspan(X))
     end
 end
 
@@ -455,11 +520,6 @@ tend(F::Flowpipe, arr::AbstractVector) = tend(view(array(F), arr))
 tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr), contiguous=true)
 tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
 
-# further setops
-LazySets.is_intersection_empty(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
-Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
-Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
-
 # lazy projection of a flowpipe
 function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(F)
@@ -470,11 +530,11 @@ Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
 Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
 
 # membership test
-function ∈(x::AbstractVector{N}, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
+function ∈(x::AbstractVector, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
     return any(R -> x ∈ set(R), array(fp))
 end
 
-function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
+function ∈(x::AbstractVector, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
     return any(R -> x ∈ set(R), fp)
 end
 

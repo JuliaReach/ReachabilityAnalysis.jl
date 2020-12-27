@@ -1,8 +1,6 @@
-# See MathematicalSystems#160
-MathematicalSystems.system(sys::AbstractSystem) = sys
-#MathematicalSystems.system(sys::InitialValueProblem) = sys.s
+abstract type AbstractVectorField end
 
-struct VectorField{T}
+struct VectorField{T} <: AbstractVectorField
     field::T
 end
 
@@ -15,8 +13,9 @@ function evaluate(V::VectorField, args...)
     return V.field(args...)
 end
 
-function VectorField(sys::AbstractSystem)
-    sys = system(sys)
+VectorField(sys::InitialValueProblem) = VectorField(system(sys))
+
+function VectorField(sys::AbstractContinuousSystem)
     if islinear(sys)
         if inputdim(sys) == 0
             field = (x) -> state_matrix(sys) * x
