@@ -6,6 +6,7 @@ using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
 
 import IntervalArithmetic
 const IA = IntervalArithmetic
+const RA = ReachabilityAnalysis
 
 # load test models
 include("models/harmonic_oscillator.jl")
