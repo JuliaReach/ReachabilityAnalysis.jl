@@ -5,6 +5,8 @@ CurrentModule = ReachabilityAnalysis
 
 # Commonly asked questions (FAQ)
 
+## General questions
+
 ### What are good introductory papers on the subject?
 
 An elementary introduction to the principles of set-based numerical integration
@@ -24,23 +26,38 @@ to the relevant literature.
 
 The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
 contains an extensive list of pointers related to reachability analysis tools for
-dynamical systems. A subset of such tools has participated in recent editions of
-of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
-[ARCH-COMP](https://cps-vo.org/group/ARCH).
-In alphabetic order:
-[CORA](https://tumcps.github.io/CORA/),
-[C2E2](http://publish.illinois.edu/c2e2-tool/),
-[HyDRA](https://ths.rwth-aachen.de/research/projects/hypro/),
-[Hylaa](http://stanleybak.com/hylaa/),
-[SpaceEx](http://spaceex.imag.fr/),
-[XSpeed](http://xspeed.nitmeghalaya.in/),
-[Ariadne](http://www.ariadne-cps.org/),
-[DynIbex](https://perso.ensta-paris.fr/~chapoutot/dynibex/),
-[Flow*](https://flowstar.org/),
-[Isabelle/HOL-ODE-Numerics](https://home.in.tum.de/~hoelzl/documents/immler2012ode.pdf).
+dynamical systems. Languages and tools for hybrid systems design are described in the review article
+[[CPPSV06]](@ref) (a bit outdated with respect to the tools since it is of 2006).
 
-Languages and tools for hybrid systems design (as of 2006) are described in the
-review article [[CPPSV06]](@ref).
+A subset of such tools has participated in recent editions of of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
+[ARCH-COMP](https://cps-vo.org/group/ARCH). In alphabetic order: [Ariadne](http://www.ariadne-cps.org/), [CORA](https://tumcps.github.io/CORA/),
+[C2E2](http://publish.illinois.edu/c2e2-tool/), [DynIbex](https://perso.ensta-paris.fr/~chapoutot/dynibex/),
+[Flow*](https://flowstar.org/), [HyDRA](https://ths.rwth-aachen.de/research/projects/hypro/),
+[Hylaa](http://stanleybak.com/hylaa/), [Isabelle/HOL-ODE-Numerics](https://home.in.tum.de/~hoelzl/documents/immler2012ode.pdf), [SpaceEx](http://spaceex.imag.fr/) and [XSpeed](http://xspeed.nitmeghalaya.in/). A paragraph describing each tool's main characteristics can be
+found in the ARCH-COMP articles for each category (*AFF* for linear and *NLN* for nonlinear).
+
+### Why did you choose Julia to write this library?
+
+The language choice when programming for research purposes usually depends on the developers' background knowledge
+which directly impacts convenience during development and output performance in the final product. On the one hand,
+compiled languages such as C++ offer high performance, but the compilation overhead is inconvenient for prototyping.
+On the other hand, interpreted languages such as Python offer an interactive session for convenient prototyping, but
+these languages fall behind in performance or need to extend the code to work with another lower-layer program such as
+Numba or Cython (known as the two-language problem). A compromise between the two worlds are just-in-time (JIT) compiled
+languages such as MATLAB. Last but not least, the ecosystem of libraries available and the user base is
+also an important consideration. 
+
+In our case, we began to develop the JuliaReach stack in 2017 and quickly adopted the language when it was at its
+v0.5 [^v1]. Julia is a general-purpose programming language but it was conceived with high-performance scientific
+computing in mind, and it reconciles the two advantages of compiled and interpreted languages described above,
+as it comes with an interactive read-evaluate-print loop (REPL) front-end, but is JIT compiled to achieve performance
+that is competitive with compiled languages such as C [^BEKS17]. A distinctive feature of Julia is multiple dispatch
+(i.e., the function to execute is chosen based on each argument type), which allows to write efficient machine code
+based on a given type, e.g., of the set. As additional features, Julia is platform independent,
+has an efficient interface to C and FORTRAN, is supported in Jupyter notebooks (the "Ju" in Jupyter is for *Ju*lia)
+and well-suited for parallel computing. Julia has a determined and quickly-growing community, especially for
+scientific tools (see the [JuliaLang Community webpage](https://julialang.org/community/organizations/)).
+All this makes Julia an interesting programming language for writing a library for reachability analysis.
 
 ### What is the wrapping effect?
 
@@ -81,6 +98,15 @@ plot!(□B, lw=2.0, style=:solid)
 plot!(□B′, lw=2.0, style=:solid)
 plot!(□B′′, lw=2.0, style=:solid)
 ```
+
+### Does reachability solve for the vertices of the set?
+
+### What happens if you consider a chaotic system?
+
+### Can reachability analysis be used to solve large problems?
+
+
+## Solving capabilities
 
 ### Can I solve a for a single initial condition?
 
@@ -165,18 +191,6 @@ plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
 ### Why do some trajectories escape the flowpipe?
 
 
-### Does reachability solve for the vertices of the set?
-
-### What happens if you consider a chaotic system?
-
-### Can reachability analysis be used to solve large problems?
-
-### Why did you choose Julia to write this library?
-
-### Can I use ODE solvers with interval initial conditions?
-
-Although it is in principle possible to  ODE solvers for
-
 ### Can I compute solutions using parallel programming?
 
 Yes. You can compute multiple flowpipes in parallel by defining an initial-value
@@ -207,6 +221,12 @@ sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
 plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
 ```
 
+## Modeling questions
+
+### Can I use ODE solvers with interval initial conditions?
+
+Although it is in principle possible to  ODE solvers for
+
 ### How do I use the `@taylorize` macro?
 
 The section [Some common gotchas](@ref) of the user manual details do's and dont's
@@ -225,3 +245,9 @@ in the sense that `x(0) ∈ 0 .. 1` (`IA.Interval` type) and `x(0) ∈ Interval(
 On a technical level, the reason to have `LazySets.Interval` as a wrapper type
 of `IA.Interval` is that Julia doesn't allow multiple inheritance, but it was a design
 choice that intervals should belong to the `LazySets` type hierarchy.
+
+## References
+
+- [^v1] Version 1.0 of the lanuage was released in August 2018, see https://julialang.org/blog/2018/08/one-point-zero/
+
+- [^BEKS17] Bezanson, J., Edelman, A., Karpinski, S., & Shah, V. B. (2017). Julia: A fresh approach to numerical computing. SIAM review, 59(1), 65-98.
