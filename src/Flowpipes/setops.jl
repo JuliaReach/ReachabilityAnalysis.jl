@@ -107,33 +107,6 @@ function Base.convert(::Type{Singleton},
 end
 
 # =========================
-# In-place ops
-# =========================
-
-# Extension of some common LazySets operations, some of them in-place
-
-# in-place scale of a zonotope
-# TODO update after LazySets#2274
-function scale!(α::Real, Z::Zonotope)
-    c = Z.center
-    G = Z.generators
-    c .= α .* c
-    G .= α .* G
-    return Z
-end
-
-# in-place linear map of a zonotope
-# TODO update after LazySets#2063
-@inline function _linear_map!(Zout::Zonotope, M::AbstractMatrix, Z::Zonotope)
-    mul!(Zout.center, M, Z.center)
-    mul!(Zout.generators, M, Z.generators)
-    return Zout
-end
-
-# TEMP
-@inline _linear_map(M, X) = LazySets.linear_map(M, X)
-
-# =========================
 # Projection
 # =========================
 
