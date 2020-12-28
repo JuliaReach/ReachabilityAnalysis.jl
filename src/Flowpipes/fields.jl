@@ -1,8 +1,8 @@
-# See MathematicalSystems#160
-MathematicalSystems.system(sys::AbstractSystem) = sys
-#MathematicalSystems.system(sys::InitialValueProblem) = sys.s
+abstract type AbstractVectorField end
 
-struct VectorField{T}
+MathematicalSystems.system(sys::AbstractContinuousSystem) = sys
+
+struct VectorField{T} <: AbstractVectorField
     field::T
 end
 
@@ -11,12 +11,17 @@ end
     evaluate(V, args...)
 end
 
-function evaluate(V::VectorField, args...)
+@inline function evaluate(V::VectorField, args...)
     return V.field(args...)
 end
 
-function VectorField(sys::AbstractSystem)
-    sys = system(sys)
+@inline function evaluate(V::VectorField, x::Number, args...)
+    return V.field([x], args...)
+end
+
+VectorField(sys::InitialValueProblem) = VectorField(system(sys))
+
+function VectorField(sys::AbstractContinuousSystem)
     if islinear(sys)
         if inputdim(sys) == 0
             field = (x) -> state_matrix(sys) * x
@@ -42,18 +47,30 @@ function vector_field(sys::AbstractSystem, args...)
     return evaluate(VectorField(sys), args...)
 end
 
+# (x, p, t) -> du
 function outofplace_field(ivp::InitialValueProblem)
+    vf = VectorField(ivp)
+
     # function closure over the inital-value problem
     f = function f_outofplace(x, p, t)
-             VectorField(ivp)(x)
+             vf(x)
          end
     return f
 end
 
+# f!(dx, x, p, t)
 function inplace_field!(ivp::InitialValueProblem)
+    vf = VectorField(ivp)
+
     # function closure over the inital-value problem
     f! = function f_inplace!(dx, x, p, t)
-             dx .= VectorField(ivp)(x)
+             dx .= vf(x)
          end
-    return f_inplace!
+    return f!
+end
+
+# for "black-box" MathematicalSystems, return the function field directly
+
+function inplace_field!(ivp::IVP{<:NonlinearSystem})
+    return ivp.s.f # TODO getter?
 end

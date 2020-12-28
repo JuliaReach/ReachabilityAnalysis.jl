@@ -60,12 +60,12 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # run the continuous-post operator
     F = post(cpost, ivp, tspan; kwargs...)
 
-    if haskey(kwargs, :save_traces) && kwargs[:save_traces]
+    if haskey(kwargs, :ensemble) && kwargs[:ensemble]
         @requires DifferentialEquations
-        error("saving traces is not implemented yet")
-        # compute trajectories, cf. ensemble simulation
-        # traces = ...
-        # sol = ReachSolution(F, cpost, traces) # new solution type?
+        # compute trajectories using ensemble simulation
+        ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
+        dict = Dict{Symbol,Any}(:ensemble=>ensemble_sol)
+        sol = ReachSolution(F, cpost, dict)
     else
         # wrap the flowpipe and algorithm in a solution structure
         sol = ReachSolution(F, cpost)

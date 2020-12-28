@@ -54,6 +54,7 @@ sets, and a dictionary of options.
 ### Fields
 
 - `Xk`       -- the list of [`AbstractReachSet`](@ref)s
+- `alg`      -- algorihm used
 - `options`  -- the dictionary of options
 """
 struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
@@ -75,6 +76,7 @@ tspan(sol::ReachSolution) = tspan(sol.F)
 tstart(sol::ReachSolution, arr::AbstractVector) = tstart(sol.F, arr)
 tend(sol::ReachSolution, arr::AbstractVector) = tend(sol.F, arr)
 tspan(sol::ReachSolution, arr::AbstractVector) = tspan(sol.F, arr)
+ensemble(sol::ReachSolution) = get(sol.ext, :ensemble, nothing)
 
 # NOTE: using sol.alg for setrep and rsetrep may be inaccurate as solutions
 # do not change their sol.alg (eg. overapproximate(sol, Zonotope)) where sol is

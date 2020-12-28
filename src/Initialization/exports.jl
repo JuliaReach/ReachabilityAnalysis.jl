@@ -4,6 +4,7 @@ export
     normalize,
     discretize,
     homogeneize,
+    ensemble,
 
 # Algorithms
     A20,

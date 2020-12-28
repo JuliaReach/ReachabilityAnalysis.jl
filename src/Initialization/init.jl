@@ -74,6 +74,29 @@ const zeroI = IA.Interval(0.0) # TODO use number type
 const oneI = IA.Interval(1.0)
 const symI = IA.Interval(-1.0, 1.0)
 
+# common aliases for system's names
+const LCS = LinearContinuousSystem
+const LDS = LinearDiscreteSystem
+const CLCS = ConstrainedLinearContinuousSystem
+const CLDS = ConstrainedLinearDiscreteSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
+const CLCDS = ConstrainedLinearControlDiscreteSystem
+const ACS = AffineContinuousSystem
+const ADS = AffineDiscreteSystem
+const CACCS = ConstrainedAffineControlContinuousSystem
+const CACDS = ConstrainedAffineControlDiscreteSystem
+const CACS = ConstrainedAffineContinuousSystem
+const CADS = ConstrainedAffineDiscreteSystem
+const BBCS = BlackBoxContinuousSystem
+const CBBCS = ConstrainedBlackBoxContinuousSystem
+const CBBCCS = ConstrainedBlackBoxControlContinuousSystem
+const SOLCS = SecondOrderLinearContinuousSystem
+const SOACS = SecondOrderAffineContinuousSystem
+const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
+const SecondOrderSystem = Union{SOLCS, SOACS, SOCLCCS, SOCACCS}
+const NonlinearSystem = Union{BBCS, CBBCS, CBBCCS}
+
 # ======================
 # Optional dependencies
 # ======================
@@ -82,7 +105,7 @@ using Requires
 
 function __init__()
     # numerical differential equations suite
-    @require OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed" include("init_DifferentialEquations.jl")
+    @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
 
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
