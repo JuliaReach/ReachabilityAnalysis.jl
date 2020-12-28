@@ -9,28 +9,6 @@
 import Base: *
 import LazySets.constrained_dimensions
 
-# common aliases for system's names
-const LCS = LinearContinuousSystem
-const LDS = LinearDiscreteSystem
-const CLCS = ConstrainedLinearContinuousSystem
-const CLDS = ConstrainedLinearDiscreteSystem
-const CLCCS = ConstrainedLinearControlContinuousSystem
-const CLCDS = ConstrainedLinearControlDiscreteSystem
-const ACS = AffineContinuousSystem
-const ADS = AffineDiscreteSystem
-const CACCS = ConstrainedAffineControlContinuousSystem
-const CACDS = ConstrainedAffineControlDiscreteSystem
-const CACS = ConstrainedAffineContinuousSystem
-const CADS = ConstrainedAffineDiscreteSystem
-const BBCS = BlackBoxContinuousSystem
-const CBBCS = ConstrainedBlackBoxContinuousSystem
-const CBBCCS = ConstrainedBlackBoxControlContinuousSystem
-const SOLCS = SecondOrderLinearContinuousSystem
-const SOACS = SecondOrderAffineContinuousSystem
-const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
-const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
-const SecondOrderSystem = Union{SOLCS, SOACS, SOCLCCS, SOCACCS}
-
 # continuous systems that are handled by this library
 iscontinuoussystem(T::Type{<:AbstractSystem}) = false
 iscontinuoussystem(T::Type{<:LCS}) = true

@@ -74,6 +74,29 @@ const zeroI = IA.Interval(0.0) # TODO use number type
 const oneI = IA.Interval(1.0)
 const symI = IA.Interval(-1.0, 1.0)
 
+# common aliases for system's names
+const LCS = LinearContinuousSystem
+const LDS = LinearDiscreteSystem
+const CLCS = ConstrainedLinearContinuousSystem
+const CLDS = ConstrainedLinearDiscreteSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
+const CLCDS = ConstrainedLinearControlDiscreteSystem
+const ACS = AffineContinuousSystem
+const ADS = AffineDiscreteSystem
+const CACCS = ConstrainedAffineControlContinuousSystem
+const CACDS = ConstrainedAffineControlDiscreteSystem
+const CACS = ConstrainedAffineContinuousSystem
+const CADS = ConstrainedAffineDiscreteSystem
+const BBCS = BlackBoxContinuousSystem
+const CBBCS = ConstrainedBlackBoxContinuousSystem
+const CBBCCS = ConstrainedBlackBoxControlContinuousSystem
+const SOLCS = SecondOrderLinearContinuousSystem
+const SOACS = SecondOrderAffineContinuousSystem
+const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
+const SecondOrderSystem = Union{SOLCS, SOACS, SOCLCCS, SOCACCS}
+const NonlinearSystem = Union{BBCS, CBBCS, CBBCCS}
+
 # ======================
 # Optional dependencies
 # ======================

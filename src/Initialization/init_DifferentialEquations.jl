@@ -28,7 +28,7 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     X0_samples = sample(X0, trajectories)
 
     # formulate ensemble ODE problem
-    ensemble_prob = ODEProblem(field, first(X0), tspan)
+    ensemble_prob = ODEProblem(field, first(X0_samples), tspan)
     _prob_func(prob, i, repeat) = remake(prob, u0 = X0_samples[i])
 
     ensemble_prob = EnsembleProblem(ensemble_prob, prob_func = _prob_func)

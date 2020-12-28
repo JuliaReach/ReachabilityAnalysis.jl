@@ -68,3 +68,9 @@ function inplace_field!(ivp::InitialValueProblem)
          end
     return f!
 end
+
+# for "black-box" MathematicalSystems, return the function field directly
+
+function inplace_field!(ivp::IVP{<:NonlinearSystem})
+    return ivp.s.f # TODO getter?
+end
