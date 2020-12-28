@@ -82,7 +82,7 @@ using Requires
 
 function __init__()
     # numerical differential equations suite
-    @require OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed" include("init_DifferentialEquations.jl")
+    @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
 
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
