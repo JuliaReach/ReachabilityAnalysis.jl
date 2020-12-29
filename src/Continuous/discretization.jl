@@ -295,6 +295,25 @@ function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ, alg::Forw
     return InitialValueProblem(Sdiscr, Ω0)
 end
 
+# evantually we should use concretize, but requires fast fallback operations in 2D
+# such as Minkowski sum not yet available
+function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}) where {N,
+                            AT<:AbstractPolytope{N}, MT,
+                            LM<:LinearMap{N, AT, N, MT},
+                            BT<:AbstractPolytope, MS<:MinkowskiSum{N, LM}}
+    n = dim(X)
+    VT = n == 2 ? VPolygon : VPolytope
+
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    A = X.X
+    B = X.Y
+    X₀ = convert(VT, A)
+    ΦX₀ = convert(VT, B.X)
+    E₊ = convert(VT, B.Y)
+
+    return convex_hull(X₀, minkowski_sum(ΦX₀, E₊))
+end
+
 # ------------------------------------------------------------
 # Forward Approximation: Inhomogeneous case
 # ------------------------------------------------------------
