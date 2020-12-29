@@ -45,7 +45,7 @@ On the other hand, interpreted languages such as Python offer an interactive ses
 these languages fall behind in performance or need to extend the code to work with another lower-layer program such as
 Numba or Cython (known as the two-language problem). A compromise between the two worlds are just-in-time (JIT) compiled
 languages such as MATLAB. Last but not least, the ecosystem of libraries available and the user base is
-also an important consideration. 
+also an important consideration.
 
 In our case, we began to develop the JuliaReach stack in 2017 and quickly adopted the language when it was at its
 v0.5 [^v1]. Julia is a general-purpose programming language but it was conceived with high-performance scientific
@@ -107,6 +107,42 @@ plot!(□B′′, lw=2.0, style=:solid)
 
 
 ## Solving capabilities
+
+### How can I visualize trajectories?
+
+It is often necessary to plot a "bunch" of trajectories starting from a set of initial conditions.
+The [parallel ensemble simulations](https://diffeq.sciml.ai/stable/features/ensemble/) capabilities
+from the Julia [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl) suite
+can be used to numerically simulate a given number of trajectories and it counts with state-of-the-art
+algorithms for stiff and non-stiff ODEs as well as many other advanced features,
+such as distributed computing, multi-threading and GPU support.
+See [EnsembleAlgorithms](https://diffeq.sciml.ai/stable/features/ensemble/#EnsembleAlgorithms) for details.
+
+As a simple example consider the scalar ODE $x'(t) = 1.01x(t)$ with initial condition on the
+interval $x(0) \in [0, 0.5]$. To solve it using ensemble simulations, pass the `ensemble=true`
+keyword argument to the solve function (if the library `DifferentialEquations` was not loaded in
+your current session, an error is triggered). The number of trajectories can be specified
+with the `trajectories` keyword argument.
+
+```@example
+using ReachabilityAnalysis, DifferentialEquations
+
+# to avoid namespace conflicts
+using ReachabilityAnalysis: solve
+
+# formulate initial-value problem
+prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 0.5)
+
+# solve the flowpipe using a default algorithm, and also compute trajectories
+sol = solve(prob, tspan=(0.0, 1.0), ensemble=true, trajectories=250)
+
+# plot flowpipe and the ensemble solution
+using Plots
+
+plot(sol, vars=(0, 1), linewidth=0.2, xlab="t", ylab="x(t)")
+plot!(ensemble(sol), vars=(0, 1), linealpha=1.0)
+```
+Please note that the latency (compilation time) of the first `using` line is long, typically one minute with Julia v1.5.3.
 
 ### Can I solve a for a single initial condition?
 

@@ -17,7 +17,6 @@ include("Flowpipes/arrayops.jl")
 include("Flowpipes/clustering.jl")
 include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
-#include("Flowpipes/symbolics.jl")
 
 # ===========================================================
 # Shared functionality for continuous systems
@@ -38,15 +37,11 @@ include("Algorithms/INT/INT.jl")
 include("Algorithms/BOX/BOX.jl")
 include("Algorithms/BFFPSV18/BFFPSV18.jl")
 include("Algorithms/ASB07/ASB07.jl")
-#include("Algorithms/ASB07d/ASB07d.jl")
-#include("Algorithms/A17/A17.jl")
 include("Algorithms/ORBIT/ORBIT.jl")
 
 # Nonlinear
 include("Algorithms/TMJets/TMJets.jl")
 include("Algorithms/QINT/QINT.jl")
-#include("Algorithms/A13/A13.jl")
-#include("Algorithms/KA19/KA19.jl")
 
 # ===========================================================
 # Discrete post-operators for hybrid systems

@@ -1,14 +1,11 @@
 using .DifferentialEquations
 const DE = DifferentialEquations
 
-LazySets.sample(X::IntervalArithmetic.Interval, d::Integer) = sample(convert(Interval, X), d)
-LazySets.sample(X::IntervalArithmetic.IntervalBox, d::Integer) = sample(convert(Hyperrectangle, X), d)
-
 # extend the solve API for initial-value problems
 function _solve_ensemble(ivp::InitialValueProblem, args...;
                          trajectories=100,
                          trajectories_alg=DE.Tsit5(),
-                         ensemble_alg=DE.EnsembleDistributed(),
+                         ensemble_alg=DE.EnsembleThreads(),
                          inplace=true,
                          kwargs...)
 
