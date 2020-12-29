@@ -106,6 +106,9 @@ function Base.convert(::Type{Singleton},
     return Singleton(vcat(x, y))
 end
 
+LazySets.sample(X::IntervalArithmetic.Interval, d::Integer) = sample(convert(Interval, X), d)
+LazySets.sample(X::IntervalArithmetic.IntervalBox, d::Integer) = sample(convert(Hyperrectangle, X), d)
+
 # =========================
 # Projection
 # =========================
