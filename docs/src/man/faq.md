@@ -110,9 +110,19 @@ plot!(□B′′, lw=2.0, style=:solid)
 
 ### How can I visualize trajectories?
 
-It is often necessary to plot a "bunch" of trajectories starting from a set of initial conditions. The [parallel ensemble simulations](https://diffeq.sciml.ai/stable/features/ensemble/) capabilities from the Julia [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl) suite can be used to numerically simulate a given number of trajectories and it counts with state-of-the-art algorithms for stiff and non-stiff ODEs as well as many other advanced features, such as distributed computating, multi-threading and GPU support. See [EnsembleAlgorithms](https://diffeq.sciml.ai/stable/features/ensemble/#EnsembleAlgorithms) for details.
+It is often necessary to plot a "bunch" of trajectories starting from a set of initial conditions.
+The [parallel ensemble simulations](https://diffeq.sciml.ai/stable/features/ensemble/) capabilities
+from the Julia [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl) suite
+can be used to numerically simulate a given number of trajectories and it counts with state-of-the-art
+algorithms for stiff and non-stiff ODEs as well as many other advanced features,
+such as distributed computing, multi-threading and GPU support.
+See [EnsembleAlgorithms](https://diffeq.sciml.ai/stable/features/ensemble/#EnsembleAlgorithms) for details.
 
-As a simple example consider the scalar ODE $x'(t) = 1.01x(t)$ with initial condition on the interval $x(0) \in [0, 0.5]$. To solve it using ensemble simulations, pass the `ensemble=true` keyword argument to the solve function (if the library `DifferentialEquations` was not loaded in your current session, an error is triggered). The number of trajectories can be specified with the `trajectories` keyword argument.
+As a simple example consider the scalar ODE $x'(t) = 1.01x(t)$ with initial condition on the
+interval $x(0) \in [0, 0.5]$. To solve it using ensemble simulations, pass the `ensemble=true`
+keyword argument to the solve function (if the library `DifferentialEquations` was not loaded in
+your current session, an error is triggered). The number of trajectories can be specified
+with the `trajectories` keyword argument.
 
 ```@example
 using ReachabilityAnalysis, DifferentialEquations
