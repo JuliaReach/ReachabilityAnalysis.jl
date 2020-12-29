@@ -17,6 +17,7 @@ export
     ORBIT,
     QINT,
     TMJets,
+    VREP,
 
 # Approximation models
     Forward,

@@ -70,6 +70,18 @@ function _reconvert(Φ::IntervalMatrix{N, IN, Matrix{IN}}, static::Val{true}, di
     Φ = IntervalMatrix(SMatrix{n, n, IN, n*n}(Φ))
 end
 
+# AbstractVPolygon is not yet available in LazySets
+const VPOLY{N, VN} = Union{VPolygon{N, VN}, VPolytope{N, VN}}
+
+# no-op
+_reconvert(V::VPOLY{N, VN}, static::Val{false}, dim) where {N, VN<:AbstractVector{N}} = V
+_reconvert(V::VPOLY{N, VN}, static::Val{true}, dim) where {N, VN<:SVector{N}} = V
+
+function _reconvert(V::VPOLY{N, VN}, static::Val{true}, dim::Val{n}) where {N, VN<:AbstractVector{N}, n}
+    VP = n == 2 ? VPolygon : VPolytope
+    return VP([SVector{n, N}(vi) for vi in vertices_list(V)])
+end
+
 # fallback implementation for conversion (if applicable) or overapproximation
 function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     if applicable(convert, T, X)
