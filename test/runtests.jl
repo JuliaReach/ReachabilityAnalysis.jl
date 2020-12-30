@@ -4,6 +4,10 @@ using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
                            DeterministicSwitching, NonDeterministicSwitching,
                            BoxEnclosure, ZonotopeEnclosure
 
+using Polyhedra, CDDLib # for VREP algorithm
+
+const RA = ReachabilityAnalysis
+
 import IntervalArithmetic
 const IA = IntervalArithmetic
 
@@ -36,5 +40,6 @@ include("algorithms/BFFPSV18.jl")
 include("algorithms/TMJets.jl")
 include("algorithms/ORBIT.jl")
 include("algorithms/QINT.jl")
+include("algorithms/VREP.jl")
 
 include("hybrid.jl")

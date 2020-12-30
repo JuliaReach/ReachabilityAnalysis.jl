@@ -1,8 +1,3 @@
-# TODO:
-#
-# Optionally apply convex hull
-# Preallocations
-
 """
     VREP{N, AM, S, D} <: AbstractContinuousPost
 
@@ -18,9 +13,10 @@ end
 
 # convenience constructor using symbols
 function VREP(; δ::N,
-                approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:vrep),
                 dim::Union{Int, Missing}=missing,
-                static::Bool=!ismissing(dim)) where {N, AM}
+                static::Bool=!ismissing(dim),
+                backend=nothing,
+                approx_model=Forward(sih=:concrete, exp=:base, setops=:vrep, backend=backend)) where {N}
 
     n = ismissing(dim) ? missing : Val(dim)
     return VREP(δ, approx_model, Val(static), n)
