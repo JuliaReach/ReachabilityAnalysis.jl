@@ -15,11 +15,8 @@ function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
     return Forward()
 end
 
-_apply_setops(X, ::Val{:lazy}) = X  # no-op
-_apply_setops(X, ::Val{:interval}) = convert(Interval, X)
-_apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
-_apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:lazy}) = M * X
-_apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:concrete}) = linear_map(M, X)
+# some algorithms require a polyhedral computations backend
+hasbackend(alg::AbstractApproximationModel) = false
 
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
@@ -183,7 +180,7 @@ _initial_state(X0) = X0
 # ==================================
 
 """
-    Forward{EM, SO, SI, IT} <: AbstractApproximationModel
+    Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 
 Forward approximation model.
 
@@ -194,6 +191,8 @@ Forward approximation model.
 - `sih`     -- symmetric interval hull
 - `inv`     -- (optional, default: `false`) if `true`, assume that the state matrix
                is invertible and use its inverse in the `Φ` functions
+- `backend` -- (optional, default: `nothing`) used if the algorithm needs to apply
+               concrete polyhedral computations
 
 ### Algorithm
 
@@ -208,15 +207,18 @@ Here we allow ``U`` to be a sequence of time varying non-deterministic input set
 For the definition of the sets ``E_ψ`` and ``E^+`` see [[FRE11]](@ref). The  `Backward` method
 uses ``E^-``.
 """
-struct Forward{EM, SO, SI, IT} <: AbstractApproximationModel
+struct Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     exp::EM
     setops::SO
     sih::SI
     inv::IT
+    backend::BT
 end
 
+hasbackend(alg::Forward) = !isnothing(alg.backend)
+
 # convenience constructor using symbols
-function Forward(; exp::Symbol=:base, setops=nothing, sih::Symbol=:concrete, inv::Bool=false)
+function Forward(; exp::Symbol=:base, setops=nothing, sih::Symbol=:concrete, inv::Bool=false, backend=nothing)
 
     # default set operations
     if isnothing(setops)
@@ -229,7 +231,7 @@ function Forward(; exp::Symbol=:base, setops=nothing, sih::Symbol=:concrete, inv
     if exp == :krylov
         exp = :lazy
     end
-    return Forward(Val(exp), setops, Val(sih), Val(inv))
+    return Forward(Val(exp), setops, Val(sih), Val(inv), backend)
 end
 
 function Base.show(io::IO, alg::Forward)
@@ -238,6 +240,7 @@ function Base.show(io::IO, alg::Forward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)")
+    print(io, "    - polyhedral computations backend: $(alg.backend)")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::Forward) = print(io, alg)
@@ -261,7 +264,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
 
     Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
-    Ω0 = _apply_setops(Ω0, alg.setops)
+    Ω0 = _apply_setops(Ω0, alg)
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -293,25 +296,6 @@ function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ, alg::Forw
     # the system constructor creates a matrix
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
-end
-
-# evantually we should use concretize, but requires fast fallback operations in 2D
-# such as Minkowski sum not yet available
-function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}) where {N,
-                            AT<:AbstractPolytope{N}, MT,
-                            LM<:LinearMap{N, AT, N, MT},
-                            BT<:AbstractPolytope, MS<:MinkowskiSum{N, LM}}
-    n = dim(X)
-    VT = n == 2 ? VPolygon : VPolytope
-
-    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
-    A = X.X
-    B = X.Y
-    X₀ = convert(VT, A)
-    ΦX₀ = convert(VT, B.X)
-    E₊ = convert(VT, B.Y)
-
-    return convex_hull(X₀, minkowski_sum(ΦX₀, E₊))
 end
 
 # ------------------------------------------------------------
@@ -527,4 +511,51 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
     Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
     return InitialValueProblem(Sdiscr, Ω0)
+end
+
+# =========================================================================
+# Alternatives to apply the set operation depending on the desired output
+# =========================================================================
+
+function _apply_setops(X, alg::Forward)
+    if hasbackend(alg)
+        _apply_setops(X, alg.setops, alg.backend)
+    else
+        _apply_setops(X, alg.setops)
+    end
+end
+
+_apply_setops(X, ::Val{:lazy}) = X  # no-op
+_apply_setops(X, ::Val{:interval}) = convert(Interval, X)
+_apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
+_apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:lazy}) = M * X
+_apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:concrete}) = linear_map(M, X)
+
+# evantually we should use concretize, but requires fast fallback operations in 2D
+# such as Minkowski sum not yet available
+function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) where {N,
+                            AT<:AbstractPolytope{N}, MT,
+                            LM<:LinearMap{N, AT, N, MT},
+                            BT<:AbstractPolytope, MS<:MinkowskiSum{N, LM}}
+    n = dim(X)
+    VT = n == 2 ? VPolygon : VPolytope
+
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    A = X.X
+    B = X.Y
+    X₀ = convert(VT, A)
+
+    if n == 2
+        ΦX₀ = convert(VT, B.X)
+        E₊ = convert(VT, B.Y)
+        out = convex_hull(X₀, minkowski_sum(ΦX₀, E₊))
+    else
+        # generic conversion to VPolytope is missing, see LazySets#2467
+        ΦX₀ = VPolytope(vertices_list(B.X, prune=false))
+        E₊ = convert(VT, B.Y)
+        aux = minkowski_sum(ΦX₀, E₊, apply_convex_hull=false)
+        out = convex_hull(X₀, aux, backend=backend)
+    end
+
+    return out
 end

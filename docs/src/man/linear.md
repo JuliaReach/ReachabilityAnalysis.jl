@@ -295,6 +295,37 @@ plot!(sol[1], vars=(1, 2), lab="R[1]")
 plot!(sol[2], vars=(1, 2), lab="R[2]")
 ```
 
+## Vertex representation
+
+It is also possible to solve the linear set-based recurrence using the vertex
+representation. Such method is implemented in the algorithm [`VREP`](@ref).
+In general, using the vertex representation scales worse than other methods such as
+zonotopes of support functions. However, sometimes we are either working in low dimensions,
+or we want to use initial states of some particular shape (e.g. a polygon) directly.
+(Although note that support function methods can handle polygons in vertex representation
+since the support function is easy to compute).
+
+```@example linear_methods
+A = [0 1; -1 0.]
+
+X0 = VPolygon([[1.0, 0.0], [1.2, 0.0], [1.1, 0.2]])
+prob = @ivp(x' = A*x, x(0) ∈ X0)
+sol = solve(prob, tspan=(0.0, 2.0), alg=VREP(δ=1e-2))
+
+plot(sol, vars=(1, 2), ratio=1., xlab="x", ylab="y")
+plot!(X0, vars=(1, 2), color=:red)
+```
+
+!!! tip "Performance tip"
+    Heap-allocated statically sized arrays can be used with this algorithm too; it suffices to choose
+    `alg=VREP(δ=1e-2, static=true, dim=2)` (the dimension is required, because the length
+    of the static arrays is carried as type information). For reference, the output of `@btime`
+    for the flowpipe portion computed above runs in `189.297 μs (2890 allocations: 261.77 KiB)`
+    compared to  `78.845 μs (1704 allocations: 191.30 KiB)` if we use static arrays.
+
+In order to use `VREP` in dimensions higher than two, you have to specify a polyhedral
+backend. See the documentation of [`VREP`](@ref) for details.
+
 ## Working with solutions
 
 Extracting relevant information from flowpipes is the next step after the solution
