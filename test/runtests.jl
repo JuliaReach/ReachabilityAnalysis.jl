@@ -5,7 +5,8 @@ using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
                            BoxEnclosure, ZonotopeEnclosure
 
 using Polyhedra, CDDLib # for VREP algorithm
-
+# fix namespace conflicts with Polyhedra
+using LazySets: dim, HalfSpace, Interval, Line2D, translate, project
 const RA = ReachabilityAnalysis
 
 import IntervalArithmetic

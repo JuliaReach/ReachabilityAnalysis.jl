@@ -46,6 +46,11 @@ end
 end
 
 @testset "VREP for 5D system" begin
+    A  = [1. 0  0 -5
+          4 -2  4 -3
+         -4  0  0  1
+          5 -2  2  3.]
+
     X0_12 = VPolygon([[1.0, 0.0], [1.2, 0.0], [1.1, 0.2]])
     X0_34 = BallInf(zeros(2), 0.2)
     X0 = VPolytope(vertices_list(X0_12 × X0_34))
