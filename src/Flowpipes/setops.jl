@@ -395,9 +395,11 @@ function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interva
 end
 
 # concrete set complement for polyhedral sets
+# see LazySets#2381
 complement(X::LazySet) = UnionSetArray(constraints_list(Complement(X)))
 
 # list of constraints of the set complement of a polyhedral set
+# see LazySets#2381
 function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:AbstractPolyhedron{N}}
     clist = constraints_list(CX.X)
     out = similar(clist)

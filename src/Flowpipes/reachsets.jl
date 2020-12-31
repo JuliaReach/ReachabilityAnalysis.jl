@@ -255,7 +255,7 @@ LazySets.σ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = _σ_vec(d, R
 LazySets.σ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
 
 function _σ_vec(d, Rvec)
-    σarray = map(Ri -> σ(d, set(Ri)), R)
+    σarray = map(Ri -> σ(d, set(Ri)), Rvec)
     ρarray = map(vi -> dot(d, vi), σarray)
     m = argmax(ρarray)
     return σarray[m]

@@ -19,9 +19,12 @@ LazySets.ρ(::AbstractVector, ::AbstractFlowpipe)
 LazySets.σ(::AbstractVector, ::AbstractFlowpipe)
 LazySets.dim(::AbstractFlowpipe)
 set(::AbstractFlowpipe, ::Integer)
+set(::AbstractFlowpipe, ::AbstractVector)
+set(::AbstractFlowpipe)
 tstart(::AbstractFlowpipe)
 tend(::AbstractFlowpipe)
 tspan(::AbstractFlowpipe)
+vars(::AbstractFlowpipe)
 ```
 
 ## Flowpipe

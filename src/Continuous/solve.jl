@@ -27,7 +27,7 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
   to solve the initial-value problem. Algorithm-specific options should be passed
   to the algorithm constructor as well.
 
-- Use the `tspan` keyword argument to specifying the time span; it can be:
+- Use the `tspan` keyword argument to specify the time span; it can be:
     - a tuple,
     - an interval, or
     - a vector with two components.
