@@ -82,6 +82,11 @@ function _reconvert(V::VPOLY{N, VN}, static::Val{true}, dim::Val{n}) where {N, V
     return VP([SVector{n, N}(vi) for vi in vertices_list(V)])
 end
 
+# dimension is missing
+function _reconvert(V::VPOLY{N, VN}, static::Val{true}, dim::Missing) where {N, VN<:AbstractVector{N}}
+    _reconvert(V, static, Val(LazySets.dim(V)))
+end
+
 # fallback implementation for conversion (if applicable) or overapproximation
 function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     if applicable(convert, T, X)

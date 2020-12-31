@@ -341,7 +341,6 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
             opC = INT(δ=δ)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
-            # TODO pass order and dimension options as well
             opC = GLGM06(δ=δ, static=static)
         end
     else
@@ -369,8 +368,6 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
     end
     return opC
 end
-
-# TODO refactor / update docstring
 
 """
     _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)

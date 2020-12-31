@@ -13,7 +13,15 @@ Pages = ["internals.md"]
 Depth = 3
 ```
 
+## Function annotations
+
 ```@docs
 @requires
 @commutative
+```
+
+## Algorithm defaults
+
+```@docs
+_default_cpost
 ```

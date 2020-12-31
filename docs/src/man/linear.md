@@ -317,9 +317,9 @@ plot!(X0, vars=(1, 2), color=:red)
 ```
 
 !!! tip "Performance tip"
-    Heap-allocated statically sized arrays can be used with this algorithm too; it suffices to choose
-    `alg=VREP(δ=1e-2, static=true, dim=2)` (the dimension is required, because the length
-    of the static arrays is carried as type information). For reference, the output of `@btime`
+    Instead of usual Julia arrays, it is possible to use heap-allocated statically
+    sized arrays with this algorithm; it suffices to set the flag `static=true`, e.g.
+    `alg=VREP(δ=1e-2, static=true)`. For reference, the output of `@btime`
     for the flowpipe portion computed above runs in `189.297 μs (2890 allocations: 261.77 KiB)`
     compared to  `78.845 μs (1704 allocations: 191.30 KiB)` if we use static arrays.
 
