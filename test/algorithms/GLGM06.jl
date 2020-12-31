@@ -13,10 +13,10 @@
     sol = solve(prob, T=5.0, GLGM06(δ=0.01))
     @test dim(sol) == 5
 
-    # static option TODO
-    #sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=true)
-    #ZS = Zonotope{Float64,StaticArrays.SArray{Tuple{5},Float64,1,5},StaticArrays.SArray{Tuple{5,5},Float64,2,25}}
-    #@test setrep(sol) == ZS
+    # static option
+    sol = solve(prob, T=5.0, GLGM06(δ=0.01, static=true))
+    ZS = Zonotope{Float64, SArray{Tuple{5},Float64,1,5}, SArray{Tuple{5,5},Float64,2,25}}
+    @test setrep(sol) == ZS
 
     # use approx model for "discrete-time" reachability
     sol = solve(prob, T=5.0, GLGM06(δ=0.01, approx_model=NoBloating()))

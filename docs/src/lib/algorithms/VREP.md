@@ -17,8 +17,11 @@ requires doing some conservative reduction strategy.
 The method is aimed towards small dimensional systems -- typically $n < 15$ --
 which show a substantial benefit by using heap-allocated statically sized arrays
 through the [StaticArrays.jl](https://github.com/JuliaArrays/StaticArrays.jl) package.
-To use static arrays, pass the option `static=true` and the ambient dimension of the
-system to the `VREP` algorithm constructor.
+To use static arrays, pass the option `static=true`. Optionally, a dimension field
+can be passed to the `VREP` algorithm constructor too using the `dim` keyword argument.
+(It is sometimes useful that Julia is able to infer the set representation, or type,
+of the output flowpipe based only on the algorithm choice, but since the length of
+a vector is stored as type information for the case of static arrays, it has to be given in advance.)
 
 ## Specifing the backend
 

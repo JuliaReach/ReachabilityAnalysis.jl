@@ -1,3 +1,21 @@
+@testset "Default continuous post-operator" begin
+    prob, dt = motor_homog()
+    sol = solve(prob, tspan=dt);
+    @test sol.alg isa GLGM06
+    @test sol.alg.static == Val{false}()
+    @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
+
+    # static case
+    sol = solve(prob, tspan=dt, static=true);
+    @test sol.alg isa GLGM06
+    @test sol.alg.static == Val{true}()
+    @test setrep(sol) == Zonotope{Float64,SArray{Tuple{8},Float64,1,8},SArray{Tuple{8,8},Float64,2,64}}
+
+    # if the static kwarg is passed outside the algorithm => it is ignored
+    sol = solve(prob, tspan=dt, alg=GLGM06(δ=1e-2), static=true);
+    @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
+end
+
 @testset "Flowpipe interface" begin
     p = @ivp(x' = -x, x(0) ∈ 0..1)
     δ = 0.1
@@ -31,7 +49,7 @@
     @test tspan(sol[1:3]) ≈ 0.0 .. 3δ
 
     # set representation
-    #@test setrep(F) isa Zonotope
+    @test setrep(F) <: Zonotope
     N = Float64
     ZT = Zonotope{N, Vector{N}, Matrix{N}}
     @test setrep(F) == ZT
@@ -88,8 +106,8 @@ end
     sol = solve(p, T=2.0)
     @test _isapprox(tspan(sol), Δt)
 
-    # both time horizon and time span given (TODO)
-    #@test_throws ArgumentError solve(p, T=1.0, timespan=(0.0, 2.0))
+    # both time horizon and time span given => error
+    @test_throws ArgumentError solve(p, T=1.0, tspan=(0.0, 2.0))
 
     # time span given as a tuple
     sol = solve(p, tspan=(0.0, 2.0))
@@ -110,7 +128,7 @@ end
 
 @testset "Concrete projection" begin
     prob, tspan = motor_homog()
-    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=false) # TODO: add static=true as well
+    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=false)
 
     project(sol, (1, 3))
     project(sol, [1, 3])
@@ -128,6 +146,8 @@ end
     project(R, [1, 3])
     project(R, vars=(1, 3))
     project(R, vars=[1, 3])
+
+    # TODO concrete projection of sets with static array fields
 end
 
 # TODO:
