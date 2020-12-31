@@ -239,20 +239,20 @@ UnionClustering() = UnionClustering(missing)
 UnionClustering(nchunks::D) where {D<:Integer} = UnionClustering{D}(nchunks)
 UnionClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = UnionClustering{VT}(partition)
 
-function cluster(F, idx, ::UnionClustering{Missing})
+function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::UnionClustering{Missing}) where {N}
     Fidx = view(F, idx)
     Δt = tspan(Fidx)
     Uidx = UnionSetArray([set(R) for R in Fidx])
     return [ReachSet(Uidx, Δt)]
 end
 
-function cluster(F, idx, method::UnionClustering{P}) where {P}
+function cluster(F::Flowpipe, idx, method::UnionClustering{P}) where {P}
     p = _partition(method, idx)
     return [cluster(F, cj, UnionClustering()) for cj in p]
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::UnionClustering) where {N}
+function cluster(F::Flowpipe{N, <:TaylorModelReachSet{N}}, idx, method::UnionClustering{P}) where {N, P}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
 
     # Fx is now indexed from 1 ... length(idx)
