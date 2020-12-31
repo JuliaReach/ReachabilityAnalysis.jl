@@ -399,21 +399,6 @@ function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interva
     return convert(Hyperrectangle, x)
 end
 
-# concrete set complement for polyhedral sets
-# see LazySets#2381
-complement(X::LazySet) = UnionSetArray(constraints_list(Complement(X)))
-
-# list of constraints of the set complement of a polyhedral set
-# see LazySets#2381
-function LazySets.constraints_list(CX::Complement{N, ST}) where {N, ST<:AbstractPolyhedron{N}}
-    clist = constraints_list(CX.X)
-    out = similar(clist)
-    for (i, ci) in enumerate(clist)
-        out[i] = LinearConstraint(-ci.a, -ci.b)
-    end
-    return out
-end
-
 LazySets.box_approximation(S::UnionSetArray) = overapproximate(S, Hyperrectangle)
 
 function LazySets.overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
