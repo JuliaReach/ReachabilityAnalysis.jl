@@ -27,7 +27,7 @@ makedocs(
                         "Backwards reachability" => "man/backwards.md",
                         "Benchmarks" => "man/benchmarks.md",
                         "Model library" => "man/library.md",
-                        "FAQ" => "man/faq.md"],
+                        "Frequently Asked Questions" => "man/faq.md"],
         "Examples" => Any["Overview" => "man/examples_overview.md",
                           "Operational amplifier" => "models/OpAmp.md",
                           "Square wave oscillator" => "models/SquareWaveOscillator.md",
