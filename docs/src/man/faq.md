@@ -3,7 +3,7 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Commonly asked questions (FAQ)
+# Frequently Asked Questions (FAQ)
 
 ## General questions
 
@@ -35,6 +35,14 @@ A subset of such tools has participated in recent editions of of the Friendly Co
 [Flow*](https://flowstar.org/), [HyDRA](https://ths.rwth-aachen.de/research/projects/hypro/),
 [Hylaa](http://stanleybak.com/hylaa/), [Isabelle/HOL-ODE-Numerics](https://home.in.tum.de/~hoelzl/documents/immler2012ode.pdf), [SpaceEx](http://spaceex.imag.fr/) and [XSpeed](http://xspeed.nitmeghalaya.in/). A paragraph describing each tool's main characteristics can be
 found in the ARCH-COMP articles for each category (*AFF* for linear and *NLN* for nonlinear).
+
+The IEEE Control Systems Society (CSS) has a
+[Technical Committee on Hybrid Systems](http://hybrid-systems.ieeecss.org/)
+that is dedicated to providing informational forums, meetings for technical discussion,
+and information over the web to researchers in the IEEE CSS who are interested in the
+field of hybrid systems and its applications. A list of actively-maintained tools
+for the analysis and synthesis of hybrid systems, compiled by members of such
+committee, can be found [here](http://hybrid-systems.ieeecss.org/tc-hybrid/tools-hybrid-systems).
 
 ### Why did you choose Julia to write this library?
 
