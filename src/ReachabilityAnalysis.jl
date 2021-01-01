@@ -10,9 +10,9 @@ include("Continuous/solve.jl")
 # ===========================================================
 # Structures to represent solutions of reachability problems
 # ===========================================================
+include("Flowpipes/setops.jl")
 include("Flowpipes/reachsets.jl")
 include("Flowpipes/flowpipes.jl")
-include("Flowpipes/setops.jl")
 include("Flowpipes/arrayops.jl")
 include("Flowpipes/clustering.jl")
 include("Flowpipes/fields.jl")

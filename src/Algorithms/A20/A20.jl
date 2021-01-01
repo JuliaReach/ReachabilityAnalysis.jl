@@ -2,7 +2,7 @@
     A20{N} <: AbstractContinuousPost
 
 Implementation of the reachability method for large linear systems with uncertain
-inputs in the Krylov subspaces from [[A20]](@ref).
+inputs in the Krylov subspace from [[A20]](@ref).
 
 ### Fields
 
