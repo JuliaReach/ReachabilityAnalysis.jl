@@ -29,6 +29,7 @@ using LazySets: linear_map!
 
 # LazySets internal functions frequently used
 using LazySets.Arrays: projection_matrix, SingleEntryVector
+using LazySets.Approximations: AbstractDirections
 
 # aliases for intervals
 const IM = IntervalMatrices
@@ -48,17 +49,12 @@ end
 # aliases for set types
 const CPA = CartesianProductArray
 
-# aliases for system types (TODO: merge with definitions in normalization.jl)
-#const ACS = AbstractContinuousSystem
-#const ADS = AbstractDiscreteSystem
-#const LCS = LinearContinuousSystem
-#const CLCCS = ConstrainedLinearControlContinuousSystem
-
 # convenience union for dispatch on structs that are admissible as initial sets or inputs
 const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox}
 
 # method extensions
 import LazySets: dim, overapproximate, project, Projection,
+                 intersection, is_intersection_empty,
                  linear_map, LinearMap, _split, split!, set, array
 
 import Base: ∈, convert
