@@ -7,7 +7,7 @@ using LinearAlgebra: checksquare
 """
     kron_pow(x::IA.Interval, pow::Int)
 
-Given an interval x and an integer pow, compute `[x, x^2, x^3, ... , x^pow]`.
+Given an interval x and an integer pow, compute `x^pow`.
 
 ### Input
 
@@ -16,12 +16,12 @@ Given an interval x and an integer pow, compute `[x, x^2, x^3, ... , x^pow]`.
 
 ### Output
 
-The array `[x, x^2, ..., x^pow]` where each `x^i` is the `i`-th power of the interval `x`.
+An interval enclosure of `x^pow`.
 
 ### Examples
 
 ```julia
-julia> kron_pow(2 .. 3, 3)
+julia> [kron_pow(2 .. 3, i) for i in 1:3]
 3-element Array{IntervalArithmetic.Interval{Float64},1}:
   [2, 3]
   [4, 9]
@@ -29,7 +29,34 @@ julia> kron_pow(2 .. 3, 3)
 ```
 """
 function kron_pow(x::IA.Interval, pow::Int)
-    [x^i for i in 1:pow]
+    return x^pow
+end
+
+# compute x^{⊗ pow} where x is a LazySets.Interval
+function kron_pow(x::Interval, pow::Int)
+    return Interval(kron_pow(x.dat, pow))
+end
+
+# compute H^{⊗ pow} where H is a hyperrectangular set
+# we see H as a product of intervals and apply
+# kron_pow(x, pow) for each interval element x of H
+function kron_pow(H::AbstractHyperrectangle, pow::Int)
+    Hbox = convert(IntervalBox, H)
+    Hbox_pow = kron_pow.(Hbox, pow)
+    #Hbox_pow = convert(Hyperrectangle, Hbox_pow)
+    #Hout = Hyperrectangle(Vector(Hbox_pow.center), Vector(Hbox_pow.radius))
+    return convert(Hyperrectangle, Hbox_pow)
+end
+
+# compute [x, x^2, .., x^pow] where x is an interval
+function kron_pow_stack(x::Union{<:Interval, <:IA.Interval}, pow::Int)
+    return [kron_pow(x, i) for i in 1:pow]
+end
+
+# compute the cartesian product [x, x^2, .., x^pow] where x is a hyperrectangular set
+function kron_pow_stack(H::AbstractHyperrectangle, pow::Int)
+    out = [kron_pow(H, i) for i in 1:pow]
+    return CartesianProductArray(out)
 end
 
 """
@@ -44,17 +71,21 @@ Compute the k-fold Kronecker product of the identity: `I ⊗ I ⊗ ... ⊗ I`, k
 
 ### Output
 
-An `IdentityMultiple` of order ``n^k``.
+A `Diagonal` matrix with element `1` in the diagonal and order ``n^k``.
 
 ### Examples
 
 ```julia
-julia> kron_id(2, 3)
-IdentityMultiple{Float64} of value 1.0 and order 8
+julia> kron_id(2, 2)
+4×4 Diagonal{Float64,Array{Float64,1}}:
+ 1.0   ⋅    ⋅    ⋅
+  ⋅   1.0   ⋅    ⋅
+  ⋅    ⋅   1.0   ⋅
+  ⋅    ⋅    ⋅   1.0
 ```
 """
 function kron_id(n::Int, k::Int)
-    return I(n^k)
+    return Diagonal(ones(n^k))
 end
 
 """
@@ -174,6 +205,7 @@ function kron_sum(F::AbstractMatrix, k::Int)
     return A
 end
 
+# compute matrix A =
 # ------------------------------------------------------------
 # Functionality that requires MultivariatePolynomials.jl
 # ------------------------------------------------------------
