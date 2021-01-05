@@ -1,2 +1,2 @@
-#include("error_bounds.jl")
+include("error_bounds.jl")
 include("kronecker.jl")
