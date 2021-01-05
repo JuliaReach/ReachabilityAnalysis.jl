@@ -41,6 +41,7 @@ include("Algorithms/ORBIT/ORBIT.jl")
 include("Algorithms/VREP/VREP.jl")
 
 # Nonlinear
+include("Algorithms/CARLIN/CARLIN.jl")
 include("Algorithms/TMJets/TMJets.jl")
 include("Algorithms/QINT/QINT.jl")
 

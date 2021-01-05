@@ -108,6 +108,9 @@ function __init__()
 
     # tools for symbolic computation
     @require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
+
+    # tools for symbolic algebra
+    @require MultivariatePolynomials = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3" include("init_MultivariatePolynomials.jl")
 end
 
 # ===========================

@@ -90,10 +90,14 @@ export
     TemplateHullIntersection,
 
 # Algorithms for disjointness operations
+    FallbackDisjointness,
     NoEnclosure,
     BoxEnclosure,
     ZonotopeEnclosure,
     Dummy,
+
+# Algorithm to check inclusion
+    FallbackInclusion,
 
 # Clustering methods
     NoClustering,
