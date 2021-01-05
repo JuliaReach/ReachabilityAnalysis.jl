@@ -70,6 +70,9 @@ const zeroI = IA.Interval(0.0) # TODO use number type
 const oneI = IA.Interval(1.0)
 const symI = IA.Interval(-1.0, 1.0)
 
+# Interval constructor given a float
+LazySets.Interval(x::Float64) = Interval(interval(x))
+
 # common aliases for system's names
 const LCS = LinearContinuousSystem
 const LDS = LinearDiscreteSystem
