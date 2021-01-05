@@ -14,9 +14,10 @@
 
 # See Theorem 4.2 in [1]. This is a bound based on an a priori estimate
 # of the norm of the exact solution x(t).
-function error_bound_apriori(α, F₁, F₂; N, p=Inf)
-    nF₂ = opnorm(F₂, p)
-    μF₁ = logarithmic_norm(F₁, p)
+# These bounds use the supremum norm (p = Inf).
+function error_bound_apriori(α, F₁, F₂; N)
+    nF₂ = opnorm(F₂, Inf)
+    μF₁ = logarithmic_norm(F₁, Inf)
 
     β = α * nF₂ / μF₁
     ε = t -> α * β^N * (exp(μF₁ * t) - 1)^N
@@ -24,9 +25,9 @@ function error_bound_apriori(α, F₁, F₂; N, p=Inf)
 end
 
 # See Theorem 4.2 in [1]
-function convergence_radius_apriori(α, F₁, F₂; N, p=Inf)
-    nF₂ = opnorm(F₂, p)
-    μF₁ = logarithmic_norm(F₁, p)
+function convergence_radius_apriori(α, F₁, F₂; N)
+    nF₂ = opnorm(F₂, Inf)
+    μF₁ = logarithmic_norm(F₁, Inf)
 
     if μF₁ < 0
         return Inf
@@ -39,10 +40,10 @@ end
 # --- Error bounds using power series method from [1] ---
 
 # See Theorem 4.3 in [1], which uses the power series method.
-function error_bound_pseries(x₀, F₁, F₂; N, p=Inf)
-    nx₀ = norm(x₀, p)
-    nF₁ = opnorm(F₁, p)
-    nF₂ = opnorm(F₂, p)
+function error_bound_pseries(x₀, F₁, F₂; N)
+    nx₀ = norm(x₀, Inf)
+    nF₁ = opnorm(F₁, Inf)
+    nF₂ = opnorm(F₂, Inf)
     β₀ = nx₀ * nF₂ / nF₁
 
     ε = t -> nx₀ * exp(nF₁ * t) / (1 - β₀ * (exp(nF₁ * t) - 1)) * (β₀ * (exp(nF₁ * t) - 1))^N
@@ -50,10 +51,10 @@ function error_bound_pseries(x₀, F₁, F₂; N, p=Inf)
 end
 
 # See Theorem 4.3 in [1].
-function convergence_radius_pseries(x₀, F₁, F₂; N, p=Inf)
-    nx₀ = norm(x₀, p)
-    nF₁ = opnorm(F₁, p)
-    nF₂ = opnorm(F₂, p)
+function convergence_radius_pseries(x₀, F₁, F₂; N)
+    nx₀ = norm(x₀, Inf)
+    nF₁ = opnorm(F₁, Inf)
+    nF₂ = opnorm(F₂, Inf)
     β₀ = nx₀ * nF₂ / nF₁
 
     T = (1/nF₁) * log(1 + 1/β₀)
@@ -62,10 +63,10 @@ end
 
 # --- Error bounds using spectral abscissa from [2] ---
 
-# See Definition (2.2) in [2]
-function _error_bound_specabs_R(x₀, F₁, F₂; p=Inf, check=true)
-    nx₀ = norm(x₀, p)
-    nF₂ = opnorm(F₂, p)
+# See Definition (2.2) in [2]. These bounds use the spectral norm (p = 2)
+function _error_bound_specabs_R(x₀, F₁, F₂; check=true)
+    nx₀ = norm(x₀, 2)
+    nF₂ = opnorm(F₂, 2)
 
     # compute eigenvalues and sort them by increasing real part
     λ = eigvals(F₁, sortby=real)
@@ -79,15 +80,15 @@ function _error_bound_specabs_R(x₀, F₁, F₂; p=Inf, check=true)
 end
 
 # See Lemma 2 in [2]
-function error_bound_specabs(x₀, F₁, F₂; N, p=Inf, check=true)
-    (R, Re_λ₁) = _error_bound_specabs_R(x₀, F₁, F₂; p=p, check=check)
+function error_bound_specabs(x₀, F₁, F₂; N, check=true)
+    (R, Re_λ₁) = _error_bound_specabs_R(x₀, F₁, F₂; check=check)
     if check
         @assert R < 1 "expected R < 1, got R = $R; try scaling the ODE"
     end
 
-    nx₀ = norm(x₀, p)
+    nx₀ = norm(x₀, 2)
     if iszero(Re_λ₁)
-        nF₂ = opnorm(F₂, p)
+        nF₂ = opnorm(F₂, 2)
         ε = t -> nx₀ * (nx₀ * nF₂ * t)^N
     else
         ε = t -> nx₀ * R^N * (1 - exp(Re_λ₁ * t))^N
@@ -96,14 +97,14 @@ function error_bound_specabs(x₀, F₁, F₂; N, p=Inf, check=true)
 end
 
 # See Lemma 2 in [2]
-function convergence_radius_specabs(x₀, F₁, F₂; p=Inf, check=true)
-    (R, Re_λ₁) = _error_bound_specabs_R(x₀, F₁, F₂; p=p, check=check)
+function convergence_radius_specabs(x₀, F₁, F₂; check=true)
+    (R, Re_λ₁) = _error_bound_specabs_R(x₀, F₁, F₂; check=check)
 
     if Re_λ₁ < 0
         T = Inf
     elseif iszero(Re_λ₁)
-        nx₀ = norm(x₀, p)
-        nF₂ = opnorm(F₂, p)
+        nx₀ = norm(x₀, 2)
+        nF₂ = opnorm(F₂, 2)
         β = nx₀ * nF₂
         T = 1/β
     else
