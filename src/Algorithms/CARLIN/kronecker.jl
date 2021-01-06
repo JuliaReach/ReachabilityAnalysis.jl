@@ -216,13 +216,13 @@ Compute the Kronecker sum of order k defined as:
 where each term has `k` products and there are a total of `k` summands
 and `I` is the identity matrix of order `n`.
 
-### Examples:
+### Examples
 
 It holds that:
 
-- `k = 1: F`
-- `k = 2: F ⊗ I + I ⊗ F`
-- `k = 3: F ⊗ I ⊗ I + I ⊗ F ⊗ I + I ⊗ I ⊗ F`
+- ``k = 1: F``
+- ``k = 2: F ⊗ I + I ⊗ F``
+- ``k = 3: F ⊗ I ⊗ I + I ⊗ F ⊗ I + I ⊗ I ⊗ F``
 
 ```julia
 julia> F = sparse([0 1; -1 0.])
