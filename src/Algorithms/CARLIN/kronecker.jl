@@ -398,7 +398,7 @@ function _build_matrix_N2(F₁, F₂)
 end
 
 function _build_matrix_N3(F₁, F₂)
-    n = size(F1, 1)
+    n = size(F₁, 1)
     a = hcat(kron_sum(F₁, 1), kron_sum(F₂, 1), spzeros(n, n^3))
     b = hcat(spzeros(n^2, n), kron_sum(F₁, 2), kron_sum(F₂, 2))
     c = hcat(spzeros(n^3, n), spzeros(n^3, n^2), kron_sum(F₁, 3))
@@ -406,7 +406,7 @@ function _build_matrix_N3(F₁, F₂)
 end
 
 function _build_matrix_N4(F₁, F₂)
-    n = size(F1, 1)
+    n = size(F₁, 1)
     a = hcat(kron_sum(F₁, 1), kron_sum(F₂, 1), spzeros(n, n^3), spzeros(n, n^4))
     b = hcat(spzeros(n^2, n), kron_sum(F₁, 2), kron_sum(F₂, 2), spzeros(n^2, n^4))
     c = hcat(spzeros(n^3, n), spzeros(n^3, n^2), kron_sum(F₁, 3), kron_sum(F₂, 3))
