@@ -241,6 +241,7 @@ true
 
 julia> kron_sum(F, 3) == sum(reduce(kron, X) for X in [[F, I2, I2], [I2, F, I2], [I2, I2, F]])
 true
+```
 """
 function kron_sum(F::AbstractMatrix, k::Int)
     if k < 1
@@ -305,7 +306,7 @@ julia> kron_pow(x, 2)
  x₁x₂
  x₁x₂
  x₂²
- ```
+```
 """
 function kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
     @assert pow > 0 "expected positive power, got $pow"
