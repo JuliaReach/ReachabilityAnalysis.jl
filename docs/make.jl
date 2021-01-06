@@ -49,6 +49,7 @@ makedocs(
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                             "BOX" => "lib/algorithms/BOX.md",
+                            "CARLIN" => "lib/algorithms/CARLIN.md",
                             "GLGM06" => "lib/algorithms/GLGM06.md",
                             "INT" => "lib/algorithms/INT.md",
                             "LGG09" => "lib/algorithms/LGG09.md",

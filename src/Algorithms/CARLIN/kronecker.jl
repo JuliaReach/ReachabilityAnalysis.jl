@@ -32,28 +32,86 @@ function kron_pow(x::IA.Interval, pow::Int)
     return x^pow
 end
 
-# compute x^{⊗ pow} where x is a LazySets.Interval
+"""
+    kron_pow(x::Interval, pow::Int)
+
+Given an interval x and an integer pow, compute `x^pow`.
+
+### Input
+
+- `x`   -- interval
+- `pow` -- integer
+
+### Output
+
+An interval enclosure of `x^pow` as a LazySets `Interval`.
+"""
 function kron_pow(x::Interval, pow::Int)
     return Interval(kron_pow(x.dat, pow))
 end
 
-# compute H^{⊗ pow} where H is a hyperrectangular set
-# we see H as a product of intervals and apply
-# kron_pow(x, pow) for each interval element x of H
+"""
+    kron_pow(H::AbstractHyperrectangle, pow::Int)
+
+Given hyperrectangular set `H` and an integer `pow`, compute the Kronecker power
+`H^{⊗ pow}`.
+
+### Input
+
+- `H`   -- hyperrectangular set
+- `pow` -- integer power
+
+### Output
+
+A hyperrectangle.
+
+### Algorithm
+
+We compute `H^{⊗ pow}` where `H` is a hyperrectangular set by working with `H`
+as a product of intervals.
+"""
 function kron_pow(H::AbstractHyperrectangle, pow::Int)
-    Hbox = convert(IntervalBox, H)
-    Hbox_pow = kron_pow.(Hbox, pow)
-    #Hbox_pow = convert(Hyperrectangle, Hbox_pow)
-    #Hout = Hyperrectangle(Vector(Hbox_pow.center), Vector(Hbox_pow.radius))
-    return convert(Hyperrectangle, Hbox_pow)
+    x = [Interval(low(H, j), high(H, j)) for j in 1:dim(H)]
+    r = reduce(kron, fill(x, pow))
+
+    low_r = min.(r)
+    high_r = max.(r)
+    return Hyperrectangle(low=low_r, high=high_r)
 end
 
-# compute [x, x^2, .., x^pow] where x is an interval
+"""
+    kron_pow_stack(x::Union{<:Interval, <:IA.Interval}, pow::Int)
+
+Return an array with the interval powers `[x, x^2, …, x^pow]`.
+
+### Input
+
+- `x`   -- interval
+- `pow` -- integer power
+
+### Output
+
+A vector of elements of the same type as `x` such that the `i`-th element is the interval `x^i`.
+"""
 function kron_pow_stack(x::Union{<:Interval, <:IA.Interval}, pow::Int)
     return [kron_pow(x, i) for i in 1:pow]
 end
 
-# compute the cartesian product [x, x^2, .., x^pow] where x is a hyperrectangular set
+"""
+    kron_pow_stack(H::AbstractHyperrectangle, pow::Int)
+
+Return the Cartesian product array ``H × H^{⊗2} × ⋯ × H^{⊗pow}`` where ``H`` is a
+hyperrectangular set and ``H^{⊗ i}`` is the `i`-th Kronecker power of ``H``.
+
+### Input
+
+- `H`   -- hyperrectangular set
+- `pow` -- integer power
+
+### Output
+
+A Cartesian product array of hyperrectangles.
+"""
 function kron_pow_stack(H::AbstractHyperrectangle, pow::Int)
     out = [kron_pow(H, i) for i in 1:pow]
     return CartesianProductArray(out)
@@ -62,7 +120,7 @@ end
 """
     kron_id(n, k)
 
-Compute the k-fold Kronecker product of the identity: `I ⊗ I ⊗ ... ⊗ I`, k times
+Compute the k-fold Kronecker product of the identity: `I ⊗ I ⊗ ... ⊗ I`, k times.
 
 ### Input
 
@@ -373,7 +431,26 @@ end end  # quote / load_kron_multivariate()
 # Construction of the linearized system
 # ======================================
 
-# compute matrix linearized matrix A of order N
+"""
+    build_matrix(F₁, F₂, N)
+
+Compute the Carleman linearization matrix associated to the quadratic
+system ``x' = F₁x + F₂(x⊗x)``, truncated at order ``N``.
+
+### Input
+
+- `F₁` -- sparse matrix of size ``n × n``
+- `F₂` -- sparse matrix of size ``n × n^2``
+- `N`  -- integer representing the truncation order, should be at least two
+
+### Output
+
+Sparse matrix `A`.
+
+### Algorithm
+
+See references [1] and [2] of CARLIN.md.
+"""
 function build_matrix(F₁, F₂, N)
     if N < 2
         throw(ArgumentError("expected the truncation order to be at least 2, got N=$N"))
