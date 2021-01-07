@@ -461,8 +461,6 @@ function build_matrix(F₁, F₂, N)
         _build_matrix_N3(F₁, F₂)
     elseif N == 4
         _build_matrix_N4(F₁, F₂)
-    elseif N == 5
-        _build_matrix_N5(F₁, F₂)
     else
         _build_matrix_N(F₁, F₂, N) # general case
     end
