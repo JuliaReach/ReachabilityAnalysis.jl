@@ -6,9 +6,9 @@ VREP
 
 This algorithm solves the recurrence relation
 
-$$
+```math
 X_{k+1} = \Phi X_k \oplus V_k
-$$
+```
 using the vertex representation of the sets involved. If the system is homogeneous,
 i.e. $V_k = ∅$ for all $k \geq 0$, then the number of vertices of the sequence doesn't
 increase. On the other hand, the number of vertices of $X_k$ increases hence the method
