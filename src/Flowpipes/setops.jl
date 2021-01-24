@@ -308,16 +308,11 @@ function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, ST, MT<:StaticArray{
     return SMatrix{m, n, T}(C), SMatrix{m, n, T}(S)
 end
 
-# attempts type-stability
-function _symmetric_interval_hull(x::Interval)
-    abs_inf = abs(min(x))
-    abs_sup = abs(max(x))
-    bound = max(abs_sup, abs_inf)
-    return Interval(-bound, bound)
-end
+_symmetric_interval_hull(x::Interval) = LazySets.symmetric_interval_hull(x)
+_symmetric_interval_hull(x::Hyperrectangle) = LazySets.symmetric_interval_hull(x)
 
-# attempts type-stability
-function _symmetric_interval_hull(S::LazySet{N}) where {N<:Real}
+# type-stable version
+function _symmetric_interval_hull(S::LazySet{N}) where {N}
     # fallback returns a hyperrectangular set
     (c, r) = LazySets.Approximations.box_approximation_helper(S)
     #if r[1] < 0
@@ -326,8 +321,8 @@ function _symmetric_interval_hull(S::LazySet{N}) where {N<:Real}
     return Hyperrectangle(zeros(N, length(c)), abs.(c) .+ r)
 end
 
-# attemp type stability
-function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N<:Real}
+# type-stable version
+function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N}
     c, r = LazySets.Approximations.box_approximation_helper(S)
     #if r[1] < 0
     #    return EmptySet{N}(dim(S))

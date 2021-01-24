@@ -60,7 +60,7 @@ end
 
 # convenience constructor using symbols
 function ASB07(; δ::N,
-               approx_model::AM=CorrectionHull(order=10, exp=:base),
+               approx_model::AM=CorrectionHull(order=10, exp=:interval),
                max_order::Int=5,
                reduction_method::RM=GIR05(),
                static::Bool=false,
