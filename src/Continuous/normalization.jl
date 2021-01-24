@@ -497,8 +497,11 @@ _wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector) = Varyi
 
 _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
 
-# TODO refactor to MathematicalSystems.jl ?
-function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{<:IntervalArithmetic.Interval}, B::SparseMatrixCSC, X::XT, U::UT) where {XT, UT}
+# special cases for interval systems
+function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{IT}, B::SparseMatrixCSC, X::XT, U::UT) where {XT, UT, IT<:IA.Interval}
+    CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
+end
+function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{IT}, B::Matrix{IT}, X::XT, U::UT) where {XT, UT, IT<:IA.Interval}
     CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
 end
 function MathematicalSystems.ConstrainedLinearControlDiscreteSystem(A::IntervalMatrix, B::Matrix, X::XT, U::UT) where {XT, UT}

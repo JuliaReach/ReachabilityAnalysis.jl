@@ -18,26 +18,29 @@ end
 # some algorithms require a polyhedral computations backend
 hasbackend(alg::AbstractApproximationModel) = false
 
+# symmetric inteval hull options
+sih(X, ::Val{:lazy}) = SymmetricIntervalHull(X)
+sih(X, ::Val{:concrete}) = _symmetric_interval_hull(X)
+
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
 
-Conservative discretization of a continuous-time initial value problem into a
-discrete-time problem.
+Set-based conservative discretization of a continuous-time initial value problem
+into a discrete-time problem.
 
 ### Input
 
-- `ivp`   -- initial value problem for a continuous affine ODE with
-             in canonical form
+- `ivp`   -- initial value problem for a linear ODE in canonical form (see `Notes` below)
 - `δ`     -- step size
-- `alg`   -- the algorithm used to compute the approximation model, choose among:
+- `alg`   -- algorithm used to compute the approximation model, choose among:
 
         - `Forward()`        -- use forward-time interpolation
-        - `Backward()"`      -- use backward-time interpolation
+        - `Backward()`      -- use backward-time interpolation
         - `CorrectionHull()` -- use the correction hull of the matrix exponential to a given order
         - `NoBloating()`     -- do not bloat the initial states
 
-The approximation algorithms allow different options. See the docstring of each
-methods for details.
+Different approximation algorithms and their respective options are described
+in the docstring of each method, e.g. [`Forward`](@ref).
 
 ### Output
 
@@ -45,40 +48,40 @@ The initial value problem of a discrete system.
 
 ### Notes
 
-Let ``x' = Ax(t) + u(t)``, ``x(0) ∈ \\mathcal{X}_0``, ``u(t) ∈ U(k)`` be the
-given continuous affine ODE `ivp`, where `U` is the sequence of  sets of
+Initial-value problems considered in this function are of the form
+
+```math
+x' = Ax(t) + u(t),\\qquad x(0) ∈ \\mathcal{X}_0,\\qquad (1)
+```
+and where ``u(t) ∈ U(k)`` add where `\\{U(k)\\}_k` is a sequence of sets of
 non-deterministic inputs and ``\\mathcal{X}_0`` is the set of initial
-states. Recall that the initial-value problem `ivp` is called homogeneous
-whenever `U` is the empty set.
+states. Recall that this initial-value problem is called homogeneous whenever `U`
+is the empty set. Other problems, e.g. ``x' = Ax(t) + Bu(t)`` can be brought
+to the canonical form with the function [`normalize`](@ref).
 
-Given a step size ``δ``, this function computes a set, `Ω₀`, that guarantees to
-contain all the trajectories of `ivp` starting at any ``x(0) ∈ \\mathcal{X}_0``
-and for any input function that satisfies ``u(t) ∈ U(k)``, for any ``t ∈ [0, δ]``.
+The initial value problem returned by this function consists of a set discretized
+(also called *bloated*) initial states ``Ω₀``, together with the coefficient matrix
+``Φ = e^{Aδ}`` and a transformed sequence of inputs if ``U`` is non-empty.
 
-The initial value problem returned by this function consists of the set ``Ω₀``
-together with the coefficient matrix ``Φ = e^{Aδ}`` and a transformed
-sequence of inputs if ``U`` is non-empty.
+Two main variations of this algorithm are considered: dense time case and
+discrete time case.
 
-In the literature, the method to obtain this transformation is called the *approximation model*
-and different alternatives have been proposed. See the argument `alg`
-for available options. For the reference to the original papers, see the docstring
-of each method.
+- In the dense time case, the transformation is such that the trajectories
+  of the given continuous system are included in the computed flowpipe of the
+  discretized system. More precisely, given a step size ``δ`` and the system (1)
+  conservative set-based discretization function computes a set, ``Ω₀``, that
+  guarantees to contain all the trajectories of (1) starting at any ``x(0) ∈ \\mathcal{X}_0``
+  and for any input function that satisfies ``u(t) ∈ U(1)``, for any ``t ∈ [0, δ]``.
+  If ``U`` is time-varying, this function also discretizes the inputs for ``k ≥ 0``.
 
-In the dense-time case, the transformation is such that the trajectories
-of the given continuous system are included in the computed flowpipe of the
-discretized system.
+- In the discrete time case, there is no bloating of the initial states and the
+  input is assumed to remain constant between sampled times. Use the algorithm
+  `NoBloating()` for this setting. If ``U`` is time-varying, this function also discretizes
+  the inputs for ``k ≥ 0``.
 
-In the discrete-time case, there is no bloating of the initial states and the
-input is assumed to remain constant between sampled times. Use the option
-`alg="nobloating"` for this setting.
-
-Several methods to compute the matrix exponential are available. Use the `exp`
-option on each approximation algorithm to select one. For high dimensional systems
-(typicall `n > 2000`), computing the matrix exponential in full is very
-expensive hence it is preferable to compute the action of the matrix exponential
-over vectors when needed, ``e^{δA} v`` for each ``v``. This method is particularly
-well-suited if `A` is sparse. Use the option `exp=:krylov` (or `exp=:lazy`) for this
-purpose.
+There are algorithms to obatin such transformations, called *approximation models*
+in the technical literature. For references to the original papers, see the
+docstring of each concrete subtype of `AbstractApproximationModel`.
 """
 function discretize(ivp::IVP, δ, alg::AbstractApproximationModel) end
 
@@ -118,17 +121,12 @@ struct NoBloating{EM, SO, IT} <: AbstractApproximationModel
 end
 
 # convenience constructor using symbols
-function NoBloating(; exp::Symbol=:base, setops=nothing, inv=false)
-    if isnothing(setops)
-        setops = Val(:lazy)
-    elseif isa(setops, Symbol)
-        setops = Val(setops)
-    end
-    return NoBloating(Val(exp), setops, Val(inv))
+function NoBloating(; exp=BaseExp, setops=:lazy, inv=false)
+    return NoBloating(_alias(exp), Val(setops), Val(inv))
 end
 
 function Base.show(io::IO, alg::NoBloating)
-    print(io, "No bloating approximation model with: \n")
+    print(io, "`NoBloating` approximation model with: \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - invertibility assumption: $(alg.inv)")
@@ -141,14 +139,9 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
-    if A isa IntervalMatrix
-        order = 10 # default order TODO generalize
-        Φ = exp_overapproximation(A, δ, order)
-    else
-        Φ = _exp(A, δ, alg.exp)
-    end
+    Φ = _exp(A, δ, alg.exp)
 
-    Ω0 = copy(X0) # setops don't apply
+    Ω0 = copy(X0) # alg.setops doesn't apply
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdiscr, Ω0)
@@ -161,14 +154,20 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
     U = next_set(inputset(ivp), 1)
 
     Φ = _exp(A, δ, alg.exp)
-    M = __Φ₁(A, δ, alg.exp, alg.inv, Φ, U)
-    V = _apply_setops(M, U, alg.setops)
+    if isa(U, AbstractSingleton)
+        Mu = _Φ₁_u(A, δ, alg.exp, alg.inv, element(U), Φ)
+        V = Singleton(Mu)
+    else
+        M = _Φ₁(A, δ, alg.exp, alg.inv, Φ)
+        V = _apply_setops(M * U, alg.setops)
+    end
+
     Ω0 = _initial_state(X0)
 
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
-    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, V)
-    return InitialValueProblem(Sdiscr, Ω0)
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, V)
+    return InitialValueProblem(Sdis, Ω0)
 end
 
 # extension for no bloating case and singleton initial states
@@ -204,8 +203,8 @@ The transformations are:
 
 Here we allow ``U`` to be a sequence of time varying non-deterministic input sets.
 
-For the definition of the sets ``E_ψ`` and ``E^+`` see [[FRE11]](@ref). The  `Backward` method
-uses ``E^-``.
+For the definition of the sets ``E_ψ`` and ``E^+`` see [[FRE11]](@ref).
+The `Backward` method uses ``E^-``.
 """
 struct Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     exp::EM
@@ -218,24 +217,12 @@ end
 hasbackend(alg::Forward) = !isnothing(alg.backend)
 
 # convenience constructor using symbols
-function Forward(; exp::Symbol=:base, setops=nothing, sih::Symbol=:concrete, inv::Bool=false, backend=nothing)
-
-    # default set operations
-    if isnothing(setops)
-        setops = Val(:lazy)
-    elseif isa(setops, Symbol)
-        setops = Val(setops)
-    end
-
-    # name alias
-    if exp == :krylov
-        exp = :lazy
-    end
-    return Forward(Val(exp), setops, Val(sih), Val(inv), backend)
+function Forward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend=nothing)
+    return Forward(_alias(exp), Val(setops), Val(sih), Val(inv), backend)
 end
 
 function Base.show(io::IO, alg::Forward)
-    print(io, "Foward approximation model with: \n")
+    print(io, "`Forward` approximation model with: \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
@@ -249,31 +236,27 @@ Base.show(io::IO, m::MIME"text/plain", alg::Forward) = print(io, alg)
 # Forward Approximation: Homogeneous case
 # ------------------------------------------------------------
 
-sih(X, ::Val{:lazy}) where {EM, SO} = SymmetricIntervalHull(X)
-sih(X, ::Val{:concrete}) where {EM, SO} = _symmetric_interval_hull(X)
-
+# if A == |A|, then Φ can be reused in the computation of Φ₂(|A|, δ)
 function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
     Φ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
-    P2A_abs = sum(A) == abs(sum(A)) ?  # if A == |A|, then Φ can be reused
-              __Φ₂(A_abs, δ, alg.exp, alg.inv, Φ) :
-              __Φ₂(A_abs, δ, alg.exp, alg.inv)
+    Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
+    P2A_abs = _Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
     Ω0 = _apply_setops(Ω0, alg)
     X = stateset(ivp)
-    Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdiscr, Ω0)
+    Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(Sdis, Ω0)
 end
 
 function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ, alg::Forward) where {N}
     A = state_matrix(ivp)
     @assert size(A, 1) == 1
-    #@assert alg.setops == :Interval
     X0 = initial_state(ivp)
 
     a = A[1, 1]
@@ -294,8 +277,8 @@ function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ, alg::Forw
     Ω0 = Interval(hull(X0.dat, Φ * X0.dat + Einit))
     X = stateset(ivp)
     # the system constructor creates a matrix
-    Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdiscr, Ω0)
+    Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(Sdis, Ω0)
 end
 
 # ------------------------------------------------------------
@@ -309,13 +292,12 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
 
     Φ = _exp(A, δ, alg.exp)
     A_abs = _elementwise_abs(A)
-    P2A_abs = sum(A) == abs(sum(A)) ?  # if A == |A|, then Φ can be reused
-              __Φ₂(A_abs, δ, alg.exp, alg.inv, Φ) :
-              __Φ₂(A_abs, δ, alg.exp, alg.inv)
+    Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
+    P2A_abs = _Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
 
-    U = next_set(inputset(ivp), 1) # inputset(ivp)
+    U = next_set(inputset(ivp), 1)
     Eψ0 = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
 
     Ud = δ*U ⊕ Eψ0
@@ -324,8 +306,8 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)
     Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
-    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
-    return InitialValueProblem(Sdiscr, Ω0)
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    return InitialValueProblem(Sdis, Ω0)
 end
 
 # ==================================
@@ -333,7 +315,7 @@ end
 # ==================================
 
 """
-    Backward{EM, SO, SI, IT} <: AbstractApproximationModel
+    Backward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 
 Backward approximation model.
 
@@ -344,6 +326,8 @@ Backward approximation model.
 - `sih`     -- symmetric interval hull
 - `inv`     -- (optional, default: `false`) if `true`, assume that the state matrix
                is invertible and use its inverse in the `Φ` functions
+- `backend` -- (optional, default: `nothing`) used if the algorithm needs to apply
+               concrete polyhedral computations
 
 ### Algorithm
 
@@ -355,27 +339,29 @@ The transformations are:
 
 Here we allow ``U`` to be a sequence of time varying non-deterministic input sets.
 
-For the definition of the sets ``E_ψ`` and ``E^-`` see [[FRE11]](@ref). The  `Forward` method
-uses ``E^+``.
+For the definition of the sets ``E_ψ`` and ``E^-`` see [[FRE11]](@ref).
+The `Forward` method uses ``E^+``.
 """
-struct Backward{EM, SO, SI, IT} <: AbstractApproximationModel
+struct Backward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     exp::EM
     setops::SO
     sih::SI
     inv::IT
+    backend::BT
 end
 
 # convenience constructor using symbols
-function Backward(; exp::Symbol=:base, setops::Symbol=:lazy, sih::Symbol=:concrete, inv=false)
-    Backward(Val(exp), Val(setops), Val(sih), Val(inv))
+function Backward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend=nothing)
+    return Backward(_alias(exp), Val(setops), Val(sih), Val(inv), backend)
 end
 
 function Base.show(io::IO, alg::Backward)
-    print(io, "Backward approximation model with: \n")
+    print(io, "`Backward` approximation model with: \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)")
+    print(io, "    - polyhedral computations backend: $(alg.backend)")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::Backward) = print(io, alg)
@@ -417,12 +403,12 @@ struct CorrectionHull{EM} <: AbstractApproximationModel
 end
 
 # convenience constructor using symbols
-function CorrectionHull(; order::Int=10, exp::Symbol=:base)
-    CorrectionHull(order, Val(exp))
+function CorrectionHull(; order::Int=10, exp=IntervalExpAlg(order))
+    return CorrectionHull(order, _alias(exp))
 end
 
 function Base.show(io::IO, alg::CorrectionHull)
-    print(io, "Correction hull approximation model with: \n")
+    print(io, "`CorrectionHull` approximation model with: \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
     print(io, "    - order: $(alg.order)\n")
 end
@@ -441,13 +427,11 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     # compute exp(A*δ) * X0
     # TODO refactor / dispatch
     X0z = _convert_or_overapproximate(Zonotope, X0)
-    if A isa IntervalMatrix
-        Φ = exp_overapproximation(A, δ, alg.order)
 
-        #Φ = IntervalMatrices.scale_and_square(A, 10, δ, 10)
+    Φ = _exp(A, δ, alg.exp)
+    if isinterval(Φ)
         Y = _overapproximate(Φ * X0z, Zonotope)
     else
-        Φ = _exp(A, δ, alg.exp)
         Y = linear_map(Φ, X0z)
     end
 
@@ -456,8 +440,8 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     R = _overapproximate(F * X0z, Zonotope)
     Ω0 = minkowski_sum(H, R)
 
-    S_discr = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(S_discr, Ω0)
+    Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
+    return InitialValueProblem(Sdis, Ω0)
 end
 
 # -----------------------------------------------------------------
@@ -474,11 +458,8 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     if isa(U, LinearMap)
         Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
         B = matrix(U)
-        if isa(B, IntervalMatrix)
-            Uz = _overapproximate(B * Uz, Zonotope)
-        else
-            Uz = linear_map(B, Uz)
-        end
+        println(B)
+        Uz = isinterval(B) ? _overapproximate(B * Uz, Zonotope) : linear_map(B, Uz)
     else # LazySet
         Uz = _convert_or_overapproximate(Zonotope, U)
     end
@@ -489,13 +470,11 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     # TODO refactor Ω0_homog
     # TODO refactor / dispatch
     X0z = _convert_or_overapproximate(Zonotope, X0)
-    if A isa IntervalMatrix
-        Φ = exp_overapproximation(A, δ, alg.order)
 
-        #Φ = IntervalMatrices.scale_and_square(A, 10, δ, 10)
+    Φ = _exp(A, δ, alg.exp)
+    if isinterval(Φ)
         Y = _overapproximate(Φ * X0z, Zonotope)
     else
-        Φ = _exp(A, δ, alg.exp)
         Y = linear_map(Φ, X0z)
     end
 
@@ -509,8 +488,8 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     Ud = _overapproximate(Cδ * Uz, Zonotope)
     Ω0 = minkowski_sum(Ω0_homog, Ud)
     Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
-    Sdiscr = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
-    return InitialValueProblem(Sdiscr, Ω0)
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
+    return InitialValueProblem(Sdis, Ω0)
 end
 
 # =========================================================================
@@ -525,7 +504,8 @@ function _apply_setops(X, alg::Forward)
     end
 end
 
-_apply_setops(X, ::Val{:lazy}) = X  # no-op
+_apply_setops(X::LazySet, ::Val{:lazy}) = X  # no-op
+_apply_setops(X::LazySet, ::Val{:concrete}) = concretize(X)
 _apply_setops(X, ::Val{:interval}) = convert(Interval, X)
 _apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
 _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:lazy}) = M * X
@@ -559,3 +539,7 @@ function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) 
 
     return out
 end
+
+isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
+isinterval(A::IntervalMatrix{N, IT}) where {N, IT<:IA.Interval{N}} = true
+isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
