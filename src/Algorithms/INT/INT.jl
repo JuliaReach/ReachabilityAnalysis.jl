@@ -47,7 +47,7 @@ end
 
 # convenience constructor using symbols
 function INT(; δ::N,
-               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:interval)) where {N, AM}
+               approx_model::AM=Forward(sih=:concrete, exp=:base)) where {N, AM}
     return INT(δ, approx_model)
 end
 

@@ -22,6 +22,16 @@ hasbackend(alg::AbstractApproximationModel) = false
 sih(X, ::Val{:lazy}) = SymmetricIntervalHull(X)
 sih(X, ::Val{:concrete}) = _symmetric_interval_hull(X)
 
+# interval matrix functions
+isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
+isinterval(A::IntervalMatrix{N, IT}) where {N, IT<:IA.Interval{N}} = true
+isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
+
+# options for a-posteriori transformation of a discretized set
+_alias(setops::AbstractDirections) = setops
+_alias(setops::Val{:lazy}) = setops
+_alias(setops::Val{:concrete}) = setops
+
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
 
@@ -122,7 +132,7 @@ end
 
 # convenience constructor using symbols
 function NoBloating(; exp=BaseExp, setops=:lazy, inv=false)
-    return NoBloating(_alias(exp), Val(setops), Val(inv))
+    return NoBloating(_alias(exp), _alias(setops), Val(inv))
 end
 
 function Base.show(io::IO, alg::NoBloating)
@@ -218,7 +228,7 @@ hasbackend(alg::Forward) = !isnothing(alg.backend)
 
 # convenience constructor using symbols
 function Forward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend=nothing)
-    return Forward(_alias(exp), Val(setops), Val(sih), Val(inv), backend)
+    return Forward(_alias(exp), _alias(setops), Val(sih), Val(inv), backend)
 end
 
 function Base.show(io::IO, alg::Forward)
@@ -352,7 +362,7 @@ end
 
 # convenience constructor using symbols
 function Backward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend=nothing)
-    return Backward(_alias(exp), Val(setops), Val(sih), Val(inv), backend)
+    return Backward(_alias(exp), _alias(setops), Val(sih), Val(inv), backend)
 end
 
 function Base.show(io::IO, alg::Backward)
@@ -506,7 +516,6 @@ end
 
 _apply_setops(X::LazySet, ::Val{:lazy}) = X  # no-op
 _apply_setops(X::LazySet, ::Val{:concrete}) = concretize(X)
-_apply_setops(X, ::Val{:interval}) = convert(Interval, X)
 _apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
 _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:lazy}) = M * X
 _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:concrete}) = linear_map(M, X)
@@ -539,7 +548,3 @@ function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) 
 
     return out
 end
-
-isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
-isinterval(A::IntervalMatrix{N, IT}) where {N, IT<:IA.Interval{N}} = true
-isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
