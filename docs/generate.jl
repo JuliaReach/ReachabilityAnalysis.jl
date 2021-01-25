@@ -24,7 +24,7 @@ MODELS = ["Brusselator/Brusselator.jl",
           #"LotkaVolterraTangential/LotkaVolterraTangential.jl",
           "OpAmp/OpAmp.jl",
           "SquareWaveOscillator/SquareWaveOscillator.jl",
-          "Platoon/Platoon.jl",
+          #"Platoon/Platoon.jl", # FIXME requires ModelingToolkit v5.0
           "ProductionDestruction/ProductionDestruction.jl",
           "Quadrotor/Quadrotor.jl",
           "SEIR/SEIR.jl",
