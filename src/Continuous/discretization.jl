@@ -31,6 +31,7 @@ isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
 _alias(setops::AbstractDirections) = setops
 _alias(setops::Val{:lazy}) = setops
 _alias(setops::Val{:concrete}) = setops
+_alias(setops::Val{:vrep}) = setops
 
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
