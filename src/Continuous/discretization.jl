@@ -64,7 +64,7 @@ Initial-value problems considered in this function are of the form
 ```math
 x' = Ax(t) + u(t),\\qquad x(0) ∈ \\mathcal{X}_0,\\qquad (1)
 ```
-and where ``u(t) ∈ U(k)`` add where `\\{U(k)\\}_k` is a sequence of sets of
+and where ``u(t) ∈ U(k)`` add where ``\\{U(k)\\}_k`` is a sequence of sets of
 non-deterministic inputs and ``\\mathcal{X}_0`` is the set of initial
 states. Recall that this initial-value problem is called homogeneous whenever `U`
 is the empty set. Other problems, e.g. ``x' = Ax(t) + Bu(t)`` can be brought
