@@ -249,4 +249,4 @@ plot!(sol, vars=(0, 2), c=:green, lw=.0, xlab="time", lab="v(t)")
 
 ## References
 
-- [^BAT06]: Bathe, Klaus-Jürgen. *Finite element procedures.* Klaus-Jurgen Bathe, 2006.
+[^BAT06]: Bathe, Klaus-Jürgen. *Finite element procedures.* Klaus-Jurgen Bathe, 2006.
