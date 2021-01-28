@@ -133,7 +133,7 @@ Compute the matrix exponential ``e^{Aδ}``.
 - `A`    -- matrix
 - `δ`    -- step size
 - `alg`  -- (optional, default: `BaseExp`) the algorithm used to take the matrix
-            exponential of `Aδ`, possible options are `BaseExp`, `LazyExp` and `PadeExp`,
+            exponential of `Aδ`, possible options are `BaseExp`, `LazyExp`, `PadeExp` and `IntervalExp`
             see details in the *Algorithm* section below
 
 ### Output
@@ -151,6 +151,9 @@ A matrix or a lazy wrapper of the matrix exponential, depending on `alg`.
 
 - `PadeExp` -- (alias: `pade`) apply Pade approximant method to compute the matrix
                exponential of a sparse matrix (requires `Expokit.jl`)
+
+- `IntervalExp` -- (alias: `interval`, `taylor`) apply the Taylor series expansion of the matrix
+                    exponential with an interval remainder; works if `A` is an interval matrix
 
 ### Notes
 
