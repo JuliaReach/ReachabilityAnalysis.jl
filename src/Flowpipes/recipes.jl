@@ -19,47 +19,33 @@ using LazySets: plot_recipe,
                 _bounding_hyperrectangle,
                 _update_plot_limits!
 
-# heuristics for projecting a reach-set either concretely or lazily
-function _project_reachset(R::AbstractLazyReachSet{N}, vars, ε=N(PLOT_PRECISION)) where {N}
-    if setrep(R) <: AbstractZonotope
-        # concrete projection is efficient for zonotopic sets
+# heuristics for projecting a reach-set either concretely or lazily to the space
+# spanned by vars; the returned set is concrete when that is effcient; in all other
+# cases a lazy sets is returned
+function _project_reachset(R::AbstractLazyReachSet, vars)
+    ST = setrep(R)
+
+    if (ST <: AbstractZonotope) || (ST <: VPolytope) || (ST <: VPolygon)
+        # concrete projection is efficient
         πR = project(R, vars)
         X = set(πR)
-    elseif (setrep(R) <: AbstractPolyhedron) && (dim(R) == 2)
 
-        # TODO : << cleanup plotting heuristics for polyhedral sets with / without projection
-
-        # 2D polyhedral sets do not need to be projected unless one of the
-        # coordinates of interest is time; in that case, we take the lazy projection
-        # and then overapproximate with a box without loss
-        # NOTE: ε option is currently ignored
-        #if vars == 1:2
-        #    X = set(R)
-        #else
-        #    πR = Projection(R, vars)
-        #    X = overapproximate(set(πR), Hyperrectangle)
-        #end
-
-        # - if the set is polyhedral and 2D
+    elseif (ST <: AbstractPolyhedron) && (dim(R) == 2)
+        # if the set is polyhedral and two-dimensional
         #   - if time is not requried -> don't project
         #   - otherwise, make the projection (lazily)
-        if 0 ∈ vars
-            πR = Projection(R, vars) # lazy projection
-            #X = overapproximate(set(πR), ε)
-            X = set(πR)
-        else
-            X = set(R)
-        end
+        X = 0 ∈ vars ? set(Projection(R, vars)) : set(R)
+
     else
         πR = Projection(R, vars) # lazy projection
-        X = overapproximate(set(πR), ε)
+        X = set(πR)
     end
     return X
 end
 
-function _project_reachset(T::TaylorModelReachSet, vars, ε=N(PLOT_PRECISION))
+function _project_reachset(T::TaylorModelReachSet, vars)
     R = overapproximate(T, Zonotope)
-    _project_reachset(R, vars, ε)
+    _project_reachset(R, vars)
 end
 
 function _check_vars(vars)
@@ -83,7 +69,7 @@ end
 
 
     _check_vars(vars)
-    X = _project_reachset(R, vars, ε)
+    X = _project_reachset(R, vars)
 
     if dim(X) == 1
         plot_recipe(X, ε)
@@ -152,14 +138,15 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in list
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
             else
                 # hard-code overapproximation here to avoid individual
                 # compilations for mixed sets
-                Pi = overapproximate(Xi, ε)
+                # TODO refactor
+                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
                 vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
                 if isempty(vlist)
                     @warn "overapproximation during plotting was empty"
@@ -187,7 +174,7 @@ end
         x, y
     else
         for Ri in list
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -222,14 +209,14 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in fp
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
             else
                 # hard-code overapproximation here to avoid individual
                 # compilations for mixed sets
-                Pi = overapproximate(Xi, ε)
+                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
                 vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
                 if isempty(vlist)
                     @warn "overapproximation during plotting was empty"
@@ -257,7 +244,7 @@ end
         x, y
     else
         for Ri in fp
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -292,14 +279,14 @@ end
         y = Vector{N}()
         for F in fp
         for Ri in F
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
 
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
             else
                 # hard-code overapproximation here to avoid individual
                 # compilations for mixed sets
-                Pi = overapproximate(Xi, ε)
+                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
                 vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
                 if isempty(vlist)
                     @warn "overapproximation during plotting was empty"
@@ -329,7 +316,7 @@ end
     else
         for F in fp
         for Ri in F
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -362,13 +349,13 @@ end
         x = Vector{N}()
         y = Vector{N}()
         for Ri in flowpipe(sol)
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
             if Xi isa Intersection
                 res = plot_recipe(Xi, ε, Nφ)
             else
                 # hard-code overapproximation here to avoid individual
                 # compilations for mixed sets
-                Pi = overapproximate(Xi, ε)
+                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
                 vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
                 if isempty(vlist)
                     @warn "overapproximation during plotting was empty"
@@ -396,7 +383,7 @@ end
         x, y
     else
         for Ri in flowpipe(sol)
-            Xi = _project_reachset(Ri, vars, ε)
+            Xi = _project_reachset(Ri, vars)
             if Xi isa Intersection
                 @series Xi, ε, Nφ
             else
@@ -434,7 +421,7 @@ end
                 πRi = project(F, i, vars) # project the reach-set
                 Xi = set(πRi) # extract the set representation
             else
-                Xi = _project_reachset(Ri, vars, ε)
+                Xi = _project_reachset(Ri, vars)
             end
 
             if Xi isa Intersection
@@ -442,7 +429,7 @@ end
             else
                 # hard-code overapproximation here to avoid individual
                 # compilations for mixed sets
-                Pi = overapproximate(Xi, ε)
+                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
                 vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
                 if isempty(vlist)
                     @warn "overapproximation during plotting was empty"
@@ -477,7 +464,7 @@ end
                 πRi = project(F, i, vars) # project the reach-set
                 Xi = set(πRi) # extract the set representation
             else
-                Xi = _project_reachset(Ri, vars, ε)
+                Xi = _project_reachset(Ri, vars)
             end
             if Xi isa Intersection
                 @series Xi, ε, Nφ
@@ -520,7 +507,7 @@ end
             else
                 # hard-code overapproximation here to avoid individual
                 # compilations for mixed sets
-                Pi = overapproximate(Xi, ε)
+                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
                 vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
                 if isempty(vlist)
                     @warn "overapproximation during plotting was empty"
