@@ -236,7 +236,7 @@ Aδ && δI_n \\\\
 ```
 It can be shown that
 ```math
-\\exp(P_{2n}) = \\\begin{pmatrix}
+\\exp(P_{2n}) = \\begin{pmatrix}
 Φ(A, δ) && Φ₁(A, δ) \\\\
 0 &&  δI_n
 \\end{pmatrix}.
