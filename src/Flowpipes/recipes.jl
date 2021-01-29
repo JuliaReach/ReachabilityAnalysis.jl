@@ -17,11 +17,12 @@ using LazySets: plot_recipe,
                 _extract_extrema,
                 _set_auto_limits_to_extrema!,
                 _bounding_hyperrectangle,
-                _update_plot_limits!
+                _update_plot_limits!,
+                isapproxzero
 
 # heuristics for projecting a reach-set either concretely or lazily to the space
-# spanned by vars; the returned set is concrete when that is effcient; in all other
-# cases a lazy sets is returned
+# spanned by vars; the returned set is concrete when the exact projection can be done
+# efficiently; in all other cases a lazy set is returned
 function _project_reachset(R::AbstractLazyReachSet, vars)
     ST = setrep(R)
 
@@ -59,421 +60,352 @@ function _check_vars(vars)
                                  "but received $D variable indices where `vars = ` $vars"
 end
 
-# The type annotation NTuple in vars is removed because of this warning:
-# ┌ Warning: Type annotations on keyword arguments not currently supported in recipes. Type information has been discarded
-# └ @ RecipesBase ~/.julia/packages/RecipesBase/zBoFG/src/RecipesBase.jl:112
 @recipe function plot_reachset(R::AbstractLazyReachSet{N};
                                vars=nothing,
-                               ε=N(PLOT_PRECISION)
-                               ) where {N<:Real}
-
-
+                               ε=N(PLOT_PRECISION)) where {N}
     _check_vars(vars)
     X = _project_reachset(R, vars)
 
-    if dim(X) == 1
-        plot_recipe(X, ε)
-    else
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
+    dim(X) == 1 && return plot_recipe(X, ε)
 
-        # extract limits and extrema of already plotted sets
-        p = plotattributes[:plot_object]
-        lims = _extract_limits(p)
-        extr = _extract_extrema(p)
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
+    end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
 
-        if !isbounded(X)
-            _set_auto_limits_to_extrema!(lims, extr)
-            X = intersection(X, _bounding_hyperrectangle(lims, eltype(X)))
+    # extract limits and extrema of already plotted sets
+    p = plotattributes[:plot_object]
+    lims = _extract_limits(p)
+    extr = _extract_extrema(p)
 
+    if !isbounded(X)
+        _set_auto_limits_to_extrema!(lims, extr)
+        X = intersection(X, _bounding_hyperrectangle(lims, eltype(X)))
+
+    elseif length(p) > 0
         # if there is already a plotted set and the limits are fixed,
         # automatically adjust the axis limits (e.g. after plotting a unbounded set)
-        elseif length(p) > 0
-            _update_plot_limits!(lims, X)
-        end
+        _update_plot_limits!(lims, X)
+    end
 
-        xlims --> lims[:x]
-        ylims --> lims[:y]
+    xlims --> lims[:x]
+    ylims --> lims[:y]
 
-        res = plot_recipe(X, ε)
-        if isempty(res)
-            res
+    x, y = plot_recipe(X, ε)
+    if !isempty(x)
+        m = length(x)
+        if m == 1
+            seriestype := :scatter
+        elseif m == 2 && isapproxzero((x[1] - x[2])^2 + (y[1] - y[2])^2)
+            seriestype := :scatter
         else
-            x, y = res
-            if length(x) == 1 || norm([x[1], y[1]] - [x[2], y[2]]) ≈ 0
-                seriestype := :scatter
-            else
-                seriestype := :shape
-            end
-            x, y
+            seriestype := :shape
         end
     end
+    return (x, y)
 end
 
 @recipe function plot_list(list::AbstractVector{RN};
                            vars=nothing,
                            ε=N(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS,
-                           fast=true
-                          ) where {N<:Real, RN<:AbstractReachSet{N}}
-
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N, RN<:AbstractReachSet{N}}
     _check_vars(vars)
 
-    if fast
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
-        seriestype --> :shape
-
-        first = true
-        x = Vector{N}()
-        y = Vector{N}()
-        for Ri in list
-            Xi = _project_reachset(Ri, vars)
-
-            if Xi isa Intersection
-                res = plot_recipe(Xi, ε, Nφ)
-            else
-                # hard-code overapproximation here to avoid individual
-                # compilations for mixed sets
-                # TODO refactor
-                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-                if isempty(vlist)
-                    @warn "overapproximation during plotting was empty"
-                    continue
-                end
-                res = vlist[:, 1], vlist[:, 2]
-                # add first vertex to "close" the polygon
-                push!(res[1], vlist[1, 1])
-                push!(res[2], vlist[1, 2])
-            end
-            if isempty(res)
-                continue
-            else
-                x_new, y_new = res
-            end
-            if first
-                first = false
-            else
-                push!(x, N(NaN))
-                push!(y, N(NaN))
-            end
-            append!(x, x_new)
-            append!(y, y_new)
-        end
-        x, y
-    else
-        for Ri in list
-            Xi = _project_reachset(Ri, vars)
-            if Xi isa Intersection
-                @series Xi, ε, Nφ
-            else
-                @series Xi, ε
-            end
-        end
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :shape
+
+    first = true
+    x = Vector{N}()
+    y = Vector{N}()
+    for Ri in list
+        Xi = _project_reachset(Ri, vars)
+
+        if Xi isa Intersection
+            xcoords, ycoords = plot_recipe(Xi, ε, Nφ)
+
+        #elseif Xi isa Singleton
+        #    xcoords, ycoords = plot_recipe(Xi, ε)
+
+        else
+            # hard-code overapproximation here to avoid individual
+            # compilations for mixed sets
+            Pi = isconcretetype(typeof(Xi)) ? Xi : overapproximate(Xi, ε)
+            vlist = convex_hull(vertices_list(Pi))
+            m = length(vlist)
+            if m == 0
+                @warn "overapproximation during plotting was empty"
+                continue
+            end
+            xcoords = Vector{N}(undef, m)
+            ycoords = Vector{N}(undef, m)
+            @inbounds for (i, v) in enumerate(vlist)
+                xcoords[i] = v[1]
+                ycoords[i] = v[2]
+            end
+            if m > 1
+                # add first vertex to "close" the polygon
+                push!(xcoords, xcoords[1])
+                push!(ycoords, ycoords[1])
+            end
+        end
+        isempty(xcoords) && continue
+
+        x_new = xcoords
+        y_new = ycoords
+
+        if first
+            first = false
+        else
+            push!(x, N(NaN))
+            push!(y, N(NaN))
+        end
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    x, y
 end
 
-# This function is from LazySets.jl. See the docstring in LazySets for the description
-# of the available options.
 @recipe function plot_list(fp::Flowpipe{N};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS,
-                           fast=true
-                          ) where {N}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N}
 
     _check_vars(vars)
 
-    if fast
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
-        seriestype --> :shape
-
-        first = true
-        x = Vector{N}()
-        y = Vector{N}()
-        for Ri in fp
-            Xi = _project_reachset(Ri, vars)
-
-            if Xi isa Intersection
-                res = plot_recipe(Xi, ε, Nφ)
-            else
-                # hard-code overapproximation here to avoid individual
-                # compilations for mixed sets
-                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-                if isempty(vlist)
-                    @warn "overapproximation during plotting was empty"
-                    continue
-                end
-                res = vlist[:, 1], vlist[:, 2]
-                # add first vertex to "close" the polygon
-                push!(res[1], vlist[1, 1])
-                push!(res[2], vlist[1, 2])
-            end
-            if isempty(res)
-                continue
-            else
-                x_new, y_new = res
-            end
-            if first
-                first = false
-            else
-                push!(x, N(NaN))
-                push!(y, N(NaN))
-            end
-            append!(x, x_new)
-            append!(y, y_new)
-        end
-        x, y
-    else
-        for Ri in fp
-            Xi = _project_reachset(Ri, vars)
-            if Xi isa Intersection
-                @series Xi, ε, Nφ
-            else
-                @series Xi, ε
-            end
-        end
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :shape
+
+    first = true
+    x = Vector{N}()
+    y = Vector{N}()
+    for Ri in fp
+        Xi = _project_reachset(Ri, vars)
+
+        if Xi isa Intersection
+            res = plot_recipe(Xi, ε, Nφ)
+        else
+            # hard-code overapproximation here to avoid individual
+            # compilations for mixed sets
+            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
+            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+            if isempty(vlist)
+                @warn "overapproximation during plotting was empty"
+                continue
+            end
+            res = vlist[:, 1], vlist[:, 2]
+            # add first vertex to "close" the polygon
+            push!(res[1], vlist[1, 1])
+            push!(res[2], vlist[1, 2])
+        end
+        if isempty(res)
+            continue
+        else
+            x_new, y_new = res
+        end
+        if first
+            first = false
+        else
+            push!(x, N(NaN))
+            push!(y, N(NaN))
+        end
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    x, y
 end
 
 # compound flowpipes
 @recipe function plot_list(fp::Union{HF, MF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS,
-                           fast=true
+                           Nφ=PLOT_POLAR_DIRECTIONS
                           ) where {N, HF<:HybridFlowpipe{N}, MF<:MixedFlowpipe{N}}
 
     _check_vars(vars)
 
-    if fast
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
-        seriestype --> :shape
-
-        first = true
-        x = Vector{N}()
-        y = Vector{N}()
-        for F in fp
-        for Ri in F
-            Xi = _project_reachset(Ri, vars)
-
-            if Xi isa Intersection
-                res = plot_recipe(Xi, ε, Nφ)
-            else
-                # hard-code overapproximation here to avoid individual
-                # compilations for mixed sets
-                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-                if isempty(vlist)
-                    @warn "overapproximation during plotting was empty"
-                    continue
-                end
-                res = vlist[:, 1], vlist[:, 2]
-                # add first vertex to "close" the polygon
-                push!(res[1], vlist[1, 1])
-                push!(res[2], vlist[1, 2])
-            end
-            if isempty(res)
-                continue
-            else
-                x_new, y_new = res
-            end
-            if first
-                first = false
-            else
-                push!(x, N(NaN))
-                push!(y, N(NaN))
-            end
-            append!(x, x_new)
-            append!(y, y_new)
-        end
-        end
-        x, y
-    else
-        for F in fp
-        for Ri in F
-            Xi = _project_reachset(Ri, vars)
-            if Xi isa Intersection
-                @series Xi, ε, Nφ
-            else
-                @series Xi, ε
-            end
-        end
-        end
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :shape
+
+    first = true
+    x = Vector{N}()
+    y = Vector{N}()
+    for F in fp
+    for Ri in F
+        Xi = _project_reachset(Ri, vars)
+
+        if Xi isa Intersection
+            res = plot_recipe(Xi, ε, Nφ)
+        else
+            # hard-code overapproximation here to avoid individual
+            # compilations for mixed sets
+            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
+            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+            if isempty(vlist)
+                @warn "overapproximation during plotting was empty"
+                continue
+            end
+            res = vlist[:, 1], vlist[:, 2]
+            # add first vertex to "close" the polygon
+            push!(res[1], vlist[1, 1])
+            push!(res[2], vlist[1, 2])
+        end
+        if isempty(res)
+            continue
+        else
+            x_new, y_new = res
+        end
+        if first
+            first = false
+        else
+            push!(x, N(NaN))
+            push!(y, N(NaN))
+        end
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    end
+    x, y
 end
 
 @recipe function plot_list(sol::ReachSolution{FT};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS,
-                           fast=true
+                           Nφ=PLOT_POLAR_DIRECTIONS
                           ) where {N, FT<:Flowpipe{N}}
 
     _check_vars(vars)
-    if fast
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
-        seriestype --> :shape
 
-        first = true
-        x = Vector{N}()
-        y = Vector{N}()
-        for Ri in flowpipe(sol)
-            Xi = _project_reachset(Ri, vars)
-            if Xi isa Intersection
-                res = plot_recipe(Xi, ε, Nφ)
-            else
-                # hard-code overapproximation here to avoid individual
-                # compilations for mixed sets
-                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-                if isempty(vlist)
-                    @warn "overapproximation during plotting was empty"
-                    continue
-                end
-                res = vlist[:, 1], vlist[:, 2]
-                # add first vertex to "close" the polygon
-                push!(res[1], vlist[1, 1])
-                push!(res[2], vlist[1, 2])
-            end
-            if isempty(res)
-                continue
-            else
-                x_new, y_new = res
-            end
-            if first
-                first = false
-            else
-                push!(x, N(NaN))
-                push!(y, N(NaN))
-            end
-            append!(x, x_new)
-            append!(y, y_new)
-        end
-        x, y
-    else
-        for Ri in flowpipe(sol)
-            Xi = _project_reachset(Ri, vars)
-            if Xi isa Intersection
-                @series Xi, ε, Nφ
-            else
-                @series Xi, ε
-            end
-        end
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :shape
+
+    first = true
+    x = Vector{N}()
+    y = Vector{N}()
+    for Ri in flowpipe(sol)
+        Xi = _project_reachset(Ri, vars)
+        if Xi isa Intersection
+            res = plot_recipe(Xi, ε, Nφ)
+        else
+            # hard-code overapproximation here to avoid individual
+            # compilations for mixed sets
+            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
+            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+            if isempty(vlist)
+                @warn "overapproximation during plotting was empty"
+                continue
+            end
+            res = vlist[:, 1], vlist[:, 2]
+            # add first vertex to "close" the polygon
+            push!(res[1], vlist[1, 1])
+            push!(res[2], vlist[1, 2])
+        end
+        if isempty(res)
+            continue
+        else
+            x_new = xcoords
+            y_new = ycoords
+        end
+        if first
+            first = false
+        else
+            push!(x, N(NaN))
+            push!(y, N(NaN))
+        end
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    x, y
 end
 
 # compound solution flowpipes
 @recipe function plot_list(sol::Union{SMF, SHF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS,
-                           fast=true
+                           Nφ=PLOT_POLAR_DIRECTIONS
                           ) where {N, MF<:MixedFlowpipe{N}, HF<:HybridFlowpipe{N}, SMF<:ReachSolution{MF}, SHF<:ReachSolution{HF}}
     _check_vars(vars)
-    if fast
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
-        seriestype --> :shape
 
-        first = true
-        x = Vector{N}()
-        y = Vector{N}()
-        for F in flowpipe(sol)
-        for (i, Ri) in enumerate(F)
-            if isa(F, ShiftedFlowpipe)
-                # TODO refactor; this is needed to support ShiftedFlowpipe
-                πRi = project(F, i, vars) # project the reach-set
-                Xi = set(πRi) # extract the set representation
-            else
-                Xi = _project_reachset(Ri, vars)
-            end
-
-            if Xi isa Intersection
-                res = plot_recipe(Xi, ε, Nφ)
-            else
-                # hard-code overapproximation here to avoid individual
-                # compilations for mixed sets
-                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-                if isempty(vlist)
-                    @warn "overapproximation during plotting was empty"
-                    continue
-                end
-                res = vlist[:, 1], vlist[:, 2]
-                # add first vertex to "close" the polygon
-                push!(res[1], vlist[1, 1])
-                push!(res[2], vlist[1, 2])
-            end
-            if isempty(res)
-                continue
-            else
-                x_new, y_new = res
-            end
-            if first
-                first = false
-            else
-                push!(x, N(NaN))
-                push!(y, N(NaN))
-            end
-            append!(x, x_new)
-            append!(y, y_new)
-        end
-        end
-        x, y
-    else
-        for F in flowpipe(sol)
-        for (i, Ri) in enumerate(F)
-            if isa(F, ShiftedFlowpipe)
-                # TODO refactor; this is needed to support ShiftedFlowpipe
-                πRi = project(F, i, vars) # project the reach-set
-                Xi = set(πRi) # extract the set representation
-            else
-                Xi = _project_reachset(Ri, vars)
-            end
-            if Xi isa Intersection
-                @series Xi, ε, Nφ
-            else
-                @series Xi, ε
-            end
-        end
-        end
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :shape
+
+    first = true
+    x = Vector{N}()
+    y = Vector{N}()
+    for F in flowpipe(sol)
+    for (i, Ri) in enumerate(F)
+        if isa(F, ShiftedFlowpipe)
+            # TODO refactor; this is needed to support ShiftedFlowpipe
+            πRi = project(F, i, vars) # project the reach-set
+            Xi = set(πRi) # extract the set representation
+        else
+            Xi = _project_reachset(Ri, vars)
+        end
+
+        if Xi isa Intersection
+            res = plot_recipe(Xi, ε, Nφ)
+        else
+            # hard-code overapproximation here to avoid individual
+            # compilations for mixed sets
+            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
+            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+            if isempty(vlist)
+                @warn "overapproximation during plotting was empty"
+                continue
+            end
+            res = vlist[:, 1], vlist[:, 2]
+            # add first vertex to "close" the polygon
+            push!(res[1], vlist[1, 1])
+            push!(res[2], vlist[1, 2])
+        end
+        if isempty(res)
+            continue
+        else
+            x_new, y_new = res
+        end
+        if first
+            first = false
+        else
+            push!(x, N(NaN))
+            push!(y, N(NaN))
+        end
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    end
+    x, y
 end
 
 # TODO: refactor with Flowpipe
@@ -481,69 +413,57 @@ end
 @recipe function plot_list(fp::ShiftedFlowpipe{N};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS,
-                           fast=true
+                           Nφ=PLOT_POLAR_DIRECTIONS
                           ) where {N}
     _check_vars(vars)
-    if fast
-        label --> DEFAULT_LABEL
-        grid --> DEFAULT_GRID
-        if DEFAULT_ASPECT_RATIO != :none
-            aspect_ratio --> DEFAULT_ASPECT_RATIO
-        end
-        seriesalpha --> DEFAULT_ALPHA
-        seriescolor --> DEFAULT_COLOR
-        seriestype --> :shape
 
-        first = true
-        x = Vector{N}()
-        y = Vector{N}()
-        for (i, Ri) in enumerate(fp)
-            πRi = project(fp, i, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
-
-            if Xi isa Intersection
-                res = plot_recipe(Xi, ε, Nφ)
-            else
-                # hard-code overapproximation here to avoid individual
-                # compilations for mixed sets
-                Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-                vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-                if isempty(vlist)
-                    @warn "overapproximation during plotting was empty"
-                    continue
-                end
-                res = vlist[:, 1], vlist[:, 2]
-                # add first vertex to "close" the polygon
-                push!(res[1], vlist[1, 1])
-                push!(res[2], vlist[1, 2])
-            end
-            if isempty(res)
-                continue
-            else
-                x_new, y_new = res
-            end
-            if first
-                first = false
-            else
-                push!(x, N(NaN))
-                push!(y, N(NaN))
-            end
-            append!(x, x_new)
-            append!(y, y_new)
-        end
-        x, y
-    else
-        for (i, Ri) in enumerate(fp)
-            πRi = project(fp, i, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
-            if Xi isa Intersection
-                @series Xi, ε, Nφ
-            else
-                @series Xi, ε
-            end
-        end
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :shape
+
+    first = true
+    x = Vector{N}()
+    y = Vector{N}()
+    for (i, Ri) in enumerate(fp)
+        πRi = project(fp, i, vars) # project the reach-set
+        Xi = set(πRi) # extract the set representation
+
+        if Xi isa Intersection
+            res = plot_recipe(Xi, ε, Nφ)
+        else
+            # hard-code overapproximation here to avoid individual
+            # compilations for mixed sets
+            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
+            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
+            if isempty(vlist)
+                @warn "overapproximation during plotting was empty"
+                continue
+            end
+            res = vlist[:, 1], vlist[:, 2]
+            # add first vertex to "close" the polygon
+            push!(res[1], vlist[1, 1])
+            push!(res[2], vlist[1, 2])
+        end
+        if isempty(res)
+            continue
+        else
+            x_new, y_new = res
+        end
+        if first
+            first = false
+        else
+            push!(x, N(NaN))
+            push!(y, N(NaN))
+        end
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    x, y
 end
 
 #=
@@ -566,7 +486,8 @@ end
 
 # solution from computation without bloating and singleton initial condition
 # (eg. with ORBIT) is presened as a scatter plot
-@recipe function plot_list(sol::ReachSolution{FT, <:ORBIT}; vars=nothing) where {N, RT<:ReachSet{N, <:Singleton{N}}, FT<:Flowpipe{N, RT}}
+@recipe function plot_list(sol::ReachSolution{FT, <:ORBIT};
+                           vars=nothing) where {N, RT<:ReachSet{N, <:Singleton{N}}, FT<:Flowpipe{N, RT}}
    label --> DEFAULT_LABEL
    grid --> DEFAULT_GRID
    if DEFAULT_ASPECT_RATIO != :none

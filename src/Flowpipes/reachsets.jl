@@ -540,10 +540,10 @@ function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
     if 0 ∈ variables  # the projection involves "time"
         vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  _project(Δt × set(R), vars_idx)
+        proj =  project(Δt × set(R), vars_idx)
     else
         vars_idx = _get_vars_idx(variables, vRvec)
-        proj = _project(set(R), vars_idx)
+        proj = project(set(R), vars_idx)
     end
 
     return SparseReachSet(proj, tspan(R), variables)

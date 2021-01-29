@@ -469,7 +469,6 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     if isa(U, LinearMap)
         Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
         B = matrix(U)
-        println(B)
         Uz = isinterval(B) ? _overapproximate(B * Uz, Zonotope) : linear_map(B, Uz)
     else # LazySet
         Uz = _convert_or_overapproximate(Zonotope, U)
