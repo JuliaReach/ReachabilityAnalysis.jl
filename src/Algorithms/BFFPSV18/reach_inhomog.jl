@@ -28,7 +28,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
     # preallocate accumulated inputs and decompose it
     Whatk = Vector{ST}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
-        πX = _Projection(U, bi)
+        πX = Projection(U, bi)
         Whatk[i] = overapproximate(πX, ST)
     end
 
@@ -85,7 +85,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
     # preallocate accumulated inputs and decompose it
     Whatk = Vector{ST}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
-        πX = _Projection(U, bi)
+        πX = Projection(U, bi)
         Whatk[i] = overapproximate(πX, ST)
     end
 
@@ -141,7 +141,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
     # preallocate accumulated inputs and decompose it
     Whatk = Vector{ST}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
-        πX = _Projection(U, bi)
+        πX = Projection(U, bi)
         Whatk[i] = overapproximate(πX, ST)
     end
 
@@ -197,7 +197,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N,
     # preallocate accumulated inputs and decompose it
     Whatk = Vector{ST}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
-        πX = _Projection(U, bi)
+        πX = Projection(U, bi)
         Whatk[i] = overapproximate(πX, ST)
     end
 
@@ -261,7 +261,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::LazySet, U,
     # preallocate accumulated inputs and decompose it
     Whatk = Vector{ST}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
-        πX = _Projection(U, bi)
+        πX = Projection(U, bi)
         Whatk[i] = overapproximate(πX, ST)
     end
 

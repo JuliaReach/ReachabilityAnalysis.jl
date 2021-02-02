@@ -18,7 +18,11 @@ using LazySets: plot_recipe,
                 _set_auto_limits_to_extrema!,
                 _bounding_hyperrectangle,
                 _update_plot_limits!,
-                isapproxzero
+                isapproxzero,
+                _plot_singleton_list
+
+import LazySets: _plot_singleton_list_1D,
+                 _plot_singleton_list_2D
 
 # heuristics for projecting a reach-set either concretely or lazily to the space
 # spanned by vars; the returned set is concrete when the exact projection can be done
@@ -49,6 +53,12 @@ function _project_reachset(T::TaylorModelReachSet, vars)
     _project_reachset(R, vars)
 end
 
+# templates have their own projection heuristics
+function _project_reachset(R::TemplateReachSet, vars)
+    πR = project(R, vars)
+    X = set(πR)
+end
+
 function _check_vars(vars)
     if vars == nothing
         throw(ArgumentError("default ploting variables not implemented yet; you need " *
@@ -59,6 +69,10 @@ function _check_vars(vars)
     @assert (D == 1) || (D == 2) "can only plot in one or two dimensions, " *
                                  "but received $D variable indices where `vars = ` $vars"
 end
+
+# ========================
+# Reach-set plot recipes
+# ========================
 
 @recipe function plot_reachset(R::AbstractLazyReachSet{N};
                                vars=nothing,
@@ -108,21 +122,35 @@ end
     return (x, y)
 end
 
-@recipe function plot_list(list::AbstractVector{RN};
-                           vars=nothing,
-                           ε=N(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N, RN<:AbstractReachSet{N}}
-    _check_vars(vars)
+# TODO use LazySets._plot_singleton_list_1D if the reach-sets are stored as a struct
+# array. Otherwise, we could use pass the list through x -> set(x)
+function _plot_singleton_list_1D(list::Union{Flowpipe{N}, AbstractVector{RN}}) where {N, RN<:AbstractReachSet{N}}
+    m = length(list)
 
-    label --> DEFAULT_LABEL
-    grid --> DEFAULT_GRID
-    if DEFAULT_ASPECT_RATIO != :none
-        aspect_ratio --> DEFAULT_ASPECT_RATIO
+    x = Vector{N}(undef, m)
+    y = zeros(N, m)
+
+    @inbounds for (i, Xi) in enumerate(list)
+        p = element(set(Xi))
+        x[i] = p[1]
     end
-    seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
-    seriestype --> :shape
+    x, y
+end
 
+function _plot_singleton_list_2D(list::Union{Flowpipe{N}, AbstractVector{RN}}) where {N, RN<:AbstractReachSet{N}}
+    m = length(list)
+    x = Vector{N}(undef, m)
+    y = Vector{N}(undef, m)
+
+    @inbounds for (i, Xi) in enumerate(list)
+        p = element(set(Xi))
+        x[i] = p[1]
+        y[i] = p[2]
+    end
+    x, y
+end
+
+function _plot_reachset_list(list, N, vars, ε, Nφ)
     first = true
     x = Vector{N}()
     y = Vector{N}()
@@ -132,12 +160,7 @@ end
         if Xi isa Intersection
             xcoords, ycoords = plot_recipe(Xi, ε, Nφ)
 
-        #elseif Xi isa Singleton
-        #    xcoords, ycoords = plot_recipe(Xi, ε)
-
         else
-            # hard-code overapproximation here to avoid individual
-            # compilations for mixed sets
             Pi = isconcretetype(typeof(Xi)) ? Xi : overapproximate(Xi, ε)
             vlist = convex_hull(vertices_list(Pi))
             m = length(vlist)
@@ -174,11 +197,14 @@ end
     x, y
 end
 
-@recipe function plot_list(fp::Flowpipe{N};
-                           vars=nothing,
-                           ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N}
+# ========================
+# Flowpipe plot recipes
+# ========================
 
+@recipe function plot_list(list::Union{Flowpipe{N}, AbstractVector{RN}};
+                           vars=nothing,
+                           ε=N(PLOT_PRECISION),
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N, RN<:AbstractReachSet{N}}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -188,45 +214,14 @@ end
     end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR
-    seriestype --> :shape
 
-    first = true
-    x = Vector{N}()
-    y = Vector{N}()
-    for Ri in fp
-        Xi = _project_reachset(Ri, vars)
-
-        if Xi isa Intersection
-            res = plot_recipe(Xi, ε, Nφ)
-        else
-            # hard-code overapproximation here to avoid individual
-            # compilations for mixed sets
-            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-            if isempty(vlist)
-                @warn "overapproximation during plotting was empty"
-                continue
-            end
-            res = vlist[:, 1], vlist[:, 2]
-            # add first vertex to "close" the polygon
-            push!(res[1], vlist[1, 1])
-            push!(res[2], vlist[1, 2])
-        end
-        if isempty(res)
-            continue
-        else
-            x_new, y_new = res
-        end
-        if first
-            first = false
-        else
-            push!(x, N(NaN))
-            push!(y, N(NaN))
-        end
-        append!(x, x_new)
-        append!(y, y_new)
+    if !(0 ∈ vars) && (setrep(list) <: AbstractSingleton)
+        seriestype --> :scatter
+        _plot_singleton_list(list)
+    else
+        seriestype --> :shape
+        _plot_reachset_list(list, N, vars, ε, Nφ)
     end
-    x, y
 end
 
 # compound flowpipes
@@ -247,46 +242,21 @@ end
     seriescolor --> DEFAULT_COLOR
     seriestype --> :shape
 
-    first = true
     x = Vector{N}()
     y = Vector{N}()
-    for F in fp
-    for Ri in F
-        Xi = _project_reachset(Ri, vars)
 
-        if Xi isa Intersection
-            res = plot_recipe(Xi, ε, Nφ)
-        else
-            # hard-code overapproximation here to avoid individual
-            # compilations for mixed sets
-            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-            if isempty(vlist)
-                @warn "overapproximation during plotting was empty"
-                continue
-            end
-            res = vlist[:, 1], vlist[:, 2]
-            # add first vertex to "close" the polygon
-            push!(res[1], vlist[1, 1])
-            push!(res[2], vlist[1, 2])
-        end
-        if isempty(res)
-            continue
-        else
-            x_new, y_new = res
-        end
-        if first
-            first = false
-        else
-            push!(x, N(NaN))
-            push!(y, N(NaN))
-        end
+    for F in fp
+        x_new, y_new = _plot_reachset_list(F, N, vars, ε, Nφ)
         append!(x, x_new)
         append!(y, y_new)
     end
-    end
     x, y
 end
+
+
+# ========================
+# Solution plot recipes
+# ========================
 
 @recipe function plot_list(sol::ReachSolution{FT};
                            vars=nothing,
@@ -303,45 +273,15 @@ end
     end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR
-    seriestype --> :shape
 
-    first = true
-    x = Vector{N}()
-    y = Vector{N}()
-    for Ri in flowpipe(sol)
-        Xi = _project_reachset(Ri, vars)
-        if Xi isa Intersection
-            res = plot_recipe(Xi, ε, Nφ)
-        else
-            # hard-code overapproximation here to avoid individual
-            # compilations for mixed sets
-            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-            if isempty(vlist)
-                @warn "overapproximation during plotting was empty"
-                continue
-            end
-            res = vlist[:, 1], vlist[:, 2]
-            # add first vertex to "close" the polygon
-            push!(res[1], vlist[1, 1])
-            push!(res[2], vlist[1, 2])
-        end
-        if isempty(res)
-            continue
-        else
-            x_new = xcoords
-            y_new = ycoords
-        end
-        if first
-            first = false
-        else
-            push!(x, N(NaN))
-            push!(y, N(NaN))
-        end
-        append!(x, x_new)
-        append!(y, y_new)
+    fp = flowpipe(sol)
+    if !(0 ∈ vars) && (setrep(fp) <: AbstractSingleton)
+        seriestype --> :scatter
+        _plot_singleton_list(fp)
+    else
+        seriestype --> :shape
+        _plot_reachset_list(fp, N, vars, ε, Nφ)
     end
-    x, y
 end
 
 # compound solution flowpipes

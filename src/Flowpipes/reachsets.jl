@@ -399,6 +399,7 @@ end
 set(R::ReachSet) = R.X
 setrep(R::ReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
 setrep(::Type{ReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
+setrep(::AbstractVector{RT}) where {RT<:AbstractReachSet} = setrep(RT)
 tstart(R::ReachSet) = inf(R.Δt)
 tend(R::ReachSet) = sup(R.Δt)
 tspan(R::ReachSet) = R.Δt
@@ -575,10 +576,10 @@ function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
     if 0 ∈ variables  # the projection involves "time"
         vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  _Projection(Δt × set(R), vars_idx)
+        proj =  Projection(Δt × set(R), vars_idx)
     else
         vars_idx = _get_vars_idx(variables, vRvec)
-        proj = _Projection(set(R), vars_idx)
+        proj = Projection(set(R), vars_idx)
     end
 
     return SparseReachSet(proj, tspan(R), variables)

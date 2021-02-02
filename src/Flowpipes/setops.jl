@@ -156,7 +156,7 @@ function _decompose(X::LazySet{N},
     result = Vector{ST}(undef, length(blocks))
 
     @inbounds for (i, bi) in enumerate(blocks)
-        πX = _Projection(X, bi)
+        πX = Projection(X, bi)
         result[i] = overapproximate(πX, ST)
     end
     return CartesianProductArray(result)
