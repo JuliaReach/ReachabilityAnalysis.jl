@@ -92,6 +92,15 @@ solz = overapproximate(sol, Zonotope); #!jl
 plot(solz, vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
 plot!(x -> 2.75, color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #!jl
 
+# We can also plot the state variables ``x(t)`` and ``y(t)`` as a function of time
+# (recall that `0` in `vars` is used to denote the time variable):
+
+plot(solz, vars=(0, 1), lw=0.2, xlab="t", ylab="x") #!jl
+
+#-
+
+plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
+
 # ## Invariant Set
 #
 # We can use the reachability result to examine an invariant of the system. In
