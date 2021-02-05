@@ -143,7 +143,7 @@ sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets())
 plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
 ```
 
-<img src="https://github.com/JuliaReach/JuliaReach-website/blob/master/src/images/duffing2.png?raw=true" alt="Girl in a jacket" width="600">
+<img src="https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/duffing2.png?raw=true" alt="" width="600">
 
 
 ## 🐾  Examples
