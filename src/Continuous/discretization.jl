@@ -257,8 +257,8 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
     Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
     P2A_abs = _Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
-    Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Einit)
+    E₊ = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ E₊)
     Ω0 = _apply_setops(Ω0, alg)
     X = stateset(ivp)
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
