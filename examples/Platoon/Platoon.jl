@@ -1,4 +1,4 @@
-# # Platooning
+# # Vehicle Platoon Model
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/Platoon.ipynb)
 #
 #md # !!! note "Overview"
@@ -8,7 +8,7 @@
 #
 # ## Model description
 #
-# The platooning benchmark considers a platoon of three vehicles following each
+# This benchmark considers a platoon of three vehicles following each
 # other. This benchmark considers loss of communication between vehicles. The model
 # has two modes, connected and disconnected.
 # Three scenarios are considered for the loss of communication:

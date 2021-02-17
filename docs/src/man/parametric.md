@@ -132,9 +132,7 @@ x0sample = [0.45, 0.50, 0.55]
 plot!(fig, Hyperrectangle(low=[1.09, 0.05], high=[2.0, 0.15]), alpha=0.2, lw=2.0, c=:black, linestyle=:dot)
 
 # zoomed plot
-figz =
-
-
+#figz =
 ```
 
 For illustration, suppose that we are interested in the behavior of trajectories

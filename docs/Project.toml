@@ -13,4 +13,4 @@ PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 
 [compat]
 Documenter = "0.24"
-ModelingToolkit = "5"
+ModelingToolkit = "~5.1"
