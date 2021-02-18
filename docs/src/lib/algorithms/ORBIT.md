@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
+```
+
 ```@docs
 ORBIT
 ```
@@ -41,7 +46,7 @@ Before considering the computation of $\Phi$ and $\Phi_1$, note that the method 
 x(k\delta) = \Phi^k x_0 + \sum_{i=0}^{k-1} \Phi^i v_{k-i},\qquad k = 1,\ldots, N
 ```
 
-The matrix $\Phi = e^{A\delta}$ can be evaluated in different ways, using the function [`_exp(A, \delta, method)`](@ref):
+The matrix $\Phi = e^{A\delta}$ can be evaluated in different ways, using the function [`_exp`](@ref):
 
 (1) `method=:base` uses Julia's built-in implementation (if `method = :base`),
 
@@ -53,4 +58,6 @@ Method (1) is the default method. Method (2) is particularly useful to work with
 
 (2) In general, $\Phi_1(u, \delta)$ can be obtained as a sub-block of a larger matrix. See [[FRE11]](@ref) for details.
 
-Method (2) is the default method, although there are cases in which method (1) is more convenient. For example, if we are only interested in singleton inputs and $A$ is invertible, it is possible to compute $\Phi_1(A, \delta) u $ efficiently without actually inverting the matrix $A$ in full.
+Method (2) is the default method, although there are cases in which method (1) is more convenient.
+For example, if we are only interested in singleton inputs and $A$ is invertible,
+it is possible to compute $\Phi_1(A, \delta) u $ efficiently without actually inverting the matrix $A$ in full.

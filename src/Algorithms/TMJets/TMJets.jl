@@ -1,8 +1,7 @@
 """
     TMJets{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
 
-Validated integration with Taylor models, based on the algorithm implemented
-by Luis Benet and David Sanders in `TalorModels.jl`.
+Validated integration using Taylor models.
 
 ### Fields
 
@@ -24,6 +23,11 @@ computed, in the case where the invariant is not universal. In particular,
 `ZonotopeEnclosure()` pre-processes the taylor model with a zonotopic overapproximation,
 then performs the disjointness check with that zonotope and the invariant.
 For other options, see the documentation of `AbstractDisjointnessMethod`.
+
+This algorithm is an adaptation of the implementation in `TaylorModels.jl`
+(see copyright license in `src/Algorithms/TMJets/reach.jl`). The package
+`TaylorIntegration.jl` is used for jet-transport of ODEs using the Taylor method,
+and `TaylorSeries.jl` is used to work with truncated Taylor series.
 """
 @with_kw struct TMJets{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
     max_steps::Int=DEFAULT_MAX_STEPS_TMJETS

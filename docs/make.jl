@@ -8,7 +8,7 @@ DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
 include("generate.jl")
 
 makedocs(
-    format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),  # disable for local builds
+    format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
                              collapselevel = 1,
                              assets = ["assets/juliareach-light.css"]),
     sitename = "ReachabilityAnalysis.jl",
@@ -19,7 +19,7 @@ makedocs(
         "Manual" => Any["Basics" => "man/basics.md",
                         "Linear ODEs" => "man/linear.md",
                         "Nonlinear ODEs" => "man/nonlinear.md",
-                        "Semidiscrete PDEs" => "man/pde.md",
+                        #"Semidiscrete PDEs" => "man/pde.md"
                         "Hybrid systems" => "man/hybrid.md",
                         "Clocked systems" => "man/clocked.md",
                         "Exploiting structure" => "man/structure.md",
@@ -45,7 +45,7 @@ makedocs(
                           "Quadrotor" => "models/Quadrotor.md",
                           "SEIR model" => "models/SEIR.md",
                           "Spacecraft" => "models/Spacecraft.md"],
-                          # "Electromechanic break" => "man/applications/EMBrake.md"
+                          # "Electromechanic break" => "man/EMBrake.md"
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                             "BOX" => "lib/algorithms/BOX.md",
@@ -57,7 +57,6 @@ makedocs(
                             "QINT" => "lib/algorithms/QINT.md",
                             "TMJets" => "lib/algorithms/TMJets.md",
                             "VREP" => "lib/algorithms/VREP.md"],
-                            #
         "API Reference" => Any["Reach-sets" => "lib/reachsets.md",
                                "Flowpipes" => "lib/flowpipes.md",
                                "Solutions" => "lib/solutions.md",

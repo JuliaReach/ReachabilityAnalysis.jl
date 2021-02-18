@@ -7,12 +7,8 @@ CurrentModule = ReachabilityAnalysis
 
 ## Concrete projection
 
-```@docs
-project
-```
+TODO: document `project`
 
 ## Lazy projection
 
-```@docs
-Projection
-```
+TODO: document `Projection`
