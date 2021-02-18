@@ -374,9 +374,9 @@ function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     if 0 ∈ vars # projection includes "time"
         # we shift the vars indices by one as we take the Cartesian prod with the time spans
         aux = vars .+ 1
-        return map(X -> _project(convert(Interval, tspan(X)) × set(X), aux), Xk)
+        return map(X -> project(convert(Interval, tspan(X)) × set(X), aux), Xk)
     else
-        return map(X -> _project(set(X), vars), Xk) # TODO return Flowpipe ?
+        return map(X -> project(set(X), vars), Xk) # TODO return Flowpipe ?
     end
 end
 
@@ -578,9 +578,9 @@ function project(fp::ShiftedFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
         # we shift the vars indices by one as we take the Cartesian prod with the time spans
         aux = vars .+ 1
         t0 = time_shift(fp)
-        return map(X -> _project(convert(Interval, tspan(X) + t0) × set(X), aux), Xk)
+        return map(X -> project(convert(Interval, tspan(X) + t0) × set(X), aux), Xk)
     else
-        return map(X -> _project(set(X), vars), Xk)
+        return map(X -> project(set(X), vars), Xk)
     end
 end
 
@@ -595,9 +595,9 @@ function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:I
         aux = vars .+ 1
 
         Δt = convert(Interval, tspan(R) + t0)
-        proj =  _project(Δt × set(R), aux)
+        proj =  project(Δt × set(R), aux)
     else
-        proj = _project(set(R), vars)
+        proj = project(set(R), vars)
     end
 
     return SparseReachSet(proj, tspan(R) + t0, vars)

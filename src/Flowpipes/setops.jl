@@ -132,61 +132,11 @@ LazySets.sample(X::IntervalArithmetic.IntervalBox, d::Integer) = sample(convert(
 
 # extend LazySets concrete projection for other arg fomats
 LazySets.project(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = project(X, collect(vars))
-LazySets.project(X::LazySet; vars) where {D} = project(X, collect(vars))
+LazySets.project(X::LazySet; vars) = project(X, vars)
 
 # extend LazySets lazy projection for other arg fomats
 LazySets.Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = Projection(X, collect(vars))
-LazySets.Projection(X::LazySet; vars) where {D} = Projection(X, collect(vars))
-
-# fallback concrete projection
-function _project(X::LazySet, vars::NTuple{D, <:Integer}) where {D}
-    return project(X, collect(vars))
-end
-
-_project(X::LazySet, vars::AbstractVector) = _project(X, Tuple(vars))
-
-# more efficient concrete projection for zonotopic sets (see LazySets#2013)
-function _project(Z::AbstractZonotope{N}, vars::NTuple{D, <:Integer}) where {N, D}
-    M = projection_matrix(collect(vars), dim(Z), N)
-    return linear_map(M, Z)
-end
-
-# cartesian product of an interval and a hyperrectangular set
-# TODO refactor to LazySets
-function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:AbstractHyperrectangle{N}}, vars::NTuple{D, T}) where {N, D, T<:Integer}
-    # NOTE: can be optimized further, eg. for the case that 1 ∉ vars and
-    # without copying the full center and radius vectors of H
-    Δt = cp.X
-    H = cp.Y
-    cH = vcat(center(Δt), center(H))
-    rH = vcat(radius_hyperrectangle(Δt), radius_hyperrectangle(H))
-    vars_vec = collect(vars)
-    return Hyperrectangle(cH[vars_vec], rH[vars_vec], check_bounds=false)
-end
-
-# hyperrectangular set
-# TODO refactor after LazySets#2190
-function _project(H::AbstractHyperrectangle{N}, vars::NTuple{D, T}) where {N, D, T<:Integer}
-    cH = center(H)
-    rH = radius_hyperrectangle(H)
-    vars_vec = collect(vars)
-    return Hyperrectangle(cH[vars_vec], rH[vars_vec], check_bounds=false)
-end
-
-# cartesian product of an interval and a zonotopic set
-function _project(cp::CartesianProduct{N, Interval{N, IA.Interval{N}}, <:AbstractZonotope{N}}, vars::NTuple{D, T}) where {N, D, T<:Integer}
-    vars_vec = collect(vars)
-    M = projection_matrix(vars_vec, dim(cp), N)
-    Z = convert(Zonotope, cp)
-    return linear_map(M, Z)
-end
-
-# fallback lazy projection
-function _Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D}
-    return LazySets.Projection(X, collect(vars))
-end
-
-_Projection(X::LazySet, vars::AbstractVector) =  _Projection(X, Tuple(vars))
+LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 
 # ===============================
 # Decompositions and partitions
@@ -206,7 +156,7 @@ function _decompose(X::LazySet{N},
     result = Vector{ST}(undef, length(blocks))
 
     @inbounds for (i, bi) in enumerate(blocks)
-        πX = _Projection(X, bi)
+        πX = Projection(X, bi)
         result[i] = overapproximate(πX, ST)
     end
     return CartesianProductArray(result)

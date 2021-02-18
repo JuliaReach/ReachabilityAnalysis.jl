@@ -1,5 +1,6 @@
 ```@meta
 DocTestSetup = :(using ReachabilityAnalysis)
+CurrentModule = ReachabilityAnalysis
 ```
 
 # Discretization
@@ -12,6 +13,7 @@ Depth = 3
 ## Discretize API
 
 ```@docs
+normalize
 discretize
 ```
 

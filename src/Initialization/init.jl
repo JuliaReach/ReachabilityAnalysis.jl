@@ -22,7 +22,7 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
 using LazySets: LinearMap, AffineMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
-using LazySets: Interval, isdisjoint, radius, sample, ∅, dim
+using LazySets: Interval, isdisjoint, radius, sample, ∅, dim, scale, scale!
 
 # in-place set operations
 using LazySets: linear_map!

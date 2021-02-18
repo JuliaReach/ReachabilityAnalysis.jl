@@ -13,7 +13,7 @@ mkpath(target_dir_md)
 
 # model files in sub-directories of source_dir
 MODELS = ["Brusselator/Brusselator.jl",
-          "Building/Building.jl",
+          #"Building/Building.jl", # FIXME error with JLD2
           "DuffingOscillator/DuffingOscillator.jl",
           "EMBrake/EMBrake.jl",
           "Heat3D/Heat3D.jl",
@@ -23,8 +23,8 @@ MODELS = ["Brusselator/Brusselator.jl",
           "LotkaVolterra/LotkaVolterra.jl",
           #"LotkaVolterraTangential/LotkaVolterraTangential.jl",
           "OpAmp/OpAmp.jl",
-          "SquareWaveOscillator/SquareWaveOscillator.jl",
-          "Platoon/Platoon.jl",
+          #"SquareWaveOscillator/SquareWaveOscillator.jl", # FIXME review plotting workflow
+          #"Platoon/Platoon.jl", # FIXME review plotting workflow
           "ProductionDestruction/ProductionDestruction.jl",
           "Quadrotor/Quadrotor.jl",
           "SEIR/SEIR.jl",
