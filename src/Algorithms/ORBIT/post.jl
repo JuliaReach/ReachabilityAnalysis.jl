@@ -32,9 +32,9 @@ function post(alg::ORBIT{N, VT, AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan
 
     # preallocate output flowpipe
     ST = Singleton{N, VT}
-    F = Vector{ReachSet{N, ST}}(undef, NSTEPS)
+    F = Vector{ReachSet{N, ST}}(undef, NSTEPS+1)
 
-    _orbit!(F, Φ, Ω0, V, NSTEPS, δ, X, Δt0)
+    _orbit!(F, Φ, Ω0, V, NSTEPS+1, δ, X, Δt0)
 
     return Flowpipe(F)
 end
@@ -45,7 +45,7 @@ end
 # Φ*Ω0 + V
 # Φ^2*Ω0 + Φ*V + V
 # ....
-# Φ^(NSTEPS-1)*Ω0  + Φ^(NSTEPS-2)*V + ... + Φ*V + V
+# Φ^(NSTEPS)*Ω0 + Φ^(NSTEPS-1)*V + ... + Φ*V + V
 function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, X::Universe, Δt0) where {N}
     # preallocate output sequence
     n = size(Φ, 1)
@@ -58,8 +58,8 @@ function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, X::Universe, Δt0
     # compute output sequence
     _orbit!(out, Φ, Ω0, V, NSTEPS)
 
-    # fill singleton reach-set sequence
-    Δt = (zero(N) .. δ) + Δt0
+    # fill reach-set sequence for each time intsance 0, δ, 2δ, ...
+    Δt = (zero(N) .. zero(N)) + Δt0
     for k in 1:NSTEPS
         xk = Singleton(out[k])
         F[k] = ReachSet(xk, Δt)

@@ -19,4 +19,14 @@
     U2 = k -> U((k-1) * δ)[2]
     @test sum((set(sol[k]).element[1] - U1(k))^2 for k in 1:length(sol)) < eps(Float64)
     @test sum((set(sol[k]).element[2] - U2(k))^2 for k in 1:length(sol)) < eps(Float64)
+
+    # test numer of steps
+    sol = solve(prob, tspan=(0.0, 3δ), alg=ORBIT(δ=δ));
+    @test tspan(sol) ≈ (0.0, 3δ)
+    x = sol[end]
+    @test _isapprox(tspan(x), interval(3δ))
+    @test element(set(x)) ≈ [cos(3δ), -sin(3δ)]
+
+    # test time span sequence
+    @test all(_isapprox(tspan(sol[i]), interval(δ*(i-1))) for i in eachindex(sol))
 end
