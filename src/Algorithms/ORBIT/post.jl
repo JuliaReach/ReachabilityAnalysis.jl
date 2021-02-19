@@ -58,8 +58,8 @@ function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, X::Universe, Δt0
     # compute output sequence
     _orbit!(out, Φ, Ω0, V, NSTEPS)
 
-    # fill singleton reach-set sequence
-    Δt = (zero(N) .. δ) + Δt0
+    # fill reach-set sequence for each time intsance 0, δ, 2δ, ...
+    Δt = (zero(N) .. zero(N)) + Δt0
     for k in 1:NSTEPS
         xk = Singleton(out[k])
         F[k] = ReachSet(xk, Δt)
