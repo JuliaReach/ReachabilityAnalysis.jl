@@ -42,10 +42,6 @@ const TM = TaylorModels
 # method extensions for Taylor model reach-sets
 import TaylorModels: domain, remainder, polynomial, get_order
 
-@inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
-    return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
-end
-
 # aliases for set types
 const CPA = CartesianProductArray
 
@@ -55,7 +51,7 @@ const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.In
 # method extensions
 import LazySets: dim, overapproximate, project, Projection,
                  intersection, is_intersection_empty,
-                 linear_map, LinearMap, _split, split!, set, array
+                 linear_map, LinearMap, _split, split!, set, array, _isapprox
 
 import Base: ∈, convert
 import LinearAlgebra: normalize
@@ -96,6 +92,10 @@ const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
 const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
 const SecondOrderSystem = Union{SOLCS, SOACS, SOCLCCS, SOCACCS}
 const NonlinearSystem = Union{BBCS, CBBCS, CBBCCS}
+
+@inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
+    return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
+end
 
 # ======================
 # Optional dependencies
