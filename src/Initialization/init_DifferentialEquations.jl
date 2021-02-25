@@ -28,6 +28,11 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     ensemble_prob = ODEProblem(field, first(X0_samples), tspan)
     _prob_func(prob, i, repeat) = remake(prob, u0 = X0_samples[i])
 
+    # choose tolerances
+    reltol = haskey(kwargs, :reltol) ? kwargs[:reltol] : 1e-3
+    abstol = haskey(kwargs, :abstol) ? kwargs[:abstol] : 1e-6
+
     ensemble_prob = EnsembleProblem(ensemble_prob, prob_func = _prob_func)
-    return DE.solve(ensemble_prob, trajectories_alg, ensemble_alg; trajectories = trajectories)
+    return DE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
+                    trajectories=trajectories, reltol=reltol, abstol=abstol)
 end
