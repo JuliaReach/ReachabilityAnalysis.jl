@@ -418,6 +418,8 @@ end end  # quote / load_krylov_LGG09_inhomog()
 # Methods using eigenvalues of the transition matrix
 # ------------------------------------------------------------
 
+#= FIXME needs review <<
+
 # it is assumed that (λ, d) is an eigenvalue-eigenvector pair of the matrix Φᵀ
 function reach_inhomog_dir_eig_LGG09!(out::AbstractVector{N}, X₀, V, d::AbstractVector{N}, λ::N, NSTEPS) where {N}
     if iszero(λ)
@@ -507,3 +509,4 @@ function _reach_inhomog_dir_eig_LGG09_negative!(out::AbstractVector{N}, X₀, V:
         end
     end
 end
+=#
