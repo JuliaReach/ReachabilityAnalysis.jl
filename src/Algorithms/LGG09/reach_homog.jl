@@ -188,3 +188,54 @@ function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
 end
 
 end end  # quote / load_krylov_LGG09_homog()
+
+# ------------------------------------------------------------
+# Methods using eigenvalues of the transition matrix
+# ------------------------------------------------------------
+
+# it is assumed that (λ, d) is an eigenvalue-eigenvector pair of the matrix Φᵀ
+function reach_homog_dir_eig_LGG09!(out::AbstractVector{N}, X₀, d::AbstractVector{N}, λ::N, NSTEPS) where {N}
+    if iszero(λ)
+        _reach_homog_dir_eig_LGG09_zero!(out, X₀, d, NSTEPS)
+    elseif λ > zero(N)
+        _reach_homog_dir_eig_LGG09_positive!(out, X₀, d, λ, NSTEPS)
+    else
+        _reach_homog_dir_eig_LGG09_negative!(out, X₀, d, λ, NSTEPS)
+    end
+    return out
+end
+
+function _reach_homog_dir_eig_LGG09_zero!(out::AbstractVector{N}, X₀, d, NSTEPS) where {N}
+    @inbounds begin
+        out[1] = ρ(d, X₀)
+        for i in 2:NSTEPS
+            out[i] = zero(N)
+        end
+    end
+end
+
+function _reach_homog_dir_eig_LGG09_positive!(out::AbstractVector{N}, X₀, d, λ, NSTEPS) where {N}
+    ρ₀ = ρ(d, X₀)
+    λⁱ = one(N)
+    @inbounds for i in 1:NSTEPS
+        out[i] = λⁱ * ρ₀
+        λⁱ = λⁱ * λ
+    end
+end
+
+function _reach_homog_dir_eig_LGG09_negative!(out::AbstractVector{N}, X₀, d, λ, NSTEPS) where {N}
+    ρ₀ = ρ(d, X₀)
+    ρ₀₋ = ρ(-d, X₀)
+    λⁱ = λ
+    @inbounds begin
+        out[1] = ρ₀
+        for i in 2:NSTEPS
+            if iseven(i)
+                out[i] = -λⁱ * ρ₀₋
+            else
+                out[i] = λⁱ * ρ₀
+            end
+            λⁱ = λⁱ * λ
+        end
+    end
+end
