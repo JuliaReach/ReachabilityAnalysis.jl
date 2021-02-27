@@ -168,7 +168,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 - Frehse, G., Le Guernic, C., Donzé, A., Cotton, S., Ray, R., Lebeltel,
   O., ... & Maler, O. (2011, July).
   [*SpaceEx: Scalable verification of hybrid systems*](https://link.springer.com/content/pdf/10.1007/978-3-642-22110-1_30.pdf).
-  In International Conference on Computer Aided Verification (pp. 379-395). Springer, Berlin, Heidelberg.
+  In International Conference on Computer Aided Verification (pp. 379-395). Springer, Berlin, Heidelberg. [pdf](file:///home/mforets/Downloads/Frehse2011_Chapter_SpaceExScalableVerificationOfH%20(5).pdf)
 
 ```
 @inproceedings{frehse2011spaceex,
@@ -335,7 +335,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 #### [LGG09]
 
 - Le Guernic, Colas, and Antoine Girard. [*Reachability analysis of linear systems using support functions*](https://viterbi-web.usc.edu/~jdeshmuk/teaching/cs699-fm-for-cps/Papers/A3.pdf).
-  Nonlinear Analysis: Hybrid Systems 4.2 (2010): 250-262.
+  Nonlinear Analysis: Hybrid Systems 4.2 (2010): 250-262. [pdf](https://viterbi-web.usc.edu/~jdeshmuk/teaching/cs699-fm-for-cps/Papers/A3.pdf)
 
 ```
 @article{le2010reachability,
