@@ -1,11 +1,13 @@
 # ============================================================================
-# Composition operation for one step forward in time with one step backward
+# Composition operation for one step of an approximation model with one step
+# backward of the same model
 # ============================================================================
 
 """
     StepIntersect{DM<:AbstractApproximationModel} <: AbstractApproximationModel
 
-Approximation model that composes (intersecting) one step forward with one step backward.
+Approximation model that composes (intersecting) one step Forward of a given
+model with one step backward of the same model.
 
 ### Fields
 
@@ -41,8 +43,7 @@ function StepIntersect(; setops=:lazy)
     return StepIntersect(Forward(), _alias(setops))
 end
 
-$
-function Base.show(io::IO, alg::Forward)
+function Base.show(io::IO, alg::StepIntersect)
     print(io, "`StepIntersect` approximation model with: \n")
     print(io, "    - model: $(alg.model) \n")
     print(io, "    - set operations method: $(alg.setops)\n")
@@ -54,7 +55,22 @@ Base.show(io::IO, m::MIME"text/plain", alg::StepIntersect) = print(io, alg)
 # Homogeneous case
 # ------------------------------------------------------------
 
-# x' = Ax, x(0) ∈ X₀, x ∈ X 
+# x' = Ax, x(0) ∈ X₀, x ∈ X
 function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::StepIntersect)
+    A = state_matrix(ivp)
+    X0 = initial_state(ivp)
+    X = stateset(ivp)
+
     ivpd = discretize(ivp, δ, alg.model)
+    Φ = state_matrix(ivpd)
+    Ω0₊ = initial_state(ivpd)
+
+    Aneg = -A
+    ΦX0 = Φ * X0
+    ivpneg = IVP(CLCS(Aneg, X), ΦX0)
+    ivpnegd = discretize(ivpneg, δ, alg.model)
+    Ω0₋ = initial_state(ivpnegd)
+
+    Ω0 = Ω0₊ ∩ Ω0₋
+    return IVP(CLDS(Φ, X), Ω0)
 end
