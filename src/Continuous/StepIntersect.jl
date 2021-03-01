@@ -39,8 +39,8 @@ end
 hasbackend(alg::StepIntersect) = !isnothing(alg.model)
 
 # convenience constructor using symbols
-function StepIntersect(; setops=:lazy)
-    return StepIntersect(Forward(), _alias(setops))
+function StepIntersect(alg=Forward(); setops=alg.setops)
+    return StepIntersect(alg, _alias(setops))
 end
 
 function Base.show(io::IO, alg::StepIntersect)
@@ -71,6 +71,6 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::StepIntersect)
     ivpnegd = discretize(ivpneg, δ, alg.model)
     Ω0₋ = initial_state(ivpnegd)
 
-    Ω0 = Ω0₊ ∩ Ω0₋
+    Ω0 = _apply_setops(Ω0₊ ∩ Ω0₋, alg.setops)
     return IVP(CLDS(Φ, X), Ω0)
 end

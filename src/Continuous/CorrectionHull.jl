@@ -84,16 +84,13 @@ end
 
 function _discretize_chull(A, Φ::AbstractMatrix, X0, δ, alg)
     X0z = _convert_or_overapproximate(X0, Zonotope)
-    Y = _overapproximate(Φ * X0z, Zonotope)
+    Y = linear_map(Φ, X0z)
 
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = _correction_hull_without_E(A, δ, alg.order)
     R = _overapproximate(F * X0z, Zonotope)
+
     Ω0 = minkowski_sum(H, R)
-
-#    Ω0_chull = minkowski_sum(convert(VPolygon, concretize(CH(X0, Φ*X0))),
-#                  convert(VPolygon, FX0));
-
     return Ω0
 end
 
