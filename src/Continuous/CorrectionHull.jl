@@ -136,6 +136,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     Cδ = _Cδ(A, δ, alg.order)
     Ud = _overapproximate(Cδ * Uz, Zonotope)
     Ω0 = minkowski_sum(Ω0_homog, Ud)
+    # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
     Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
     return InitialValueProblem(Sdis, Ω0)

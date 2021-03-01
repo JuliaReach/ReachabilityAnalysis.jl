@@ -6,7 +6,7 @@
 function post(alg::VREP{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
 
-    ReachabilityAnalysis.@unpack δ, approx_model, static, dim = alg
+    @unpack δ, approx_model, static, dim = alg
 
     # TODO move up to main solve function
     if haskey(kwargs, :NSTEPS)
@@ -31,7 +31,14 @@ function post(alg::VREP{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # discretize system
     ivp_discr = discretize(ivp_norm, δ, approx_model)
     Φ = state_matrix(ivp_discr)
-    Ω0 = initial_state(ivp_discr)::VPOLY
+
+    # the initial state should be expressed in v-rep
+    Ω0 = initial_state(ivp_discr)
+    if !(Ω0 isa VPolygon || Ω0 isa VPolytope)
+        n = size(Φ, 1)
+        Ω0 = n == 2 ? convert(VPolygon, Ω0) : convert(VPolytope, Ω0)
+    end
+
     X = stateset(ivp_discr)
 
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X

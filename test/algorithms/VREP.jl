@@ -64,3 +64,12 @@ end
     prob = @ivp(x' = A*x, x(0) ∈ X0)
     sol = solve(prob, tspan=(0.0, 1.0), alg=VREP(δ=1e-3, static=true, dim=4, backend=CDDLib.Library()))
 end
+
+@testset "VREP for sdof with distinct approximations" begin
+    prob, _ = harmonic_oscillator()
+    tmax = 2.0
+
+    a = solve(prob, tspan=(0.0, tmax), alg=VREP(δ=0.1, approx_model=Forward(setops=:concrete)));
+    b = solve(prob, tspan=(0.0, tmax), alg=VREP(δ=0.1, approx_model=StepIntersect(setops=:concrete)));
+    c = solve(prob, tspan=(0.0, tmax), alg=VREP(δ=0.1, approx_model=CorrectionHull(exp=:base)));
+end
