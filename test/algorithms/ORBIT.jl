@@ -13,7 +13,7 @@ using LazySets: _isapprox
     @test sum((set(sol[k]).element[1] - cos(δ * (k-1)))^2 for k in 1:length(sol)) < eps(Float64)
     @test sum((set(sol[k]).element[2] + sin(δ * (k-1)))^2 for k in 1:length(sol)) < eps(Float64)
 
-    # test numer of steps
+    # test number of steps
     sol = solve(prob, tspan=(0.0, 3δ), alg=ORBIT(δ=δ));
     @test _isapprox(tspan(sol), interval(0, 3δ))
     x = sol[end]

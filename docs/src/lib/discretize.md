@@ -20,7 +20,6 @@ discretize
 ## Approximation models
 
 ```@docs
-ReachabilityAnalysis.AbstractApproximationModel
 Forward
 Backward
 CorrectionHull

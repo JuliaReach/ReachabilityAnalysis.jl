@@ -25,6 +25,7 @@ export
     Discrete,
     CorrectionHull,
     NoBloating,
+    StepIntersect,
 
 # Flowpipes
     flowpipe,
