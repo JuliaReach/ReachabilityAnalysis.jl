@@ -253,7 +253,7 @@ end
 # ρ(Φ^k dᵢ, Ω₀) for each k = 0, …, NSTEPS-1,
 # where dᵢ = vᵢ and vᵢ is the i-th eigenvector of Φ^T if 1 ≤ i ≤ n and for i > n
 # dᵢ = -vᵢ is the negative of the i-th eigenvector of Φ^T.
-function reach_homog_eig_LGG09(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
+function reach_homog_eig_LGG09_posneg(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
 
     n = length(Λ)
     @assert n == size(Q, 1) == size(Q, 2)
@@ -268,7 +268,21 @@ function reach_homog_eig_LGG09(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
 
         Qj₋ = view(Q₋, :, j)
         reach_homog_dir_eig_LGG09!(view(ρmat, j+n, :), Ω₀, Qj₋, λj, NSTEPS)
+    end
+    return ρmat
+end
 
+# same as reach_homog_eig_LGG09_posneg, but only computes along Q
+function reach_homog_eig_LGG09(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
+
+    n = length(Λ)
+    @assert n == size(Q, 1) == size(Q, 2)
+
+    ρmat = Matrix{N}(undef, n, NSTEPS)
+    for j in 1:n
+        λj = exp(Λ[j])
+        Qj = view(Q, :, j)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀,  Qj, λj, NSTEPS)
     end
     return ρmat
 end
@@ -325,7 +339,7 @@ function _upper_bound_eig_dir_posneg(ρmat, i, Qinv, k)
     return a, b
 end
 
-function _upper_bound_eig(ρmat, Qinv, NSTEPS)
+function _upper_bound_eig(ρmat::Matrix{N}, Qinv, NSTEPS) where {N}
     n = size(Qinv, 1)
     ρmat_box = Matrix{N}(undef, 2n, NSTEPS)
     @inbounds begin
@@ -338,4 +352,30 @@ function _upper_bound_eig(ρmat, Qinv, NSTEPS)
         end
     end
     return ρmat_box
+end
+
+# let x' = Ax, s.t. A has real eigenvalues of size n x n
+# Aδ = P Λ P^{-1}, and Q = (P^{-1})^T
+# Q has the eigenvectors of Φ^T = exp(A^T δ)
+# the function assumes that the matrix Q is orthogonal and returns the box overapproximation
+# of the flowipe by support function evaluation matrix
+function reach_homog_eig_LGG09_box(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
+    # both M₊ and M₋ are matrices of size n x NSTEPS
+    # compute support functions along +vj where vj is column of Q (eigenvector of Φ^T)
+    M₊ = reach_homog_eig_LGG09(Λ, Q, Ω₀, NSTEPS)
+
+    # compute support functions along -vj where vj is column of Q (eigenvector of Φ^T)
+    M₋ = reach_homog_eig_LGG09(Λ, -Q, Ω₀, NSTEPS)
+
+    # center
+    C = Q * (M₊ - M₋)/2
+
+    # radius
+    R = abs.(Q) * (M₊ + M₋)/2
+
+    # support function of the hyperrectangular approximations
+    B₊ = R + C
+    B₋ = R - C
+
+    return B₊, B₋
 end
