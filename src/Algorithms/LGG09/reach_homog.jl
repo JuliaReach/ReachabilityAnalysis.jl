@@ -239,3 +239,143 @@ function _reach_homog_dir_eig_LGG09_negative!(out::AbstractVector{N}, X₀, d, �
         end
     end
 end
+
+# Let A be an `n x n` matrix with real eigenvalues.
+# Given the eigendecomposition: Aδ = P * Λ * P^{-1},
+# where Λ is a diagonal matrix that contains the eigenvalues of Aδ
+# and P is an invertible matrix.
+# Let Q = (P^{-1})^T, and let Φ = exp(Aδ). Then it holds that:
+# Φ^T = Q * exp(Λ) * Q^{-1}
+# Moreover, the eigenvectors of Φ^T are the columns of Q.
+#
+# This function returns a matrix `ρmat` of size `2n × NSTEPS` such that
+# the i-th row of `ρmat` contains all support function evaluations
+# ρ(Φ^k dᵢ, Ω₀) for each k = 0, …, NSTEPS-1,
+# where dᵢ = vᵢ and vᵢ is the i-th eigenvector of Φ^T if 1 ≤ i ≤ n and for i > n
+# dᵢ = -vᵢ is the negative of the i-th eigenvector of Φ^T.
+function reach_homog_eig_LGG09_posneg(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
+
+    n = length(Λ)
+    @assert n == size(Q, 1) == size(Q, 2)
+
+    ρmat = Matrix{N}(undef, 2*n, NSTEPS)
+    Q₋ = -Q
+    for j in 1:n
+        λj = exp(Λ[j])
+
+        Qj₊ = view(Q, :, j)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀,  Qj₊, λj, NSTEPS)
+
+        Qj₋ = view(Q₋, :, j)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j+n, :), Ω₀, Qj₋, λj, NSTEPS)
+    end
+    return ρmat
+end
+
+# same as reach_homog_eig_LGG09_posneg, but only computes along Q
+function reach_homog_eig_LGG09(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
+
+    n = length(Λ)
+    @assert n == size(Q, 1) == size(Q, 2)
+
+    ρmat = Matrix{N}(undef, n, NSTEPS)
+    for j in 1:n
+        λj = exp(Λ[j])
+        Qj = view(Q, :, j)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀,  Qj, λj, NSTEPS)
+    end
+    return ρmat
+end
+
+# compute an upper bound on ρ(eᵢ, Xₖ)
+# ρmat is a matrix of size 2n x NSTEPS
+# P is the eigenvectors matrix
+# k is the time index
+
+# `ρmat` is a matrix of size `2n × NSTEPS` such that
+# the i-th row of `ρmat` contains all support function evaluations
+# ρ(Φ^k dᵢ, Ω₀) for each k = 0, …, NSTEPS-1,
+# where dᵢ = vᵢ and vᵢ is the i-th eigenvector of Φ^T if 1 ≤ i ≤ n and for i > n
+# dᵢ = -vᵢ is the negative of the i-th eigenvector of Φ^T.
+#
+# This function receives:
+# - `ρmat` -- matrix of support functions
+# - `i`    -- an index `i` between `1` and `n`
+# - `Qinv` -- the inverse of the matrix of eigenvectors of `Φ^T`, `Qinv`
+# - `k`    -- time index `k` such that 1 ≤ k ≤ size(ρmat, 2) = NSTEPS
+#
+# The function returns an upper bound on ρ((Φ^T)^k eᵢ, Ω₀).
+function _upper_bound_eig_dir(ρmat, i, Qinv, k)
+    res = zero(eltype(Qinv))
+    α = view(Qinv, :, i) # i-th column of Q^{-1}
+    n = size(Qinv, 1)
+    for (j, αⱼ) in enumerate(α)
+        if αⱼ > 0
+            res += αⱼ * ρmat[j, k]
+        else
+            res += abs(αⱼ) * ρmat[j + n, k]
+        end
+    end
+    return res
+end
+
+# similar to _upper_bound_eig_dir but with eᵢ and -eᵢ
+function _upper_bound_eig_dir_posneg(ρmat, i, Qinv, k)
+    N = eltype(Qinv)
+    a = zero(N)
+    b = zero(N)
+
+    α = view(Qinv, :, i) # i-th column of Q^{-1}
+    n = size(Qinv, 1)
+    for (j, αⱼ) in enumerate(α)
+        if αⱼ > 0
+            a += αⱼ * ρmat[j, k]
+            b += αⱼ * ρmat[j + n, k]
+        else
+            a += abs(αⱼ) * ρmat[j + n, k]
+            b += abs(αⱼ) * ρmat[j, k]
+        end
+    end
+    return a, b
+end
+
+function _upper_bound_eig(ρmat::Matrix{N}, Qinv, NSTEPS) where {N}
+    n = size(Qinv, 1)
+    ρmat_box = Matrix{N}(undef, 2n, NSTEPS)
+    @inbounds begin
+        for k in 1:NSTEPS
+            for i in 1:n
+                a, b = _upper_bound_eig_dir_posneg(ρmat, i, Qinv, k)
+                ρmat_box[i, k] = a
+                ρmat_box[i + n, k] = b
+            end
+        end
+    end
+    return ρmat_box
+end
+
+# let x' = Ax, s.t. A has real eigenvalues of size n x n
+# Aδ = P Λ P^{-1}, and Q = (P^{-1})^T
+# Q has the eigenvectors of Φ^T = exp(A^T δ)
+# the function assumes that the matrix Q is orthogonal and returns the box overapproximation
+# of the flowipe by support function evaluation matrix
+function reach_homog_eig_LGG09_box(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
+    # both M₊ and M₋ are matrices of size n x NSTEPS
+    # compute support functions along +vj where vj is column of Q (eigenvector of Φ^T)
+    M₊ = reach_homog_eig_LGG09(Λ, Q, Ω₀, NSTEPS)
+
+    # compute support functions along -vj where vj is column of Q (eigenvector of Φ^T)
+    M₋ = reach_homog_eig_LGG09(Λ, -Q, Ω₀, NSTEPS)
+
+    # center
+    C = Q * (M₊ - M₋)/2
+
+    # radius
+    R = abs.(Q) * (M₊ + M₋)/2
+
+    # support function of the hyperrectangular approximations
+    B₊ = R + C
+    B₋ = R - C
+
+    return B₊, B₋
+end
