@@ -818,6 +818,26 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
+# evaluate at a given time and overapproximate the resulting set with a zonotope
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat) where {N}
+    @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
+
+    tdom = TM.domain(first(set(R)))
+    X = set(R)
+
+    if isapprox(t-tstart(R), tdom.hi)
+        dt = interval(tdom.hi)
+    else
+        dt = interval(t - tstart(R))
+    end
+    X_Δt = TM.evaluate(X, dt)
+    n = dim(R)
+    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+    fX̂ = TaylorModels.fp_rpa.(X̂)
+    Zi = overapproximate(fX̂, Zonotope)
+    return ReachSet(Zi, dt)
+end
+
 # convert a hyperrectangular set to a taylor model reachset
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
                  orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
