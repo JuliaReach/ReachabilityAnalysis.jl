@@ -130,15 +130,14 @@ end
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01)
 prob = @ivp(x'= prod_dest_I!(x), dim:3, x(0) ∈ X0)
 
-solI = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1))
+solI = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solI)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-solIz = overapproximate(solI, Zonotope)
-plot(solIz, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
+plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
 
 # ## Case P
 
@@ -158,15 +157,16 @@ end
 X0 = (9.98 .. 9.98) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1))
+solP ​
+140
+solIz = overapproximate(solI, Zonotope)= solve(prob, T=100.0, alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-solPz = overapproximate(solP, Zonotope)
-plot(solPz, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
+plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P");
 
 # ## Case I & P
 
@@ -178,15 +178,14 @@ plot(solPz, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solIP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1))
+solIP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solIP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-solIPz = overapproximate(solIP, Zonotope)
-plot(solIPz, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
+plot(solIP, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
 
 # ## Performance optimization
 
