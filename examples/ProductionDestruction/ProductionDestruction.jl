@@ -157,9 +157,7 @@ end
 X0 = (9.98 .. 9.98) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solP ​
-140
-solIz = overapproximate(solI, Zonotope)= solve(prob, T=100.0, alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1));
+solP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solP)
