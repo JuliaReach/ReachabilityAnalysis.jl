@@ -27,21 +27,24 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # preallocations
-    c = Vector{VNC}(undef, NSTEPS)
-    r = Vector{VNR}(undef, NSTEPS)
+    n = dim(Ω0)
+    c = [VNC(undef, n) for _ in 1:NSTEPS]
+    r = [VNR(undef, n) for _ in 1:NSTEPS]
 
-    c[1] = Ω0.center
-    r[1] = Ω0.radius
+    copy!(c[1], Ω0.center)
+    copy!(r[1], Ω0.radius)
 
     # cache for powers of Φ
     Φ_power_k = _get_cache(Φ)
     Φ_power_k_cache = similar(Φ_power_k)
+    Φ_power_k_abs = similar(Φ_power_k)
 
     k = 2
     @inbounds while k <= NSTEPS
-        # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
-        c[k] = Φ_power_k * c[1]
-        r[k] = abs.(Φ_power_k) * r[1]
+        # compute the overapproximation of Φ^k * Ω0 with a hyperrectangle
+        mul!(c[k], Φ_power_k, c[1])
+        Φ_power_k_abs .= abs.(Φ_power_k)
+        mul!(r[k], Φ_power_k_abs, r[1])
         Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
 
         Δt += δ
@@ -94,21 +97,24 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     # preallocations
-    c = Vector{VNC}(undef, NSTEPS)
-    r = Vector{VNR}(undef, NSTEPS)
+    n = dim(Ω0)
+    r = [VNR(undef, n) for _ in 1:NSTEPS]
+    c = [VNC(undef, n) for _ in 1:NSTEPS]
 
-    c[1] = Ω0.center
-    r[1] = Ω0.radius
+    copy!(c[1], Ω0.center)
+    copy!(r[1], Ω0.radius)
 
     # cache for powers of Φ
     Φ_power_k = _get_cache(Φ)
     Φ_power_k_cache = similar(Φ_power_k)
+    Φ_power_k_abs = similar(Φ_power_k)
 
     k = 2
     @inbounds while k <= NSTEPS
-      # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
-      c[k] = Φ_power_k * c[1]
-      r[k] = abs.(Φ_power_k) * r[1]
+      # compute the overapproximation of Φ^k * Ω0 with a hyperrectangle
+      mul!(c[k], Φ_power_k, c[1])
+      Φ_power_k_abs .= abs.(Φ_power_k)
+      mul!(r[k], Φ_power_k_abs, r[1])
       Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
 
       _is_intersection_empty(X, Hₖ) && break
