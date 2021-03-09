@@ -27,6 +27,7 @@ _alias(setops::AbstractDirections) = setops
 _alias(setops::Val{:lazy}) = setops
 _alias(setops::Val{:concrete}) = setops
 _alias(setops::Val{:vrep}) = setops
+_alias(setops::Val{:box}) = setops
 
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
@@ -123,8 +124,10 @@ function _apply_setops(X, alg::Forward)
 end
 
 _apply_setops(X::LazySet, ::Val{:lazy}) = X  # no-op
-_apply_setops(X::LazySet, ::Val{:concrete}) = concretize(X)
-_apply_setops(X, template::AbstractDirections) = overapproximate(X, template)
+_apply_setops(X::LazySet, ::Val{:concrete}) = concretize(X) # concrete set
+_apply_setops(X, template::AbstractDirections) = overapproximate(X, template) # template oa
+_apply_setops(X::LazySet, ::Val{:box}) = box_approximation(X) # box oa
+
 _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:lazy}) = M * X
 _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:concrete}) = linear_map(M, X)
 
