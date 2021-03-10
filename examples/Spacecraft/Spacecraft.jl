@@ -189,7 +189,7 @@ end
 # To model the system as a hybrid automaton, it is useful to work with symbolic
 # state variables.
 
-using ModelingToolkit
+using Symbolics
 
 const var = @variables x y vx vy t
 

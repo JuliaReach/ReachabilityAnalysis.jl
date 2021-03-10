@@ -10,7 +10,7 @@
 
 # ## Hybrid automaton formulation
 
-using ReachabilityAnalysis, ModelingToolkit, Plots
+using ReachabilityAnalysis, Symbolics, Plots
 
 LazySets.set_ztol(Float64, 1e-15)
 

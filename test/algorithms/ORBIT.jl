@@ -17,7 +17,7 @@ using LazySets: _isapprox
     sol = solve(prob, tspan=(0.0, 3δ), alg=ORBIT(δ=δ));
     @test _isapprox(tspan(sol), interval(0, 3δ))
     x = sol[end]
-    println(x)
+
     @test _isapprox(tspan(x), interval(3δ))
     @test element(set(x)) ≈ [cos(3δ), -sin(3δ)]
 

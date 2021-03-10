@@ -62,7 +62,7 @@
 # We begin by defining the positive orthant in three-dimensional space,
 # `positive_orthant`, as an unbounded polyhedron in constraint representation.
 
-using ReachabilityAnalysis, ModelingToolkit, Plots
+using ReachabilityAnalysis, Symbolics, Plots
 
 @variables x y z
 const positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z])
