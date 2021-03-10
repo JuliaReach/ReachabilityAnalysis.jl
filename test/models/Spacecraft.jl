@@ -118,7 +118,7 @@ end
     return du
 end
 
-using ModelingToolkit
+using Symbolics
 
 const var = @variables x y vx vy t
 

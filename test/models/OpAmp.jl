@@ -34,7 +34,7 @@ plot!(fig, sol(Δt), vars=(0, 1), lab="X0 = 0", lw=0.2)
 
 fig
 
-using ModelingToolkit
+using Symbolics
 
 function opamp_with_saturation(; X0 = BallInf(zeros(2), 0.0),
                                  R₁ = 2., R₂ = 6., C = 1.e-3,
