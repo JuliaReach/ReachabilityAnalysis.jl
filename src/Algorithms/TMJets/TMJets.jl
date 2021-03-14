@@ -50,9 +50,5 @@ using TaylorModels: fp_rpa, remainder
 numtype(::TMJets{N}) where {N} = N
 rsetrep(::TMJets{N}) where {N} = TaylorModelReachSet{N}
 
-# TODO refactor
-_is_intersection_empty(Ri::TaylorModelReachSet, X::Universe, disjointness::AbstractDisjointnessMethod) = false
-_is_intersection_empty(Ri::TaylorModelReachSet, X::Universe, disjointness::ZonotopeEnclosure) = false
-
 include("post.jl")
 include("reach.jl")

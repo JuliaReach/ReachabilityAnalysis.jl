@@ -302,23 +302,22 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
 
     # Allocation of vectors
     # Output
-    tv    = Array{T}(undef, max_steps+1)
-    xv    = Array{IntervalBox{N,T}}(undef, max_steps+1)
-    xTM1v = Array{TaylorModel1{TaylorN{T},T}}(undef, dof, max_steps+1)
+    tv    = Vector{T}(undef, max_steps+1)
+    xv    = Vector{IntervalBox{N,T}}(undef, max_steps+1)
+    xTM1v = Matrix{TaylorModel1{TaylorN{T},T}}(undef, dof, max_steps+1)
     # Internals: jet transport integration
-    x     = Array{Taylor1{TaylorN{T}}}(undef, dof)
-    dx    = Array{Taylor1{TaylorN{T}}}(undef, dof)
-    xaux  = Array{Taylor1{TaylorN{T}}}(undef, dof)
-    xTMN  = Array{TaylorModelN{N,T,T}}(undef, dof)
+    x     = Vector{Taylor1{TaylorN{T}}}(undef, dof)
+    dx    = Vector{Taylor1{TaylorN{T}}}(undef, dof)
+    xaux  = Vector{Taylor1{TaylorN{T}}}(undef, dof)
+    xTMN  = Vector{TaylorModelN{N,T,T}}(undef, dof)
     # Internals: Taylor1{IA.Interval{T}} integration
-    xI    = Array{Taylor1{IA.Interval{T}}}(undef, dof)
-    dxI   = Array{Taylor1{IA.Interval{T}}}(undef, dof)
-    xauxI = Array{Taylor1{IA.Interval{T}}}(undef, dof)
+    xI    = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
+    dxI   = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
+    xauxI = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
 
     # Set initial conditions
-    rem = Array{IA.Interval{T}}(undef, dof)
-
-    xTM0 = set(X0tm) # time is ignored
+    rem = Vector{IA.Interval{T}}(undef, dof)
+    xTM0 = set(X0tm) # time is ignored, and *rem is also ignored*
     @inbounds for i in eachindex(x)
         # NOTE orderQ may be larger than what is *actually* needed (...)
         pi = polynomial(xTM0[i])
@@ -386,6 +385,7 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         end
 
         # construct the taylor model reach-set
+        #Ri = TaylorModelReachSet(xTM1v[:, nsteps], t0, δt, Δt0)
         Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0) + Δt0)
 
         # check intersection with invariant
@@ -396,9 +396,7 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         push!(F, Ri)
 
         if nsteps > max_steps
-            @warn("""
-            Maximum number of integration steps reached; exiting. Try increasing `max_steps`.
-            """)
+            @warn("Maximum number of integration steps reached; exiting. Try increasing `max_steps`.")
             break
         end
 

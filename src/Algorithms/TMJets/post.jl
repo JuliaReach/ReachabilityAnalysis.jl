@@ -25,7 +25,6 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # initial set
     X0 = initial_state(ivp_norm)
-    X0tm = overapproximate(X0, TaylorModelReachSet)
 
     # FIXME refactor
     if external
@@ -50,6 +49,10 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
         return Flowpipe(F, ext)
     end
+
+    # TODO generalize to using _convert_or_overapproximate(Zonotope, X0)
+    Ω0 = isa(X0, Zonotope) ? X0 : box_approximation(X0)
+    X0tm = overapproximate(Ω0, TaylorModelReachSet)
 
     # preallocate output flowpipe
     F = Vector{TaylorModelReachSet{N}}()
@@ -84,17 +87,17 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
             # new initial states
             if !isempty(F)
-                # TODO result using the last TM directly
-                X0z = overapproximate(F[end], Zonotope)
-                X0tm = overapproximate(X0z, TaylorModelReachSet)
+                # here we pass the last TM directly, without approximation
+                X0s = F[end]
+                X0tm = overapproximate(X0s, TaylorModelReachSet)
             end
 
             # new flowpipe
             Fk = Vector{TaylorModelReachSet{N}}()
             sizehint!(Fk, max_steps)
 
-            F, tv, xv, xTM1v, success, _t0 = validated_integ!(F, f!, X0tm, t0, T, orderQ, orderT,
-                                                             abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+            Fk, tv, xv, xTM1v, success, _t0 = validated_integ!(Fk, f!, X0tm, _t0, T, orderQ, orderT,
+                                                               abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
             # append the new flowpipe to the accumulated flowpipe and extra data
             append!(F, Fk)
