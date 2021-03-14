@@ -166,6 +166,25 @@ end
 # Overapproximation
 # =========================
 
+# compared to LazySets.Approximations._overapproximate_hparallelotope,
+# this function does inv(Matrix(Γ))
+function _overapproximate_hparallelotope(Z::AbstractZonotope, indices=1:dim(Z))
+    length(indices) == dim(Z) || throw(ArgumentError("the number of generator indices is $(length(indices)), " *
+                                                     "but it was expected to be $(dim(Z))"))
+
+    p, n = ngens(Z), dim(Z)
+    if p == n
+        return Z
+    elseif p < n
+        error("the zonotope order is $(order(Z)) but it should be at least 1")
+    end
+
+    G = genmat(Z)
+    Γ = G[:, indices]
+    □Γ⁻¹Z = box_approximation(linear_map(inv(Matrix(Γ)), Z))
+    return linear_map(Γ, □Γ⁻¹Z)
+end
+
 function _overapproximate(lm::LinearMap{N, <:AbstractZonotope{N}, NM, <:AbstractIntervalMatrix{NM}},
                             ::Type{<:Zonotope}) where {N<:Real, NM}
 

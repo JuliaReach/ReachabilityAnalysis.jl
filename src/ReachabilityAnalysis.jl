@@ -11,7 +11,7 @@ include("Continuous/solve.jl")
 # Structures to represent solutions of reachability problems
 # ===========================================================
 include("Flowpipes/setops.jl")
-include("Flowpipes/reachsets.jl")
+include("ReachSets/reachsets.jl")
 include("Flowpipes/flowpipes.jl")
 include("Flowpipes/arrayops.jl")
 include("Flowpipes/clustering.jl")
@@ -22,8 +22,8 @@ include("Flowpipes/solutions.jl")
 # Shared functionality for continuous systems
 # ===========================================================
 include("Continuous/normalization.jl")
-include("Continuous/exponentiation.jl")
-include("Continuous/discretization.jl")
+include("Discretization/exponentiation.jl")
+include("Discretization/discretization.jl")
 
 # ===========================================================
 # Reachability solver algorithms

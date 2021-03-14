@@ -227,6 +227,7 @@ end
     # tested in test/algorithms/ASB07.jl
 end
 
+# FIXME
 @testset "1D Burgers equation solve" begin
     L0 = 1. # domain length
     U0 = 1. # Re = 20.
