@@ -25,12 +25,16 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # initial set
     X0 = initial_state(ivp_norm)
-    box_x0 = box_approximation(X0)
-    q0 = center(box_x0)
-    δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
+    X0tm = overapproximate(X0, TaylorModelReachSet)
 
     # FIXME refactor
     if external
+
+        # pass box overapproximation of the initial states
+        box_x0 = box_approximation(X0)
+        q0 = center(box_x0)
+        δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
+
         solver_name = haskey(kwargs, :solver_name) ? kwargs[:solver_name] : TM.validated_integ
         solver_kwargs = haskey(kwargs, :solver_kwargs) ? kwargs[:solver_kwargs] : Dict(:maxsteps=>max_steps)
         tv, xv, xTM1v = solver_name(f!, q0, δq0, t0, T, orderQ, orderT,
@@ -51,8 +55,8 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, max_steps)
 
-    F, tv, xv, xTM1v, success, _t0 = _validated_integ!(F, f!, q0, δq0, t0, T, orderQ, orderT,
-                                      abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+    F, tv, xv, xTM1v, success, _t0 = validated_integ!(F, f!, X0tm, t0, T, orderQ, orderT,
+                                                     abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
     if success || !adaptive
         ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v) # keep Any or add the type param?
@@ -80,17 +84,17 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
             # new initial states
             if !isempty(F)
-                X0 = overapproximate(F[end], Zonotope) |> set
+                # TODO result using the last TM directly
+                X0z = overapproximate(F[end], Zonotope)
+                X0tm = overapproximate(X0z, TaylorModelReachSet)
             end
-            box_x0 = box_approximation(X0)
-            q0 = center(box_x0)
-            δq0 = IntervalBox(low(box_x0)-q0, high(box_x0)-q0)
 
             # new flowpipe
             Fk = Vector{TaylorModelReachSet{N}}()
             sizehint!(Fk, max_steps)
-            Fk, tv, xv, xTM1v, success, _t0 = _validated_integ!(Fk, f!, q0, δq0, _t0, T, orderQ, orderT,
-                                                                abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+
+            F, tv, xv, xTM1v, success, _t0 = validated_integ!(F, f!, X0tm, t0, T, orderQ, orderT,
+                                                             abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
             # append the new flowpipe to the accumulated flowpipe and extra data
             append!(F, Fk)
