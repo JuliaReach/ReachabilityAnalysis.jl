@@ -51,8 +51,11 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     end
 
     # TODO generalize to using _convert_or_overapproximate(Zonotope, X0)
-    Ω0 = isa(X0, Zonotope) ? X0 : box_approximation(X0)
-    X0tm = overapproximate(Ω0, TaylorModelReachSet)
+    #Ω0 = isa(X0, Zonotope) ? X0 : box_approximation(X0)
+
+    # TEMP to use with NNA#mforets/TORA
+    #X0tm = overapproximate(Ω0, TaylorModelReachSet)
+    X0tm = _overapproximate_structured(X0, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
 
     # preallocate output flowpipe
     F = Vector{TaylorModelReachSet{N}}()
