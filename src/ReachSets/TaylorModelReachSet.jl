@@ -111,6 +111,10 @@ end
 # Conversion and overapproximation of Taylor model reach-sets
 # ==============================================================
 
+# --------------------------------
+# TaylorModelReachSet --> LazySet
+# --------------------------------
+
 # no-op
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:TaylorModelReachSet}) where {N}
     return R
@@ -248,6 +252,10 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, Δt::Tim
     return ReachSet(Zi, Δt)
 end
 
+# --------------------------------
+# LazySet --> TaylorModelReachSet
+# --------------------------------
+
 # convert a hyperrectangular set to a taylor model reachset
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
                  orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
@@ -343,4 +351,39 @@ end
 
 @commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::BoxEnclosure)
     return false
+end
+
+# zonotope of order 2 with generators matrix G = [M; D] where M is n x n and D is n x n and diagonal
+function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
+                                     orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+
+    n = dim(Z)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    # check structure
+    order(Z) == 2 || throw(ArgumentError("this function requires that the order of the zonotope is 2, got $(order(Z))"))
+
+    c = LazySets.center(Z)
+    G = genmat(Z)
+
+    M = view(G, :, 1:n)
+    D = view(G, :, n+1:2n)
+    isdiag(D) || throw(ArgumentError("the columns $(n+1) to $(2n) of the generators matrix do not form a diagonal matrix"))
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # normalized time domain
+    Δtn = TimeInterval(zero(N), diam(Δt))
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of Z
+    @inbounds for i in 1:n
+        pi = c[i] + sum(view(M, i, :) .* x)
+        di = D[i, i]
+        rem = interval(-di, di)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
 end

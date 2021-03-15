@@ -320,7 +320,9 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
     xTM0 = set(X0tm) # time is ignored, and *rem is also ignored*
     @inbounds for i in eachindex(x)
         # NOTE orderQ may be larger than what is *actually* needed (...)
-        pi = polynomial(xTM0[i])
+        yi = xTM0[i]
+        pi = polynomial(yi)
+
         qaux = pi.coeffs[1]
         x[i] = Taylor1(qaux, orderT)
         dx[i] = x[i]
@@ -330,8 +332,14 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         pi_int = TM.evaluate(qaux, symIbox)
         xI[i] = Taylor1(pi_int, orderT+1)
         dxI[i] = xI[i]
-        rem[i] = zI
-        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), zI, zI, zI)
+
+        # we pass the polynomial part, remainder the expansion point (in time)
+        # and the domain (in time); the last two are generally zero (zI)
+        rem[i] = remainder(yi) # zI
+        x0t = domain(yi) # zI
+        domt = expansion_point(yi) # zI
+
+        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), rem[i], x0t, domt)
     end
     sign_tstep = copysign(1, tmax-t0)
 
