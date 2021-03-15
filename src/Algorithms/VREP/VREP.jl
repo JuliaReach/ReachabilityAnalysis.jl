@@ -1,8 +1,7 @@
 """
     VREP{N, AM, S, D} <: AbstractContinuousPost
 
-Implementation a linear reachability solver for homogeneous systems using
-vertex representation.
+Implementation of a linear reachability solver using the vertex representation.
 """
 struct VREP{N, AM, S, D} <: AbstractContinuousPost
     δ::N
