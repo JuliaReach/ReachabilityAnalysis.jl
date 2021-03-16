@@ -334,7 +334,6 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         dxI[i] = xI[i]
 
         # remainder the expansion point (in time)
-        ; the last two are generally zero (zI)
         rem[i] = remainder(yi) # zI
 
         # expansion_point(yi), assumed zero
