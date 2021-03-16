@@ -55,7 +55,14 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # TEMP to use with NNA#mforets/TORA
     #X0tm = overapproximate(Ω0, TaylorModelReachSet)
-    X0tm = _overapproximate_structured(X0, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
+    @assert isa(X0, Zonotope)
+    if order(X0) == 1
+        X0tm = overapproximate(X0, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
+    elseif order(X0) == 2
+        X0tm = _overapproximate_structured(X0, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
+    else
+        error("expected order 1 or 2")
+    end
 
     # preallocate output flowpipe
     F = Vector{TaylorModelReachSet{N}}()

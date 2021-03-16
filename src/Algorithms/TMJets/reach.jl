@@ -333,12 +333,17 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         xI[i] = Taylor1(pi_int, orderT+1)
         dxI[i] = xI[i]
 
-        # we pass the polynomial part, remainder the expansion point (in time)
-        # and the domain (in time); the last two are generally zero (zI)
+        # remainder the expansion point (in time)
+        ; the last two are generally zero (zI)
         rem[i] = remainder(yi) # zI
-        x0t = domain(yi) # zI
-        domt = expansion_point(yi) # zI
 
+        # expansion_point(yi), assumed zero
+        x0t = TM.expansion_point(yi)
+        @assert x0T == zI
+
+        # domain (in time), assumed zero
+        domt = TM.domain(yi.dom)
+        @assert domt == zI
         xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), rem[i], x0t, domt)
     end
     sign_tstep = copysign(1, tmax-t0)
