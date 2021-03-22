@@ -338,10 +338,10 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
 
         # expansion_point(yi), assumed zero
         x0t = TM.expansion_point(yi)
-        @assert x0T == zI
+        @assert x0t == zI
 
         # domain (in time), assumed zero
-        domt = TM.domain(yi.dom)
+        domt = TM.domain(yi)
         @assert domt == zI
         xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), rem[i], x0t, domt)
     end
