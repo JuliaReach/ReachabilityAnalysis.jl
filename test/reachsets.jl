@@ -57,6 +57,11 @@ end
     @test isequivalent(set(overapproximate(a, Hyperrectangle)), H)
     @test isequivalent(set(overapproximate(b, Hyperrectangle)), H)
 
+    X = box_approximation(a)
+    Y = overapproximate(a, Hyperrectangle)
+    @test tspan(X) == tspan(Y)
+    @test isequivalent(set(X), set(Y))
+
     R = ReachSet(H, 0 .. 1)
     c = overapproximate(R, TaylorModelReachSet)
     d = convert(TaylorModelReachSet, R)
