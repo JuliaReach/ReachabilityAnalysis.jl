@@ -193,8 +193,18 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
+function _split_symmetric_box(D::Int, nparts::Int)
+    IA.mince(symBox(D), nparts)
+end
+
+function _split_symmetric_box(D::Int, partition::Vector{Int})
+    S = BallInf(zeros(D), 1.0)
+    Sp = split(S, partition)
+    return convert.(IA.IntervalBox, Sp)
+end
+
 # overapproximate taylor model reachset with several zonotopes
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, nparts::Int) where {N}
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partition::Union{Int, Vector{Int}}) where {N}
     # dimension of the reachset
     D = dim(R)
 
@@ -207,9 +217,9 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, nparts::
     X_Δt = TM.evaluate(X, tdom)
 
     # evaluate the spatial variables in the symmetric box
-    partition = IA.mince(symBox(D), nparts)
-    fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(partition))
-    @inbounds for (i, Bi) in enumerate(partition)
+    part = _split_symmetric_box(D, partition)
+    fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(part))
+    @inbounds for (i, Bi) in enumerate(part)
         x0 = IntervalBox(mid.(Bi))
         X̂ib = [TaylorModelN(X_Δt[j], X[j].rem, x0, Bi) for j in 1:D]
         fX̂[i] = TaylorModels.fp_rpa.(X̂ib)
