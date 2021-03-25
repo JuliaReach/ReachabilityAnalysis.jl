@@ -141,6 +141,8 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) wh
     return ReachSet(X̂, Δt)
 end
 
+LazySets.box_approximation(R::TaylorModelReachSet) = overapproximate(R, Hyperrectangle)
+
 # overapproximate taylor model reachset with several hyperrectangles
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, nparts) where {N}
     # dimension of the reachset
