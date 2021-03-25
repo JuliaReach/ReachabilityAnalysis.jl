@@ -164,7 +164,7 @@ property, vol = prod_dest_verif(solP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P");
+plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 
 # ## Case I & P
 
