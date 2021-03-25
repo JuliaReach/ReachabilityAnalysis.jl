@@ -40,7 +40,7 @@ import TaylorModels
 const TM = TaylorModels
 
 # method extensions for Taylor model reach-sets
-import TaylorModels: domain, remainder, polynomial, get_order
+import TaylorModels: domain, remainder, polynomial, get_order, evaluate
 
 # aliases for set types
 const CPA = CartesianProductArray

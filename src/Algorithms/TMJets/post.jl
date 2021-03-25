@@ -1,4 +1,4 @@
-function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
               Δt0::TimeInterval=zeroI,
               external::Bool=false,    # if `true`, use the external solver defined in TaylorModels.jl
               kwargs...) where {N}
@@ -6,8 +6,8 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     @unpack max_steps, abs_tol, orderT, orderQ, disjointness, adaptive, min_abs_tol = alg
 
     # initial time and final time
-    t0 = tstart(tspan)
-    T = tend(tspan)
+    t0 = tstart(timespan)
+    T = tend(timespan)
 
     # vector field
     if islinear(ivp) || isaffine(ivp) # TODO: refactor with inplace_field!
