@@ -162,6 +162,18 @@ function _decompose(X::LazySet{N},
     return CartesianProductArray(result)
 end
 
+# split the symmetric box [-1, 1]^n in nparts in each dimension
+function _split_symmetric_box(n::Int, nparts::Int)
+    return IA.mince(symBox(n), nparts)
+end
+
+# split the symmetric box [-1, 1]^n in partition[i] parts for each dimension
+function _split_symmetric_box(D::Int, partition::Vector{Int})
+    S = BallInf(zeros(D), 1.0)
+    Sp = split(S, partition)
+    return convert.(IA.IntervalBox, Sp)
+end
+
 # =========================
 # Overapproximation
 # =========================

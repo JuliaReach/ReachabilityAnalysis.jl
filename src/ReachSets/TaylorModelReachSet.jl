@@ -2,7 +2,7 @@
 # Taylor model reach set
 # ================================================================
 
-using TaylorModels: TaylorModel1, TaylorN
+using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
@@ -130,11 +130,11 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) wh
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = TM.evaluate(set(R), tdom)
+    X_Δt = evaluate(set(R), tdom)
 
     # evaluate the spatial variables in the symmetric box
     Bn = symBox(D)
-    X̂ib = IntervalBox([TM.evaluate(X_Δt[i], Bn) for i in 1:D]...)
+    X̂ib = IntervalBox([evaluate(X_Δt[i], Bn) for i in 1:D]...)
     X̂ = convert(Hyperrectangle, X̂ib)
 
     Δt = tspan(R)
@@ -153,13 +153,13 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, np
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = TM.evaluate(set(R), tdom)
+    X_Δt = evaluate(set(R), tdom)
 
     # evaluate the spatial variables in the symmetric box
     partition = IA.mince(symBox(D), nparts)
     X̂ = Vector{Hyperrectangle{N, SVector{D, N}, SVector{D, N}}}(undef, length(partition))
     @inbounds for (i, Bi) in enumerate(partition)
-        X̂ib = IntervalBox([TM.evaluate(X_Δt[i], Bi) for i in 1:D])
+        X̂ib = IntervalBox([evaluate(X_Δt[i], Bi) for i in 1:D])
         X̂[i] = convert(Hyperrectangle, X̂ib)
     end
 
@@ -179,7 +179,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X = set(R)
-    X_Δt = TM.evaluate(X, tdom)
+    X_Δt = evaluate(X, tdom)
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
@@ -187,7 +187,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
 
     # compute floating point rigorous polynomial approximation
     # fX̂ is a TaylorModelN whose coefficients are floats
-    fX̂ = TaylorModels.fp_rpa.(X̂)
+    fX̂ = fp_rpa.(X̂)
 
     Δt = tspan(R)
     # LazySets can overapproximate a Taylor model with a Zonotope
@@ -195,9 +195,13 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
-# overapproximate taylor model reachset with several zonotopes
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, nparts::Int) where {N}
-    # dimension of the reachset
+# overapproximate taylor model reachset with several zonotopes given the partition,
+# that specifies the way in which the symmetric box [-1, 1]^n is split:
+#
+# - if `partition` is an integer, makes as uniform partition for each coordinate
+# - if `partition` is a vector of integers, split the domain according to each element in partition
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partition::Union{Int, Vector{Int}}) where {N}
+    # dimension of the reachsets
     D = dim(R)
 
     # normalized time domain
@@ -206,15 +210,15 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, nparts::
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X = set(R)
-    X_Δt = TM.evaluate(X, tdom)
+    X_Δt = evaluate(X, tdom)
 
     # evaluate the spatial variables in the symmetric box
-    partition = IA.mince(symBox(D), nparts)
-    fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(partition))
-    @inbounds for (i, Bi) in enumerate(partition)
+    part = _split_symmetric_box(D, partition)
+    fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(part))
+    @inbounds for (i, Bi) in enumerate(part)
         x0 = IntervalBox(mid.(Bi))
         X̂ib = [TaylorModelN(X_Δt[j], X[j].rem, x0, Bi) for j in 1:D]
-        fX̂[i] = TaylorModels.fp_rpa.(X̂ib)
+        fX̂[i] = fp_rpa.(X̂ib)
     end
     Z = overapproximate.(fX̂, Zonotope)
     Δt = tspan(R)
@@ -235,10 +239,10 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     else
         tn = t - tstart(R)
     end
-    X_Δt = TM.evaluate(X, tn)
+    X_Δt = evaluate(X, tn)
     n = dim(R)
     X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
-    fX̂ = TaylorModels.fp_rpa.(X̂)
+    fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope)
 
     Δt = TimeInterval(t, t)
@@ -268,10 +272,10 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, Δt::Tim
     end
 
     dtn = IA.Interval(dtn_lo, dtn_hi)
-    X_Δt = TM.evaluate(X, dtn)
+    X_Δt = evaluate(X, dtn)
     n = dim(R)
     X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
-    fX̂ = TaylorModels.fp_rpa.(X̂)
+    fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope)
 
     return ReachSet(Zi, Δt)
