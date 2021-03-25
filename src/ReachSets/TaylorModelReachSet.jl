@@ -195,6 +195,33 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
     return ReachSet(Zi, Δt)
 end
 
+# overapproximate taylor model reachset with several zonotopes
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, nparts::Int) where {N}
+    # dimension of the reachset
+    D = dim(R)
+
+    # normalized time domain
+    tdom = domain(R)
+
+    # evaluate the Taylor model in time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X = set(R)
+    X_Δt = TM.evaluate(X, tdom)
+
+    # evaluate the spatial variables in the symmetric box
+    partition = IA.mince(symBox(D), nparts)
+    fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(partition))
+    @inbounds for (i, Bi) in enumerate(partition)
+        x0 = IntervalBox(mid.(Bi))
+        X̂ib = [TaylorModelN(X_Δt[j], X[j].rem, x0, Bi) for j in 1:D]
+        fX̂[i] = TaylorModels.fp_rpa.(X̂ib)
+    end
+    Z = overapproximate.(fX̂, Zonotope)
+    Δt = tspan(R)
+    #return ReachSet(UnionSetArray(Z), Δt) # but UnionSetArray is not yet a lazyset
+    return ReachSet(ConvexHullArray(Z), Δt)
+end
+
 # evaluate at a given time and overapproximate the resulting set with a zonotope
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat) where {N}
     @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
