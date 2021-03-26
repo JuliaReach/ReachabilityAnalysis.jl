@@ -44,8 +44,8 @@ jobs:
         continue-on-error: ${{ matrix.julia-version == 'nightly' }}
       - uses: julia-actions/julia-runtest@v1
         continue-on-error: ${{ matrix.julia-version == 'nightly' }}
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: coverallsapp/github-action@master
-        with:
-          path-to-lcov: lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      #- uses: julia-actions/julia-processcoverage@v1
+      #- uses: coverallsapp/github-action@master
+      #  with:
+      #    path-to-lcov: lcov.info
+      #    github-token: ${{ secrets.GITHUB_TOKEN }}
