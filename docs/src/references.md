@@ -168,7 +168,7 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 - Frehse, G., Le Guernic, C., Donzé, A., Cotton, S., Ray, R., Lebeltel,
   O., ... & Maler, O. (2011, July).
   [*SpaceEx: Scalable verification of hybrid systems*](https://link.springer.com/content/pdf/10.1007/978-3-642-22110-1_30.pdf).
-  In International Conference on Computer Aided Verification (pp. 379-395). Springer, Berlin, Heidelberg. [pdf](file:///home/mforets/Downloads/Frehse2011_Chapter_SpaceExScalableVerificationOfH%20(5).pdf)
+  In International Conference on Computer Aided Verification (pp. 379-395). Springer, Berlin, Heidelberg. [pdf](http://spaceex.imag.fr/sites/default/files/paper_55.pdf), [appendix](http://spaceex.imag.fr/sites/default/files/cav2011_appendix.pdf), [presentation](http://spaceex.imag.fr/sites/default/files/cav11_frehselgdcrlrgdm_presentation_v1.0.pdf)
 
 ```
 @inproceedings{frehse2011spaceex,
