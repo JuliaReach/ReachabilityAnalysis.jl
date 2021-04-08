@@ -39,7 +39,7 @@ makedocs(
                           "Production-Destruction" => "models/ProductionDestruction.md",
                           "Lotka-Volterra" => "models/LotkaVolterra.md",
                           "Brusselator" => "models/Brusselator.md",
-                          "ISS" => "models/ISS.md",
+                          "International Space Station" => "models/ISS.md",
                           "Lorenz system" => "models/Lorenz.md",
                           #"Platoon" => "models/Platoon.md",
                           "Quadrotor" => "models/Quadrotor.md",
