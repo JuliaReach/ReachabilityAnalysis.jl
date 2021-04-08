@@ -74,3 +74,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::StepIntersect)
     Ω0 = _apply_setops(Ω0₊ ∩ Ω0₋, alg.setops)
     return IVP(CLDS(Φ, X), Ω0)
 end
+
+# ------------------------------------------------------------
+# Inhomogeneous case
+# ------------------------------------------------------------
