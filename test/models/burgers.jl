@@ -10,9 +10,9 @@
 # Burgers equation:
 @taylorize function burgers!(du, u, p, t)
 
-    np = 16 # discretization points
+    np = 4 # discretization points
     nu = 0.05 # kinematic viscosity
-    Δx = 1.0/15
+    Δx = 1.0/(np-1)
     c1 = nu/Δx^2 # c1 = ν/Δx²
     c2 = 0.25/Δx # c2 = 1/(4Δx)
 

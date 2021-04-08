@@ -65,6 +65,18 @@ end
 #    @test sol.alg isa TMJets
 end
 
+@testset "1D Burgers equation" begin
+    L0 = 1. # domain length
+    U0 = 1. # Re = 20.
+    x = range(-0.5*L0, 0.5*L0, length=4)
+    # Initial velocity
+    X0 = Singleton(-U0*sin.(2*π/L0*x))
+    # IVP definition
+    prob = @ivp(x' = burgers!(x), dim=4, x(0) ∈ X0)
+    sol = solve(prob, tspan=(0.0, 1.0), alg=TMJets());
+    @test dim(sol) == 4
+end
+
 #=
 alg = TMJets(abs_tol=1e-10, orderT=10, orderQ=2)
 
