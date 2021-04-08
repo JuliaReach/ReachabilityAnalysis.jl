@@ -126,6 +126,28 @@ end
 LazySets.sample(X::IntervalArithmetic.Interval, d::Integer) = sample(convert(Interval, X), d)
 LazySets.sample(X::IntervalArithmetic.IntervalBox, d::Integer) = sample(convert(Hyperrectangle, X), d)
 
+# ------------------------------------------------
+# Functions to handle splitting of IntervalBoxes
+# TODO refactor to LazySets
+# See also: LazySets#2651, IntervalArithmetic#444
+# ------------------------------------------------
+
+function Base.convert(HT::Type{Hyperrectangle{N, Vector{N}, Vector{N}}}, H::AbstractHyperrectangle) where {N}
+    c = convert(Vector{N}, LazySets.center(H))
+    r = convert(Vector{N}, radius_hyperrectangle(H))
+    return Hyperrectangle(c, r)
+end
+
+function Base.convert(HT::Type{Hyperrectangle{N, Vector{N}, Vector{N}}}, B::IntervalBox{D, N}) where {D, N}
+    H = convert(Hyperrectangle, B)
+    return convert(Hyperrectangle{N, Vector{N}, Vector{N}}, H)
+end
+
+function LazySets.split(B::IntervalBox{D, N}, partition::AbstractVector{Int}) where {D, N}
+    H = convert(Hyperrectangle{N, Vector{N}, Vector{N}}, B)
+    return split(H, partition)
+end
+
 # =========================
 # Projection
 # =========================
