@@ -40,7 +40,7 @@ import TaylorModels
 const TM = TaylorModels
 
 # method extensions for Taylor model reach-sets
-import TaylorModels: domain, remainder, polynomial, get_order, evaluate
+import TaylorModels: domain, remainder, polynomial, get_order, evaluate, expansion_point
 
 # aliases for set types
 const CPA = CartesianProductArray
@@ -60,12 +60,16 @@ import LinearAlgebra: normalize
 # Useful constants
 # ======================
 
-@inline zeroBox(m) = IntervalBox(zeroI, m)
-@inline unitBox(m) = IntervalBox(IA.Interval(0.0, 1.0), m)
+@inline zero_interval(N) = zero(IA.Interval{N})
+@inline zero_box(D, N) = IntervalBox(zero_interval(N), D)
+@inline symmetric_box(D, N) = IntervalBox(IA.Interval{N}(-1, 1), D)
+
+@inline zeroBox(D) = IntervalBox(zeroInt, D)
+@inline unitBox(D) = IntervalBox(IA.Interval{Float64}(0, 1), D)
 @inline symBox(n::Integer) = IntervalBox(symI, n)
-const zeroI = IA.Interval(0.0) # TODO use number type
-const oneI = IA.Interval(1.0)
-const symI = IA.Interval(-1.0, 1.0)
+const zeroI = IA.Interval{Float64}(0)
+const oneI = IA.Interval{Float64}(1)
+const symI = IA.Interval{Float64}(-1, 1)
 
 # Interval constructor given a float
 LazySets.Interval(x::Float64) = Interval(interval(x))

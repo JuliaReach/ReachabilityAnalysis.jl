@@ -87,8 +87,9 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
             # new initial states
             if !isempty(F)
-                # here we pass the last TM directly, without approximation
-                X0s = F[end]
+                # here we pass the last TM directly after evaluating it over time
+                #X0s = evaluate(F[end], tspan(F[end]))
+                #X0s = F[end]
                 X0tm = overapproximate(X0s, TaylorModelReachSet)
             end
 

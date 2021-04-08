@@ -204,25 +204,16 @@ end
 """
     validated-step!
 """
-function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
-        dx::Vector{Taylor1{TaylorN{T}}}, xaux::Vector{Taylor1{TaylorN{T}}},
-        tI::Taylor1{T}, xI::Vector{Taylor1{IA.Interval{T}}},
-        dxI::Vector{Taylor1{IA.Interval{T}}}, xauxI::Vector{Taylor1{IA.Interval{T}}},
-        t0::T, tmax::T, sign_tstep::Int,
-        xTMN::Vector{TaylorModelN{N,T,T}}, xv::Vector{IntervalBox{N,T}},
-        rem::Vector{IA.Interval{T}}, zbox::IntervalBox{N,T}, symIbox::IntervalBox{N,T},
-        nsteps::Int, orderT::Int, abstol::T, params, parse_eqs::Bool,
-        check_property::Function=(t, x)->true, adaptive::Bool=true) where {N,T}
+function validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI, t0, tmax,
+                         sign_tstep, xTMN, xv, rem,
+                         zbox::IntervalBox{N, T}, symIbox, nsteps, orderT, abstol, params,
+                         parse_eqs, check_property=(t, x)->true, adaptive=true) where {N, T}
 
     # One step integration (non-validated)
-    # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, t, x, dx, xaux, params)
-    # δt = TaylorIntegration.stepsize(x, abstol)
     δt = TaylorIntegration.taylorstep!(f!, t, x, dx, xaux, abstol, params, parse_eqs)
     f!(dx, x, params, t)  # Update `dx[:][orderT]`
 
     # One step integration for the initial box
-    # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, tI, xI, dxI, xauxI, params)
-    # δtI = TaylorIntegration.stepsize(xI, abstol)
     δtI = TaylorIntegration.taylorstep!(f!, tI, xI, dxI, xauxI, abstol, params, parse_eqs)
     f!(dxI, xI, params, tI)  # Update `dxI[:][orderT+1]`
 
@@ -250,7 +241,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
         # Create TaylorModelN to store remainders and evaluation
         @inbounds begin
             for i in eachindex(x)
-                xTMN[i] = fp_rpa( TaylorModelN(x[i](δtI), rem[i], zbox, symIbox) )
+                xTMN[i] = fp_rpa(TaylorModelN(x[i](δtI), rem[i], zbox, symIbox))
 
                 # If remainder is still too big, do it again
                 # TODO: check if this can be avoided.
@@ -284,7 +275,89 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     return (success, δt, _t0)
 end
 
-function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
+"""
+    initialize!(X0::IntervalBox{N, T}, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v) where {N, T}
+
+Initialize the auxiliary integration variables and normalize the given interval
+box to the domain `[-1, 1]^n`.
+"""
+function initialize!(X0::IntervalBox{N, T}, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v) where {N, T}
+    @assert N == get_numvars()
+
+    # center of the box and vector of widths
+    q0 = mid.(X0)
+    δq0 = X0 .- q0
+
+    # normalized domain
+    zI = zero_interval(T)
+    zB = zero_box(N, T)
+    S = symmetric_box(N, T)
+
+    @inbounds for i in eachindex(x)
+        qaux = normalize_taylor(q0[i] + TaylorN(i, order=orderQ), δq0, true)
+        x[i] = Taylor1(qaux, orderT)
+        dx[i] = x[i]
+        xTMN[i] = TaylorModelN(qaux, zI, zB, S)
+
+        xI[i] = Taylor1(X0[i], orderT+1)
+        dxI[i] = xI[i]
+        rem[i] = zI
+
+        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), zI, zI, zI)
+    end
+end
+
+function initialize!(X0tm::TaylorModelReachSet, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
+    X0 = set(X0tm)
+    initialize!(X0, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
+end
+
+"""
+    initialize!(X0::Vector{TaylorModel1{TaylorN{T}, T}}, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v) where {T}
+
+Initialize the auxiliary integration variables assuming that the given vector
+of taylor models `X0` is normalized to the domain `[-1, 1]^n` in space.
+"""
+function initialize!(X0::Vector{TaylorModel1{TaylorN{T}, T}}, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v) where {T}
+    # nomalized domain
+    N = get_numvars()
+    zI = zero_interval(T)
+    zB = zero_box(N, T)
+    S = symmetric_box(N, T)
+
+    @inbounds for i in eachindex(x)
+        yi = X0[i]
+        pi = polynomial(yi)
+
+        # we only keep the t^0 coefficient
+        qaux = pi.coeffs[1]
+        @assert all(iszero, pi.coeffs[2:end])
+
+        x[i] = Taylor1(qaux, orderT)
+        dx[i] = x[i]
+        xTMN[i] = TaylorModelN(qaux, zI, zB, S)
+
+        # we assume that qaux is normalized to [-1, 1]^N
+        pi_int = evaluate(qaux, S)
+        xI[i] = Taylor1(pi_int, orderT+1)
+        dxI[i] = xI[i]
+
+        # remainder
+        rem[i] = remainder(yi)
+
+        # expansion point in time assumed zero
+        x0t = expansion_point(yi)
+        @assert x0t == zI
+
+        # domain in time assumed zero
+        domt = domain(yi)
+        @assert domt == zI
+
+        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), rem[i], x0t, domt)
+    end
+end
+
+function validated_integ!(F, f!, X0tm,
                           t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int,
                           X::LazySet, disjointness, Δt0, adaptive::Bool=true, params=nothing;
                           parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {T<:Real}
@@ -294,22 +367,25 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
     dof = N
 
     # Some variables
-    zI = zero(IA.Interval{T})
-    zbox = IntervalBox(zI, Val(N))
-    symIbox = IntervalBox(IA.Interval{T}(-1, 1), Val(N))
+    zI = zero_interval(T)
+    zbox = zero_box(N, T)
+    symIbox = symmetric_box(N, T)
     t   = t0 + Taylor1(orderT)
     tI  = t0 + Taylor1(orderT+1)
 
     # Allocation of vectors
+
     # Output
     tv    = Vector{T}(undef, max_steps+1)
     xv    = Vector{IntervalBox{N,T}}(undef, max_steps+1)
     xTM1v = Matrix{TaylorModel1{TaylorN{T},T}}(undef, dof, max_steps+1)
+
     # Internals: jet transport integration
     x     = Vector{Taylor1{TaylorN{T}}}(undef, dof)
     dx    = Vector{Taylor1{TaylorN{T}}}(undef, dof)
     xaux  = Vector{Taylor1{TaylorN{T}}}(undef, dof)
     xTMN  = Vector{TaylorModelN{N,T,T}}(undef, dof)
+
     # Internals: Taylor1{IA.Interval{T}} integration
     xI    = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
     dxI   = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
@@ -317,22 +393,7 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
 
     # Set initial conditions
     rem = Vector{IA.Interval{T}}(undef, dof)
-    xTM0 = set(X0tm) # time is ignored, and *rem is also ignored*
-    @inbounds for i in eachindex(x)
-        # NOTE orderQ may be larger than what is *actually* needed (...)
-        pi = polynomial(xTM0[i])
-        qaux = pi.coeffs[1]
-        x[i] = Taylor1(qaux, orderT)
-        dx[i] = x[i]
-        xTMN[i] = TaylorModelN(qaux, zI, zbox, symIbox)
-
-        # NOTE this encloses the zonotope with a box...
-        pi_int = TM.evaluate(qaux, symIbox)
-        xI[i] = Taylor1(pi_int, orderT+1)
-        dxI[i] = xI[i]
-        rem[i] = zI
-        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), zI, zI, zI)
-    end
+    initialize!(X0tm, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
     sign_tstep = copysign(1, tmax-t0)
 
     # Output vectors
@@ -359,7 +420,8 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         # Validated step of the integration
         (success, δt, _t0) = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
                                              t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
-                                             nsteps, orderT, abstol, params, parse_eqs, check_property, adaptive)
+                                             nsteps, orderT, abstol, params, parse_eqs,
+                                             check_property, adaptive)
 
         if adaptive && !success
             break
@@ -376,10 +438,10 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
                 δtI = sign_tstep * IA.Interval{T}(0, sign_tstep*δt)
                 xTM1v[i, nsteps] = TaylorModel1(deepcopy(x[i]), rem[i], zI, δtI)
                 aux = x[i](δt)
-                x[i]  = Taylor1( aux, orderT )
-                dx[i] = Taylor1( zero(aux), orderT )
+                x[i]  = Taylor1(aux, orderT)
+                dx[i] = Taylor1(zero(aux), orderT)
                 auxI = xTMN[i](symIbox)
-                xI[i] = Taylor1( auxI, orderT+1 )
+                xI[i] = Taylor1(auxI, orderT+1)
                 dxI[i] = xI[i]
             end
         end
