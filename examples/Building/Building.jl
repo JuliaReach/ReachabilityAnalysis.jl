@@ -36,7 +36,7 @@ building_path = joinpath(examples_dir, "Building", "building.jld2")
 
 function building_BLDF01()
     @load building_path H
-    vars = collect(keys(H.ext[:variables]))
+    vars = H.ext[:variables].keys
     A = state_matrix(mode(H, 1))
     n = size(A, 1) - 1
     A = A[1:n, 1:n]
@@ -54,7 +54,7 @@ end
 
 function building_BLDC01()
     @load building_path H
-    vars = collect(keys(H.ext[:variables]))
+    vars = H.ext[:variables].keys
     A = state_matrix(mode(H, 1))
     n = size(A, 1) - 1
     A = A[1:n, 1:n]

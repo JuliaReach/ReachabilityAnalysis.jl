@@ -1,7 +1,7 @@
 function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N, AM, VN, TN}
 
-    @unpack δ, approx_model, template, static, threaded = alg
+    @unpack δ, approx_model, template, static, threaded, vars = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
@@ -50,5 +50,5 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
         ρℓ = reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, Δt0, cacheval, Val(alg.threaded))
     end
 
-    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ))
+    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ, :alg_vars => vars))
 end

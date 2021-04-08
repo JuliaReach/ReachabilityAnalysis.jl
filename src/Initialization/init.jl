@@ -97,6 +97,8 @@ const NonlinearSystem = Union{BBCS, CBBCS, CBBCCS}
     return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
 end
 
+const VecOrTuple = Union{NTuple{D, Int}, <:AbstractVector{Int}} where {D}
+
 # ======================
 # Optional dependencies
 # ======================
