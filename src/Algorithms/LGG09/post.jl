@@ -50,5 +50,5 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
         ρℓ = reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, Δt0, cacheval, Val(alg.threaded))
     end
 
-    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ, :computed_vars => vars))
+    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ, :alg_vars => vars))
 end
