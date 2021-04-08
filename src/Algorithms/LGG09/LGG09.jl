@@ -53,15 +53,6 @@ struct LGG09{N, AM, VN, TN<:AbstractDirections{N, VN}, S, VA} <: AbstractContinu
     vars::VA
 end
 
-#=
-1) LGG09(δ=0.01, vars=(25), n=100)
-    - fill the `template` field with SEV of the given length n
-
-2) LGG09(δ=0.01, vars=(25))
-    - the `template` field is an empty (CustomDirections) array with SEV type
-    - in the `post` we fill the template with the proper values, because there we know the n
-=#
-
 # convenience constructor using symbols
 function LGG09(; δ::N,
                approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
