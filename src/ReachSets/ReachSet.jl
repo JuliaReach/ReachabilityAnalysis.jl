@@ -55,3 +55,17 @@ end
 function reconstruct(R::ReachSet, Y::LazySet)
     return ReachSet(Y, tspan(R))
 end
+
+# specialized concrete projection of zonotopic set by removing zero generators
+function project(R::ReachSet{N, <:AbstractZonotope{N}}, M::AbstractMatrix; vars=nothing) where {N}
+    πR = linear_map(M, R)
+    dt = tspan(R)
+    if isnothing(vars)
+        X = remove_zero_generators(set(πR))
+        return ReachSet(X, dt)
+    else
+        Y = project(πR, vars)
+        X = remove_zero_generators(set(Y))
+        return SparseReachSet(X, dt, vars(Y))
+    end
+end

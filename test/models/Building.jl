@@ -9,16 +9,12 @@ examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
 building_path = joinpath(examples_dir, "Building", "building.jld2")
 
 function building_BLDF01()
-    @load building_path H
-    vars = collect(keys(H.ext[:variables]))
-    A = state_matrix(mode(H, 1))
-    n = size(A, 1) - 1
-    A = A[1:n, 1:n]
-    B = input_matrix(mode(H, 1))[1:n, 1]
-    U = Hyperrectangle(low=[0.8], high=[1.0])
+    @load building_path A B
+    n = size(A, 1)
+    U = Interval(0.8, 1.0)
     S = @system(x' = Ax + Bu, u ∈ U, x ∈ Universe(n))
 
-    #initial states
+    # initial states
     center_X0 = [fill(0.000225, 10); fill(0.0, 38)]
     radius_X0 = [fill(0.000025, 10); fill(0.0, 14); 0.0001; fill(0.0, 23)]
     X0 = Hyperrectangle(center_X0, radius_X0)
@@ -26,32 +22,30 @@ function building_BLDF01()
     prob_BLDF01 = InitialValueProblem(S, X0)
 end
 
-function building_BLDC01()
-    @load building_path H
-    vars = collect(keys(H.ext[:variables]))
-    A = state_matrix(mode(H, 1))
-    n = size(A, 1) - 1
-    A = A[1:n, 1:n]
-    Ae = copy(transpose(hcat(transpose(hcat(A, zeros(48))), zeros(49))))
-    S = LinearContinuousSystem(Ae)
+using ReachabilityAnalysis: add_dimension
 
-    #initial states
+function building_BLDC01()
+    @load building_path A B
+    n = size(A, 1)
+    U = Interval(0.8, 1.0)
+
+    # initial states
     center_X0 = [fill(0.000225, 10); fill(0.0, 38)]
     radius_X0 = [fill(0.000025, 10); fill(0.0, 14); 0.0001; fill(0.0, 23)]
     X0 = Hyperrectangle(center_X0, radius_X0)
-    U = Hyperrectangle(low=[0.8], high=[1.0])
-    X0 = X0 * U
 
-    prob_BLDC01 = InitialValueProblem(S, X0)
+    Ae = add_dimension(A)
+    Ae[1:n, end] = B
+    prob_BLDC01 = @ivp(x' = Ae * x, x(0) ∈ X0 × U)
 end
 
 using Plots
 
 prob_BLDF01 = building_BLDF01()
 
-sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, template=[x25, -x25]));
+sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, vars=(25), n=48));
 
-plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 ρ(x25, sol_BLDF01_dense)
 
@@ -63,9 +57,9 @@ plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw
 
 ρ(x25, sol_BLDF01_dense(20.0)) <= -0.78e-3 # BLDF01 - BDU02
 
-sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, template=[x25, -x25], approx_model=NoBloating()));
+sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, vars=(25), n=48, approx_model=NoBloating()));
 
-plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 ρ(x25, sol_BLDF01_discrete)
 
@@ -81,9 +75,9 @@ plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8,
 
 prob_BLDC01 = building_BLDC01()
 
-sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.006, template=[x25e, -x25e]))
+sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.005, vars=(25), n=49))
 
-plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 ρ(x25e, sol_BLDC01_dense)
 
@@ -95,9 +89,9 @@ plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw
 
 ρ(x25e, sol_BLDC01_dense(20.0)) <= -0.78e-3 # BLDC01 - BDU02
 
-sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, template=[x25e, -x25e], approx_model=NoBloating()))
+sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, vars=(25), n=49, approx_model=NoBloating()))
 
-plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 ρ(x25e, sol_BLDC01_discrete)
 

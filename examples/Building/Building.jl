@@ -8,7 +8,16 @@
 #
 # ## Model description
 #
-# The system is described by the linear differential equations:
+# The model corresponds to a building (the Los Angeles University Hospital) with
+# 8 floors each having 3 degrees of freedom, namely displacements in $x$ and $y$
+# directions, and rotation [^ASG00]. Such 24 variables evolve according to
+# ```math
+#   M\ddot{q}(t) + C\dot{q}(t) + Kq(t) = vu(t),
+# ```
+# where $u(t)$ is the input. This system can be put into a traditional state-space
+# form of order 48 by defining $x = (q, \dot{q})^T$. We are interested in the
+# motion of the first coordinate $q_1(t)$, hence we choose $v = (1, 0, \ldots, 0)^T$
+# and the output $y(t) = \dot{q}_1(t) = x_{25}(t)$. In canonical form,
 #
 # ```math
 #   \begin{array}{lcl}
@@ -16,13 +25,20 @@
 #   y(t) &=& C x(t)
 #   \end{array}
 # ```
+# where $x(t) \in \mathbb{R}^{48}$ is the state vector, $\mathcal{U} \in \subseteq \mathbb{R}$
+# is the input set, and $A \in \mathbb{R}^{48 × 48}$ and $B ∈ \mathbb{R}^{48 × 1}$ are matrices
+# given in the file `building.jld2`. Here $y(t)$ is the output with
+# $C \in \mathbb{R}^{1 × 48}$ is the projection onto the coordinate 25.
 #
 # There are two versions of this benchmark:
 #
-# - *(time-varying inputs):* The inputs can change arbitrarily over time: $\forall t: u(t)\in \mathcal{U}$.
+# - **Time-varying inputs:** The inputs can change arbitrarily over time: $\forall t: u(t)\in \mathcal{U}$.
 #
-# - *(constant inputs):* The inputs are uncertain only in their initial value, and
+# - **Constant inputs:** The inputs are uncertain only in their initial value, and
 #    constant over time: ``u(0)\in \mathcal{U}``, ``\dot u (t)= 0``.
+#
+# In both cases the input set $\mathcal{U}$ is the interval $[0.8, 1.0]$ is,
+# and the initial states are taken from Table 2.2 in [^TLT16].
 
 using ReachabilityAnalysis, SparseArrays, JLD2
 
@@ -35,16 +51,12 @@ examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
 building_path = joinpath(examples_dir, "Building", "building.jld2")
 
 function building_BLDF01()
-    @load building_path H
-    vars = H.ext[:variables].keys
-    A = state_matrix(mode(H, 1))
-    n = size(A, 1) - 1
-    A = A[1:n, 1:n]
-    B = input_matrix(mode(H, 1))[1:n, 1]
-    U = Hyperrectangle(low=[0.8], high=[1.0])
+    @load building_path A B
+    n = size(A, 1)
+    U = Interval(0.8, 1.0)
     S = @system(x' = Ax + Bu, u ∈ U, x ∈ Universe(n))
 
-    #initial states
+    ## initial states
     center_X0 = [fill(0.000225, 10); fill(0.0, 38)]
     radius_X0 = [fill(0.000025, 10); fill(0.0, 14); 0.0001; fill(0.0, 23)]
     X0 = Hyperrectangle(center_X0, radius_X0)
@@ -52,23 +64,21 @@ function building_BLDF01()
     prob_BLDF01 = InitialValueProblem(S, X0)
 end
 
-function building_BLDC01()
-    @load building_path H
-    vars = H.ext[:variables].keys
-    A = state_matrix(mode(H, 1))
-    n = size(A, 1) - 1
-    A = A[1:n, 1:n]
-    Ae = copy(transpose(hcat(transpose(hcat(A, zeros(48))), zeros(49))))
-    S = LinearContinuousSystem(Ae)
+using ReachabilityAnalysis: add_dimension
 
-    #initial states
+function building_BLDC01()
+    @load building_path A B
+    n = size(A, 1)
+    U = Interval(0.8, 1.0)
+
+    ## initial states
     center_X0 = [fill(0.000225, 10); fill(0.0, 38)]
     radius_X0 = [fill(0.000025, 10); fill(0.0, 14); 0.0001; fill(0.0, 23)]
     X0 = Hyperrectangle(center_X0, radius_X0)
-    U = Hyperrectangle(low=[0.8], high=[1.0])
-    X0 = X0 * U
 
-    prob_BLDC01 = InitialValueProblem(S, X0)
+    Ae = add_dimension(A)
+    Ae[1:n, end] = B
+    prob_BLDC01 = @ivp(x' = Ae * x, x(0) ∈ X0 × U)
 end
 
 # ## Reachability settings
@@ -113,9 +123,9 @@ prob_BLDF01 = building_BLDF01()
 
 # #### Dense time
 
-sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, template=[x25, -x25]));
+sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, vars=(25), n=48));
 
-plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 # Safety properties
 
@@ -131,9 +141,9 @@ plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw
 
 # #### Discrete time
 
-sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, template=[x25, -x25], approx_model=NoBloating()));
+sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, vars=(25), n=48, approx_model=NoBloating()));
 
-plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 # Safety properties
 
@@ -155,9 +165,9 @@ prob_BLDC01 = building_BLDC01()
 
 # #### Dense time
 
-sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.006, template=[x25e, -x25e]))
+sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.005, vars=(25), n=49))
 
-plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 # Safety properties
 
@@ -173,9 +183,9 @@ plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw
 
 # #### Discrete time
 
-sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, template=[x25e, -x25e], approx_model=NoBloating()))
+sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, vars=(25), n=49, approx_model=NoBloating()))
 
-plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
+#plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
 # Safety properties
 
@@ -193,4 +203,6 @@ plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8,
 
 # ## References
 
-# [^]:
+# [^ASG00]: Antoulas, Athanasios C., Danny C. Sorensen, and Serkan Gugercin. A survey of model reduction methods for large-scale systems. 2000.
+
+# [^TLT16]: Tran, Hoang-Dung, Luan Viet Nguyen, and Taylor T. Johnson. *Large-scale linear systems from order-reduction (benchmark proposal).* 3rd Applied Verification for Continuous and Hybrid Systems Workshop (ARCH), Vienna, Austria. 2016.

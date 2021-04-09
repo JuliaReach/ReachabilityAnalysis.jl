@@ -133,14 +133,8 @@ end
 
 function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
-    # TODO: use projection of the reachsets
-    if 0 ∈ vars # projection includes "time"
-        # we shift the vars indices by one as we take the Cartesian prod with the time spans
-        aux = vars .+ 1
-        return map(X -> project(convert(Interval, tspan(X)) × set(X), aux), Xk)
-    else
-        return map(X -> project(set(X), vars), Xk) # TODO return Flowpipe ?
-    end
+    πfp = map(X -> project(X, vars), Xk)
+    return Flowpipe(πfp, fp.ext)
 end
 
 project(fp::Flowpipe, vars::Int) = project(fp, (vars,))
@@ -151,24 +145,22 @@ project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
 # concrete projection of a flowpipe for a given matrix
 function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
     Xk = array(fp)
-    πfp = Flowpipe(map(X -> linear_map(M, X), Xk))
-    if isnothing(vars)
-        return πfp
-    else
-        return project(πfp, vars)
-    end
+    πfp = map(R -> project(R, M, vars=vars), Xk)
+    return Flowpipe(πfp, fp.ext)
 end
 
 # concrete projection of a flowpipe for a given direction
 function project(fp::Flowpipe, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
     Xk = array(fp)
-    return Flowpipe(map(X -> project(X, dir, vars=vars), Xk))
+    πfp = map(X -> project(X, dir, vars=vars), Xk)
+    return Flowpipe(πfp, fp.ext)
 end
 
 # concrete linear map of a flowpipe for a given matrix
 function linear_map(M::AbstractMatrix, fp::Flowpipe)
     Xk = array(fp)
-    return Flowpipe(map(X -> linear_map(M, X), Xk))
+    πfp = map(X -> linear_map(M, X), Xk),
+    return Flowpipe(πfp fp.ext)
 end
 
 """

@@ -3,6 +3,10 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
 
     @unpack δ, approx_model, template, static, threaded, vars = alg
 
+    # dimension check
+    @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *
+        "doesn't match the dimension of the template directions, $(dim(template))"
+
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
         T = NSTEPS * δ

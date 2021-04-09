@@ -1,4 +1,4 @@
-# # International Space Station
+# # Structural Model
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/ISS.ipynb)
 #
 #md # !!! note "Overview"
@@ -8,8 +8,9 @@
 #
 # ## Model description
 #
-# The International Space Station (ISS) model is a continuous linear time-invariant
-# system
+# This is a model of component 1r (Russian service module) of the International Space Station [^ASG00].
+# It has 270 states, 3 inputs and 3 outputs  The model consists of a continuous
+# linear time-invariant system
 #
 # ```math
 #   \begin{array}{lcl}
@@ -17,13 +18,13 @@
 #   y(t) & = & C x(t)
 #   \end{array}
 # ```
-# proposed as a benchmark in ARCH 2016 [^TLT16]. It has 270 state variables,
-# ``A ∈ \mathbb{R}^{270\times 270}``, ``B ∈ \mathbb{R}^{270\times 3}``,
+# It was proposed as a benchmark in ARCH 2016 [^TLT16]. The matrix dimensiones are
+# ``A ∈ \mathbb{R}^{270\times 270}``, ``B ∈ \mathbb{R}^{270\times 3}`` and
 # ``C ∈ \mathbb{R}^{3\times 270}``.
 
-# The A, B, and C matrices are available in MATLAB format
+# The matrices A, B, and C are available in MATLAB format
 # ![](slicot.org/objects/software/shared/bench-data/iss.zip) (`iss.mat`). For convenience
-# such `.mat` has been converted to the [JLD2 format](https://github.com/JuliaIO/JLD2.jl)
+# such `.mat` file has been converted to the [JLD2 format](https://github.com/JuliaIO/JLD2.jl)
 # and stored in the file `iss.jld2`.
 
 using ReachabilityAnalysis, JLD2
@@ -171,5 +172,7 @@ Plots.plot!(fig, πsol_ISSC01, vars=(0, 1), linecolor=:blue, color=:blue, alpha=
 fig
 
 # ## References
+
+# [^ASG00]: Antoulas, Athanasios C., Danny C. Sorensen, and Serkan Gugercin. A survey of model reduction methods for large-scale systems. 2000.
 
 # [^TLT16]: Tran, Hoang-Dung, Luan Viet Nguyen, and Taylor T. Johnson. *Large-scale linear systems from order-reduction (benchmark proposal).* 3rd Applied Verification for Continuous and Hybrid Systems Workshop (ARCH), Vienna, Austria. 2016.

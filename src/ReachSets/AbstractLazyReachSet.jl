@@ -67,6 +67,9 @@ function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end
 
+Base.:(*)(M::AbstractMatrix, R::AbstractLazyReachSet) = LinearMap(M, R)
+Base.:(*)(α::AbstractFloat, R::AbstractLazyReachSet) = reconstruct(R, α * set(R))
+
 function linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
     return reconstruct(R, linear_map(M, set(R)))
 end
@@ -83,9 +86,9 @@ end
 project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer} = project(R, Tuple(vars))
 project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
 
-# projectin of an array of reach-sets
+# projection of an array of reach-sets
 _project_vec(R, vars) = map(Ri -> project(Ri, Tuple(vars)), R)
-project(R::Vector{<:AbstractLazyReachSet}, vars::AbstractVector{M}) where {M<:Integer} = _project_vec(R, vars)
+project(R::Vector{<:AbstractLazyReachSet}, vars::VecOrTupleOrInt) = _project_vec(R, vars)
 project(R::Vector{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
 project(R::SubArray{<:AbstractLazyReachSet}, vars) = _project_vec(R, vars)
 project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
@@ -96,8 +99,7 @@ function project(R::AbstractLazyReachSet, M::AbstractMatrix; vars=nothing)
 end
 
 function project(R::Vector{<:AbstractLazyReachSet}, M::AbstractMatrix; vars=nothing)
-    πR = map(Ri -> linear_map(M, Ri), R)
-    return isnothing(vars) ? πR : project(πR, vars)
+    return map(Ri -> project(Ri, M, vars=vars), R)
 end
 
 # membership test
@@ -153,7 +155,6 @@ function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
     vR = vars(R)
     vRvec = collect(vR)
 
-    # TODO: make vars check faster, specific for ReachSets and number of vars D
     if check_vars && !(setdiff(variables, 0) ⊆ vR)
         throw(ArgumentError("the variables $vars do not belong to the variables " *
                             " of this reach-set, $(vR)"))

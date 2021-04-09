@@ -39,7 +39,8 @@ P = InitialValueProblem(s, X0);
 
 sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 
-Uout = hcat(-1.0) .* project(sol, [η]);
+πsol = project(sol, [η]) # returns a flowpipe
+Uout = hcat(-1.0) .* array(πsol);
 times = [Interval(tspan(R)) for R in sol]
 Uout_vs_t = [Δt × u for (Δt, u) in zip(times, Uout)];
 

@@ -13,7 +13,7 @@ mkpath(target_dir_md)
 
 # model files in sub-directories of source_dir
 MODELS = ["Brusselator/Brusselator.jl",
-          #"Building/Building.jl", # FIXME error with JLD2
+          "Building/Building.jl",
           "DuffingOscillator/DuffingOscillator.jl",
           "EMBrake/EMBrake.jl",
           "Heat3D/Heat3D.jl",

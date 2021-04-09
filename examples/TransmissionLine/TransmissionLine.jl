@@ -193,13 +193,13 @@ sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 # To get the variable ``U_{out}`` we have to project and invert the sign of the
 # ``η``-th coordinate of the flowpipe.
 
-Uout = hcat(-1.0) .* project(sol, [η]);
-times = [Interval(tspan(R)) for R in sol]
-Uout_vs_t = [Δt × u for (Δt, u) in zip(times, Uout)];
+d = zeros(1, dim(sol))
+d[η] = -1.0
+Uout_vs_t = project(sol, d);
 
 #-
 
-plot(Uout_vs_t, color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 
 #md # !!! tip "Technical note"
 #md #     Since we are only interested in the behavior of ``U_{out}``, we can use
