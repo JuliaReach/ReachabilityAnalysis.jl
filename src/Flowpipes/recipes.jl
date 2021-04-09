@@ -63,12 +63,6 @@ function _project_reachset(T::TaylorModelReachSet, vars)
     _project_reachset(R, vars)
 end
 
-# templates have their own projection heuristics
-function _project_reachset(R::TemplateReachSet, vars)
-    πR = project(R, vars)
-    X = set(πR)
-end
-
 function _check_vars(vars)
     if vars == nothing
         throw(ArgumentError("default ploting variables not implemented yet; you need " *

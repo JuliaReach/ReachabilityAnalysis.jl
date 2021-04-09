@@ -159,8 +159,8 @@ end
 # concrete linear map of a flowpipe for a given matrix
 function linear_map(M::AbstractMatrix, fp::Flowpipe)
     Xk = array(fp)
-    πfp = map(X -> linear_map(M, X), Xk),
-    return Flowpipe(πfp fp.ext)
+    πfp = map(X -> linear_map(M, X), Xk)
+    return Flowpipe(πfp, fp.ext)
 end
 
 """
