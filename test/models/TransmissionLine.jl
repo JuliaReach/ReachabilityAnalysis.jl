@@ -39,10 +39,10 @@ P = InitialValueProblem(s, X0);
 
 sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 
-πsol = project(sol, [η]) # returns a flowpipe
-Uout = hcat(-1.0) .* array(πsol);
-times = [Interval(tspan(R)) for R in sol]
-Uout_vs_t = [Δt × u for (Δt, u) in zip(times, Uout)];
+d = zeros(1, dim(sol))
+d[η] = -1.0
+Uout_vs_t = project(sol, d);
+vars(Uout_vs_t)
 
-plot(Uout_vs_t, color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+plot(Uout_vs_t, vars=(0, 1), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 

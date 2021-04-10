@@ -62,10 +62,11 @@ function project(R::ReachSet{N, <:AbstractZonotope{N}}, M::AbstractMatrix; vars=
     dt = tspan(R)
     if isnothing(vars)
         X = remove_zero_generators(set(πR))
-        return ReachSet(X, dt)
+        v = ReachabilityAnalysis.vars(R)
     else
         Y = project(πR, vars)
         X = remove_zero_generators(set(Y))
-        return SparseReachSet(X, dt, vars(Y))
+        v = ReachabilityAnalysis.vars(Y)
     end
+    return SparseReachSet(X, dt, v)
 end

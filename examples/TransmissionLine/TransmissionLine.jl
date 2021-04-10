@@ -196,10 +196,11 @@ sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 d = zeros(1, dim(sol))
 d[η] = -1.0
 Uout_vs_t = project(sol, d);
+vars(Uout_vs_t)
 
 #-
 
-plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+plot(Uout_vs_t, vars=(0, 1), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 
 #md # !!! tip "Technical note"
 #md #     Since we are only interested in the behavior of ``U_{out}``, we can use
