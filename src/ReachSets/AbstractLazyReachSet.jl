@@ -27,9 +27,10 @@ The following functions should be implemented by any concrete subtype:
 In addition to the functions inherited from `AbstractReachSet`, the following
 are available:
 
-- `project`  -- projection of a reach-set
-- `shift`    -- time-shift of a reach-set
-- `vars`     -- tuple of integers associated to the variables of the given reach-set
+- `linear_map`  -- concrete linear map of a reach-set
+- `project`     -- projection of a reach-set
+- `shift`       -- time-shift of a reach-set
+- `vars`        -- tuple of integers associated to the variables of the given reach-set
 """
 abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 
@@ -82,37 +83,9 @@ function overapproximate(R::AbstractLazyReachSet, func)
     return reconstruct(R, overapproximate(set(R), func))
 end
 
-# concrete projection extensions
-project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer} = project(R, Tuple(vars))
-project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
-
-# projection of an array of reach-sets
-_project_vec(R, vars) = map(Ri -> project(Ri, Tuple(vars)), R)
-project(R::Vector{<:AbstractLazyReachSet}, vars::VecOrTupleOrInt) = _project_vec(R, vars)
-project(R::Vector{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
-project(R::SubArray{<:AbstractLazyReachSet}, vars) = _project_vec(R, vars)
-project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
-
-function project(R::AbstractLazyReachSet, M::AbstractMatrix; vars=nothing)
-    πR = linear_map(M, R)
-    return isnothing(vars) ? πR : project(πR, vars)
-end
-
-function project(R::Vector{<:AbstractLazyReachSet}, M::AbstractMatrix; vars=nothing)
-    return map(Ri -> project(Ri, M, vars=vars), R)
-end
-
-# membership test
-function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
-    return ∈(x, set(R))
-end
-
-# splitting a reach-set according to a given partition; the partition should be
-# a vector of integers
-function LazySets.split(R::AbstractLazyReachSet, partition)
-    Y = split(set(R), partition)
-    [reconstruct(R, y) for y in Y]
-end
+# ------------------------------------
+# Concrete projection of a reach-set
+# ------------------------------------
 
 """
     project(R::AbstractLazyReachSet, variables::NTuple{D, M};
@@ -151,25 +124,24 @@ onto the time variable and the first variable in `R`.
 """
 function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
                  check_vars::Bool=true) where {D, M<:Integer}
+     vR = vars(R)
+     vRvec = collect(vR)
 
-    vR = vars(R)
-    vRvec = collect(vR)
+     if check_vars && !(setdiff(variables, 0) ⊆ vR)
+         throw(ArgumentError("the variables $vars do not belong to the variables " *
+                             " of this reach-set, $(vR)"))
+     end
 
-    if check_vars && !(setdiff(variables, 0) ⊆ vR)
-        throw(ArgumentError("the variables $vars do not belong to the variables " *
-                            " of this reach-set, $(vR)"))
-    end
+     if 0 ∈ variables  # the projection involves "time"
+         vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
+         Δt = convert(Interval, tspan(R))
+         proj =  project(Δt × set(R), vars_idx)
+     else
+         vars_idx = _get_vars_idx(variables, vRvec)
+         proj = project(set(R), vars_idx)
+     end
 
-    if 0 ∈ variables  # the projection involves "time"
-        vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
-        Δt = convert(Interval, tspan(R))
-        proj =  project(Δt × set(R), vars_idx)
-    else
-        vars_idx = _get_vars_idx(variables, vRvec)
-        proj = project(set(R), vars_idx)
-    end
-
-    return SparseReachSet(proj, tspan(R), variables)
+     return SparseReachSet(proj, tspan(R), variables)
 end
 
 # assumes that variables is a subset of all_variables
@@ -182,7 +154,21 @@ function project(R::AbstractLazyReachSet, variable::Int; check_vars::Bool=true)
     return project(R, (variable,), check_vars=check_vars)
 end
 
-# lazy projection of a reach-set
+# concrete projection overloads
+project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer} = project(R, Tuple(vars))
+project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
+
+# projection of an array of reach-sets
+_project_vec(R, vars) = map(Ri -> project(Ri, Tuple(vars)), R)
+project(R::Vector{<:AbstractLazyReachSet}, vars::VecOrTupleOrInt) = _project_vec(R, vars)
+project(R::Vector{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
+project(R::SubArray{<:AbstractLazyReachSet}, vars) = _project_vec(R, vars)
+project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
+
+# -------------------------------
+# Lazy projection of a reach-set
+# -------------------------------
+
 function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
                     check_vars::Bool=true) where {D, M<:Integer}
 
@@ -215,4 +201,20 @@ end
 # handle generic kwargs vars
 function Projection(R::AbstractLazyReachSet; vars)
     return Projection(R, Tuple(vars))
+end
+
+# ----------------------
+# Additional extensions
+# ----------------------
+
+# membership test
+function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
+    return ∈(x, set(R))
+end
+
+# splitting a reach-set according to a given partition; the partition should be
+# a vector of integers
+function LazySets.split(R::AbstractLazyReachSet, partition)
+    Y = split(set(R), partition)
+    [reconstruct(R, y) for y in Y]
 end

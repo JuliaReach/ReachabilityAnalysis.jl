@@ -141,8 +141,8 @@ end
 
 # The transmission line parameters used in this model are displayed in the following table.
 
-# |resistance in [Ω] | driver resistance in [Ω] | Inductance in [H]| Capacitance in [F]|
-# |------|-----|------|-----|
+# |resistance in [Ω] | driver resistance in [Ω] | Inductance in [H] | Capacitance in [F] |
+# |------------------|--------------------------|------------------|-------------------|
 # |R = 1.00| Rdriver = 10.0| L = 1e−10 | C = 4e−13|
 
 # The steady state is obtained by zeroing the left-hand side of the ODE, which gives
@@ -190,13 +190,10 @@ P = InitialValueProblem(s, X0);
 
 sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 
-# To get the variable ``U_{out}`` we have to project and invert the sign of the
-# ``η``-th coordinate of the flowpipe.
+# To get the variable ``U_{out}`` we have to project onto the ``η``-th coordinate
+# and invert the sign of the flowpipe.
 
-d = zeros(1, dim(sol))
-d[η] = -1.0
-Uout_vs_t = project(sol, d);
-vars(Uout_vs_t)
+Uout_vs_t = @. (-1.0) * project(sol, η);
 
 #-
 
@@ -207,11 +204,6 @@ plot(Uout_vs_t, vars=(0, 1), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.
 #md #     algorithm `BFFPSV18` with the options `alg=BFFPSV18(δ=1e-3, dim=statedim(P), vars=[η]))`,
 #md #     which will use an interval (1D) decomposition of the state space and only compute
 #md #     the flowpipe associated with variable ``\eta``.
-
-# ## Parametric uncertainties
-
-#md # !!! note "TODO"
-#md #     Add results with ASB07 and interval parametric uncertainties.
 
 # ## References
 

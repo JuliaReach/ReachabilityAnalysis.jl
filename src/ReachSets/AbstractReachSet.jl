@@ -208,9 +208,9 @@ by `t0`.
 """
 function shift(R::AbstractReachSet, t0::Number) end
 
-# -----------------------
-# Disjointness checks
-# -----------------------
+# ------------------------------
+# Methods to check disjointness
+# ------------------------------
 
 # fallback uses  internal function _is_intersection_empty, which admit a pre-processing
 # step for the reach-set / algorithm choice

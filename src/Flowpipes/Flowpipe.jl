@@ -5,7 +5,8 @@
 """
     Flowpipe{N, RT<:AbstractReachSet{N}, VRT<:AbstractVector{RT}} <: AbstractFlowpipe
 
-Type that wraps a flowpipe.
+Type that wraps a flowpipe, which is an iterable collection of reach-sets that
+behaves like their set union.
 
 ### Fields
 
@@ -131,6 +132,7 @@ function (fp::Flowpipe)(dt::TimeInterval)
     return view(Xk, firstidx:lastidx)
 end
 
+# concrete projection of a flowpipe along variables `vars`
 function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
     πfp = map(X -> project(X, vars), Xk)
@@ -141,20 +143,6 @@ project(fp::Flowpipe, vars::Int) = project(fp, (vars,))
 project(fp::Flowpipe, vars::AbstractVector{<:Int}) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
-
-# concrete projection of a flowpipe for a given matrix
-function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
-    Xk = array(fp)
-    πfp = map(R -> project(R, M, vars=vars), Xk)
-    return Flowpipe(πfp, fp.ext)
-end
-
-# concrete projection of a flowpipe for a given direction
-function project(fp::Flowpipe, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
-    Xk = array(fp)
-    πfp = map(X -> project(X, dir, vars=vars), Xk)
-    return Flowpipe(πfp, fp.ext)
-end
 
 # concrete linear map of a flowpipe for a given matrix
 function linear_map(M::AbstractMatrix, fp::Flowpipe)

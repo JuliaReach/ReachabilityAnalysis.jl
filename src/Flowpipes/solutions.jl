@@ -124,16 +124,6 @@ function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
-# concrete projection given a projection matrix
-function project(sol::ReachSolution{FT}, M::AbstractMatrix; vars=nothing) where {FT<:AbstractFlowpipe}
-    return project(sol.F, M; vars=vars)
-end
-
-# concrete projection of a solution for a given direction
-function project(sol::ReachSolution{<:AbstractFlowpipe}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
-    return project(sol.F, dir; vars=vars)
-end
-
 function shift(sol::ReachSolution{<:AbstractFlowpipe}, t0::Number)
     return ReachSolution(shift(sol.F, t0), sol.alg, sol.ext)
 end
