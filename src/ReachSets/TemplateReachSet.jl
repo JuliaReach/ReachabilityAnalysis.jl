@@ -66,43 +66,24 @@ directions(R::TemplateReachSet) = R.dirs
 support_functions(R::TemplateReachSet) = R.sf
 support_functions(R::TemplateReachSet, i::Int) = R.sf[i]
 
+# get the matrix of support function evaluations, assuming that the vector
+# of support function evaluations for the reach-set is a view
+function support_function_matrix(R::TemplateReachSet{N, VN, TN, SN}) where {N, VN, TN, SN<:SubArray}
+    return R.sf.parent
+end
+
 _collect(dirs::AbstractDirections) = collect(dirs)
 _collect(dirs::CustomDirections) = dirs.directions
+
+# convenience functions to get support directions of a given set
+_getdirs(X::LazySet) = [c.a for c in constraints_list(X)]
+LazySets.CustomDirections(X::LazySet) = CustomDirections(_getdirs(X), dim(X)) # TODO may use isboundedtype trait
 
 # overapproximate a given reach-set with a template
 function overapproximate(R::AbstractLazyReachSet, dirs::AbstractDirections) where {VN}
     return TemplateReachSet(dirs, R)
 end
+
 function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
     return TemplateReachSet(CustomDirections(dirs), R)
 end
-
-# concrete projection of a TemplateReachSet for a given direction
-function project(R::TemplateReachSet, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
-    ρdir = ρdir₋ = nothing
-    dir₋ = -dir
-    @inbounds for (i, d) in enumerate(R.dirs)
-        if iszero(norm(dir - d))
-            ρdir = R.sf[i]
-        elseif iszero(norm(dir₋ - d))
-            ρdir₋ = -R.sf[i]
-        end
-    end
-    if isnothing(ρdir)
-        ρdir = ρ(dir, R)
-    end
-    if isnothing(ρdir₋)
-        ρdir₋ = -ρ(ρdir₋, R)
-    end
-    πR = ReachSet(Interval(min(ρdir, ρdir₋), max(ρdir, ρdir₋)), tspan(R))
-    return isnothing(vars) ? πR : project(πR, vars)
-end
-
-# concrete projection of a vector of TemplateReachSet for a given direction
-function project(Xk::Vector{<:TemplateReachSet}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
-    return map(X -> project(X, dir, vars=vars), Xk)
-end
-
-# convenience functions to get support directions of a given set
-_getdirs(X::LazySet) = [c.a for c in constraints_list(X)]
-LazySets.CustomDirections(X::LazySet) = CustomDirections(_getdirs(X), dim(X)) # TODO may use isboundedtype trait

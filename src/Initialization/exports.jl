@@ -66,6 +66,7 @@ export
     complement,
     convexify,
     cluster,
+    flatten,
 
 # Lazy operations on flowpipes
     Projection,

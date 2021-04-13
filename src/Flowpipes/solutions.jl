@@ -124,16 +124,6 @@ function project(sol::ReachSolution{FT}; vars) where {FT<:AbstractFlowpipe}
     return project(sol.F, Tuple(vars))
 end
 
-# concrete projection given a projection matrix
-function project(sol::ReachSolution{FT}, M::AbstractMatrix; vars=nothing) where {FT<:AbstractFlowpipe}
-    return project(sol.F, M; vars=vars)
-end
-
-# concrete projection of a solution for a given direction
-function project(sol::ReachSolution{<:AbstractFlowpipe}, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
-    return project(sol.F, dir; vars=vars)
-end
-
 function shift(sol::ReachSolution{<:AbstractFlowpipe}, t0::Number)
     return ReachSolution(shift(sol.F, t0), sol.alg, sol.ext)
 end
@@ -153,3 +143,15 @@ linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
 # inclusion checks
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
+
+# -------------------------------------------
+# Specialized methods for template solutions
+# -------------------------------------------
+
+function support_function_matrix(sol::ReachSolution{<:Flowpipe{N, <:TemplateReachSet}}) where {N}
+    return support_function_matrix(flowpipe(sol))
+end
+
+function flatten(sol::ReachSolution{<:Flowpipe{N, <:TemplateReachSet}}, rows=(1, 2)) where {N}
+    return flatten(flowpipe(sol), rows)
+end

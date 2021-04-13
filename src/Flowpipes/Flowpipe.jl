@@ -5,7 +5,8 @@
 """
     Flowpipe{N, RT<:AbstractReachSet{N}, VRT<:AbstractVector{RT}} <: AbstractFlowpipe
 
-Type that wraps a flowpipe.
+Type that wraps a flowpipe, which is an iterable collection of reach-sets that
+behaves like their set union.
 
 ### Fields
 
@@ -131,16 +132,11 @@ function (fp::Flowpipe)(dt::TimeInterval)
     return view(Xk, firstidx:lastidx)
 end
 
+# concrete projection of a flowpipe along variables `vars`
 function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
     Xk = array(fp)
-    # TODO: use projection of the reachsets
-    if 0 ∈ vars # projection includes "time"
-        # we shift the vars indices by one as we take the Cartesian prod with the time spans
-        aux = vars .+ 1
-        return map(X -> project(convert(Interval, tspan(X)) × set(X), aux), Xk)
-    else
-        return map(X -> project(set(X), vars), Xk) # TODO return Flowpipe ?
-    end
+    πfp = map(X -> project(X, vars), Xk)
+    return Flowpipe(πfp, fp.ext)
 end
 
 project(fp::Flowpipe, vars::Int) = project(fp, (vars,))
@@ -148,27 +144,11 @@ project(fp::Flowpipe, vars::AbstractVector{<:Int}) = project(fp, Tuple(vars))
 project(fp::Flowpipe; vars) = project(fp, Tuple(vars))
 project(fp::Flowpipe, i::Int, vars) = project(fp[i], vars)
 
-# concrete projection of a flowpipe for a given matrix
-function project(fp::Flowpipe, M::AbstractMatrix; vars=nothing)
-    Xk = array(fp)
-    πfp = Flowpipe(map(X -> linear_map(M, X), Xk))
-    if isnothing(vars)
-        return πfp
-    else
-        return project(πfp, vars)
-    end
-end
-
-# concrete projection of a flowpipe for a given direction
-function project(fp::Flowpipe, dir::AbstractVector{<:AbstractFloat}; vars=nothing)
-    Xk = array(fp)
-    return Flowpipe(map(X -> project(X, dir, vars=vars), Xk))
-end
-
 # concrete linear map of a flowpipe for a given matrix
 function linear_map(M::AbstractMatrix, fp::Flowpipe)
     Xk = array(fp)
-    return Flowpipe(map(X -> linear_map(M, X), Xk))
+    πfp = map(X -> linear_map(M, X), Xk)
+    return Flowpipe(πfp, fp.ext)
 end
 
 """
@@ -283,4 +263,36 @@ end
 
 function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
     return any(R -> x ∈ set(R), fp)
+end
+
+# --------------------------------------------
+# Specialized methods for template flowpipes
+# --------------------------------------------
+
+# assumes that the first reach-set is representative
+function support_function_matrix(fp::Flowpipe{N, <:TemplateReachSet}) where {N}
+    return support_function_matrix(first(fp))
+end
+
+# it is assumed that rows = (idx_pos_dir, idx_neg_dir) is such that each integer
+# idx_pos_dir and idx_neg_dir refers to the row of the support function matrix
+# correponding to a positive (resp. negative) direction
+function flatten(fp::Flowpipe{N, <:TemplateReachSet}, rows=(1, 2)) where {N}
+    # get the matrix of support function evaluations
+    mat = support_function_matrix(fp)
+
+    @assert size(mat, 1) ≥ 2 || throw(ArgumentError("the number of rows of the support function matrix should be at least 2, got $(size(mat, 1))"))
+    @assert length(rows) == 2 || throw(ArgumentError("expected the number of rows of the support function matrix to be 2, got $(length(rows))"))
+    idx_pos_dir = rows[1]
+    idx_neg_dir = rows[2]
+
+    RT = ReachSet{N, Interval{N, IA.Interval{N}}}
+    out = Vector{RT}(undef, length(fp))
+
+    @inbounds for (k, Rk) in enumerate(fp)
+        Ik = Interval(-mat[idx_neg_dir, k], mat[idx_pos_dir, k])
+        dtk = tspan(Rk)
+        out[k] = ReachSet(Ik, dtk)
+    end
+    return Flowpipe(out, fp.ext)
 end

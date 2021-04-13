@@ -48,15 +48,19 @@ function _project_reachset(R::AbstractLazyReachSet, vars)
     return X
 end
 
-function _project_reachset(T::TaylorModelReachSet, vars)
-    R = overapproximate(T, Zonotope)
-    _project_reachset(R, vars)
-end
-
-# templates have their own projection heuristics
+# concrete projection for template reach-sets
 function _project_reachset(R::TemplateReachSet, vars)
     πR = project(R, vars)
     X = set(πR)
+    if dim(X) == 2 && isbounded(X)
+        X = overapproximate(X, HPolygon, 1e-3)
+    end
+    return X
+end
+
+function _project_reachset(T::TaylorModelReachSet, vars)
+    R = overapproximate(T, Zonotope)
+    _project_reachset(R, vars)
 end
 
 function _check_vars(vars)

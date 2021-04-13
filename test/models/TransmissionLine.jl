@@ -39,9 +39,7 @@ P = InitialValueProblem(s, X0);
 
 sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 
-Uout = hcat(-1.0) .* project(sol, [η]);
-times = [Interval(tspan(R)) for R in sol]
-Uout_vs_t = [Δt × u for (Δt, u) in zip(times, Uout)];
+Uout_vs_t = @. (-1.0) * project(sol, η);
 
-plot(Uout_vs_t, color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 

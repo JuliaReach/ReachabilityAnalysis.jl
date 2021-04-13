@@ -34,7 +34,11 @@ dirs = CustomDirections([C3, -C3]);
 prob_ISSF01 = ISSF01();
 sol_ISSF01 = solve(prob_ISSF01, T=20.0, alg=LGG09(δ=6e-4, template=dirs, sparse=true, cache=false));
 
-πsol_ISSF01 = project(sol_ISSF01, C3);
+dim(sol_ISSF01)
+
+πsol_ISSF01 = flatten(sol_ISSF01);
+
+dim(πsol_ISSF01)
 
 
 using Plots, Plots.PlotMeasures, LaTeXStrings
@@ -52,7 +56,7 @@ dirs = CustomDirections([C3_ext, -C3_ext]);
 prob_ISSC01 = ISSC01();
 sol_ISSC01 = solve(prob_ISSC01, T=20.0, alg=LGG09(δ=0.01, template=dirs, sparse=true, cache=false));
 
-πsol_ISSC01 = project(sol_ISSC01, C3_ext);
+πsol_ISSC01 = flatten(sol_ISSC01);
 
 fig = Plots.plot();
 Plots.plot!(fig, πsol_ISSC01, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
