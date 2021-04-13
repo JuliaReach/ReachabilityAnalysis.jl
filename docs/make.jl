@@ -30,7 +30,7 @@ makedocs(
                         "Frequently Asked Questions" => "man/faq.md"],
         "Examples" => Any["Overview" => "man/examples_overview.md",
                           "Operational amplifier" => "models/OpAmp.md",
-                          #"Square wave oscillator" => "models/SquareWaveOscillator.md",
+                          "Square wave oscillator" => "models/SquareWaveOscillator.md",
                           "Van der Pol oscillator" => "models/VanDerPol.md",
                           "Duffing oscillator" => "models/DuffingOscillator.md",
                           "Transmision line" => "models/TransmissionLine.md",
