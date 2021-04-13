@@ -4,7 +4,7 @@ This page includes references to the scientific works that we have applied
 throughout this library. Although the list is not meant to be exhaustive, we think
 it should give a solid starting place for those who want to explore further.
 
-If you use `ReachabilityAnalysis.jl` for your own work, please consider citing the
+If you use [ReachabilityAnalysis.jl](https://github.com/JuliaReach/ReachabilityAnalysis.jl) for your own work, please consider citing the
 appropriate original reference(s). For this purpose we provide the BibTeX citation
 in each case.
 

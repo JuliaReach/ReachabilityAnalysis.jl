@@ -41,7 +41,7 @@ makedocs(
                           "Brusselator" => "models/Brusselator.md",
                           "Structural Model" => "models/ISS.md",
                           "Lorenz system" => "models/Lorenz.md",
-                          #"Platoon" => "models/Platoon.md",
+                          "Platoon" => "models/Platoon.md",
                           "Quadrotor" => "models/Quadrotor.md",
                           "SEIR model" => "models/SEIR.md",
                           "Spacecraft" => "models/Spacecraft.md"],

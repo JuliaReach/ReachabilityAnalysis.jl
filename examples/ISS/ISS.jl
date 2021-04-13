@@ -50,29 +50,9 @@ const C3_ext = vcat(C3, fill(0.0, 3));
 
 # - **ISSF01** (time-varying inputs): In this setting, the inputs can change
 #   arbitrarily over time: ``\forall t: u(t) \in \mathcal{U}``.
-
-function ISSF01()
-    @load ISS_path A B
-
-    U = Hyperrectangle(low=[0.0, 0.8, 0.9], high=[0.1, 1., 1.])
-    X0 = BallInf(zeros(size(A, 1)), 0.0001)
-    return @ivp(x' = A*x + B*u, x(0) ∈ X0, u ∈ U, x ∈ Universe(270))
-end
-
+#
 # - **ISSC01** (constant inputs): The inputs are uncertain only in their initial
 #   value, and constant over time: ``u(0)\in \mathcal{U}``, ``\dot u(t)= 0``.
-
-function ISSC01()
-    @load ISS_path A B
-
-    A_ext = add_dimension(A, 3)
-    A_ext[1:270, 271:273] = B
-
-    U = Hyperrectangle(low=[0.0, 0.8, 0.9], high=[0.1, 1., 1.])
-    X0 = BallInf(zeros(size(A, 1)), 0.0001)
-    X0 = X0 * U
-    return @ivp(x' = A_ext*x, x(0) ∈ X0)
-end
 
 # ## Specifications
 
@@ -83,7 +63,7 @@ end
 # verifying an UNSAT instance only makes sense formally if a witness is provided
 # (counter-example, under-approximation, etc.).
 
-# Since `ReachabilityAnalysis.jl` currently doesn't have the capability of verifying
+# Since this library currently doesn't have the capability of verifying
 # UNSAT instances, we run the tool with the same accuracy settings on an SAT-UNSAT pair of instances.
 # The SAT instance demonstrates that the over-approximation is not too coarse,
 # and the UNSAT instance demonstrates that the over-approximation is indeed conservative,
@@ -109,12 +89,25 @@ end
 # without the need of actually computing the full 270-dimensional flowpipe associated to
 # all state variables. The flowpipe associated to a linear combination of state
 # variables can be computed efficiently using the support-function based algorithm
-# [[LGG09]](@ref)). The idea is to define a template polyhedron with only two
+# [[LGG09]](@ref). The idea is to define a template polyhedron with only two
 # supporting directions, namely ``C_3`` and ``-C_3``.
 
 # The step sizes chosen are ``6×10^{-4}`` for ISSF01 and ``1×10^{-2}`` for ISSC01.
 
 # ### ISSF01
+
+# In this scenario the inputs can change arbitrarily over time and are only bound
+# to the given input range ``U``.
+
+function ISSF01()
+    @load ISS_path A B
+
+    U = Hyperrectangle(low=[0.0, 0.8, 0.9], high=[0.1, 1., 1.])
+    X0 = BallInf(zeros(size(A, 1)), 0.0001)
+    return @ivp(x' = A*x + B*u, x(0) ∈ X0, u ∈ U, x ∈ Universe(270))
+end
+
+#-
 
 dirs = CustomDirections([C3, -C3]);
 prob_ISSF01 = ISSF01();
@@ -146,16 +139,31 @@ using Plots, Plots.PlotMeasures, LaTeXStrings
 
 fig = Plots.plot();
 Plots.plot!(fig, πsol_ISSF01[1:10:end], vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8,
-#!nb     #tickfont=font(30, "Times"), guidefontsize=45, #!jl
      xlab=L"t",
      ylab=L"y_{3}",
      xtick=[0, 5, 10, 15, 20.], ytick=[-0.00075, -0.0005, -0.00025, 0, 0.00025, 0.0005, 0.00075],
      xlims=(0., 20.), ylims=(-0.00075, 0.00075),
      bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm);
-#!nb     #size=(1000, 1000)); #!jl
 fig
 
 # ### ISSC01
+
+# In this scenario the inputs are uncertain only in their initial
+# value and constant over time.
+
+function ISSC01()
+    @load ISS_path A B
+
+    A_ext = add_dimension(A, 3)
+    A_ext[1:270, 271:273] = B
+
+    U = Hyperrectangle(low=[0.0, 0.8, 0.9], high=[0.1, 1., 1.])
+    X0 = BallInf(zeros(size(A, 1)), 0.0001)
+    X0 = X0 * U
+    return @ivp(x' = A_ext*x, x(0) ∈ X0)
+end
+
+#-
 
 dirs = CustomDirections([C3_ext, -C3_ext]);
 prob_ISSC01 = ISSC01();
@@ -169,13 +177,11 @@ sol_ISSC01 = solve(prob_ISSC01, T=20.0, alg=LGG09(δ=0.01, template=dirs, sparse
 
 fig = Plots.plot();
 Plots.plot!(fig, πsol_ISSC01, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,
-#!nb    #tickfont=font(30, "Times"), guidefontsize=45, !jl
     xlab=L"t",
     ylab=L"y_{3}",
     xtick=[0, 5, 10, 15, 20.], ytick=[-0.0002, -0.0001, 0.0, 0.0001, 0.0002],
     xlims=(0., 20.), ylims=(-0.0002, 0.0002),
-    bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm);
-#!nb    #, size=(1000, 1000)); #!jl
+    bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
 fig
 
 # ## References

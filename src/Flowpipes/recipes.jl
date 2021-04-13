@@ -48,15 +48,41 @@ function _project_reachset(R::AbstractLazyReachSet, vars)
     return X
 end
 
+# ---------------------------------------
+# Specialization for template reach-sets
+# ---------------------------------------
+using LazySets: _check_constrained_dimensions
+
+function _is_compatible_projection(R::TemplateReachSet, vars)
+    X = set(R)
+    for ci in constraints_list(X)
+        status = _check_constrained_dimensions(ci, vars)
+        status == 0 && return false
+    end
+    return true
+end
+
 # concrete projection for template reach-sets
+# TODO specialize for vars = (0, v) and when the direction v is known from a SEV template
 function _project_reachset(R::TemplateReachSet, vars)
-    πR = project(R, vars)
+    # if the exact projection is cheap, we compute it;
+    # otherwise we take the lazy projection
+    # in both cases 2D bounded sets are eps-close approximated
+    if _is_compatible_projection(R, vars)
+        πR = project(R, vars)
+    else
+       πR = Projection(R, vars)
+    end
     X = set(πR)
     if dim(X) == 2 && isbounded(X)
         X = overapproximate(X, HPolygon, 1e-3)
     end
     return X
 end
+
+# --------------------------------------------
+# Specialization for Taylor model reach-sets
+# --------------------------------------------
 
 function _project_reachset(T::TaylorModelReachSet, vars)
     R = overapproximate(T, Zonotope)

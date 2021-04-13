@@ -24,7 +24,7 @@ MODELS = ["Brusselator/Brusselator.jl",
           #"LotkaVolterraTangential/LotkaVolterraTangential.jl",
           "OpAmp/OpAmp.jl",
           #"SquareWaveOscillator/SquareWaveOscillator.jl", # FIXME review plotting workflow
-          #"Platoon/Platoon.jl", # FIXME review plotting workflow
+          "Platoon/Platoon.jl",
           "ProductionDestruction/ProductionDestruction.jl",
           "Quadrotor/Quadrotor.jl",
           "SEIR/SEIR.jl",
