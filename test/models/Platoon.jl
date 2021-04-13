@@ -1,4 +1,4 @@
-using ReachabilityAnalysis, SparseArrays, ModelingToolkit
+using ReachabilityAnalysis, SparseArrays, Symbolics
 
 const var = @variables x[1:9] t
 
