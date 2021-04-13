@@ -264,3 +264,35 @@ end
 function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
     return any(R -> x ∈ set(R), fp)
 end
+
+# --------------------------------------------
+# Specialized methods for template flowpipes
+# --------------------------------------------
+
+# assumes that the first reach-set is representative
+function support_function_matrix(fp::Flowpipe{N, <:TemplateReachSet}) where {N}
+    return support_function_matrix(first(fp))
+end
+
+# it is assumed that rows = (idx_pos_dir, idx_neg_dir) is such that each integer
+# idx_pos_dir and idx_neg_dir refers to the row of the support function matrix
+# correponding to a positive (resp. negative) direction
+function flatten(fp::Flowpipe{N, <:TemplateReachSet}, rows=(1, 2)) where {N}
+    # get the matrix of support function evaluations
+    mat = support_function_matrix(fp)
+
+    @assert size(mat, 1) ≥ 2 || throw(ArgumentError("the number of rows of the support function matrix should be at least 2, got $(size(mat, 1))"))
+    @assert length(rows) == 2 || throw(ArgumentError("expected the number of rows of the support function matrix to be 2, got $(length(rows))"))
+    idx_pos_dir = rows[1]
+    idx_neg_dir = rows[2]
+
+    RT = ReachSet{N, Interval{N, IA.Interval{N}}}
+    out = Vector{RT}(undef, length(fp))
+
+    @inbounds for (k, Rk) in enumerate(fp)
+        Ik = Interval(-mat[idx_neg_dir, k], mat[idx_pos_dir, k])
+        dtk = tspan(Rk)
+        out[k] = ReachSet(Ik, dtk)
+    end
+    return Flowpipe(out, fp.ext)
+end

@@ -120,19 +120,27 @@ dirs = CustomDirections([C3, -C3]);
 prob_ISSF01 = ISSF01();
 sol_ISSF01 = solve(prob_ISSF01, T=20.0, alg=LGG09(δ=6e-4, template=dirs, sparse=true, cache=false));
 
-# We can transform the flowpipe on the output ``y_3(t)`` by taking the projection
-# with the vector `C3`.
+# The solution `sol_ISSF01` is now a 270-dimensional set that (only) contains
+# template reach-sets for the linear combination `C_3 x(t)`,
 
-πsol_ISSF01 = project(sol_ISSF01, C3);
+dim(sol_ISSF01)
+
+# For visualization, it is necessary to specify that we want to plot "time" vs. $y_3(t)$.
+# We can transform the flowpipe on the output ``y_3(t)`` by "flattening" the flowpipe
+# along directions `dirs`.
+
+πsol_ISSF01 = flatten(sol_ISSF01);
+
+# Now `πsol_ISSF01` is a one-dimensional flowpipe,
+
+dim(πsol_ISSF01)
 
 #md # !!! tip "Performance tip"
 #md #      Note that projecting the solution along direction ``C_3`` corresponds to computing
-#md #      the min and max bounds for each reach-set `X`, `Interval(-ρ(-C3, X), ρ(C3, X)`.
-#md #      However, the method `project(sol_ISSF01, C3)` is more efficient than manually
-#md #      evaluating the support functions because it doesn't recompute them along
-#md #      directions ``C_3`` and ``-C_3``, because they are already known to the flowpipe
-#md #      structure, or more precisely, `project` checks and finds that the given
-#md #      directions belong to those represented by each `TemplatReachSet`.
+#md #      the min and max bounds for each reach-set `X`, that is, `Interval(-ρ(-C3, X), ρ(C3, X))`.
+#md #      However, the method `flatten(sol_ISSF01, rows=(1, 2))` is more efficient since it uses
+#md #      the matrix of support function evaluations obtained by `LGG09` along directions
+#md #      ``C_3`` and ``-C_3``.
 
 using Plots, Plots.PlotMeasures, LaTeXStrings
 
@@ -155,10 +163,9 @@ sol_ISSC01 = solve(prob_ISSC01, T=20.0, alg=LGG09(δ=0.01, template=dirs, sparse
 
 #-
 
-# We can transform the flowpipe on the output ``y_3(t)`` by taking the projection
-# with the vector `C3`.
+# We can flatten the flowpipe to the output ``y_3(t)`` as before:
 
-πsol_ISSC01 = project(sol_ISSC01, C3_ext);
+πsol_ISSC01 = flatten(sol_ISSC01);
 
 fig = Plots.plot();
 Plots.plot!(fig, πsol_ISSC01, vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0,

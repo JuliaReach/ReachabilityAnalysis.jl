@@ -39,10 +39,7 @@ P = InitialValueProblem(s, X0);
 
 sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 
-d = zeros(1, dim(sol))
-d[η] = -1.0
-Uout_vs_t = project(sol, d);
-vars(Uout_vs_t)
+Uout_vs_t = @. (-1.0) * project(sol, η);
 
-plot(Uout_vs_t, vars=(0, 1), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 

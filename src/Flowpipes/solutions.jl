@@ -143,3 +143,15 @@ linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
 # inclusion checks
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
+
+# -------------------------------------------
+# Specialized methods for template solutions
+# -------------------------------------------
+
+function support_function_matrix(sol::ReachSolution{<:Flowpipe{N, <:TemplateReachSet}}) where {N}
+    return support_function_matrix(flowpipe(sol))
+end
+
+function flatten(sol::ReachSolution{<:Flowpipe{N, <:TemplateReachSet}}, rows=(1, 2)) where {N}
+    return flatten(flowpipe(sol), rows)
+end
