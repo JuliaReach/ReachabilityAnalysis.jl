@@ -181,6 +181,7 @@ function _plot_singleton_list_2D(list::Union{Flowpipe{N}, AbstractVector{RN}}) w
 end
 
 function _plot_reachset_list(list, N, vars, ε, Nφ)
+
     first = true
     x = Vector{N}()
     y = Vector{N}()
@@ -191,7 +192,7 @@ function _plot_reachset_list(list, N, vars, ε, Nφ)
             xcoords, ycoords = plot_recipe(Xi, ε, Nφ)
 
         else
-            Pi = isconcretetype(typeof(Xi)) ? Xi : overapproximate(Xi, ε)
+            Pi = isoperation(Xi) ? overapproximate(Xi, ε) : Xi
             vlist = convex_hull(vertices_list(Pi))
             m = length(vlist)
             if m == 0
@@ -254,7 +255,7 @@ end
     end
 end
 
-# compound flowpipes
+# composite flowpipes
 @recipe function plot_list(fp::Union{HF, MF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
@@ -319,7 +320,8 @@ end
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS
-                          ) where {N, MF<:MixedFlowpipe{N}, HF<:HybridFlowpipe{N}, SMF<:ReachSolution{MF}, SHF<:ReachSolution{HF}}
+                          ) where {N, MF<:MixedFlowpipe{N}, HF<:HybridFlowpipe{N},
+                                   SMF<:ReachSolution{MF}, SHF<:ReachSolution{HF}}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -331,52 +333,20 @@ end
     seriescolor --> DEFAULT_COLOR
     seriestype --> :shape
 
-    first = true
     x = Vector{N}()
     y = Vector{N}()
-    for F in flowpipe(sol)
-    for (i, Ri) in enumerate(F)
-        if isa(F, ShiftedFlowpipe)
-            # TODO refactor; this is needed to support ShiftedFlowpipe
-            πRi = project(F, i, vars) # project the reach-set
-            Xi = set(πRi) # extract the set representation
-        else
-            Xi = _project_reachset(Ri, vars)
-        end
 
-        if Xi isa Intersection
-            res = plot_recipe(Xi, ε, Nφ)
-        else
-            # hard-code overapproximation here to avoid individual
-            # compilations for mixed sets
-            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
-            vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
-            if isempty(vlist)
-                @warn "overapproximation during plotting was empty"
-                continue
-            end
-            res = vlist[:, 1], vlist[:, 2]
-            # add first vertex to "close" the polygon
-            push!(res[1], vlist[1, 1])
-            push!(res[2], vlist[1, 2])
-        end
-        if isempty(res)
-            continue
-        else
-            x_new, y_new = res
-        end
-        if first
-            first = false
-        else
-            push!(x, N(NaN))
-            push!(y, N(NaN))
-        end
+    fp = flowpipe(sol)
+    for F in fp
+        x_new, y_new = _plot_reachset_list(F, N, vars, ε, Nφ)
         append!(x, x_new)
         append!(y, y_new)
     end
-    end
     x, y
 end
+
+# TODO new plot recipe to dispatch on ShiftedFlowpipe
+# πRi = project(F, i, vars) # project the reach-set
 
 # TODO: refactor with Flowpipe
 # TODO extend projection of shifted flowpipes to use lazy projection if needed
