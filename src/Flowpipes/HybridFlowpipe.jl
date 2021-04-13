@@ -103,14 +103,15 @@ end
 
 # evaluation for time intervals
 function (fp::HybridFlowpipe{N, RT})(dt::TimeInterval) where {N, RT<:AbstractReachSet{N}}
-    if !(dt ⊆ tspan(fp)) # TODO IntervalArithmetic#409
+    if !(dt ⊆ tspan(fp)) # ⊊ doesn't work see, IntervalArithmetic#409
         throw(ArgumentError("time interval $dt does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
     vec = Vector{RT}()
     for (k, fk) in enumerate(array(fp)) # loop over flowpipes
-        if !isdisjoint(dt, tspan(fk))
-            for R in fk(dt)  # loop over reach-sets for this flowpipe
+        dtint = dt ∩ tspan(fk)
+        if !isempty(dtint)
+            for R in fk(dtint)  # loop over reach-sets for this flowpipe
                 push!(vec, R)
             end
         end

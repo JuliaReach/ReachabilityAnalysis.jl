@@ -56,7 +56,6 @@ prob = multistable_oscillator()
 
 sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=false);
 
-# FIXME use sol(0 .. 50e-4)
 plot(sol, vars=(0, 1), xlab="t", ylab="v-")
 
 #-
