@@ -7,17 +7,18 @@ DocTestSetup = :(using ReachabilityAnalysis)
 *Methods to compute sets of states reachable by dynamical systems.*
 
 !!! note
-    `ReachabilityAnalysis` is still under development. If you have questions,
+    This library is still in very active development. If you have questions,
     find a bug, or have ideas for improvements, feel free to open an issue or make
     a pull request on the [project's GitHub page](https://github.com/mforets/ReachabilityAnalysis.jl).
     You can also find us at the [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 
 ## Features
 
-This library implements reachability analysis methods for systems of ordinary
-differential equations (ODEs), for both continuous and hybrid dynamical systems.
+This library provides tools to approximate the set of reachable states of systems
+with both continuous and mixed discrete-continuous dynamics, also known as hybrid systems.
+It implements conservative discretization and set-propagation techniques at the state-of-the-art.
 
-The following types of ODEs are currently supported:
+The following types of systems are currently supported:
 
 - Continuous ODEs with linear dynamics.
 - Continuous ODEs with non-linear dynamics.
@@ -25,17 +26,8 @@ The following types of ODEs are currently supported:
 - Hybrid systems with non-linear dynamics.
 
 For hybrid systems, the transitions may be space-triggered or time-triggered
-(or both).
-
-In all the problems mentioned above, the library can handle uncertainties in
-the sets of initial states, inputs, or parameter variation.
-
-We refer to the `Algorithms` section for detailed descriptions of the algorithms
-available, as well as the references to the technical literature.
-
-## What can `ReachabilityAnalysis` do?
-
-- Solve the same ODE repeatedly for an *infinite* number of different initial conditions.
+(or both). In all the problems mentioned above, the library can handle uncertainties in
+the sets of initial states, inputs, or parameter variation.  We refer to the `Algorithms` section for detailed descriptions of the algorithms available, as well as the references to the technical literature.
 
 ## How to install the package?
 
@@ -71,20 +63,34 @@ We refer to the technical literature for further applications.
 
 ## What is the verification problem?
 
-Consider a dynamical system over some state space $\mathcal{X} \subset \mathbb{R}^n$ defined via a differential equation of the form $x'(t) = f(x, u)$,
-where $u(t) \in \mathcal{U}(t)$ ranges over some specified set of admissible input signals. Given a set of initial states initial states $\mathcal{X}_0 \subseteq \mathcal{X}$, a set of unsafe states, and a time bound, the time-bounded safety verification problem is to check if there exists an initial state and a time within the bound such that the solution of the system enters the unsafe set.
+Consider a dynamical system over some state space $\mathcal{X} \subset \mathbb{R}^n$
+defined via a differential equation of the form $x'(t) = f(x, u)$, where $u(t) \in \mathcal{U}(t)$
+ranges over some specified set of admissible input signals. Given a set of
+initial states initial states $\mathcal{X}_0 \subseteq \mathcal{X}$, a set of
+unsafe states, and a time bound, the time-bounded safety verification problem is
+to check if there exists an initial state and a time within the bound such that
+the solution of the system enters the unsafe set.
 
 The safety verification problem applies for the generalized case in which the
-problem has uncertain parameters, or dynamical systems which are hybrid, i.e. mixing continuous dynamics and discrete transitions.
+problem has uncertain parameters, or dynamical systems which are hybrid, i.e.
+mixing continuous dynamics and discrete transitions.
+
+Set propagation methods amount to "solving" the same ODE repeatedly for an
+*infinite* number of different initial conditions, because the main object
+to represent solutions are sets instead of ordinary vectors. However, the number of required
+trajectories to exhaustively cover distributed initial conditions or parameters increases
+exponentially: for example, the number of vertices of an $n$-dimensional box is
+$2^n$ so simulating all those trajectories is intractable. On the other hand,
+using this library it is possible to compute flowpipes for systems of dimension 100
+or higher in fractions of a second.
 
 ## A warning note
 
 Users of the library should have in mind that parameter tuning is an
 essential ingredient to the successful application of reachability analysis.
 This is in part due to the "cutting-edge research" aspect
-of the methods available, i.e. the methods haven't yet been "battle-tested".
-Moreover, finding good algorithm heuristics -- specially for hybrid systems -- is a hard
-problem by itself.
+of the methods available. Moreover, finding good algorithm heuristics
+is a research problem, see e.g. [[WKA20]](@ref).
 
 On the other hand, our goal in designing and building the tools around `JuliaReach` has
 been to make the default settings already work, or at least, work reasonably well across

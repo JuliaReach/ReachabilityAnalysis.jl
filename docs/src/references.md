@@ -163,6 +163,24 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [FCS20]
+
+- Marcelo Forets, Daniel Freire, Christian Schilling, 2020.
+  *Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.*
+  [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325).
+  In [18th ACM-IEEE International Conference on Formal Methods and Models for System Design](https://iitjammu.ac.in/conferences/memocode2020/index.html). Publication: https://ieeexplore.ieee.org/document/9314994
+
+```
+@article{forets2020efficient,
+  title={Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions},
+  author={Forets, Marcelo and Freire, Daniel and Schilling, Christian},
+  journal={18th ACM-IEEE International Conference on Formal Methods and Models for System Design)},
+  year={2020}
+}
+```
+
+---
+
 #### [FRE11]
 
 - Frehse, G., Le Guernic, C., Donzé, A., Cotton, S., Ray, R., Lebeltel,
@@ -466,6 +484,26 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 ```
 
 ---
+
+#### [WKA20]
+
+- Wetzlinger, Mark, Niklas Kochdumper, and Matthias Althoff.
+  [*Adaptive Parameter Tuning for Reachability Analysis of Linear Systems*.](https://ieeexplore.ieee.org/abstract/document/9304431)
+  2020 59th IEEE Conference on Decision and Control (CDC). IEEE, 2020.
+
+```
+@inproceedings{wetzlinger2020adaptive,
+  title={Adaptive Parameter Tuning for Reachability Analysis of Linear Systems},
+  author={Wetzlinger, Mark and Kochdumper, Niklas and Althoff, Matthias},
+  booktitle={2020 59th IEEE Conference on Decision and Control (CDC)},
+  pages={5145--5152},
+  year={2020},
+  organization={IEEE}
+}
+```
+
+---
+
 
 #### [YS18]
 

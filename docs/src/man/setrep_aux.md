@@ -1,3 +1,6 @@
+### FULL SETREP STUFF
+
+
 ```@meta
 DocTestSetup  = quote
     using ReachabilityAnalysis
@@ -5,7 +8,26 @@ end
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Basics
+# Set representations
+
+Subets of $\mathbb{R}^n$ can be represented in many different ways, and each
+reprsentation has its advantages and disadvantages: there is no one-size-fits-all
+set represententation in reachability applications. Depending on the type of
+operation that we want to apply, one set representation may be more convenient
+than another one.
+
+Two important characteristics are:
+
+- **Closure:** A set representation is said to be *closed* under a given operation
+  if the result of the operation is again a set in the same class.
+
+- **Cost:** To measure the cost of making a given operation on a set, we consider
+  the total number of binary operations, denoted with $\mathrm{Op}(\cdot)$. (....)
+
+In the rest of this section we define the most common set representations used in
+reachability analysis and recall some fundamental properties. Moreover, we show
+examples using the [LazySets.jl](https://github.com/JuliaReach/LazySets.jl).
+
 
 ## Introduction
 
@@ -27,10 +49,10 @@ sections of this manual we also consider generalizations of this problem such as
 parameters, or dynamical systems which are hybrid, i.e. mixing continuous dynamics and discrete transitions.
 
 In order to compute with sets, we need to find convenient ways to represent and operate with them.
+
 In the next section we consider some common set representations and show how to work with `LazySets.jl`.
 
-
-----
+## Reach-sets
 
 More technically, we define the reachable set at a given time point
 $\delta \in \mathbb{R}$, also known as the *reach-set* for the ODE
@@ -46,18 +68,9 @@ and $\mathcal{P}$ denotes the parameter values. For practical problems, the set
 $\mathcal{R}(δ)$ cannot be obtained exactly, and reachability methods aim at
 computing suitable over-approximations (or under-approximations) of it.
 
+## Flowpipes
 
-## Set representations
 
-Subets of $\mathbb{R}^n$ can be represented in different ways. Depending on the
-type of operation that we want to apply, one set representation may be more convenient
-than another one. There are two important characteristics:
-
-- **Closure:** A set representation is said to be *closed* under a given operation if the result of the operation is again a set in the same class.
-
-- **Cost:** To measure the cost of making a given operation on a set, we consider the total number of binary operations, denoted with $\mathrm{Op}(\cdot)$. (....)
-
-In the rest of this sectio we define the usual set representations used in reachability analysis and recall some fundamental properties. Moreover, we show how to define these sets using the library `LazySets.jl`.
 
 ### Polyhedra
 
@@ -247,8 +260,7 @@ We consider as a running example in this section the simple harmonic oscillator,
 
 A flowpipe represents a collection of reach-sets and behaves like their set union.
 
-
-## (TO CLEANUP)
+## Approximations
 
 Given a set ``\mathcal{X} \subseteq \mathbb{R}^n``, any subset of ``\mathcal{X}``
 is said to be an *underapproximation*. Conversely, any set containing ``\mathcal{X}``
@@ -260,20 +272,6 @@ reachable sets
 We begin with the notion of Hausdorff distance which, as a way to *measure*
 (in the informal sense) the distance between sets, constitutes a practical tool to
 quantify the quality of an approximation.
-
-## Hybrid systems
-
-Up to now we have discussed about the continuous case only, but there is a rich
-literature in hybrid systems reachability; *hybrid* here means those dynamical
-systems which are given by one or more continuous-time dynamics (often, systems
-of ODEs in each mode or location) coupled with discrete transitions between
-continuous modes. In our context it is standard to model these systems using the
-terminology of *hybrid automata*, and we also model hybrid systems with such framework
-in this library. The concept of reach-set, flowpipe and safety verification are
-naturally extended to hybrid automata, although there is the additional complication
-that the flowpipe must include the behaviors for all possible transitions between
-discrete modes that are compatible with the dynamics.
-
 
 
 ## References

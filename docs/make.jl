@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                    :(using ReachabilityAnalysis); recursive=true)
 
 # generate Literate documentation
-include("generate.jl")
+#include("generate.jl")
 
 makedocs(
     format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
@@ -16,10 +16,10 @@ makedocs(
     strict = false,
     pages = [
         "Home" => "index.md",
-        "Manual" => Any["Basics" => "man/basics.md",
-                        "Linear ODEs" => "man/linear.md",
-                        "Nonlinear ODEs" => "man/nonlinear.md",
-                        #"Semidiscrete PDEs" => "man/pde.md"
+        "Manual" => Any["Set representations" => "man/setrep.md",
+                        "Linear systems" => "man/linear.md",
+                        "Nonlinear systems" => "man/nonlinear.md",
+                        #"Semidiscrete PDEs" => "man/pde.md",
                         "Hybrid systems" => "man/hybrid.md",
                         "Clocked systems" => "man/clocked.md",
                         "Exploiting structure" => "man/structure.md",
@@ -28,6 +28,7 @@ makedocs(
                         "Benchmarks" => "man/benchmarks.md",
                         "Model library" => "man/library.md",
                         "Frequently Asked Questions" => "man/faq.md"],
+                        #=
         "Examples" => Any["Overview" => "man/examples_overview.md",
                           "Operational amplifier" => "models/OpAmp.md",
                           "Square wave oscillator" => "models/SquareWaveOscillator.md",
@@ -46,6 +47,7 @@ makedocs(
                           "SEIR model" => "models/SEIR.md",
                           "Spacecraft" => "models/Spacecraft.md"],
                           # "Electromechanic break" => "man/EMBrake.md"
+                          =#
         "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
                             "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                             "BOX" => "lib/algorithms/BOX.md",
