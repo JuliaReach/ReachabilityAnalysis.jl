@@ -17,6 +17,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Manual" => Any["Set representations" => "man/setrep.md",
+                        "Set propagation" => "man/setprop.md",
                         "Linear systems" => "man/linear.md",
                         "Nonlinear systems" => "man/nonlinear.md",
                         #"Semidiscrete PDEs" => "man/pde.md",

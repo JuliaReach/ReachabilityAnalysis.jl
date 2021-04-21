@@ -100,20 +100,26 @@ to be considered, among them the main characteristics are:
 
 A special class of polyhedra are (...)
 
-The one-dimensional case are `Interval` representations (...)
+Given vectors $c \in \mathbb{R}^n$ and $r \in \mathbb{R}^n$ that we call
+*center* and *radius* respectively, the associated hyperrectangle is the set
+$$
+H = \left\{x \in \mathbb{R}^n : \vert x_i - c_i \vert \leq r_i, \quad i = 1, \ldots, n\right\}.
+$$
+
+The one-dimensional case are `Interval` representations
 
 
 ```@example hyperrectangle_example_1
+using LazySets, Plots
+
 H = Hyperrectangle(low=[0.9, -0.1], high=[1.1, 0.1])
 
 plot(H, ratio=1.)
 ```
 
-
 ```@example hyperrectangle_example_1
 typeof(H)
 ```
-
 
 ## Zonotopic sets
 
@@ -123,7 +129,7 @@ generator representation. Here, $Z ⊆ \mathbb{R}^n$ is defined by a center $c �
 such that
 
 ```math
-Z = \{ c + \sum_{i=1}^{p} \xi_i g_i | \xi_i ∈ [−1, 1]\}.
+Z = \left\{ c + \sum_{i=1}^{p} \xi_i g_i | \xi_i ∈ [−1, 1]\right\}.
 ```
 It is common to note $Z = (c, \langle g_1 . . . , g_p \rangle)$ or simply
 $Z = (c, G)$, where $g_i$ is the $i$-th column of $G$. The order of an $n$-dimensional
@@ -139,17 +145,21 @@ typeof(Z)
 ```
 
 ```@example hyperrectangle_example_1
+using LazySets: center
+
 center(Z)
 ```
 
 
 ```@example hyperrectangle_example_1
-generators(Z)
+genmat(Z)
 ```
-
+(use [`generators`](https://juliareach.github.io/LazySets.jl/dev/lib/sets/Zonotope/#LazySets.generators-Tuple{Zonotope}) to iterate over the list of generators).
 
 
 ```@example zonotope_example_1
+using LazySets, Plots
+
 Z = Zonotope([1, 1.], [-1 0.3 1.5 0.3; 0 0.1 -0.3 0.3])
 ```
 
@@ -166,20 +176,15 @@ There are other useful characterization of zonotopes. A zonotope can be seen as 
 
 The cost is measured in terms of the number of binary operations, $\mathrm{Op}(\cdot)$.
 
-
-$Z_1 = (c, \langle v_1, \dotsb, v_k \rangle), Z_2 = (d, \langle w_1, \dotsb, w_m \rangle) \subset \mathbb{R}^n, M \in \mathbb{R}^{m \times n}$
+Let $Z_1 = (c, \langle g_1, \dotsb, g_k \rangle) \subset \mathbb{R}^n$ and $Z_2 = (d, \langle w_1, \dotsb, w_m \rangle)$
+and $M \in \mathbb{R}^{m \times n}$
 
 $Z_1 \oplus Z_2 = (c+d, \langle v_1, \dotsb, v_k, w_1, \dotsb, w_m \rangle)$
 
-$MZ_1 = (Mc, \langle Mv_1, \dotsb, Mv_k \rangle)$
-
-$CH(Z_1, e^{A\delta}Z_1) \subseteq \frac{1}{2}(c + e^{A\delta}c,\langle v_1 + e^{A\delta}v_1, \dotsb, v_k+e^{A\delta}v_k, v_1 - e^{A\delta}v_1, v_k - e^{A\delta}v_k, c - e^{A\delta}c \rangle )$
-
 | Operation                 | Simplification Rule | Cost               |
 |---------------------------|---------------------|--------------------|
-| $Z_1 \oplus Z_2$          |                     |      $n$            |
-| $MZ_1$                    |                     |      $2mn(k+1)$              |
-| $CH(Z_1, e^{A\delta}Z_1)$ |                     |      $2n^2(k+1)+2n(k+2)$         |
+| $Z_1 \oplus Z_2$          |$(c+d, \langle v_1, \dotsb, v_k, w_1, \dotsb, w_m \rangle)$|      $n$            |
+| $MZ_1$                    |$(Mc, \langle Mg_1, \dotsb, Mg_k \rangle)$ |      $2mn(k+1)$              |
 
 ## Polyhedra
 
@@ -218,6 +223,8 @@ It is important to note that for a given direction $\ell$, the support function 
 ```
 
 ```@example
+using LazySets, Plots
+
 E = Ellipsoid([1.0, 1.0], [2.7 0.28; 0.28 1.04])
 
 H1 = HalfSpace([1.0, 2.0], ρ([1.0, 2.0], E))
@@ -238,13 +245,15 @@ plot!(Singleton(σ([1.0, -2.0], E)), lab="-d2")
 
 The following formulas hold:
 
-- $\rho_{\mathcal{X} \oplus \mathcal{Y}}(\ell) =
+- $\rho_{\mathcal{X} \oplus \mathcal{Y}}(\ell) = $
 
 - $\rho_{M\mathcal{X}}(\ell) =  for any
 Here $M\mathcal{X}$ represents the linear map for $M \in \mathbb{R}^{m \times n}$.
+
 - $\rho_{CH(\mathcal{X}, \mathcal{Y})}(\ell) =
 
-The following table summarizes the number of
+The following table summarizes the number of:
+
 | Operation                                     | Simplification rule | Cost  |
 |-----------------------------------------------|-------|------|
 | $\rho_{\mathcal{X} \oplus \mathcal{Y}}(\ell)$ |$\rho_{\mathcal{X}}(\ell) + \rho_{\mathcal{Y}}(\ell)$  |  $1$     |
@@ -253,13 +262,16 @@ The following table summarizes the number of
 
 which touches and contains $\mathcal{X}$ . If $\ell$ is of unit length, then
 $\rho_{\mathcal{X}}(\ell)$ is the signed distance of $\mathcal{H}_{\ell}$ to the origin.
-Evaluating the support function for a set of directions $L ⊆ \mathbb{R}^n$ provides an overapproximation
+
+Evaluating the support function for a set of directions $L ⊆ \mathbb{R}^n$ provides an overapproximation:
+
 ```math
     \lceil \mathcal{X} \rceil _L = \bigcap_{\ell \in L} \{ x \in \mathbb{R}^n | \ell^T x \leq \rho_{\mathcal{X}}(\ell) \}
 ```
-
-i.e., $\mathcal{X} ⊆ \lceil \mathcal{X} \rceil _L$. If $L = \mathbb{R}^n$, then $\mathcal{X} = \lceil \mathcal{X} \rceil _L$, so the support function represents any convex set $\mathcal{X}$ exactly. If $L$ is a finite set of directions $L = {\ell_1, . . . , \ell_m}$, then $\lceil \mathcal{X} \rceil _L$ is a polyhedron.
-
+i.e., $\mathcal{X} ⊆ \lceil \mathcal{X} \rceil _L$. If $L = \mathbb{R}^n$, then
+$\mathcal{X} = \lceil \mathcal{X} \rceil _L$, so the support function represents
+any convex set $\mathcal{X}$ exactly. If $L$ is a finite set of directions
+$L = {\ell_1, . . . , \ell_m}$, then $\lceil \mathcal{X} \rceil _L$ is a polyhedron.
 
 ## Taylor models
 
@@ -295,6 +307,20 @@ reachable sets
 ### Conversion
 
 ### Overapproximation
+
+The convex hull of two zonotopes is no longer a zonotope in general. However,
+we can overapproximate the result with another zonotope. For example, the convex
+hull of two zonotopes ``Z₁`` and ``Z₂`` of the same order, which we write
+$Z_j = ⟨c^{(j)}, g^{(j)}_1, …, g^{(j)}_p⟩$ for $j = 1, 2$, can be overapproximated as follows:
+
+```math
+CH(Z_1, Z_2) ⊆ \\frac{1}{2}⟨c^{(1)}+c^{(2)}, g^{(1)}_1+g^{(2)}_1, …,
+g^{(1)}_p+g^{(2)}_p, c^{(1)}-c^{(2)}, g^{(1)}_1-g^{(2)}_1, …, g^{(1)}_p-g^{(2)}_p⟩.
+```
+The cost of this operation is $2n^2(k+1)+2n(k+2)$.
+If the zonotope order is not the same, the algorithm calls
+`reduce_order` to reduce the order to the minimum of the arguments.
+
 
 ### Underapproximation
 
