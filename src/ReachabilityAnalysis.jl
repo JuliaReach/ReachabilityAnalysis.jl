@@ -15,12 +15,12 @@ include("ReachSets/reachsets.jl")
 include("Flowpipes/flowpipes.jl")
 include("Flowpipes/arrayops.jl")
 include("Flowpipes/clustering.jl")
-include("Flowpipes/fields.jl")
 include("Flowpipes/solutions.jl")
 
 # ===========================================================
 # Shared functionality for continuous systems
 # ===========================================================
+include("Continuous/fields.jl")
 include("Continuous/normalization.jl")
 include("Discretization/exponentiation.jl")
 include("Discretization/discretization.jl")

@@ -6,6 +6,11 @@ struct VectorField{T} <: AbstractVectorField
     field::T
 end
 
+field(V::VectorField) = V.field
+
+# no-op (for nonlinear systems)
+field(f::Function) = f
+
 # function-like evaluation
 @inline function (V::VectorField)(args...)
     evaluate(V, args...)

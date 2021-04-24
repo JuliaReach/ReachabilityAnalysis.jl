@@ -28,7 +28,7 @@
 # |A    | 1     |
 # |B    | 1.5   |
 
-using ReachabilityAnalysis
+using ReachabilityAnalysis #!jl
 
 const A = 1.0
 const B = 1.5
@@ -81,9 +81,9 @@ plot!(sol, vars=(0, 2), xlab="t", lw=0.2, color=:red, lab="y(t)")  #!jl
 # The model was considered in [^GCLASG20] but using a different set of initial conditions. Let us parametrize
 # the initial states as a ball centered at ``x = y = 1`` and radius ``r > 0``:
 
-U0(r) = Singleton([1.0, 1.0]) ⊕ BallInf(zeros(2), r)  
+U0(r) = Singleton([1.0, 1.0]) ⊕ BallInf(zeros(2), r)
 
-#- 
+#-
 
 # The parametric initial-value problem is defined accordingly.
 
@@ -91,15 +91,15 @@ bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim: 2)
 
 # First we solve for ``r = 0.01``:
 
-sol_01 = solve(bruss(0.01), T=30.0, alg=TMJets(orderT=6, orderQ=2))
+sol_01 = solve(bruss(0.01), T=30.0, alg=TMJets(orderT=6, orderQ=2))  #!jl
 
-LazySets.set_ztol(Float64, 1e-15)
+LazySets.set_ztol(Float64, 1e-15)  #!jl
 
 plot(sol_01, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)", legend=:bottomright)  #!jl
 
 plot!(U0(0.01), color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
 
-# We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon ``T = 30.0``. 
+# We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon ``T = 30.0``.
 # Next we plot the flowpipe zoomed to the last portion and compare ``r = 0.01`` with a set of larger initial states, ``r = 0.1``.
 
 sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets(orderT=6, orderQ=2))
@@ -112,11 +112,11 @@ plot!(sol_01, vars=(1, 2), lw=0.2, color=:blue, lab="r = 0.01")  #!jl
 
 # The volume at time ``T = 9.0`` can be obtained by evaluating the flowpipe and computing the volume of the hyperrectangular overapproximation:
 
-vol_01 = overapproximate(sol_01(9.0), Hyperrectangle) |> set |> volume
+vol_01 = overapproximate(sol_01(9.0), Hyperrectangle) |> set |> volume  #!jl
 
 #-
 
-vol_1 = overapproximate(sol_1(9.0), Hyperrectangle) |> set |> volume
+vol_1 = overapproximate(sol_1(9.0), Hyperrectangle) |> set |> volume  #!jl
 
 # ## References
 

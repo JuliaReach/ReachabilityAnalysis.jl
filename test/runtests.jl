@@ -12,6 +12,9 @@ const RA = ReachabilityAnalysis
 import IntervalArithmetic
 const IA = IntervalArithmetic
 
+# optional dependencies
+using Symbolics
+
 # load test models
 include("models/harmonic_oscillator.jl")
 include("models/forced_oscillator.jl")
@@ -19,9 +22,10 @@ include("models/exponential1D.jl")
 include("models/motor.jl")
 include("models/linear5D.jl")
 include("models/VanDerPol.jl")
-include("models/EMBrake.jl")
+include("models/EMBrake.jl");
 include("models/bouncing_ball.jl")
 include("models/burgers.jl")
+include("models/Brusselator.jl")
 
 #include("utils.jl")
 include("solve.jl")
@@ -30,6 +34,7 @@ include("flowpipes.jl")
 #include("traces.jl")
 include("setops.jl")
 include("arrayops.jl")
+include("symbolics.jl")
 
 # algorithms
 include("algorithms/INT.jl")
