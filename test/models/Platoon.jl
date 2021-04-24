@@ -1,6 +1,7 @@
 using ReachabilityAnalysis, SparseArrays, Symbolics
 
-const var = @variables x[1:9] t
+@variables x[1:9] t
+const var = vcat(x, t)
 
 function platoon_connected(; deterministic_switching::Bool=true,
                              c1=5.0)  # clock constraints

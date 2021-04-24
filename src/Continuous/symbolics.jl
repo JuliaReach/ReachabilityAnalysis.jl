@@ -24,8 +24,7 @@ function _jacobian_function(sys::BBCS{Vector{Num}}, var)
 end
 
 # fallback for nonlinear systems: assumes in-place form f!(dx, x, p, t),
-# *ignoring* p and t args and use
-# var to trace the associated symbolic function
+# *ignoring* p and t args and uses `var` to trace the associated symbolic function
 function _jacobian_function(sys::BBCS, var)
     n = length(var) # dimension
     expr = Vector{Num}(undef, n)
