@@ -343,6 +343,8 @@ end
         x_new, y_new = _plot_reachset_list(F, N, vars, ε, Nφ)
         append!(x, x_new)
         append!(y, y_new)
+        push!(x, N(NaN))
+        push!(y, N(NaN))
     end
     x, y
 end
