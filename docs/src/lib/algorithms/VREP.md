@@ -23,7 +23,7 @@ can be passed to the `VREP` algorithm constructor too using the `dim` keyword ar
 of the output flowpipe based only on the algorithm choice, but since the length of
 a vector is stored as type information for the case of static arrays, it has to be given in advance.)
 
-## Specifing the backend
+## Specifying the backend
 
 If the dimension of the system is two, `VREP` uses efficient algorithms for convex
 polygons (e.g. convex hull, Minkowski sum) implemented in
