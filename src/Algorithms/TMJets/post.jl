@@ -37,7 +37,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     sizehint!(F, max_steps)
 
     F, tv, xv, xTM1v, success, _t0 = validated_integ!(F, f!, X0tm, t0, T, orderQ, orderT,
-                                                     abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+                                                      abs_tol, max_steps, X, disjointness, Δt0, adaptive)
 
     if success || !adaptive
         ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v, :actual_abs_tol=>[abs_tol])
@@ -69,8 +69,9 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
             # new initial states
             if !isempty(F)
                 # here we pass the box overapproximation of the final reach-set
-                X0_end_box = overapproximate(F[end], Hyperrectangle)
-                X0tm = _initialize(X0_end_box, orderQ, orderT)
+                #X0_end_box = set(overapproximate(F[end], Hyperrectangle, orderQ=orderQ, orderT=orderT))
+                #X0tm = _initialize(X0_end_box, orderQ, orderT)
+                X0tm = xv_vec[end][end]
             end
 
             # new flowpipe
@@ -117,10 +118,18 @@ function _solve_external(f!, X0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0
     return Flowpipe(F, ext)
 end
 
+# =================================================================
+# Initialization funtions to prepare the input for validated_integ
+# =================================================================
+
+#_initialize(X0::AbstractReachSet, orderQ, orderT) = _initialize(set(X0))
+
 _initialize(X0::TaylorModelReachSet, orderQ, orderT) = set(X0)
 _initialize(X0::Vector{TaylorModel1{TaylorN{T}, T}}, orderQ, orderT) where {T} = X0
 
 _initialize(X0::AbstractHyperrectangle, orderQ, orderT) = convert(IntervalBox, box_approximation(X0))
+_initialize(X0::IntervalBox, orderQ, orderT) = X0
+_initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
 
 # fallback
 _initialize(X0::LazySet, orderQ, orderT) = _initialize(box_approximation(X0), orderQ, orderT)
