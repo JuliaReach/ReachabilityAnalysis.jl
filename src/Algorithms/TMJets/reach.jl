@@ -284,9 +284,9 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     return (success, δt, _t0)
 end
 
-function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
-                          t0::T, tmax::T, orderQ::Int, orderT::Int, abstol::T, max_steps::Int,
-                          X::LazySet, disjointness, Δt0, adaptive::Bool=true, params=nothing;
+function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
+                          abstol::T, max_steps::Int, X::LazySet, disjointness, Δt0,
+                          adaptive::Bool=true, params=nothing;
                           parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {T<:Real}
 
     # Set proper parameters for jet transport
@@ -301,38 +301,26 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
     tI  = t0 + Taylor1(orderT+1)
 
     # Allocation of vectors
+
     # Output
     tv    = Vector{T}(undef, max_steps+1)
     xv    = Vector{IntervalBox{N,T}}(undef, max_steps+1)
     xTM1v = Matrix{TaylorModel1{TaylorN{T},T}}(undef, dof, max_steps+1)
+    rem = Vector{IA.Interval{T}}(undef, dof)
+
     # Internals: jet transport integration
     x     = Vector{Taylor1{TaylorN{T}}}(undef, dof)
     dx    = Vector{Taylor1{TaylorN{T}}}(undef, dof)
     xaux  = Vector{Taylor1{TaylorN{T}}}(undef, dof)
     xTMN  = Vector{TaylorModelN{N,T,T}}(undef, dof)
+
     # Internals: Taylor1{IA.Interval{T}} integration
     xI    = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
     dxI   = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
     xauxI = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
 
     # Set initial conditions
-    rem = Vector{IA.Interval{T}}(undef, dof)
-    xTM0 = set(X0tm) # time is ignored, and *rem is also ignored*
-    @inbounds for i in eachindex(x)
-        # NOTE orderQ may be larger than what is *actually* needed (...)
-        pi = polynomial(xTM0[i])
-        qaux = pi.coeffs[1]
-        x[i] = Taylor1(qaux, orderT)
-        dx[i] = x[i]
-        xTMN[i] = TaylorModelN(qaux, zI, zbox, symIbox)
-
-        # NOTE this encloses the zonotope with a box...
-        pi_int = TM.evaluate(qaux, symIbox)
-        xI[i] = Taylor1(pi_int, orderT+1)
-        dxI[i] = xI[i]
-        rem[i] = zI
-        xTM1v[i, 1] = TaylorModel1(deepcopy(x[i]), zI, zI, zI)
-    end
+    TaylorModels.initialize!(X0, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
     sign_tstep = copysign(1, tmax-t0)
 
     # Output vectors
@@ -385,7 +373,6 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
         end
 
         # construct the taylor model reach-set
-        #Ri = TaylorModelReachSet(xTM1v[:, nsteps], t0, δt, Δt0)
         Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0) + Δt0)
 
         # check intersection with invariant
@@ -402,5 +389,5 @@ function validated_integ!(F, f!, X0tm::TaylorModelReachSet,
 
     end
 
-    return F, view(tv,1:nsteps), view(xv,1:nsteps), view(xTM1v, :, 1:nsteps), success, _t0
+    return F, view(tv, 1:nsteps), view(xv, 1:nsteps), view(xTM1v, :, 1:nsteps), success, _t0
 end
