@@ -287,7 +287,7 @@ function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
                  orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
 
     n = dim(H)
-    x = set_variables("x", numvars=n, order=2*orderQ)
+    x = set_variables("x", numvars=n, order=orderQ)
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
@@ -320,7 +320,7 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                          indices=1:dim(Z)) where {N}
 
     n = dim(Z)
-    x = set_variables("x", numvars=n, order=2*orderQ)
+    x = set_variables("x", numvars=n, order=orderQ)
 
     if order(Z) > 1
         # indices selects the indices that we want to keep
