@@ -122,18 +122,19 @@ end
 # Initialization funtions to prepare the input for validated_integ
 # =================================================================
 
-#_initialize(X0::AbstractReachSet, orderQ, orderT) = _initialize(set(X0))
+# fallback
+_initialize(X0::LazySet, orderQ, orderT) = _initialize(box_approximation(X0), orderQ, orderT)
 
+# taylor model representations
 _initialize(X0::TaylorModelReachSet, orderQ, orderT) = set(X0)
 _initialize(X0::Vector{TaylorModel1{TaylorN{T}, T}}, orderQ, orderT) where {T} = X0
 
+# hyperrectangular sets
 _initialize(X0::AbstractHyperrectangle, orderQ, orderT) = convert(IntervalBox, box_approximation(X0))
 _initialize(X0::IntervalBox, orderQ, orderT) = X0
 _initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
 
-# fallback
-_initialize(X0::LazySet, orderQ, orderT) = _initialize(box_approximation(X0), orderQ, orderT)
-
+# zonotopic sets
 function _initialize(X0::AbstractZonotope, orderQ, orderT)
     X = overapproximate(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
     return set(X)
