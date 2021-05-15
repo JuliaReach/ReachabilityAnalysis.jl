@@ -152,7 +152,7 @@ function picard_remainder!(f!::Function, t::Taylor1{T},
     f!(dxxI, xxI, params, t)
 
     # Picard iteration, considering only the bound of `f` and the last coeff of f
-    Δdx = IntervalBox( TM.evaluate.( (dxxI - dx)(δt), δI... ) )
+    Δdx = IntervalBox(TM.evaluate.( (dxxI - dx)(δt), (δI,) ) )
     Δ = Δ0 + Δdx * δt
     return Δ
 end
@@ -328,14 +328,7 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
     @inbounds xv[1] = TM.evaluate(xTMN, symIbox)
 
     # Determine if specialized jetcoeffs! method exists (built by @taylorize)
-    parse_eqs = parse_eqs && (length(methods(TaylorIntegration.jetcoeffs!)) > 2)
-    if parse_eqs
-        try
-            TaylorIntegration.jetcoeffs!(Val(f!), t, x, dx, params)
-        catch
-            parse_eqs = false
-        end
-    end
+    parse_eqs = TaylorIntegration._determine_parsing!(parse_eqs, f!, t, x, dx, params)
 
     local success # if true, the validation step succeeded
     local _t0 # represents how much the integration could advance until validation failed
