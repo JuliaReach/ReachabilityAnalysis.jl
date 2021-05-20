@@ -29,7 +29,6 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     X0 = initial_state(ivp_norm)
 
     if external
-        println("using external TMJets solver")
         return _solve_external(f!, X0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0; parse_eqs=parse_eqs, kwargs...)
     end
 
