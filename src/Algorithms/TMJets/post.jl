@@ -107,7 +107,7 @@ function _solve_external(f!, X0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0
     solver_kwargs = get(kwargs, :solver_kwargs, Dict(:maxsteps=>max_steps))
 
     # call external solver
-    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abs_tol; parse_eqs, olver_kwargs...)
+    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abs_tol; parse_eqs, solver_kwargs...)
 
     # build flowpipe
     F = Vector{TaylorModelReachSet{N}}()
