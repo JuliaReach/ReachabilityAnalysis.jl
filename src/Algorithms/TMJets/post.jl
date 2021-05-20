@@ -15,6 +15,8 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     else
         f! = VectorField(ivp)
     end
+    parse_eqs = get(kwargs, :parse_eqs, false)
+
     n = statedim(ivp)
     ivp_norm = _normalize(ivp)
     X = stateset(ivp_norm)
@@ -27,7 +29,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     X0 = initial_state(ivp_norm)
 
     if external
-        return _solve_external(f!, X0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0; kwargs...)
+        return _solve_external(f!, X0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0; parse_eqs=parse_eqs, kwargs...)
     end
 
     X0tm = _initialize(X0, orderQ, orderT)
@@ -37,7 +39,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     sizehint!(F, max_steps)
 
     F, tv, xv, xTM1v, success, _t0 = validated_integ!(F, f!, X0tm, t0, T, orderQ, orderT,
-                                                      abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+                                                      abs_tol, max_steps, X, disjointness, Δt0, adaptive; parse_eqs=parse_eqs)
 
     if success || !adaptive
         ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v, :actual_abs_tol=>[abs_tol])
@@ -79,7 +81,7 @@ function post(alg::TMJets{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
             sizehint!(Fk, max_steps)
 
             Fk, tv, xv, xTM1v, success, _t0 = validated_integ!(Fk, f!, X0tm, _t0, T, orderQ, orderT,
-                                                               abs_tol, max_steps, X, disjointness, Δt0, adaptive)
+                                                               abs_tol, max_steps, X, disjointness, Δt0, adaptive; parse_eqs=parse_eqs)
 
             # append the new flowpipe to the accumulated flowpipe and extra data
             append!(F, Fk)
@@ -100,11 +102,12 @@ function _solve_external(f!, X0, t0, T, orderQ, orderT, abs_tol, max_steps, Δt0
     X0box = convert(IntervalBox, box_approximation(X0))
 
     # extract solver name and options
-    solver_name = haskey(kwargs, :solver_name) ? kwargs[:solver_name] : TM.validated_integ
-    solver_kwargs = haskey(kwargs, :solver_kwargs) ? kwargs[:solver_kwargs] : Dict(:maxsteps=>max_steps)
+    parse_eqs = get(kwargs, :parse_eqs, false)
+    solver_name = get(kwargs, :solver_name, TM.validated_integ)
+    solver_kwargs = get(kwargs, :solver_kwargs, Dict(:maxsteps=>max_steps))
 
     # call external solver
-    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abs_tol; solver_kwargs...)
+    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abs_tol; parse_eqs, olver_kwargs...)
 
     # build flowpipe
     F = Vector{TaylorModelReachSet{N}}()

@@ -122,7 +122,7 @@ end
 
     # extract limits and extrema of already plotted sets
     p = plotattributes[:plot_object]
-    lims = _extract_limits(p)
+    lims = _extract_limits(p, plotattributes)
     extr = _extract_extrema(p)
 
     if !isbounded(X)
