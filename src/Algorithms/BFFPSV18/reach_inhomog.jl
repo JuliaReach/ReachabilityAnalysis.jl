@@ -60,7 +60,7 @@ end
 # Set representation: Generic
 # Matrix operations: Dense
 # Invariant: No
-function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
+function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Universe, U,
                                  ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
@@ -236,7 +236,7 @@ end
 # Set representation: Generic
 # Matrix operations: Dense
 # Invariant: LazySet
-function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::LazySet, U,
+function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::LazySet, U,
                                  ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
