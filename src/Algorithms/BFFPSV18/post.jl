@@ -1,5 +1,5 @@
 function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval, kwargs...) where {N, ST}
+              Δt0::TimeInterval=zeroI, kwargs...) where {N, ST}
 
     @unpack δ, approx_model, vars, block_indices,
             row_blocks, column_blocks = alg
