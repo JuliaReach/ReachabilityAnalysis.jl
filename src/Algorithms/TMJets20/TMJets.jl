@@ -1,5 +1,5 @@
 """
-    TMJets{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
+    TMJets20{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
 
 Validated integration using Taylor models.
 
@@ -29,7 +29,7 @@ This algorithm is an adaptation of the implementation in `TaylorModels.jl`
 `TaylorIntegration.jl` is used for jet-transport of ODEs using the Taylor method,
 and `TaylorSeries.jl` is used to work with truncated Taylor series.
 """
-@with_kw struct TMJets{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
+@with_kw struct TMJets20{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
     max_steps::Int=DEFAULT_MAX_STEPS_TMJETS
     abs_tol::N=DEFAULT_ABS_TOL_TMJETS
     orderT::Int=DEFAULT_ORDER_T_TMJETS
@@ -47,8 +47,8 @@ const DEFAULT_ORDER_Q_TMJETS = 2
 using TaylorModels: TaylorModelN
 using TaylorModels: fp_rpa, remainder, initialize!
 
-numtype(::TMJets{N}) where {N} = N
-rsetrep(::TMJets{N}) where {N} = TaylorModelReachSet{N}
+numtype(::TMJets20{N}) where {N} = N
+rsetrep(::TMJets20{N}) where {N} = TaylorModelReachSet{N}
 
 include("post.jl")
 include("reach.jl")
