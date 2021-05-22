@@ -12,6 +12,13 @@ const DEFAULT_ABS_TOL_TMJETS = 1e-10
 const DEFAULT_ORDER_T_TMJETS = 8
 const DEFAULT_ORDER_Q_TMJETS = 2
 
+"""
+    TMJets
+
+The algorithm TMJets defaults to `TMJets21b`.
+"""
+const TMJets = TMJets21b
+
 # =================================================================
 # Initialization funtions to prepare the input for validated_integ
 # =================================================================

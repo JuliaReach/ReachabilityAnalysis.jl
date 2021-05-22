@@ -18,13 +18,6 @@ Set propagation using Taylor models with the function `validated_integ` in `Tayl
     disjointness::DM=ZonotopeEnclosure()
 end
 
-"""
-    TMJets
-
-The algorithm TMJets defaults to `TMJets21b`.
-"""
-const TMJets = TMJets21b
-
 numtype(::TMJets21b{N}) where {N} = N
 rsetrep(::TMJets21b{N}) where {N} = TaylorModelReachSet{N}
 

@@ -43,10 +43,10 @@ include("Algorithms/VREP/VREP.jl")
 
 # Nonlinear
 include("Algorithms/CARLIN/CARLIN.jl")
-include("Algorithms/TMJets/common.jl")
-include("Algorithms/TMJets/TMJets20/TMJets20.jl")
-include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
 include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
+include("Algorithms/TMJets/common.jl")
+include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
+include("Algorithms/TMJets/TMJets20/TMJets20.jl")
 include("Algorithms/QINT/QINT.jl")
 
 # ===========================================================
