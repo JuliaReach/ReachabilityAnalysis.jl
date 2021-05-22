@@ -115,6 +115,10 @@ function overapproximate(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlo
     return ReachSolution(overapproximate(sol.F, args...), sol.alg, sol.ext)
 end
 
+function box_approximation(sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe}
+    return ReachSolution(overapproximate(sol.F, Hyperrectangle), sol.alg, sol.ext)
+end
+
 function project(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
     return project(sol.F, args...)
 end

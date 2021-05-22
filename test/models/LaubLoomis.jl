@@ -23,7 +23,7 @@ function laubloomis(; W=0.01)
 end
 
 prob = laubloomis(W=0.01)
-alg = TMJets(abs_tol=1e-11, orderT=7, orderQ=1, adaptive=true);
+alg = TMJets(abstol=1e-11, orderT=7, orderQ=1, adaptive=true);
 
 sol_1 = solve(prob, T=20.0, alg=alg);
 
@@ -39,7 +39,7 @@ const e4 = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0];
 @show ρ(e4, sol_1z[end]) + ρ(-e4, sol_1z[end])
 
 prob = laubloomis(W=0.05)
-alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
+alg = TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
 sol_2 = solve(prob, T=20.0, alg=alg)
 sol_2z = overapproximate(sol_2, Zonotope);
@@ -52,7 +52,7 @@ sol_2z = overapproximate(sol_2, Zonotope);
 @show ρ(e4, sol_2z[end]) + ρ(-e4, sol_2z[end])
 
 prob = laubloomis(W=0.1)
-alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
+alg = TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
 sol_3 = solve(prob, T=20.0, alg=alg)
 sol_3z = overapproximate(sol_3, Zonotope);

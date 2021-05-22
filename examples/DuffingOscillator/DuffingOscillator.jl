@@ -30,7 +30,7 @@ prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim=2);
 
 # ## Results
 
-sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets());
+sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets21a());
 
 #-
 

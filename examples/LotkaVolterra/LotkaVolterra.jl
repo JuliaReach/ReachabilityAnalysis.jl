@@ -76,7 +76,7 @@ prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0);
 sol = solve(prob, tspan=(0.0, 10.0));
 solz = overapproximate(sol, Zonotope);
 
-plot(solz, vars=(1, 2), lw=0.3, title="Uncertain params", lab="abs_tol = 1e-15", xlab="u1", ylab="u2")
+plot(solz, vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e-15", xlab="u1", ylab="u2")
 
 # # Uncertain initial condition (u0)
 
@@ -90,7 +90,7 @@ U0 = (u0 ⊕ □(0.05)) × convert(Hyperrectangle, p_int)
 
 prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0)
 
-sol = solve(prob, tspan=(0.0, 10.0), TMJets(abs_tol=1e-10))
+sol = solve(prob, tspan=(0.0, 10.0), TMJets(abstol=1e-10))
 solz = overapproximate(sol, Zonotope)
 plot(solz, vars=(1, 2), color=:orange, lw=0.3,
      lab="eps = 0.05", title="Uncertain u0 and uncertain params",
@@ -101,7 +101,7 @@ plot(solz, vars=(1, 2), color=:orange, lw=0.3,
 U0 = (u0 ⊕ □(0.01)) × convert(Hyperrectangle, p_int)
 prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0)
 
-sol = solve(prob, tspan=(0.0, 10.0), TMJets(abs_tol=1e-10))
+sol = solve(prob, tspan=(0.0, 10.0), TMJets(abstol=1e-10))
 solz = overapproximate(sol, Zonotope)
 plot!(solz, vars=(1, 2), color=:blue, lw=0.3,
   lab="eps = 0.01", title="Uncertain u0 and uncertain params",

@@ -38,7 +38,7 @@ end
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01)
 prob = @ivp(x'= prod_dest_I!(x), dim:3, x(0) ∈ X0)
 
-solI = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1));
+solI = solve(prob, T=100.0, alg=TMJets(abstol=1e-11, orderT=7, orderQ=1));
 
 property, vol = prod_dest_verif(solI)
 
@@ -57,7 +57,7 @@ end
 X0 = (9.98 .. 9.98) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1));
+solP = solve(prob, T=100.0, alg=TMJets(abstol=1e-12, orderT=7, orderQ=1));
 
 property, vol = prod_dest_verif(solP)
 
@@ -66,7 +66,7 @@ plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
 prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solIP = solve(prob, T=100.0, alg=TMJets(abs_tol=1e-11, orderT=7, orderQ=1));
+solIP = solve(prob, T=100.0, alg=TMJets(abstol=1e-11, orderT=7, orderQ=1));
 
 property, vol = prod_dest_verif(solIP)
 
