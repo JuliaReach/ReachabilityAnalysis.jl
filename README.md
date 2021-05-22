@@ -32,7 +32,7 @@ See our [Commonly asked questions](https://juliareach.github.io/ReachabilityAnal
 
 🐾 [Examples Gallery](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--examples)
 
-:blue_book: [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--blue_book-publications)
+:blue_book: [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#-blue_book-publications)
 
 📜 [Citation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--citation)
 
