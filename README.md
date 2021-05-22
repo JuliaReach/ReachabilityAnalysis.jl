@@ -161,7 +161,7 @@ plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
 
 This library has been applied in a number of scientic works. We list them in reverse chronological order.
 
-[11] **Combining Set Propagation with Finite Element Methods for Time Integration in Transient Solid Mechanics Problems.** Forets, Marcelo, Daniel Freire Caporale, and Jorge M. Pérez Zerpa.. arXiv preprint [arXiv:2105.05841](https://arxiv.org/abs/2105.05841) (2021).
+[11] **Combining Set Propagation with Finite Element Methods for Time Integration in Transient Solid Mechanics Problems.** Forets, Marcelo, Daniel Freire Caporale, and Jorge M. Pérez Zerpa. arXiv preprint [arXiv:2105.05841](https://arxiv.org/abs/2105.05841) (2021).
 
 [10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325). In [18th ACM-IEEE International Conference on Formal Methods and Models for System Design
 ](https://iitjammu.ac.in/conferences/memocode2020/index.html).
