@@ -1,4 +1,8 @@
-# validated_integ2 from TaylorModels/validated_integ.jl
+"""
+    TMJets21b{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
+
+Set propagation using Taylor models with the function `validated_integ` in `TaylorModels.jl`.
+"""
 @with_kw struct TMJets21b{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
     orderQ::Int=DEFAULT_ORDER_Q_TMJETS
     orderT::Int=DEFAULT_ORDER_T_TMJETS
@@ -14,6 +18,11 @@
     disjointness::DM=ZonotopeEnclosure()
 end
 
+"""
+    TMJets
+
+The algorithm TMJets defaults to `TMJets21b`.
+"""
 const TMJets = TMJets21b
 
 numtype(::TMJets21b{N}) where {N} = N

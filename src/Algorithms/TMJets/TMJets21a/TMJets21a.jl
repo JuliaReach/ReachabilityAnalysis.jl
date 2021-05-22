@@ -1,4 +1,8 @@
-# validated_integ from TaylorModels/validated_integ.jl
+"""
+    TMJets21a{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
+
+Set propagation using Taylor models with the function `validated_integ` in `TaylorModels.jl`.
+"""
 @with_kw struct TMJets21a{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
     orderQ::Int=DEFAULT_ORDER_Q_TMJETS
     orderT::Int=DEFAULT_ORDER_T_TMJETS
