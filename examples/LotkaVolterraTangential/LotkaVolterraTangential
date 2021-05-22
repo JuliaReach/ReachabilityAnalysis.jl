@@ -228,7 +228,7 @@ intersect_time = []
 # ----------------------------------------
 ε_ext = 1e-4
 prob = lotka_volterra(; nsplit=4, ε_ext=ε_ext)
-alg = TMJets(abs_tol=1e-14, orderT=7, orderQ=1)
+alg = TMJets(abstol=1e-14, orderT=7, orderQ=1)
 
 # warm-up run
 sol_lv = solve(prob, T=T_lv,

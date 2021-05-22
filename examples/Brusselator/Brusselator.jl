@@ -60,7 +60,7 @@ prob = @ivp(u' = brusselator!(U), u(0) ∈ U₀, dim: 2); #!jl
 # We use `TMJets` algorithm with sixth-order expansion in time and second order expansion
 # in the spatial variables.
 
-sol = solve(prob, T=18.0, alg=TMJets(orderT=6, orderQ=2)); #!jl
+sol = solve(prob, T=18.0, alg=TMJets20(orderT=6, orderQ=2)); #!jl
 
 #-
 
@@ -91,7 +91,7 @@ bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim: 2)
 
 # First we solve for ``r = 0.01``:
 
-sol_01 = solve(bruss(0.01), T=30.0, alg=TMJets(orderT=6, orderQ=2))  #!jl
+sol_01 = solve(bruss(0.01), T=30.0, alg=TMJets20(orderT=6, orderQ=2))  #!jl
 
 LazySets.set_ztol(Float64, 1e-15)  #!jl
 
@@ -102,7 +102,7 @@ plot!(U0(0.01), color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
 # We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon ``T = 30.0``.
 # Next we plot the flowpipe zoomed to the last portion and compare ``r = 0.01`` with a set of larger initial states, ``r = 0.1``.
 
-sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets(orderT=6, orderQ=2))
+sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets20(orderT=6, orderQ=2))
 
 fig = plot(xlab="x", ylab="y", xlims=(0.9, 1.05), ylims=(1.43, 1.57), legend=:bottomright)  #!jl
 

@@ -226,7 +226,7 @@ cases = ["Δ=0.1", "Δ=0.4", "Δ=0.8"];
 Wpos = 0.1
 Wvel = 0.1
 prob = quadrotor(project_reachset=false, Wpos=Wpos, Wvel=Wvel)
-alg = TMJets(abs_tol=1e-7, orderT=5, orderQ=1, adaptive=false)
+alg = TMJets(abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
 # Warm-up run
 sol1 = solve(prob, tspan=Tspan, alg=alg);
@@ -239,7 +239,7 @@ solz1 = overapproximate(sol1, Zonotope);
 Wpos = 0.4
 Wvel = 0.4
 prob = quadrotor(project_reachset=false, Wpos=Wpos, Wvel=Wvel)
-alg = TMJets(abs_tol=1e-7, orderT=5, orderQ=1, adaptive=false)
+alg = TMJets(abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
 # warm-up run
 sol2 = solve(prob, tspan=Tspan, alg=alg);
@@ -255,7 +255,7 @@ solz2 = overapproximate(sol2, Zonotope);
 Wpos = 0.8
 Wvel = 0.8
 prob = quadrotor(project_reachset=false, Wpos=Wpos, Wvel=Wvel)
-alg = TMJets(abs_tol=1e-7, orderT=5, orderQ=1, adaptive=false)
+alg = TMJets(abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
 # Warm-up run
 sol3 = solve(prob, tspan=Tspan, alg=alg);

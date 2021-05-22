@@ -71,7 +71,7 @@ end
 # In this case we consider thet the width of the initial states is ``W = 0.01``.
 
 prob = laubloomis(W=0.01)
-alg = TMJets(abs_tol=1e-11, orderT=7, orderQ=1, adaptive=true);
+alg = TMJets(abstol=1e-11, orderT=7, orderQ=1, adaptive=true);
 
 sol_1 = solve(prob, T=20.0, alg=alg);
 
@@ -94,7 +94,7 @@ const e4 = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0];
 # In this case we consider the the width of the initial states is ``W = 0.05``.
 
 prob = laubloomis(W=0.05)
-alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
+alg = TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
 sol_2 = solve(prob, T=20.0, alg=alg)
 sol_2z = overapproximate(sol_2, Zonotope);
@@ -113,7 +113,7 @@ sol_2z = overapproximate(sol_2, Zonotope);
 # In this case we consider that the width of the initial states is ``W = 0.1``.
 
 prob = laubloomis(W=0.1)
-alg = TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=false);
+alg = TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
 sol_3 = solve(prob, T=20.0, alg=alg)
 sol_3z = overapproximate(sol_3, Zonotope);

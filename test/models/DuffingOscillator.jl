@@ -18,7 +18,7 @@ T = 2*pi / ω
 X0 = Singleton([1.0, 0.0]) ⊕ BallInf(zeros(2), 0.1)
 prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim=2);
 
-sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets());
+sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets21a());
 
 plot(sol, vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
 

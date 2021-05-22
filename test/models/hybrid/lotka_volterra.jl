@@ -46,7 +46,7 @@ end
 prob = lotka_volterra_hybrid(nsplit=10, ε_ext=1e-4, n_int = 30, ε = 0.008);
 @time sol = solve(prob,
                   tspan=(0.0, 3.64),
-                  alg=TMJets(abs_tol=1e-12, orderT=7, orderQ=1, adaptive=true, disjointness=RA.ZonotopeEnclosure()),
+                  alg=TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=true, disjointness=RA.ZonotopeEnclosure()),
                   max_jumps=2,
                   intersect_source_invariant=false,
                   intersection_method=RA.BoxIntersection(),

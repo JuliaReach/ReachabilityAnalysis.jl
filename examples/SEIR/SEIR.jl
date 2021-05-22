@@ -68,7 +68,7 @@ prob = @ivp(x' = seir2!(x), dim=7, x(0) ∈ X0);
 
 # ## Results
 
-sol = solve(prob, tspan=(0.0, 200.0), alg=TMJets(orderT=7, orderQ=1));
+sol = solve(prob, tspan=(0.0, 200.0), alg=TMJets21a(orderT=7, orderQ=1));
 solz = overapproximate(sol, Zonotope);
 
 LazySets.set_ztol(Float64, 1e-13)

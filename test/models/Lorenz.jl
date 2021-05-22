@@ -13,7 +13,7 @@ end
 X0 = Hyperrectangle(low=[0.9, 0.0, 0.0], high=[1.1, 0.0, 0.0])
 prob = @ivp(x' = lorenz!(x), dim=3, x(0) ∈ X0);
 
-alg = TMJets(abs_tol=1e-15, orderT=10, orderQ=2, max_steps=50_000);
+alg = TMJets(abstol=1e-15, orderT=10, orderQ=2, maxsteps=50_000);
 
 sol = solve(prob, T=10.0, alg=alg);
 

@@ -49,7 +49,7 @@ const CPA = CartesianProductArray
 const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox}
 
 # method extensions
-import LazySets: dim, overapproximate, project, Projection,
+import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, is_intersection_empty,
                  linear_map, LinearMap, _split, split!, set, array, _isapprox
 
