@@ -43,7 +43,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     Φ = _reconvert(Φ, static, dim)
 
     # preallocate output flowpipe
-    #N = eltype(Ω0)
+    @assert N == eltype(Ω0)
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
 
@@ -65,6 +65,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
+        U = _reconvert(U, static, dim, ngens)
         reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0, disjointness_method)
     end
 

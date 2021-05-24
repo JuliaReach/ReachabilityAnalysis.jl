@@ -30,7 +30,8 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     Wk₊ = copy(U)
 
     # cache for powers of Φ
-    Φ_power_k = _get_cache(Φ)
+    Φ_power_k = similar(Φ)
+    copyto!(Φ_power_k, Φ)
     Φ_power_k_cache = similar(Φ_power_k)
 
     k = 2
@@ -84,7 +85,8 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     Wk₊ = copy(U)
 
     # cache for powers of Φ
-    Φ_power_k = _get_cache(Φ)
+    Φ_power_k = similar(Φ)
+    copyto!(Φ_power_k, Φ)
     Φ_power_k_cache = similar(Φ_power_k)
 
     k = 2

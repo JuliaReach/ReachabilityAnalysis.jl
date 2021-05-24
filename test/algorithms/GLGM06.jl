@@ -1,4 +1,4 @@
-@testset "GLGM06 algorithm" begin
+@testset "GLGM06 algorithm: homogeneous" begin
 
     # one-dimensional
     prob, _ = exponential_1d()
@@ -21,13 +21,30 @@
     # use approx model for "discrete-time" reachability
     sol = solve(prob, T=5.0, GLGM06(δ=0.01, approx_model=NoBloating()))
 
-    # higher-dimensional inhomogeneous
+end
+
+@testset "GLGM06 algorithm: inhomogeneous" begin
+    # five-dim inhomogeneous
     prob, _ = linear5D()
     sol = solve(prob, T=5.0, GLGM06(δ=0.01))
     @test dim(sol) == 5
-
-    @test tspan(shift(sol,1.0))==tspan(sol)+1.0
+    @test tspan(shift(sol, 1.0)) == tspan(sol) + 1.0
 
     # use approx model for "discrete-time" reachability
     sol = solve(prob, T=5.0, GLGM06(δ=0.01, approx_model=NoBloating()))
+
+    # motor model (8 dim)
+    prob, _ = motor()
+
+    # dense array case
+    alg = GLGM06(δ=1e-2)
+    sol = solve(prob, T=20.0, alg=alg)
+    RT = ReachSet{Float64, Zonotope{Float64, Vector{Float64}, Matrix{Float64}}}
+    @test rsetrep(sol) == RT
+
+    # static case
+    alg = GLGM06(δ=1e-2, static=true, dim=8, max_order=1, ngens=8)
+    sol = solve(prob, T=20.0, alg=alg)
+    RT = ReachSet{Float64, Zonotope{Float64, SVector{8, Float64}, SMatrix{8, 8, Float64, 64}}}
+    @test rsetrep(sol) == RT
 end
