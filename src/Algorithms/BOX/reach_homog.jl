@@ -1,13 +1,3 @@
-# assumes that typeof(Φ) is mutable
-function _get_cache(Φ::AbstractMatrix)
-    return copy(Φ)
-end
-
-# change to mutable type
-function _get_cache(Φ::SMatrix{S1, S2, T, L}) where {S1, S2, T, L}
-    return MMatrix{S1, S2, T, L}(Φ)
-end
-
 # ================
 # Homogeneous case
 # ================
@@ -35,7 +25,8 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     copy!(r[1], Ω0.radius)
 
     # cache for powers of Φ
-    Φ_power_k = _get_cache(Φ)
+    Φ_power_k = similar(Φ)
+    copyto!(Φ_power_k, Φ)
     Φ_power_k_cache = similar(Φ_power_k)
     Φ_power_k_abs = similar(Φ_power_k)
 
@@ -105,7 +96,8 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
     copy!(r[1], Ω0.radius)
 
     # cache for powers of Φ
-    Φ_power_k = _get_cache(Φ)
+    Φ_power_k = similar(Φ)
+    copyto!(Φ_power_k, Φ)
     Φ_power_k_cache = similar(Φ_power_k)
     Φ_power_k_abs = similar(Φ_power_k)
 

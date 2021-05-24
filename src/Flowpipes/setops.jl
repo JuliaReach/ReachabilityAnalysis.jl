@@ -448,6 +448,14 @@ _reduce_order(Z::Zonotope, r::Number) = _reduce_order_GIR05(Z, r) # default
 _reduce_order(Z::Zonotope, r::Number, ::GIR05) = _reduce_order_GIR05(Z, r)
 _reduce_order(Z::Zonotope, r::Number, ::COMB03) = _reduce_order_COMB03(Z, r)
 
+# zonotope with mixed static array types
+function _reduce_order(Z::Zonotope{N, SVector{n, N}, MMatrix{n, p, N, L}},
+                       r::Number, alg::GIR05) where {n, N, p, L}
+    c = Z.center
+    G = SMatrix(Z.generators)
+    return _reduce_order(Zonotope(c, G), r, alg)
+end
+
 # return the indices of the generators in G (= columns) sorted according to the COMB03 method
 # the generator index with highest score goes first
 function _weighted_gens!(indices, G::AbstractMatrix{N}, ::COMB03) where {N}

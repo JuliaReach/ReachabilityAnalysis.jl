@@ -20,13 +20,15 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
-    Φ_power_k = copy(Φ)
+    Φ_power_k = similar(Φ)
+    copyto!(Φ_power_k, Φ)
     Φ_power_k_cache = similar(Φ)
 
     k = 2
     @inbounds while k <= NSTEPS
         Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊)
         Rₖ = _reduce_order(Rₖ, max_order, reduction_method)
+
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
@@ -58,7 +60,8 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
-    Φ_power_k = copy(Φ)
+    Φ_power_k = similar(Φ)
+    copyto!(Φ_power_k, Φ)
     Φ_power_k_cache = similar(Φ)
 
     k = 2
