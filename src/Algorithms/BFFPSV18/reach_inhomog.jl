@@ -5,7 +5,7 @@
 # Set representation: Interval
 # Matrix operations: Dense
 # Invariant: No
-function reach_inhomog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ, X::Universe, U,
+function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Universe, U,
                                  ST::Type{<:Interval{N}}, vars,
                                  block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
