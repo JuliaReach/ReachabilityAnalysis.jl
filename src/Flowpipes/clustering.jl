@@ -84,27 +84,38 @@ end
 Cluster according to the given partition by applying a lazy representation of the
 convex hull.
 """
-struct LazyClustering{P} <: AbstractClusteringMethod{P}
+struct LazyClustering{P, T} <: AbstractClusteringMethod{P}
     partition::P
+    convex::T
 end
 
 partition(method::LazyClustering) = method.partition
 
-LazyClustering() = LazyClustering(missing)
-LazyClustering(nchunks::D) where {D<:Integer} = LazyClustering{D}(nchunks)
-LazyClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = LazyClustering{VT}(partition)
+LazyClustering(; convex::Bool=true) = LazyClustering(missing, Val(convex))
+LazyClustering(nchunks::D; convex::Bool=true) where {D<:Integer} = LazyClustering{D, typeof(Val(convex))}(nchunks, Val(convex))
+LazyClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = LazyClustering{VT, typeof(Val(convex))}(partition, Val(convex))
 
-function cluster(F, idx, ::LazyClustering{Missing})
+function cluster(F, idx, ::LazyClustering{Missing, Val{true}})
     return [convexify(view(F, idx))]
 end
 
-function cluster(F, idx, method::LazyClustering{P}) where {P}
+# FIXME return a UnionSetArray of reach-sets
+function cluster(F, idx, ::LazyClustering{Missing, Val{false}})
+    return [view(F, idx)]
+end
+
+function cluster(F, idx, method::LazyClustering{P, Val{true}}) where {P}
     p = _partition(method, idx)
     convF = [convexify(view(F, cj)) for cj in p]
 end
 
+function cluster(F, idx, method::LazyClustering{P, Val{false}}) where {P}
+    p = _partition(method, idx)
+    convF = [view(F, cj) for cj in p]
+end
+
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyClustering) where {N}
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyClustering{P, Val{true}}) where {N, P}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
 
     # Fx is now indexed from 1 ... length(idx)

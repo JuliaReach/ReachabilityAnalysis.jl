@@ -391,3 +391,70 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     K = _intersection(X, HPolyhedron(Y), method)
     return K
 end
+
+# ====== Template hulls with set unions =============
+# TODO dispatch on UnionSetArray
+
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
+               X::AbstractVector{RT},
+               method::TemplateHullIntersection) where {N,
+                                RT<:AbstractReachSet{N},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    @unpack R, W, G, I⁻, I⁺ = tr
+    got_inv = LazySets.Arrays.isinvertible(R)
+
+    m = length(X)
+    Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
+    for i in 1:m
+        Xi = set(X[i])
+
+        # concrete Xi ∩ G ∩ I⁻
+        success, Qi = _intersection(Xi, G, I⁻, HRepIntersection())
+        !success && return EmptySet(dim(Xi))
+
+        if got_inv
+            # concretely compute R*Qi then lazily add W and lazily intersect with I⁺
+            E = linear_map(R, HPolytope(Qi)) ⊕ W
+            Y[i] = _intersection(E, I⁺, method)
+        else
+            Y[i] = _intersection(R * HPolytope(Qi) ⊕ W, I⁺, method)
+        end
+    end
+    return overapproximate(ConvexHullArray(Y), method.dirs)
+end
+
+function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::AbstractVector{RT},
+               method::TemplateHullIntersection) where {N,
+                                RT<:AbstractReachSet{N},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    @unpack R, W, G, I⁻, I⁺ = tr
+    got_inv = LazySets.Arrays.isinvertible(R)
+
+    m = length(X)
+    Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
+    for i in 1:m
+        Xi = set(X[i])
+
+        # concrete Xi ∩ G ∩ I⁻
+        success, Qi = _intersection(Xi, G, I⁻, HRepIntersection())
+        !success && return EmptySet(dim(Xi))
+
+        # lazily or concretely compute R*Qi ∩ I⁺, depending on the invertibility of R
+        if got_inv
+            E = linear_map(R, HPolytope(Qi))
+            success, Yi = _intersection(E, I⁺, HRepIntersection())
+            !success && return EmptySet(dim(Xi))
+            Y[i] = HPolytope(Yi)
+        else
+            Y[i] = _intersection(R * HPolytope(Qi), I⁺, method)
+        end
+    end
+    return overapproximate(ConvexHullArray(Y), method.dirs)
+end
