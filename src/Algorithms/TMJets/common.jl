@@ -24,7 +24,9 @@ const TMJets = TMJets21b
 # =================================================================
 
 # fallback
-_initialize(X0::LazySet, orderQ, orderT) = _initialize(box_approximation(X0), orderQ, orderT)
+function _initialize(X0::LazySet, orderQ, orderT)
+    return _initialize(box_approximation(X0), orderQ, orderT)
+end
 
 # taylor model representations
 _initialize(X0::TaylorModelReachSet, orderQ, orderT) = set(X0)
@@ -37,8 +39,15 @@ _initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
 
 # zonotopic sets
 function _initialize(X0::AbstractZonotope, orderQ, orderT)
+    println("zonotopic set??")
     X = overapproximate(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
     return set(X)
+end
+
+function _initialize(X0::CartesianProduct{N, <:AbstractZonotope, <:AbstractZonotope}, orderQ, orderT) where {N}
+    println("USING THIS")
+    X0z = convert(Zonotope, X0)
+    return _initialize(X0z, orderQ, orderT)
 end
 
 # =================================
