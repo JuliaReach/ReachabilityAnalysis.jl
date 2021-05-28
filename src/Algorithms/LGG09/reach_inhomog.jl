@@ -151,7 +151,7 @@ end
 # Inhomogeneous case with invariant
 # ===================================
 
-# in this version we one matrix-matrix product for each time-step
+# this version uses one matrix-matrix product for each time-step
 function reach_inhomog_LGG09!(F::Vector{RT},
                               dirs::TN,
                               Ω₀::LazySet{N},
@@ -180,7 +180,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     k = 1
     @inbounds while k <= NSTEPS
 
-        #Loop dispatch in threaded
+        # loop dispatch in threaded
         _reach_inhomog_LGG09_invariant!(Ω₀, U, rᵢ, ρmat, sᵢ, k, ndirs, threaded)
 
         # update cache for the next iteration
