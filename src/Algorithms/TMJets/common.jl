@@ -19,9 +19,9 @@ The algorithm TMJets defaults to `TMJets21b`.
 """
 const TMJets = TMJets21b
 
-# =================================================================
-# Initialization funtions to prepare the input for validated_integ
-# =================================================================
+# =======================================================================
+# Initialization funtions to prepare the input for validated integration
+# =======================================================================
 
 # fallback
 function _initialize(X0::LazySet, orderQ, orderT)
@@ -39,15 +39,22 @@ _initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
 
 # zonotopic sets
 function _initialize(X0::AbstractZonotope, orderQ, orderT)
-    println("zonotopic set??")
-    X = overapproximate(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+    X0z = convert(Zonotope, X0)
+    if order(X0z) == 1
+        X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+    else
+        X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
+    end
     return set(X)
 end
 
-function _initialize(X0::CartesianProduct{N, <:AbstractZonotope, <:AbstractZonotope}, orderQ, orderT) where {N}
-    println("USING THIS")
-    X0z = convert(Zonotope, X0)
-    return _initialize(X0z, orderQ, orderT)
+function _initialize(X0::CartesianProduct{N, <:AbstractHyperrectangle, <:AbstractHyperrectangle}, orderQ, orderT) where {N}
+    return convert(IntervalBox, convert(Hyperrectangle, X0))
+end
+
+function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, orderT) where {N}
+    X = _overapproximate_structured(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+    return set(X)
 end
 
 # =================================
