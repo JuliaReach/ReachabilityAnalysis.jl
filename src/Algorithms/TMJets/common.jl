@@ -78,8 +78,8 @@ function _solve_external(f!, X0, t0, T, orderQ, orderT, abstol, maxsteps, Δt0; 
     # build flowpipe
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, maxsteps)
-    for i in 2:length(tv)
-        δt = TimeInterval(tv[i-1], tv[i])
+    @inbounds for i in eachindex(tv)
+        δt = TimeInterval(tv[i] + domain(xTM1v[1, i]))
         Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
         push!(F, Ri)
     end

@@ -74,7 +74,7 @@ end
 
 X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45]) #!jl
 prob = @ivp(x' = vanderpol!(x), dim=2, x(0) ∈ X0) #!jl
-sol = solve(prob, T=7.0, alg=TMJets()); #!jl
+sol = solve(prob, T=7.0, alg=TMJets(abstol=1e-12)); #!jl
 
 # For further computations, it is convenient to work with a [zonotopic](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/man/basics/#Zonotopes-1)
 # overapproximation of the flowpipe.
@@ -109,16 +109,17 @@ plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
 
 plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
 plot!(X0, color=:orange, lab="X0") #!jl
-plot!(solz[1:5], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:5]") #!jl
-plot!(solz[200], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[200]") #!jl
+plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
+plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
 
 # It is seen that the reach-set corresponding to the time-span
 
-tspan(solz[200])  #!jl
+tspan(solz[388])  #!jl
 
-# is included in the set union ``F[1] \cup \cdots \cup F[5]`` of previously
+# is included in the set union ``F[1] \cup \cdots \cup F[13]`` of previously
 # computed reach-sets. Notice that all future trajectories starting from
-# `solz[200]` are already covered by the flowpipe.
+# the 300-th reach-set are already covered by the flowpipe. Therefore, we can claim
+# that an *invariant set* was found.
 
 # ## Limit cycle
 
@@ -130,8 +131,8 @@ tspan(solz[200])  #!jl
 line = LineSegment([1, 2.], [2., 2.5]) #!jl
 plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
 plot!(X0, color=:orange, lab="X0") #!jl
-plot!(solz[1:5], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:5]") #!jl
-plot!(solz[200], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[200]") #!jl
+plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
+plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
 plot!(line, lw=2.0) #!jl
 
 # Then we can define a function to get the cross section of the flowpipe. The
@@ -142,7 +143,9 @@ function cross_section(line::LineSegment, fp, idx) #!jl
     p = VPolygon() #!jl
     for i in idx #!jl
         x = intersection(line, set(fp[i])) #!jl
-        p = convex_hull(p, x) #!jl
+        if !isempty(x)  #!jl
+            p = convex_hull(p, x) #!jl
+        end  #!jl
     end #!jl
     vl = vertices_list(p) #!jl
     @assert length(vl) == 2 #!jl
@@ -152,8 +155,8 @@ end #!jl
 # Then we can get the cross section of the first five sets and the last set,
 # calling them `i1` and `i2` respectively.
 
-ifirst = cross_section(line, solz, 1:5) #!jl
-ilast = cross_section(line, solz, [200]) #!jl
+ifirst = cross_section(line, solz, 1:13) #!jl
+ilast = cross_section(line, solz, [388]) #!jl
 
 # We can also calculate the length of each cross section, remember that the
 # system is 2D, so the cross section will be a line segment.
