@@ -394,7 +394,7 @@ function reach_homog_LGG09!(F::Vector{RT},
                             Δt0::TimeInterval,
                             cache,
                             threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
-    println("USING THIS FUNCTION")
+    
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
 
