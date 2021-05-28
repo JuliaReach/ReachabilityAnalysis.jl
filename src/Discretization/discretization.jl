@@ -41,11 +41,16 @@ into a discrete-time problem.
 - `δ`     -- step size
 - `alg`   -- algorithm used to compute the approximation model, choose among:
 
-        - `Forward()`        -- use forward-time interpolation
-        - `Backward()`      -- use backward-time interpolation
-        - `CorrectionHull()` -- use the correction hull of the matrix exponential to a given order
-        - `NoBloating()`     -- do not bloat the initial states
-
+```jldoctest
+julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
+5-element Vector{Any}:
+ Backward
+ CorrectionHull
+ Forward
+ NoBloating
+ StepIntersect
+```
+    
 Different approximation algorithms and their respective options are described
 in the docstring of each method, e.g. [`Forward`](@ref).
 

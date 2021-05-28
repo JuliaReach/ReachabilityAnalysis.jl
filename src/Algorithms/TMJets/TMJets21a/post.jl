@@ -45,9 +45,9 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     # build flowpipe
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, maxsteps)
-    for i in 2:length(tv)
+    @inbounds for i in eachindex(tv)
         # create Taylor model reach-set
-        δt = TimeInterval(tv[i-1], tv[i])
+        δt = TimeInterval(tv[i] + domain(xTM1v[1, i]))
         Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
 
         # check intersection with invariant
