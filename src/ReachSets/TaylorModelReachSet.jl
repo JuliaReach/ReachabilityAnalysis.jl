@@ -317,17 +317,19 @@ end
 # FIXME pass algorithm option to choose between using parallelotope oa or  order reduction
 function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
-                         indices=1:dim(Z)) where {N}
+                         indices=1:dim(Z), box_reduction=false) where {N}
 
     n = dim(Z)
     x = set_variables("x", numvars=n, order=orderQ)
 
     if order(Z) > 1
-        # indices selects the indices that we want to keep
-        Z = _overapproximate_hparallelotope(Z, indices)
-
-        # diagonal generators matrix
-        # Z = _reduce_order(Z, 1)
+        if box_reduction
+            # diagonal generators matrix
+            Z = _reduce_order(Z, 1)
+        else
+            # indices selects the indices that we want to keep
+            Z = _overapproximate_hparallelotope(Z, indices)
+        end
     end
     c = center(Z)
     G = genmat(Z)
@@ -365,6 +367,78 @@ end
 
 function overapproximate(R::AbstractLazyReachSet, TM::Type{<:TaylorModelReachSet}; kwargs...)
     return overapproximate(set(R), TM; Δt=tspan(R), kwargs...)
+end
+
+# zonotope of order 2 with generators matrix G = [M; D] where M is n x n and D is n x n and diagonal
+function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
+                                     orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    n = dim(Z)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    # check structure
+    order(Z) == 2 || throw(ArgumentError("this function requires that the order of the zonotope is 2, got $(order(Z))"))
+
+    c = LazySets.center(Z)
+    G = genmat(Z)
+
+    M = view(G, :, 1:n)
+    D = view(G, :, n+1:2n)
+    isdiag(D) || throw(ArgumentError("the columns $(n+1) to $(2n) of the generators matrix do not form a diagonal matrix"))
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # normalized time domain
+    Δtn = TimeInterval(zero(N), diam(Δt))
+
+    # for each variable i = 1, .., n, compute the linear polynomial that covers
+    # the line segment corresponding to the i-th edge of Z
+    @inbounds for i in 1:n
+        pi = c[i] + sum(view(M, i, :) .* x)
+        di = D[i, i]
+        rem = interval(-di, di)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+    end
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
+function _overapproximate_structured(Zcp::CartesianProduct{N, <:Zonotope, <:Interval}, ::Type{<:TaylorModelReachSet};
+                                     orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    n = dim(Zcp)
+    x = set_variables("x", numvars=n, order=2*orderQ)
+
+    # check structure
+    Z = Zcp.X
+    Y = Zcp.Y
+    if order(Z) > 1
+        Z = remove_redundant_generators(Z)
+    end
+    order(Z) == 1 || throw(ArgumentError("this function requires that the order of the (lower) zonotope is 1, got $(order(Z))"))
+
+    c = LazySets.center(Z)
+    G = genmat(Z)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n)
+
+    # normalized time domain
+    Δtn = TimeInterval(zero(N), diam(Δt))
+
+    xstate = x[1:n-1]
+    @inbounds for i in 1:n-1
+        pi = c[i] + sum(view(G, i, :) .* xstate) + zero(TaylorN(n, order=orderQ))
+        rem = interval(0)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+    end
+    # diagonal part
+    @inbounds begin
+        pi = mid(Y.dat) + zero(TaylorN(1, order=orderQ))
+        d = diam(Y.dat) / 2
+        rem = interval(-d, d)
+        vTM[n] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+    end
+    return TaylorModelReachSet(vTM, Δt)
 end
 
 @commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::AbstractDisjointnessMethod)

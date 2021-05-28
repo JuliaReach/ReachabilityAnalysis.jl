@@ -56,7 +56,6 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
         push!(F, Ri)
     end
-
     ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
     return Flowpipe(F, ext)
 end
