@@ -1,6 +1,6 @@
-# =================
-# Homogeneous case
-# =================
+# ===================================
+# Homogeneous case without invariant
+# ===================================
 
 # note that each of the computations in the loop over directions is independent
 function reach_homog_LGG09!(F::Vector{RT},
@@ -378,4 +378,66 @@ function reach_homog_eig_LGG09_box(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
     B₋ = R - C
 
     return B₊, B₋
+end
+
+# ===================================
+# Homogeneous case with invariant
+# ===================================
+
+function reach_homog_LGG09!(F::Vector{RT},
+                            dirs::TN,
+                            Ω₀::LazySet{N},
+                            Φ::AbstractMatrix{N},
+                            NSTEPS::Integer,
+                            δ::N,
+                            X::LazySet,
+                            Δt0::TimeInterval,
+                            cache,
+                            threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+    println("USING THIS FUNCTION")
+    # transpose coefficients matrix
+    Φᵀ = copy(transpose(Φ))
+
+    # preallocate output sequence
+    ndirs = length(dirs)
+    ρmat = Matrix{N}(undef, ndirs, NSTEPS)
+
+    rᵢ = reduce(hcat, dirs) # one column per template direction
+    rᵢ₊₁ = similar(rᵢ)
+
+    # fill template reach-set sequence
+    Δt = (zero(N) .. δ) + Δt0
+    k = 1
+    @inbounds while k <= NSTEPS
+
+        # loop dispatch in threaded
+        _reach_homog_LGG09_invariant!(Ω₀, rᵢ, ρmat, k, ndirs, threaded)
+
+        # update cache for the next iteration
+        mul!(rᵢ₊₁, Φᵀ, rᵢ)
+        copy!(rᵢ, rᵢ₊₁)
+
+        F[k] = TemplateReachSet(dirs, view(ρmat, :, k), Δt)
+        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        Δt += δ
+        k += 1
+    end
+    if k < NSTEPS
+        resize!(F, k-1)
+    end
+    return ρmat
+end
+
+function _reach_homog_LGG09_invariant!(Ω₀, rᵢ, ρmat, k, ndirs, threaded::Val{false})
+    for j in 1:ndirs
+        d = view(rᵢ, :, j)
+        ρmat[j, k] = ρ(d, Ω₀)
+    end
+end
+
+function _reach_homog_LGG09_invariant!(Ω₀, rᵢ, ρmat, k, ndirs, threaded::Val{true})
+    Threads.@threads for j in 1:ndirs
+        d = view(rᵢ, :, j)
+        ρmat[j, k] = ρ(d, Ω₀)
+    end
 end
