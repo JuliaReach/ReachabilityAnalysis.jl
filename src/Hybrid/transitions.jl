@@ -458,3 +458,26 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT
     end
     return overapproximate(ConvexHullArray(Y), method.dirs)
 end
+
+# the reset map is the identity, the affine term is zero
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::AbstractVector{RT},
+               method::TemplateHullIntersection) where {N,
+                                RT<:AbstractReachSet{N},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    @unpack R, W, G, I⁻, I⁺ = tr
+    m = length(X)
+    Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
+    for i in 1:m
+        Xi = set(X[i])
+
+        # concrete Xi ∩ G ∩ I⁻ ∩ I⁺
+        success, Qi = _intersection(Xi, G, I⁻, I⁺, HRepIntersection())
+        !success && return EmptySet(dim(Xi))
+        Y[i] = HPolytope(Qi)
+    end
+    return overapproximate(ConvexHullArray(Y), method.dirs)
+end
