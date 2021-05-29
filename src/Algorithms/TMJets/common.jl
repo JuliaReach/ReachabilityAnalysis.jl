@@ -53,7 +53,13 @@ function _initialize(X0::CartesianProduct{N, <:AbstractHyperrectangle, <:Abstrac
 end
 
 function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, orderT) where {N}
-    X = _overapproximate_structured(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+    if order(X0.X) == 1
+        X = _overapproximate_structured(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+    else
+        # TEMP: add improved version in _overapproximate_structured
+        X0z = convert(Zonotope, X0)
+        X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
+    end
     return set(X)
 end
 
