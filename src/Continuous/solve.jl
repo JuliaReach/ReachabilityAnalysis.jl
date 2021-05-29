@@ -60,7 +60,8 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # run the continuous-post operator
     F = post(cpost, ivp, tspan; kwargs...)
 
-    if haskey(kwargs, :ensemble) && kwargs[:ensemble]
+    got_ensemble = get(kwargs, :ensemble, false)
+    if got_ensemble
         @requires DifferentialEquations
         # compute trajectories using ensemble simulation
         ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
