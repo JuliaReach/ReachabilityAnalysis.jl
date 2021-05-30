@@ -636,10 +636,15 @@ end
 # if X is polyhedral and Y is the set union of half-spaces, X ∩ Y is empty iff
 # X ∩ Hi is empty for each half-space Hi in Y
 # NOTE the algorithm below solves an LP for each X ∩ Hi; however, we can proceed
-# more efficintly using support functions
+# more efficiently using support functions
 # see LazySets.is_intersection_empty_helper_halfspace
 @commutative function is_intersection_empty(X::AbstractPolytope{N},
                                             Y::UnionSetArray{N, <:HalfSpace{N}}) where {N}
+    if dim(X) == 2 # use vrep in 2D
+        Xp = convert(VPolygon, X)
+        return all(Yi -> is_intersection_empty(Xp, Yi), array(Y))
+    end
+
     clist_X = constraints_list(X)
     for ci in Y.array
         # using support functions

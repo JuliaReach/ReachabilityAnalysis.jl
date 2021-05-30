@@ -447,6 +447,7 @@ _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclo
 # FIXME when UnionSet, UnionSetArray <: LazySet
 _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
 _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::BoxEnclosure) = is_intersection_empty(set(overapproximate(R, Hyperrectangle)), Y)
 
 _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
