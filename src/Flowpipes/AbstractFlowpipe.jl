@@ -230,7 +230,27 @@ Base.getindex(fp::AbstractFlowpipe, i::Int) = getindex(array(fp), i)
 Base.getindex(fp::AbstractFlowpipe, i::Number) = getindex(array(fp), convert(Int, i))
 Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
 
-# further setops
-LazySets.is_intersection_empty(F::AbstractFlowpipe, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+# ------------------------------
+# Methods to check disjointness
+# ------------------------------
+
+# interface
+is_intersection_empty(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+is_intersection_empty(Y::SetOrReachSet, F::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+Base.isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+Base.isdisjoint(Y::SetOrReachSet, F::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+
+is_intersection_empty(F1::AbstractFlowpipe, F2::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> isdisjoint(F1, X, method), array(F2))
+Base.isdisjoint(F1::AbstractFlowpipe, F2::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> isdisjoint(F1, X, method), array(F2))
+
+# flowpipe and vector of reach-sets TODO
+
+# internal
+_is_intersection_empty(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+
+# ------------------------------
+# Methods to check inclusion
+# ------------------------------
+
 Base.:⊆(F::AbstractFlowpipe, X::LazySet) = all(R ⊆ X for R in F)
 Base.:⊆(F::AbstractFlowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)

@@ -441,6 +441,22 @@ function _overapproximate_structured(Zcp::CartesianProduct{N, <:Zonotope, <:Inte
     return TaylorModelReachSet(vTM, Δt)
 end
 
+_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+
+# FIXME when UnionSet, UnionSetArray <: LazySet
+_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+
+_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+
+
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{LazySet, UnionSet, UnionSetArray}, method::ZonotopeEnclosure)
+    Z = overapproximate(R, Zonotope)
+    return is_intersection_empty(set(Z), Y)
+end
+
 @commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::AbstractDisjointnessMethod)
     return false
 end

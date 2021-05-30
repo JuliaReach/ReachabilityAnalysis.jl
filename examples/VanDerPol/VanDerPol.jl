@@ -118,7 +118,7 @@ tspan(solz[388])  #!jl
 
 # is included in the set union ``F[1] \cup \cdots \cup F[13]`` of previously
 # computed reach-sets. Notice that all future trajectories starting from
-# the 300-th reach-set are already covered by the flowpipe. Therefore, we can claim
+# the 388-th reach-set are already covered by the flowpipe. Therefore, we can claim
 # that an *invariant set* was found.
 
 # ## Limit cycle
