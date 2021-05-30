@@ -140,13 +140,32 @@ LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.
 # further setops functions acting on solutions' flowpipes
 ∈(x::AbstractVector, sol::ReachSolution) = ∈(x, sol.F)
 
-LazySets.is_intersection_empty(sol::ReachSolution, Y::LazySet) = is_intersection_empty(sol.F, Y)
-LazySets.is_intersection_empty(sol::ReachSolution, Y::AbstractLazyReachSet) = is_intersection_empty(sol.F, set(Y))
-linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
+# ------------------------------
+# Methods to check disjointness
+# ------------------------------
+
+# interface
+is_intersection_empty(sol::ReachSolution, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
+is_intersection_empty(Y::SetOrReachSet, sol::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
+Base.isdisjoint(sol::ReachSolution, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
+Base.isdisjoint(Y::SetOrReachSet, sol::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
+
+is_intersection_empty(sol1::ReachSolution, sol2::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol1.F, sol2.F, method)
+Base.isdisjoint(sol1::ReachSolution, sol2::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol1.F, sol2.F, method)
+
+# ------------------------------
+# Methods to check inclusion
+# ------------------------------
 
 # inclusion checks
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
 Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
+
+# -------------------------------------
+# Methods for concrete set operations
+# -------------------------------------
+
+linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
 
 # -------------------------------------------
 # Specialized methods for template solutions

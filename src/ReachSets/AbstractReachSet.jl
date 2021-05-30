@@ -33,6 +33,9 @@ following methods:
 """
 abstract type AbstractReachSet{N} end
 
+# convenience union for dispatch on structs that behave like a set
+const SetOrReachSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox, AbstractReachSet}
+
 """
     basetype(T::Type{<:AbstractReachSet})
 
@@ -214,18 +217,31 @@ function shift(R::AbstractReachSet, t0::Number) end
 
 # fallback uses  internal function _is_intersection_empty, which admit a pre-processing
 # step for the reach-set / algorithm choice
-@commutative function is_intersection_empty(R::AbstractReachSet, Y::LazySet)
-    _is_intersection_empty(R, Y, FallbackDisjointness())
-end
+is_intersection_empty(R::AbstractReachSet, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) =_is_intersection_empty(R, Y, method)
+is_intersection_empty(Y::SetOrReachSet, R::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) =_is_intersection_empty(R, Y, method)
+Base.isdisjoint(R::AbstractReachSet, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = _is_intersection_empty(R, Y, method)
+Base.isdisjoint(Y::SetOrReachSet, R::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = _is_intersection_empty(R, Y, method)
+
+# disambiguations
+is_intersection_empty(R1::AbstractReachSet, R2::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) =_is_intersection_empty(R1, R2, method)
+Base.isdisjoint(R1::AbstractReachSet, R2::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) =_is_intersection_empty(R1, R2, method)
+
+# vector of reach-sets
+is_intersection_empty(R::AbstractVector{<:AbstractReachSet}, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+is_intersection_empty(Y::SetOrReachSet, R::AbstractVector{<:AbstractReachSet}, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+Base.isdisjoint(R::AbstractVector{<:AbstractReachSet}, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+Base.isdisjoint(Y::SetOrReachSet, R::AbstractVector{<:AbstractReachSet}, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+
 
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::FallbackDisjointness)
-    is_intersection_empty(set(R), Y)
+    return is_intersection_empty(set(R), Y)
 end
 
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return is_intersection_empty(set(Z), Y)
 end
+
 
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::BoxEnclosure)
     H = overapproximate(R, Hyperrectangle)
