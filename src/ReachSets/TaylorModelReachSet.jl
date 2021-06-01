@@ -441,6 +441,43 @@ function _overapproximate_structured(Zcp::CartesianProduct{N, <:Zonotope, <:Inte
     return TaylorModelReachSet(vTM, Δt)
 end
 
+# we assume that if n = size(G, 1), then:
+# (size(G) == (n, 2n + 1)) && isdiag(view(G, :, (n+2):(2n+1)))
+function _overapproximate_structured_full(Zcp::CartesianProduct{N, <:Zonotope, <:Interval}, ::Type{<:TaylorModelReachSet};
+                                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    n = dim(Zcp) - 1
+    x = set_variables("x", numvars=n+1, order=2*orderQ)
+
+    # check structure
+    # not checking structure
+    Z = Zcp.X
+    c = LazySets.center(Z)
+    G = genmat(Z)
+
+    # preallocations
+    vTM = Vector{TaylorModel1{TaylorN{N}, N}}(undef, n+1)
+
+    # normalized time domain
+    Δtn = TimeInterval(zero(N), diam(Δt))
+
+    # fill rows corresponding to the "zonotope" variables: 1 to nth-variables
+    @inbounds for i in 1:n
+        pi = c[i] + sum(view(G, i, 1:(n+1)) .* x) + zero(TaylorN(n+1, order=orderQ))
+        d = abs(G[i, n + 1 + i])
+        rem = interval(-d, d)
+        vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+    end
+
+    # fill the final row, which correspponds to the "interval" variable: (n+1)-th
+    I = Zcp.Y.dat
+    pi = mid(I) + zero(TaylorN(n+1, order=orderQ))
+    d = diam(I) / 2
+    rem = interval(-d, d)
+    @inbounds vTM[n+1] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+
+    return TaylorModelReachSet(vTM, Δt)
+end
+
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
 
