@@ -53,10 +53,19 @@ function _initialize(X0::CartesianProduct{N, <:AbstractHyperrectangle, <:Abstrac
 end
 
 function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, orderT) where {N}
-    if order(X0.X) == 1
+    Z = X0.X
+    G = genmat(Z)
+    ord = order(Z)
+    n = dim(Z)
+
+    if ord == 1
+        # "exact"
         X = _overapproximate_structured(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
-    else
-        # TEMP: add improved version in _overapproximate_structured
+
+    elseif (size(G) == (n, 2n + 1)) && isdiag(view(G, :, (n+2):(2n+1)))
+        X = _overapproximate_structured_full(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+
+    else # otherwise, resort to a box overapproximation
         X0z = convert(Zonotope, X0)
         X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
     end
