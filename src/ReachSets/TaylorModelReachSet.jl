@@ -246,7 +246,6 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope, remove_zero_generators=remove_zero_generators)
-
     Δt = TimeInterval(t, t)
     return ReachSet(Zi, Δt)
 end
