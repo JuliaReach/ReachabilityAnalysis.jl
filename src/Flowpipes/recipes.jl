@@ -29,27 +29,47 @@ import LazySets: _plot_singleton_list_1D,
 # efficiently; in all other cases a lazy set is returned
 function _project_reachset(R::AbstractLazyReachSet, vars)
     ST = setrep(R)
+    return _project_reachset(ST, R, vars)
+end
 
-    if (ST <: AbstractZonotope) || (ST <: VPolytope) || (ST <: VPolygon)
+# zonotopes are projected concretely unless they have too many generators
+function _project_reachset(::Type{<:Zonotope}, R, vars)
+    # TODO review/lift the condition on max number of generators after LazySets#2288
+    if (ngens(set(R)) <= 15) || (0 ∈ vars)
         # concrete projection is efficient
         πR = project(R, vars)
         X = set(πR)
-        if ST <: AbstractZonotope
-            # zonotopes usually contain lots of redundant generators
-            X = remove_redundant_generators(X)
-        end
 
-    elseif (ST <: AbstractPolyhedron) && (dim(R) == 2)
-        # if the set is polyhedral and two-dimensional
-        #   - if time is not requried -> don't project
-        #   - otherwise, make the projection (lazily)
-        X = 0 ∈ vars ? set(Projection(R, vars)) : set(R)
-
+        # zonotopes usually contain lots of redundant generators
+        X = remove_redundant_generators(X)
     else
-        πR = Projection(R, vars) # lazy projection
-        X = set(πR)
+        # avoid expensive vertex enumeration
+        X = Projection(R, vars)
     end
     return X
+end
+
+function _project_reachset(::Union{Type{<:AbstractZonotope}, VPOLY}, R, vars)
+    # concrete projection is efficient
+    πR = project(R, vars)
+    return set(πR)
+end
+
+function _project_reachset(::Type{<:AbstractPolyhedron}, R, vars)
+    # if the set is polyhedral and two-dimensional
+    #   - if time is not required -> don't project
+    #   - otherwise, make the projection (lazily)
+    if (dim(R) == 2) &&  (0 ∉ vars)
+        πR = set(R) # no-op
+    else
+        πR = Projection(R, vars) # lazy projection
+    end
+    return set(πR)
+end
+
+function _project_reachset(::Type{<:LazySet}, R, vars)
+    πR = Projection(R, vars) # lazy projection
+    X = set(πR)
 end
 
 # ---------------------------------------
