@@ -29,7 +29,10 @@ function _initialize(X0::LazySet, orderQ, orderT)
 end
 
 # taylor model representations
-_initialize(X0::TaylorModelReachSet, orderQ, orderT) = set(X0)
+function _initialize(X0::TaylorModelReachSet, orderQ, orderT)
+    return set(X0)
+end
+
 _initialize(X0::Vector{TaylorModel1{TaylorN{T}, T}}, orderQ, orderT) where {T} = X0
 
 # hyperrectangular sets
