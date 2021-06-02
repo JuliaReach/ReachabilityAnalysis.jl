@@ -34,6 +34,10 @@ function _project_reachset(R::AbstractLazyReachSet, vars)
         # concrete projection is efficient
         πR = project(R, vars)
         X = set(πR)
+        if ST <: AbstractZonotope
+            # zonotopes usually contain lots of redundant generators
+            X = remove_redundant_generators(X)
+        end
 
     elseif (ST <: AbstractPolyhedron) && (dim(R) == 2)
         # if the set is polyhedral and two-dimensional
