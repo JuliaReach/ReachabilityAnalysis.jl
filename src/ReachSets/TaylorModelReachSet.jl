@@ -228,7 +228,8 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partitio
 end
 
 # evaluate at a given time and overapproximate the resulting set with a zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat) where {N}
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat;
+                         remove_zero_generators=true) where {N}
     @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
 
     X = set(R)
@@ -244,7 +245,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     n = dim(R)
     X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
-    Zi = overapproximate(fX̂, Zonotope)
+    Zi = overapproximate(fX̂, Zonotope, remove_zero_generators=remove_zero_generators)
 
     Δt = TimeInterval(t, t)
     return ReachSet(Zi, Δt)
