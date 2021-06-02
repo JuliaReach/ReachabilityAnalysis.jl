@@ -35,6 +35,7 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # decompose the initial states into a cartesian product
     # TODO add option to do the lazy decomposition
     Xhat0 = _decompose(Ω0, column_blocks, ST)
+
     Φ = state_matrix(ivp_discr)
     X = stateset(ivp_discr) # invariant
 
@@ -47,7 +48,9 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     vars = reduce(vcat, alg.row_blocks)
 
     # preallocate output flowpipe
-    CP = CartesianProductArray{N, ST}
+
+    SST = HPolytope{Float64, Vector{Float64}} # TEMP
+    CP = CartesianProductArray{N, SST}
     F = Vector{SparseReachSet{N, CP, length(vars)}}(undef, NSTEPS)
 
     # option to use array views

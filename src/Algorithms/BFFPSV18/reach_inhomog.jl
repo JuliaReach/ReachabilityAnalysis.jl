@@ -66,9 +66,13 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
                                  column_blocks::AbstractVector{<:CBLKj},
                                  Δt0,
                                  viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
-
+    println("XXXXXXX")
     # initial reach-set
     Δt = (zero(N) .. δ) + Δt0
+
+    # overapproximate with template
+    #Xhat0 = CartesianProductArray([overapproximate(xi, PolarDirections(20)) for xi in Xhat0.array])
+
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -77,6 +81,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
 
     # preallocate buffer for each row-block
     SMT = SubArray{N, 2, MT, Tuple{RBLKi, CBLKj}, false}
+    ST = HPolytope{Float64, Vector{Float64}}
     buffer = Vector{LazySets.LinearMap{N, ST, N, SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
@@ -86,7 +91,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
     Whatk = Vector{ST}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
         πX = Projection(U, bi)
-        Whatk[i] = overapproximate(πX, ST)
+        Whatk[i] = overapproximate(πX, PolarDirections(20))
     end
 
     @inbounds for k in 2:NSTEPS
@@ -94,7 +99,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
                 buffer[j] = view(Φpowerk, bi, bj) * Xhat0.array[j]
             end
-            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], ST)
+            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], PolarDirections(20))
         end
         Δt += δ
         Xk = CartesianProductArray(copy(Xhatk))
@@ -102,7 +107,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
 
         # update the input set
         for (i, bi) in enumerate(row_blocks)
-            Whatk[i] = overapproximate(Whatk[i] ⊕ view(Φpowerk, bi, :) * U, ST)
+            Whatk[i] = overapproximate(Whatk[i] ⊕ view(Φpowerk, bi, :) * U, PolarDirections(20))
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
