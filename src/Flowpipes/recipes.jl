@@ -37,16 +37,15 @@ function _project_reachset(::Type{<:Zonotope}, R, vars)
     # TODO review/lift the condition on max number of generators after LazySets#2288
     if (ngens(set(R)) <= 15) || (0 ∈ vars)
         # concrete projection is efficient
-        πR = project(R, vars)
-        X = set(πR)
+        πR = project(R, vars) |> set
 
         # zonotopes usually contain lots of redundant generators
-        X = remove_redundant_generators(X)
+        πR = remove_redundant_generators(πR)
     else
         # avoid expensive vertex enumeration
-        X = Projection(R, vars)
+        πR = Projection(R, vars) |> set
     end
-    return X
+    return πR
 end
 
 function _project_reachset(::Union{Type{<:AbstractZonotope}, VPOLY}, R, vars)
@@ -62,9 +61,9 @@ function _project_reachset(::Type{<:AbstractPolyhedron}, R, vars)
     if (dim(R) == 2) &&  (0 ∉ vars)
         πR = set(R) # no-op
     else
-        πR = Projection(R, vars) # lazy projection
+        πR = Projection(R, vars) |> set # lazy projection
     end
-    return set(πR)
+    return πR
 end
 
 function _project_reachset(::Type{<:LazySet}, R, vars)
