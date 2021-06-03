@@ -57,7 +57,7 @@ end
 
 function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, orderT) where {N}
     Z = X0.X
-    G = genmat(Z)
+    G = Z.generators
     ord = order(Z)
     n = dim(Z)
 
@@ -67,6 +67,11 @@ function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, or
 
     elseif (size(G) == (n, 2n + 1)) && isdiag(view(G, :, (n+2):(2n+1)))
         X = _overapproximate_structured_full(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+
+    elseif (size(G) == (n, 2(n + 1))) && isdiag(view(G, :, (n+2):(2n+1))) && iszero(view(G, :, 2n+2))
+        aux = Zonotope(Z.center, view(G, :, 1:(2n+1)))
+        X0z = convert(Zonotope, aux × X0.Y)
+        X = _overapproximate_structured(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
 
     else # otherwise, resort to a box overapproximation
         X0z = convert(Zonotope, X0)
