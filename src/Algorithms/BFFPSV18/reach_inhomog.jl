@@ -73,7 +73,10 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
     # overapproximate with template
     #Xhat0 = CartesianProductArray([overapproximate(xi, PolarDirections(20)) for xi in Xhat0.array])
 
-    @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
+    println(typeof(Xhat0))
+    aux0 = Xhat0.array[block_indices]
+    aux0 = convert(Vector{LazySet{N}}, aux0)
+    @inbounds F[1] = SparseReachSet(CartesianProductArray(aux0), Δt, vars)
 
     # cache matrix
     Φpowerk = copy(Φ)
@@ -81,17 +84,17 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
 
     # preallocate buffer for each row-block
     SMT = SubArray{N, 2, MT, Tuple{RBLKi, CBLKj}, false}
-    ST = HPolytope{Float64, Vector{Float64}}
-    buffer = Vector{LazySets.LinearMap{N, ST, N, SMT}}(undef, length(column_blocks))
+    ST = typeof(Xhat0.array[1])
+    buffer = Vector{LazySet{N}}(undef, length(column_blocks)) # Vector{LazySets.LinearMap{N, ST, N, SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
-    Xhatk = Vector{ST}(undef, length(row_blocks))
+    Xhatk = Vector{LazySet{N}}(undef, length(row_blocks))
 
     # preallocate accumulated inputs and decompose it
-    Whatk = Vector{ST}(undef, length(row_blocks))
+    Whatk = Vector{LazySet{N}}(undef, length(row_blocks))
     @inbounds for (i, bi) in enumerate(row_blocks)
         πX = Projection(U, bi)
-        Whatk[i] = overapproximate(πX, PolarDirections(20))
+        Whatk[i] = πX
     end
 
     @inbounds for k in 2:NSTEPS
@@ -99,7 +102,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
                 buffer[j] = view(Φpowerk, bi, bj) * Xhat0.array[j]
             end
-            Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], PolarDirections(20))
+            Xhatk[i] = MinkowskiSumArray(copy(buffer)) ⊕ copy(Whatk[i])
         end
         Δt += δ
         Xk = CartesianProductArray(copy(Xhatk))
@@ -107,7 +110,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
 
         # update the input set
         for (i, bi) in enumerate(row_blocks)
-            Whatk[i] = overapproximate(Whatk[i] ⊕ view(Φpowerk, bi, :) * U, PolarDirections(20))
+            Whatk[i] = Whatk[i] ⊕ view(Φpowerk, bi, :) * U
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)

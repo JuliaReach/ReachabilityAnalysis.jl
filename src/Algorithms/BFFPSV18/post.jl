@@ -49,8 +49,8 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # preallocate output flowpipe
 
-    SST = HPolytope{Float64, Vector{Float64}} # TEMP
-    CP = CartesianProductArray{N, SST}
+    #SST = typeof(Ω0.array[1])
+    CP = CartesianProductArray{N, LazySet{N}}
     F = Vector{SparseReachSet{N, CP, length(vars)}}(undef, NSTEPS)
 
     # option to use array views

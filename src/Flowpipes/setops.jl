@@ -175,11 +175,12 @@ function _decompose(X::LazySet{N},
                     blocks, # ::AbstractVector{<:AbstractVector{Int}}
                     set_type::Type{ST}) where {N, ST<:LazySet}
     n = dim(X)
-    result = Vector{HPolytope{Float64, Vector{Float64}}}(undef, length(blocks))
+    PT = typeof(Projection(X, blocks[1]))
+    result = Vector{PT}(undef, length(blocks))
 
     @inbounds for (i, bi) in enumerate(blocks)
         πX = Projection(X, bi)
-        result[i] = overapproximate(πX, PolarDirections(20))
+        result[i] = πX
     end
     return CartesianProductArray(result)
 end
