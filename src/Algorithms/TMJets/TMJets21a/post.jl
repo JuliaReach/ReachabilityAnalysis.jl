@@ -33,7 +33,7 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     X0tm = _initialize(X0, orderQ, orderT)
 
     # call external solver
-    tv, xv, xTM1v = TaylorModels.validated_integ(f!, X0tm, t0, T, orderQ, orderT,
+    TMSol = TaylorModels.validated_integ(f!, X0tm, t0, T, orderQ, orderT,
                                                  abstol, params;
                                                  maxsteps=maxsteps,
                                                  parse_eqs=parse_eqs,
@@ -41,6 +41,9 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
                                                  minabstol=minabstol,
                                                  absorb=absorb,
                                                  check_property=check_property)
+    tv = TMSol.time
+    xv = TMSol.fp
+    xTM1v = TMSol.xTM
 
     # preallocate flowpipe
     F = Vector{TaylorModelReachSet{N}}()

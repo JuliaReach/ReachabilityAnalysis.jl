@@ -373,7 +373,7 @@ end
 function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                                      orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(Z)
-    x = set_variables("x", numvars=n, order=2*orderQ)
+    x = set_variables("x", numvars=n, order=orderQ)
 
     # check structure
     order(Z) == 2 || throw(ArgumentError("this function requires that the order of the zonotope is 2, got $(order(Z))"))
@@ -395,7 +395,7 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
     # the line segment corresponding to the i-th edge of Z
     @inbounds for i in 1:n
         pi = c[i] + sum(view(M, i, :) .* x)
-        di = D[i, i]
+        di = abs(D[i, i])
         rem = interval(-di, di)
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
@@ -406,7 +406,7 @@ end
 function _overapproximate_structured(Zcp::CartesianProduct{N, <:Zonotope, <:Interval}, ::Type{<:TaylorModelReachSet};
                                      orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(Zcp)
-    x = set_variables("x", numvars=n, order=2*orderQ)
+    x = set_variables("x", numvars=n, order=orderQ)
 
     # check structure
     Z = Zcp.X
@@ -446,7 +446,7 @@ end
 function _overapproximate_structured_full(Zcp::CartesianProduct{N, <:Zonotope, <:Interval}, ::Type{<:TaylorModelReachSet};
                                           orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(Zcp) - 1
-    x = set_variables("x", numvars=n+1, order=2*orderQ)
+    x = set_variables("x", numvars=n+1, order=orderQ)
 
     # check structure
     # not checking structure
