@@ -7,21 +7,18 @@ using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
 
-Taylor model reach-set represented as a vector of taylor models in one variable
-(namely, the "time" variable) whose coefficients are multivariate polynomials
-(namely in the "space" variables). It is assumed that the time domain is the same
-for all components.
+Reach-set representation consisting of a vector of taylor models in one variable
+(the "time" variable) whose coefficients are multivariate polynomials
+(the "space" variables).
 
 ### Notes
 
 The parameter `N` refers to the numerical type of the representation.
-
-In `TMJets`, the space variables are normalized to the interval `[-1, 1]`.
+The space variables are assumed to be normalized to the interval `[-1, 1]`.
+It is assumed that the time domain is the same for all components.
 """
 struct TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
     X::Vector{TaylorModel1{TaylorN{N}, N}}
-    #t0::Float64
-    #δt::Float64
     Δt::TimeInterval
 end
 
@@ -218,7 +215,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partitio
     fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(part))
     @inbounds for (i, Bi) in enumerate(part)
         x0 = IntervalBox(mid.(Bi))
-        X̂ib = [TaylorModelN(X_Δt[j], X[j].rem, x0, Bi) for j in 1:D]
+        X̂ib = [TaylorModelN(X_Δt[j], zeroI, x0, Bi) for j in 1:D]
         fX̂[i] = fp_rpa.(X̂ib)
     end
     Z = overapproximate.(fX̂, Zonotope)
@@ -243,7 +240,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     end
     X_Δt = evaluate(X, tn)
     n = dim(R)
-    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope, remove_zero_generators=remove_zero_generators)
     Δt = TimeInterval(t, t)
@@ -275,7 +272,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, Δt::Tim
     dtn = IA.Interval(dtn_lo, dtn_hi)
     X_Δt = evaluate(X, dtn)
     n = dim(R)
-    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope)
 
