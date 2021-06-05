@@ -681,7 +681,7 @@ has_backend(alg::FallbackIntersection) = !isnothing(alg.backend)
 
 function _intersection(X::AbstractPolyhedron{N}, Y::AbstractPolyhedron{N}, alg::FallbackIntersection) where {N}
     if has_backend(alg)
-        return intersection(X, Y, backend=alg)
+        return intersection(X, Y, backend=alg.backend)
     else
         return intersection(X, Y)
     end
