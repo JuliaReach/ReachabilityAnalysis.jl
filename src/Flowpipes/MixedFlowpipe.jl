@@ -74,7 +74,7 @@ function LazySets.σ(d::AbstractVector, fp::MixedFlowpipe)
     error("not implemented")
 end
 
-function LazySets.linear_map(M, fp)
+function LazySets.linear_map(M, fp::MixedFlowpipe)
     T = typeof(linear_map(M, first(first(fp))))
     out = Vector{T}()
     for F in fp
@@ -85,7 +85,7 @@ function LazySets.linear_map(M, fp)
     return Flowpipe(out, fp.ext)
 end
 
-function LazySets.affine_map(M, b, fp)
+function LazySets.affine_map(M, b, fp::MixedFlowpipe)
     ST = typeof(affine_map(M, set(first(first(fp))), b))
     N = eltype(M)
     T = ReachSet{N, ST}
