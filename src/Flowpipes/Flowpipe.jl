@@ -265,6 +265,16 @@ function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}
     return any(R -> x ∈ set(R), fp)
 end
 
+function LazySets.linear_map(M, fp::Flowpipe)
+    out = [linear_map(M, R) for R in fp]
+    return Flowpipe(out, fp.ext)
+end
+
+function LazySets.affine_map(M, b, fp::Flowpipe)
+    out = [ReachSet(affine_map(M, set(R), b), tspan(R)) for R in fp]
+    return Flowpipe(out, fp.ext)
+end
+
 # --------------------------------------------
 # Specialized methods for template flowpipes
 # --------------------------------------------
