@@ -475,6 +475,42 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N, <:Zonotope, <
     return TaylorModelReachSet(vTM, Δt)
 end
 
+# ======================
+# Remainder handling
+# ======================
+
+using TaylorModels: shrink_wrapping!
+
+function _shrink_wrapping(R::TaylorModelReachSet)
+    rem = remainder(R)
+    dt = domain(R)
+    n = dim(R)
+
+    # if all remainders are zero => nothing to do
+    all(iszero, rem) && return R
+
+    # transform into a TaylorN whose coeffs are floats
+    X = set(R)
+    Xev = evaluate.(X, dt)
+    W = [TaylorModelN(Xev[i], zeroI, zeroBox(n), symBox(n)) for i in 1:n]
+    Wfp = fp_rpa.(W)
+
+    # absorb remainder in the polynomial part
+    shrink_wrapping!(Wfp)
+
+    # transform back to a TaylorModel1 of TaylorN
+    orderT = get_order(set(R)[1])
+    p = [Taylor1(TaylorN(polynomial(Wfp[i])), orderT) for i in 1:n]
+    Y = [TaylorModel1(p[i], zeroI, zeroI, dt) for i in 1:n]
+
+    return TaylorModelReachSet(Y, tspan(R))
+end
+
+# ======================
+# Intersection methods
+# ======================
+
+
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
 
