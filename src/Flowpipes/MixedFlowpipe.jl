@@ -75,27 +75,11 @@ function LazySets.σ(d::AbstractVector, fp::MixedFlowpipe)
 end
 
 function LazySets.linear_map(M, fp::MixedFlowpipe)
-    T = typeof(linear_map(M, first(first(fp))))
-    out = Vector{T}()
-    for F in fp
-        for R in F
-            push!(out, linear_map(M, R))
-        end
-    end
-    return Flowpipe(out, fp.ext)
+    out = [[linear_map(M, R) for R in F] for F in fp]
+    return MixedFlowpipe(out, fp.ext)
 end
 
 function LazySets.affine_map(M, b, fp::MixedFlowpipe)
-    ST = typeof(affine_map(M, set(first(first(fp))), b))
-    N = eltype(M)
-    T = ReachSet{N, ST}
-    out = Vector{T}()
-
-    for F in fp
-        for R in F
-            X = affine_map(M, set(R), b)
-            push!(out, ReachSet(X, tspan(R)))
-        end
-    end
-    return Flowpipe(out, fp.ext)
+    out = [[ReachSet(affine_map(M, set(R), b), tspan(R)) for R in F] for F in fp]
+    return MixedFlowpipe(out, fp.ext)
 end
