@@ -78,11 +78,6 @@ function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, or
         X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
     end
 
-    # PATCH for initialization of TMJets with non-zero remainders
-    if !all(iszero, remainder(X))
-        X = _shrink_wrapping(X)
-    end
-
     return set(X)
 end
 

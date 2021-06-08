@@ -32,6 +32,12 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     X0 = initial_state(ivp_norm)
     X0tm = _initialize(X0, orderQ, orderT)
 
+    # optionally absorb initial remainder
+    shrink_wrapping = get(kwargs, :shrink_wrapping, true)
+    if shrink_wrapping && !all(iszero, remainder(X0tm))
+        X0tm = _shrink_wrapping(X0tm)
+    end
+
     # call external solver
     TMSol = TaylorModels.validated_integ(f!, X0tm, t0, T, orderQ, orderT,
                                                  abstol, params;
