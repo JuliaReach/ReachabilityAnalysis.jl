@@ -34,8 +34,10 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     # optionally absorb initial remainder
     shrink_wrapping = get(kwargs, :shrink_wrapping, true)
-    if shrink_wrapping && !all(iszero, remainder(X0tm))
-        X0tm = _shrink_wrapping(X0tm)
+    if shrink_wrapping && isa(X0tm, TaylorModelReachSet)
+        if !all(iszero, remainder(X0tm))
+            X0tm = _shrink_wrapping(X0tm)
+        end
     end
 
     # call external solver
