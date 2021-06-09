@@ -77,6 +77,7 @@ function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, or
         X0z = convert(Zonotope, X0)
         X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
     end
+
     return set(X)
 end
 
