@@ -22,15 +22,19 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
 
     # sample initial states
     X0 = initial_state(ivp)
-    X0_samples = sample(X0, trajectories)
+    sampler = get(kwargs, :sampler, LazySets._default_sampler(X0))
+    rn = get(kwargs, :rng, LazySets.GLOBAL_RNG)
+    seed = get(kwargs, :seed, nothing)
+    include_vertices = get(kwargs, :include_vertices, false)
+    X0_samples = sample(X0, trajectories; sampler=sampler, rng=rng, seed=seed, include_vertices=include_vertices)
 
     # formulate ensemble ODE problem
     ensemble_prob = ODEProblem(field, first(X0_samples), tspan)
     _prob_func(prob, i, repeat) = remake(prob, u0 = X0_samples[i])
 
     # choose tolerances
-    reltol = haskey(kwargs, :reltol) ? kwargs[:reltol] : 1e-3
-    abstol = haskey(kwargs, :abstol) ? kwargs[:abstol] : 1e-6
+    reltol = get(kwargs, :reltol, 1e-3)
+    abstol = get(kwargs, :abstol, 1e-6)
 
     ensemble_prob = EnsembleProblem(ensemble_prob, prob_func = _prob_func)
     return DE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
