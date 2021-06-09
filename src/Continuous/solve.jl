@@ -45,6 +45,7 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
   for initial-value problems whose initial condition is a vector of sets.
 """
 function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
+
     # preliminary checks
     _check_dim(ivp)
 
@@ -77,7 +78,7 @@ end
 
 # solve for distributed initial conditions; uses multi-threaded implementation by default
 function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuousSystem,
-                                                            ST<:LazySet, VT<:AbstractVector{ST}}
+                                                            ST<:Union{LazySet, IntervalBox}, VT<:AbstractVector{ST}}
     _check_dim(ivp)
     tspan = _get_tspan(args...; kwargs...)
     cpost = _get_cpost(ivp, args...; kwargs...)
