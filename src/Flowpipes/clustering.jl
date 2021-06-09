@@ -122,6 +122,14 @@ function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyCluste
     return cluster(Fz, 1:length(idx), method)
 end
 
+# fix ambiguity
+function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyClustering{P, Val{false}}) where {N, P}
+    Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
+
+    # Fx is now indexed from 1 ... length(idx)
+    return cluster(Fz, 1:length(idx), method)
+end
+
 # =====================================
 # Box clustering
 # =====================================
