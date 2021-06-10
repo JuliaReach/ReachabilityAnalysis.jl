@@ -66,14 +66,13 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::LazySet{N}, Φ::MT, NSTEPS, δ, X::Un
                                  column_blocks::AbstractVector{<:CBLKj},
                                  Δt0,
                                  viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
-    println("XXXXXXX")
+``
     # initial reach-set
     Δt = (zero(N) .. δ) + Δt0
 
     # overapproximate with template
     #Xhat0 = CartesianProductArray([overapproximate(xi, PolarDirections(20)) for xi in Xhat0.array])
 
-    println(typeof(Xhat0))
     aux0 = Xhat0.array[block_indices]
     aux0 = convert(Vector{LazySet{N}}, aux0)
     @inbounds F[1] = SparseReachSet(CartesianProductArray(aux0), Δt, vars)
