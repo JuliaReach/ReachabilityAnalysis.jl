@@ -54,13 +54,9 @@ function project(R::TaylorModelReachSet, vars::NTuple{D, M}) where {D, M<:Intege
             "available; try first to overapproximate the Taylor model and the  project"))
 end
 
-function overapproximate(R::TaylorModelReachSet{N}, ::BoxEnclosure) where {N}
-    return overapproximate(R, Hyperrectangle)
-end
-
-function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
-    return overapproximate(R, Zonotope)
-end
+# ======================
+# Intersection methods
+# ======================
 
 # for TMs, we overapproximate with a zonotope
 function _intersection(R::TaylorModelReachSet, Y::LazySet)
@@ -105,6 +101,48 @@ function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N, HT}, ::BoxInt
     return isempty(out) ? EmptySet(dim(out)) : overapproximate(UnionSetArray(out), Hyperrectangle)
 end
 
+# ======================
+# Inclusion checks
+# ======================
+
+function Base.:⊆(R::TaylorModelReachSet, X::LazySet)
+    Rz = set(overapproximate(R, Zonotope))
+    return set(Rz) ⊆ X
+end
+
+# ======================
+# Disjointness checks
+# ======================
+
+_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+
+# FIXME when UnionSet, UnionSetArray <: LazySet
+_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
+_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::BoxEnclosure) = is_intersection_empty(set(overapproximate(R, Hyperrectangle)), Y)
+
+_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+
+
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{LazySet, UnionSet, UnionSetArray}, method::ZonotopeEnclosure)
+    Z = overapproximate(R, Zonotope)
+    return is_intersection_empty(set(Z), Y)
+end
+
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::AbstractDisjointnessMethod)
+    return false
+end
+
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::ZonotopeEnclosure)
+    return false
+end
+
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::BoxEnclosure)
+    return false
+end
+
 # ==============================================================
 # Conversion and overapproximation of Taylor model reach-sets
 # ==============================================================
@@ -114,12 +152,20 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:TaylorModelReachSet
     return R
 end
 
+function overapproximate(R::TaylorModelReachSet{N}, ::BoxEnclosure) where {N}
+    return overapproximate(R, Hyperrectangle)
+end
+
+function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {N}
+    return overapproximate(R, Zonotope)
+end
+
 # tdom defined in the methods below is the same as Δt - t0, but the domain inclusion check
 # in TM.evauate may fail, so we unpack the domain again here; also note that
 # by construction the TMs in time are centered at zero
 
 # overapproximate taylor model reachset with one hyperrectangle
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) where {N}
+function _overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) where {N}
     # dimension of the reachset
     D = dim(R)
 
@@ -139,31 +185,72 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}) wh
     return ReachSet(X̂, Δt)
 end
 
-LazySets.box_approximation(R::TaylorModelReachSet) = overapproximate(R, Hyperrectangle)
+LazySets.box_approximation(R::TaylorModelReachSet) = _overapproximate(R, Hyperrectangle)
 
-# overapproximate taylor model reachset with several hyperrectangles
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle}, nparts) where {N}
-    # dimension of the reachset
-    D = dim(R)
+# overapproximate taylor model reachset with several hyperrectangles,
+# by splitting in time (ntdiv), and/or space (with either nsdiv for uniform partitions
+# or by specifying a partition (vector of integers))
+# e.g. if the partition is uniform for each dimension, the number of returned sets
+# is nsdiv^D * ntdiv
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
+                         partition=nothing, nsdiv=1, ntdiv=1) where {N}
 
-    # normalized time domain
-    tdom = domain(R)
-
-    # evaluate the Taylor model in time
-    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = evaluate(set(R), tdom)
-
-    # evaluate the spatial variables in the symmetric box
-    partition = IA.mince(symBox(D), nparts)
-    X̂ = Vector{Hyperrectangle{N, SVector{D, N}, SVector{D, N}}}(undef, length(partition))
-    @inbounds for (i, Bi) in enumerate(partition)
-        X̂ib = IntervalBox([evaluate(X_Δt[i], Bi) for i in 1:D])
-        X̂[i] = convert(Hyperrectangle, X̂ib)
+    # no splitting
+    if isnothing(partition) && nsdiv == 1 && ntdiv == 1
+        return _overapproximate(R, Hyperrectangle)
     end
 
-    Δt = tspan(R)
-    #return ReachSet(UnionSetArray(X̂), Δt) # but UnionSetArray is not yet a lazyset
-    return ReachSet(ConvexHullArray(X̂), Δt)
+    D = dim(R)
+    X = set(R)
+
+    # time domain splittig
+    tspdiv = IntervalArithmetic.mince(tspan(R), ntdiv)
+    tdom = domain(R)
+    Δtdiv = IntervalArithmetic.mince(tdom, ntdiv)
+
+    # evaluate the Taylor model in (normalized) time
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
+    X_Δt = [evaluate(X, Δti) for Δti in Δtdiv]
+
+    # partition the symmetric box
+    S = symBox(D)
+    if isnothing(partition)
+        if nsdiv == 1
+            partition = [S]
+
+        else
+            # FIXME (also below) may use IntervalArithmetic.mince directly
+            partition = fill(nsdiv, D)
+            Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
+            partition = convert.(IntervalBox, Sdiv)
+        end
+
+    else
+        Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
+        partition = convert.(IntervalBox, Sdiv)
+    end
+    nparts = length(partition)
+
+    # preallocate output vectors
+    ST = Hyperrectangle{N, SVector{D, N}, SVector{D, N}}
+    X̂out = Vector{ST}(undef, nparts * ntdiv)
+    R̂out = Vector{ReachSet{N, ST}}(undef, nparts * ntdiv)
+
+    # evaluate the spatial variables in the symmetric box
+    @inbounds for k in 1:ntdiv
+        for j in 1:nparts
+            Bj = partition[j]
+            Xk = X_Δt[k]
+            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:D])
+
+            idx = j + (k-1)*nparts
+            X̂out[idx] = convert(Hyperrectangle, X̂ib)
+
+            R̂out[idx] = ReachSet(X̂out[idx], tspdiv[k])
+        end
+    end
+
+    return R̂out
 end
 
 # overapproximate taylor model reachset with one zonotope
@@ -504,38 +591,4 @@ function _shrink_wrapping(R::TaylorModelReachSet)
     Y = [TaylorModel1(p[i], zeroI, zeroI, dt) for i in 1:n]
 
     return TaylorModelReachSet(Y, tspan(R))
-end
-
-# ======================
-# Intersection methods
-# ======================
-
-
-_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
-_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
-
-# FIXME when UnionSet, UnionSetArray <: LazySet
-_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
-_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
-_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet, UnionSetArray}, method::BoxEnclosure) = is_intersection_empty(set(overapproximate(R, Hyperrectangle)), Y)
-
-_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
-_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
-
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{LazySet, UnionSet, UnionSetArray}, method::ZonotopeEnclosure)
-    Z = overapproximate(R, Zonotope)
-    return is_intersection_empty(set(Z), Y)
-end
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::AbstractDisjointnessMethod)
-    return false
-end
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::ZonotopeEnclosure)
-    return false
-end
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::BoxEnclosure)
-    return false
 end
