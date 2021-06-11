@@ -106,7 +106,7 @@ end
 # ======================
 
 function Base.:⊆(R::TaylorModelReachSet, X::LazySet)
-    Rz = set(overapproximate(R, Zonotope))
+    Rz = overapproximate(R, Zonotope)
     return set(Rz) ⊆ X
 end
 
