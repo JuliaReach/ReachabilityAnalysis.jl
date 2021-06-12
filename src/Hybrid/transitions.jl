@@ -392,9 +392,14 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
     return K
 end
 
-# ====== Template hulls with set unions =============
-# TODO dispatch on UnionSetArray
+# ======================================
+# Template hulls with set unions
+#
+# TODO: now X is a vector of reach-sets,
+# we may dispatch on UnionSetArray later
+# ==============================
 
+# general case, requires constraints list of each Xi
 function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT⁺},
                X::AbstractVector{RT},
                method::TemplateHullIntersection) where {N,
@@ -426,6 +431,8 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
     return overapproximate(ConvexHullArray(Y), method.dirs)
 end
 
+# case with R generic and W = 0
+# requires constraints list of X
 function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT⁺},
                X::AbstractVector{RT},
                method::TemplateHullIntersection) where {N,
@@ -459,7 +466,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT
     return overapproximate(ConvexHullArray(Y), method.dirs)
 end
 
-# the reset map is the identity, the affine term is zero
+# the R = Id and W = 0
 function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
                X::AbstractVector{RT},
                method::TemplateHullIntersection) where {N,
@@ -469,15 +476,52 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
                                 IT⁺<:AbstractPolyhedron{N}}
 
     @unpack R, W, G, I⁻, I⁺ = tr
+
+    # precompute L = G ∩ I⁻ ∩ I⁺
+    success, L = _intersection(G, I⁻, I⁺, HRepIntersection())
+    !success && return EmptySet(dim(X))
+
     m = length(X)
     Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
+
     for i in 1:m
         Xi = set(X[i])
 
-        # concrete Xi ∩ G ∩ I⁻ ∩ I⁺
-        success, Qi = _intersection(Xi, G, I⁻, I⁺, HRepIntersection())
+        # concrete intersection of Xi ∩ L
+        success, Qi = _intersection(Xi, L, HRepIntersection())
         !success && return EmptySet(dim(Xi))
         Y[i] = HPolytope(Qi)
     end
+    return overapproximate(ConvexHullArray(Y), method.dirs)
+end
+
+# the R = Id and W = 0
+# and AbstractZonotope => use template directions for the intersection
+function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺},
+               X::AbstractVector{RT},
+               method::TemplateHullIntersection) where {N,
+                                ZT<:AbstractZonotope{N},
+                                RT<:ReachSet{N, ZT},
+                                GT<:AbstractPolyhedron{N},
+                                IT⁻<:AbstractPolyhedron{N},
+                                IT⁺<:AbstractPolyhedron{N}}
+
+    @unpack R, W, G, I⁻, I⁺ = tr
+
+    # precompute L = G ∩ I⁻ ∩ I⁺
+    success, L = _intersection(G, I⁻, I⁺, HRepIntersection())
+    !success && return EmptySet(dim(X))
+    L = HPolyhedron(L)
+
+    m = length(X)
+    Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
+
+    for i in 1:m
+        Xi = set(X[i])
+
+        # concrete intersection of Xi ∩ L
+        Y[i] = _intersection(Xi, L, method)
+    end
+
     return overapproximate(ConvexHullArray(Y), method.dirs)
 end
