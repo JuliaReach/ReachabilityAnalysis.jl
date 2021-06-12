@@ -179,6 +179,9 @@ An integer corresponding to the ambient dimension of the given reach-set.
 """
 function LazySets.dim(::AbstractReachSet) end
 
+# for internal use (dimensional checks in solve)
+_dim(X::AbstractReachSet) = dim(X)
+
 """
     copy(R::AbstractReachSet)
 
