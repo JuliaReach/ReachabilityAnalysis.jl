@@ -23,7 +23,7 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     # sample initial states
     X0 = initial_state(ivp)
     sampler = get(kwargs, :sampler, LazySets._default_sampler(X0))
-    rn = get(kwargs, :rng, LazySets.GLOBAL_RNG)
+    rng = get(kwargs, :rng, LazySets.GLOBAL_RNG)
     seed = get(kwargs, :seed, nothing)
     include_vertices = get(kwargs, :include_vertices, false)
     X0_samples = sample(X0, trajectories; sampler=sampler, rng=rng, seed=seed, include_vertices=include_vertices)
