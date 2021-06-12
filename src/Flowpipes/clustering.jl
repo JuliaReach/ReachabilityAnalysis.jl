@@ -194,6 +194,21 @@ function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxCluster
 end
 
 # =====================================
+# Box clustering with a vector output
+# =====================================
+
+struct BoxVecClustering{P} <: AbstractClusteringMethod{P}
+    part::P
+end
+
+BoxVecClustering() = BoxVecClustering{Missing}(missing)
+
+function cluster(F, idx, cl::BoxVecClustering)
+    out = cluster(F, idx, BoxClustering(cl.part))
+    return [out]
+end
+
+# =====================================
 # Zonotope clustering
 # =====================================
 
@@ -233,6 +248,68 @@ end
 # convexify and convert to vrep
 #C = ReachabilityAnalysis.convexify(sol[end-aux+1:end])
 #Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
+
+function _cartesian_product_standard(Z, blocks)
+    @assert length.(blocks) == [2, 2, 1]
+
+    # shuffle columns to bring to standard form
+    M = Z.generators[:, [1, 2, 5, 6, 3, 4, 7, 8, 9]]
+
+    # add extra column of zeros
+    Mst = hcat(M[:, 1:4], zeros(5), M[:, 5:9])
+    Zst = Zonotope(Z.center, Mst)
+end
+
+# TODO wrap into clustering strategy and pass outer partition
+function _cluster_decompose_zono(fp::AbstractVector{<:TaylorModelReachSet}, blocks, dirs)
+    # zonotopic enclosure
+    fpz = [overapproximate(R, Zonotope) for R in fp]
+    _cluster_decompose_zono(fpz, blocks, dirs)
+end
+
+function _cluster_decompose_zono(fpz::AbstractVector{RT}, blocks, dirs) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}}
+
+    # concrete projection onto each block
+    πfpz = [[project(set(R), bi) for R in fpz] for bi in blocks]
+
+    # reconstruct zonotope enclosure
+    ZTD = Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
+    zono_blk = Vector{ZTD}(undef, length(blocks))
+
+    for (i, V) in enumerate(πfpz)
+
+        Vch = ConvexHullArray(V)
+        dim_blk = dim(Vch)
+        @assert dim_blk == 1 || dim_blk == 2
+
+        if dim_blk == 2
+            # epsilon-close approximation
+            Yi = overapproximate(Vch, 1e-3)
+
+            # zonotope overapproximation
+            Yi = overapproximate(Yi, Zonotope, dirs)
+
+            # order reduction
+            Yi = reduce_order(Yi, 2)
+
+        elseif dim_blk == 1
+            Yi = overapproximate(Vch, LazySets.Interval)
+            Yi = convert(Zonotope, Yi)
+
+        end
+
+        Yi = Zonotope(Vector(Yi.center), Matrix(Yi.generators))
+        zono_blk[i] = Yi
+    end
+
+    # recomposition into a higher-dimensional zonotope
+    out = concretize(CartesianProductArray(zono_blk))
+
+    # bring to standard form
+    out_st = _cartesian_product_standard(out, blocks)
+
+    return out_st
+end
 
 # =====================================
 # Lazy union set array clustering
