@@ -669,12 +669,24 @@ end
 abstract type AbstractIntersectionMethod end
 
 # "fallback" implementation that uses LazySets intersection(X, Y)
-struct FallbackIntersection <: AbstractIntersectionMethod
-#
+struct FallbackIntersection{T} <: AbstractIntersectionMethod
+     backend::T
 end
 
 _intersection(X::LazySet, Y::LazySet, ::FallbackIntersection) = intersection(X, Y)
 _intersection(X, Y) = _intersection(X, Y, FallbackIntersection())
+
+FallbackIntersection() = FallbackIntersection(nothing)
+
+has_backend(alg::FallbackIntersection) = !isnothing(alg.backend)
+
+function _intersection(X::AbstractPolyhedron{N}, Y::AbstractPolyhedron{N}, alg::FallbackIntersection) where {N}
+    if has_backend(alg)
+        return intersection(X, Y, backend=alg.backend)
+    else
+        return intersection(X, Y)
+    end
+end
 
 #=
 TODO annotate normal vector types?

@@ -73,3 +73,13 @@ end
 function LazySets.σ(d::AbstractVector, fp::MixedFlowpipe)
     error("not implemented")
 end
+
+function LazySets.linear_map(M, fp::MixedFlowpipe)
+    out = [linear_map(M, F) for F in fp]
+    return MixedFlowpipe(out, fp.ext)
+end
+
+function LazySets.affine_map(M, b, fp::MixedFlowpipe)
+    out = [affine_map(M, b, F) for F in fp]
+    return MixedFlowpipe(out, fp.ext)
+end

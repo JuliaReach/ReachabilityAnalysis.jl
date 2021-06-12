@@ -7,21 +7,18 @@ using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 """
     TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
 
-Taylor model reach-set represented as a vector of taylor models in one variable
-(namely, the "time" variable) whose coefficients are multivariate polynomials
-(namely in the "space" variables). It is assumed that the time domain is the same
-for all components.
+Reach-set representation consisting of a vector of taylor models in one variable
+(the "time" variable) whose coefficients are multivariate polynomials
+(the "space" variables).
 
 ### Notes
 
 The parameter `N` refers to the numerical type of the representation.
-
-In `TMJets`, the space variables are normalized to the interval `[-1, 1]`.
+The space variables are assumed to be normalized to the interval `[-1, 1]`.
+It is assumed that the time domain is the same for all components.
 """
 struct TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
     X::Vector{TaylorModel1{TaylorN{N}, N}}
-    #t0::Float64
-    #δt::Float64
     Δt::TimeInterval
 end
 
@@ -184,7 +181,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
-    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
 
     # compute floating point rigorous polynomial approximation
     # fX̂ is a TaylorModelN whose coefficients are floats
@@ -218,7 +215,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partitio
     fX̂ = Vector{Vector{TaylorModelN{length(X_Δt), N, N}}}(undef, length(part))
     @inbounds for (i, Bi) in enumerate(part)
         x0 = IntervalBox(mid.(Bi))
-        X̂ib = [TaylorModelN(X_Δt[j], X[j].rem, x0, Bi) for j in 1:D]
+        X̂ib = [TaylorModelN(X_Δt[j], zeroI, x0, Bi) for j in 1:D]
         fX̂[i] = fp_rpa.(X̂ib)
     end
     Z = overapproximate.(fX̂, Zonotope)
@@ -228,7 +225,8 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partitio
 end
 
 # evaluate at a given time and overapproximate the resulting set with a zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat) where {N}
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat;
+                         remove_zero_generators=true) where {N}
     @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
 
     X = set(R)
@@ -242,10 +240,9 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     end
     X_Δt = evaluate(X, tn)
     n = dim(R)
-    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
-    Zi = overapproximate(fX̂, Zonotope)
-
+    Zi = overapproximate(fX̂, Zonotope, remove_zero_generators=remove_zero_generators)
     Δt = TimeInterval(t, t)
     return ReachSet(Zi, Δt)
 end
@@ -275,7 +272,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, Δt::Tim
     dtn = IA.Interval(dtn_lo, dtn_hi)
     X_Δt = evaluate(X, dtn)
     n = dim(R)
-    X̂ = [TaylorModelN(X_Δt[j], X[j].rem, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope)
 
@@ -373,7 +370,7 @@ end
 function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                                      orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(Z)
-    x = set_variables("x", numvars=n, order=2*orderQ)
+    x = set_variables("x", numvars=n, order=orderQ)
 
     # check structure
     order(Z) == 2 || throw(ArgumentError("this function requires that the order of the zonotope is 2, got $(order(Z))"))
@@ -395,7 +392,7 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
     # the line segment corresponding to the i-th edge of Z
     @inbounds for i in 1:n
         pi = c[i] + sum(view(M, i, :) .* x)
-        di = D[i, i]
+        di = abs(D[i, i])
         rem = interval(-di, di)
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
@@ -406,7 +403,7 @@ end
 function _overapproximate_structured(Zcp::CartesianProduct{N, <:Zonotope, <:Interval}, ::Type{<:TaylorModelReachSet};
                                      orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(Zcp)
-    x = set_variables("x", numvars=n, order=2*orderQ)
+    x = set_variables("x", numvars=n, order=orderQ)
 
     # check structure
     Z = Zcp.X
@@ -446,7 +443,7 @@ end
 function _overapproximate_structured_full(Zcp::CartesianProduct{N, <:Zonotope, <:Interval}, ::Type{<:TaylorModelReachSet};
                                           orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(Zcp) - 1
-    x = set_variables("x", numvars=n+1, order=2*orderQ)
+    x = set_variables("x", numvars=n+1, order=orderQ)
 
     # check structure
     # not checking structure
@@ -477,6 +474,42 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N, <:Zonotope, <
 
     return TaylorModelReachSet(vTM, Δt)
 end
+
+# ======================
+# Remainder handling
+# ======================
+
+using TaylorModels: shrink_wrapping!
+
+function _shrink_wrapping(R::TaylorModelReachSet)
+    rem = remainder(R)
+    dt = domain(R)
+    n = dim(R)
+
+    # if all remainders are zero => nothing to do
+    all(iszero, rem) && return R
+
+    # transform into a TaylorN whose coeffs are floats
+    X = set(R)
+    Xev = evaluate.(X, dt)
+    W = [TaylorModelN(Xev[i], zeroI, zeroBox(n), symBox(n)) for i in 1:n]
+    Wfp = fp_rpa.(W)
+
+    # absorb remainder in the polynomial part
+    shrink_wrapping!(Wfp)
+
+    # transform back to a TaylorModel1 of TaylorN
+    orderT = get_order(set(R)[1])
+    p = [Taylor1(TaylorN(polynomial(Wfp[i])), orderT) for i in 1:n]
+    Y = [TaylorModel1(p[i], zeroI, zeroI, dt) for i in 1:n]
+
+    return TaylorModelReachSet(Y, tspan(R))
+end
+
+# ======================
+# Intersection methods
+# ======================
+
 
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = is_intersection_empty(set(overapproximate(R, Zonotope)), Y)
