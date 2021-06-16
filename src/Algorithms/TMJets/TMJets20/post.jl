@@ -34,6 +34,14 @@ function post(alg::TMJets20{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     X0tm = _initialize(X0, orderQ, orderT)
 
+    # optionally absorb initial remainder
+    shrink_wrapping = get(kwargs, :shrink_wrapping, true)
+    if shrink_wrapping && isa(X0tm, TaylorModelReachSet)
+        if !all(iszero, remainder(X0tm))
+            X0tm = _shrink_wrapping(X0tm)
+        end
+    end
+
     # preallocate output flowpipe
     F = Vector{TaylorModelReachSet{N}}()
     sizehint!(F, maxsteps)
