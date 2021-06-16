@@ -447,13 +447,13 @@ const _COMB03 = COMB03()
 const _GIR05 = GIR05()
 
 # algorithm selection
-_reduce_order(Z::Zonotope, r::Number; force_reduction::Bool=true) = _reduce_order_GIR05(Z, r, force_reduction=force_reduction) # default
-_reduce_order(Z::Zonotope, r::Number, ::GIR05; force_reduction::Bool=true) = _reduce_order_GIR05(Z, r, force_reduction=force_reduction)
-_reduce_order(Z::Zonotope, r::Number, ::COMB03; force_reduction::Bool=true) = _reduce_order_COMB03(Z, r, force_reduction=force_reduction)
+_reduce_order(Z::Zonotope, r::Number; force_reduction::Bool=false) = _reduce_order_GIR05(Z, r, force_reduction=force_reduction) # default
+_reduce_order(Z::Zonotope, r::Number, ::GIR05; force_reduction::Bool=false) = _reduce_order_GIR05(Z, r, force_reduction=force_reduction)
+_reduce_order(Z::Zonotope, r::Number, ::COMB03; force_reduction::Bool=false) = _reduce_order_COMB03(Z, r, force_reduction=force_reduction)
 
 # zonotope with mixed static array types
 function _reduce_order(Z::Zonotope{N, SVector{n, N}, MMatrix{n, p, N, L}},
-                       r::Number, alg::GIR05; force_reduction::Bool=true) where {n, N, p, L}
+                       r::Number, alg::GIR05; force_reduction::Bool=false) where {n, N, p, L}
     c = Z.center
     G = SMatrix(Z.generators)
     return _reduce_order(Zonotope(c, G), r, alg, force_reduction=force_reduction)
@@ -532,7 +532,7 @@ end
 
 # Implements zonotope order reduction method from [COMB03]
 # We follow the notation from [YS18]
-function _reduce_order_COMB03(Z::Zonotope{N}, r::Number; force_reduction::Bool=true) where {N}
+function _reduce_order_COMB03(Z::Zonotope{N}, r::Number; force_reduction::Bool=false) where {N}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
@@ -561,7 +561,7 @@ end
 
 # Implements zonotope order reduction method from [GIR05]
 # We follow the notation from [YS18]
-function _reduce_order_GIR05(Z::Zonotope{N}, r::Number; force_reduction::Bool=true) where {N}
+function _reduce_order_GIR05(Z::Zonotope{N}, r::Number; force_reduction::Bool=false) where {N}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
