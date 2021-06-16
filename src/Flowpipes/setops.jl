@@ -447,16 +447,16 @@ const _COMB03 = COMB03()
 const _GIR05 = GIR05()
 
 # algorithm selection
-_reduce_order(Z::Zonotope, r::Number) = _reduce_order_GIR05(Z, r) # default
-_reduce_order(Z::Zonotope, r::Number, ::GIR05) = _reduce_order_GIR05(Z, r)
-_reduce_order(Z::Zonotope, r::Number, ::COMB03) = _reduce_order_COMB03(Z, r)
+_reduce_order(Z::Zonotope, r::Number; force_reduction::Bool=true) = _reduce_order_GIR05(Z, r, force_reduction=force_reduction) # default
+_reduce_order(Z::Zonotope, r::Number, ::GIR05; force_reduction::Bool=true) = _reduce_order_GIR05(Z, r, force_reduction=force_reduction)
+_reduce_order(Z::Zonotope, r::Number, ::COMB03; force_reduction::Bool=true) = _reduce_order_COMB03(Z, r, force_reduction=force_reduction)
 
 # zonotope with mixed static array types
 function _reduce_order(Z::Zonotope{N, SVector{n, N}, MMatrix{n, p, N, L}},
-                       r::Number, alg::GIR05) where {n, N, p, L}
+                       r::Number, alg::GIR05; force_reduction::Bool=true) where {n, N, p, L}
     c = Z.center
     G = SMatrix(Z.generators)
-    return _reduce_order(Zonotope(c, G), r, alg)
+    return _reduce_order(Zonotope(c, G), r, alg, force_reduction=force_reduction)
 end
 
 # return the indices of the generators in G (= columns) sorted according to the COMB03 method
@@ -532,14 +532,16 @@ end
 
 # Implements zonotope order reduction method from [COMB03]
 # We follow the notation from [YS18]
-function _reduce_order_COMB03(Z::Zonotope{N}, r::Number) where {N}
+function _reduce_order_COMB03(Z::Zonotope{N}, r::Number; force_reduction::Bool=true) where {N}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
     n, p = size(G)
 
     # r is bigger than the order of Z => don't reduce
-    (r * n >= p) && return Z
+    if !force_reduction
+        (r * n >= p) && return Z
+    end
 
     # this algorithm sort generators by decreasing 2-norm
     indices = Vector{Int}(undef, p)
@@ -559,14 +561,16 @@ end
 
 # Implements zonotope order reduction method from [GIR05]
 # We follow the notation from [YS18]
-function _reduce_order_GIR05(Z::Zonotope{N}, r::Number) where {N}
+function _reduce_order_GIR05(Z::Zonotope{N}, r::Number; force_reduction::Bool=true) where {N}
     r >= 1 || throw(ArgumentError("the target order should be at least 1, but it is $r"))
     c = Z.center
     G = Z.generators
     n, p = size(G)
 
     # r is bigger than the order of Z => don't reduce
-    (r * n >= p) && return Z
+    if !force_reduction
+        (r * n >= p) && return Z
+    end
 
     # this algorithm sorts generators by ||⋅||₁ - ||⋅||∞ difference
     indices = Vector{Int}(undef, p)
