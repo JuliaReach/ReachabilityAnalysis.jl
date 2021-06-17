@@ -127,7 +127,7 @@ end
 # Reach-set plot recipes
 # ========================
 
-@recipe function plot_reachset(R::AbstractLazyReachSet{N};
+@recipe function plot_reachset(R::AbstractReachSet{N};
                                vars=nothing,
                                ε=N(PLOT_PRECISION)) where {N}
     _check_vars(vars)
