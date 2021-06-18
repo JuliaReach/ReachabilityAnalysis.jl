@@ -251,6 +251,11 @@ end
     return is_intersection_empty(set(H), Y)
 end
 
+# used for disjointness check in continuos post-operators
+function _is_intersection_empty(P::HPolyhedron,  Z::Zonotope, ::BoxEnclosure)
+    is_intersection_empty(P, box_approximation(Z))
+end
+
 # in this method we assume that the intersection is non-empty
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::Dummy)
     return false

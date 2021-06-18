@@ -25,7 +25,14 @@ isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
 # options for a-posteriori transformation of a discretized set
 # valid options are:
 # AbstractDirections, Val{:lazy}, Val{:concrete}, Val{:vrep}, Val{:zono}, Val{:zonotope}
-_alias(setops) = setops # no-op
+# _alias(setops) = setops # no-op
+
+_alias(setops::AbstractDirections) = setops
+_alias(setops::Val{:lazy}) = setops
+_alias(setops::Val{:concrete}) = setops
+_alias(setops::Val{:vrep}) = setops
+_alias(setops::Val{:box}) = setops
+_alias(setops::Val{:zono}) = setops
 _alias(setops::Val{:zonotope}) = Val(:zono)
 
 """
@@ -170,7 +177,6 @@ function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:zono}, backend=nothing) 
                             LM<:LinearMap{N, AT, N, MT},
                             BT<:AbstractZonotope, MS<:MinkowskiSum{N, LM}}
     # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
-    println("using new setops")
     A = X.X
     B = X.Y
     return overapproximate(CH(A, concretize(B)), Zonotope)
