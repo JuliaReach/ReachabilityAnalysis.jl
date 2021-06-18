@@ -23,11 +23,17 @@ isinterval(A::IntervalMatrix{N, IT}) where {N, IT<:IA.Interval{N}} = true
 isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
 
 # options for a-posteriori transformation of a discretized set
+# valid options are:
+# AbstractDirections, Val{:lazy}, Val{:concrete}, Val{:vrep}, Val{:zono}, Val{:zonotope}
+# _alias(setops) = setops # no-op
+
 _alias(setops::AbstractDirections) = setops
 _alias(setops::Val{:lazy}) = setops
 _alias(setops::Val{:concrete}) = setops
 _alias(setops::Val{:vrep}) = setops
 _alias(setops::Val{:box}) = setops
+_alias(setops::Val{:zono}) = setops
+_alias(setops::Val{:zonotope}) = Val(:zono)
 
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
@@ -50,7 +56,7 @@ julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
  NoBloating
  StepIntersect
 ```
-    
+
 Different approximation algorithms and their respective options are described
 in the docstring of each method, e.g. [`Forward`](@ref).
 
@@ -163,4 +169,15 @@ function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) 
     end
 
     return out
+end
+
+# give X = CH(X₀, ΦX₀ ⊕ E₊), return a zonotope overapproximation
+function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:zono}, backend=nothing) where {N,
+                            AT<:AbstractZonotope{N}, MT,
+                            LM<:LinearMap{N, AT, N, MT},
+                            BT<:AbstractZonotope, MS<:MinkowskiSum{N, LM}}
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    A = X.X
+    B = X.Y
+    return overapproximate(CH(A, concretize(B)), Zonotope)
 end

@@ -12,6 +12,7 @@ Abstract supertype for all exponentiation algorithms.
 """
 abstract type AbstractExpAlg end
 
+# FIXME use _alias_exp to distinguish from setops
 # no-op
 _alias(alg::AbstractExpAlg) = alg
 
