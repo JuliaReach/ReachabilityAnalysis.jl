@@ -56,6 +56,8 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
 import Base: ∈, convert
 import LinearAlgebra: normalize
 
+import CommonSolve: solve # common solve name
+
 # ======================
 # Useful constants
 # ======================
