@@ -61,6 +61,10 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # run the continuous-post operator
     F = post(cpost, ivp, tspan; kwargs...)
 
+    _solve_return(ivp, F, cpost, args...; kwargs...)
+end
+
+function _solve_return(ivp::IVP{<:AbstractContinuousSystem}, F, cpost, args...; kwargs...)
     got_ensemble = get(kwargs, :ensemble, false)
     if got_ensemble
         @requires DifferentialEquations
@@ -72,7 +76,6 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
         # wrap the flowpipe and algorithm in a solution structure
         sol = ReachSolution(F, cpost)
     end
-
     return sol
 end
 
