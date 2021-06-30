@@ -634,3 +634,62 @@ function _homogeneize_stateset(X::HalfSpace{N}) where {N}
     a′ = vcat(X.a, zero(N))
     HalfSpace(a′, X.b)
 end
+
+
+#==============================
+WIP: issue #366
+==============================#
+function _homogeneize_state_matrix(A::MN, B::MN) where {N, MN<:AbstractMatrix{N}}
+    C = hcat(A,B)
+    return vcat(C, zeros(N, size(C)))
+end
+
+_homogeneize_initial_state(X0::Singleton{N}, Y0::MN) where {N, MN<:AbstractVector{N}} = Singleton(vcat(element(X0),Y0))
+_homogeneize_initial_state(X0::Singleton{N}, Y0::Singleton{N}) where {N} = _homogeneize_initial_state(X0,element(Y0))
+
+_homogeneize_initial_state(X0::LazySet{N}, Y0::Singleton{N}) where {N} =  X0 × Y0
+_homogeneize_initial_state(X0::LazySet{N}, Y0::VT) where {N, VT<:AbstractVector{N}} = _homogeneize_initial_state(X0, Singleton(Y0))
+
+function _homogeneize_stateset(X::LazySet,U::LazySet)
+    X × Universe(dim(U))
+end
+_homogeneize_stateset(X::LazySet{N},U::VT) where {N, VT<:AbstractVector{N}} = _homogeneize_stateset(X,Singleton(U))
+
+homogeneize(ivp::IVP{ContinuousIdentitySystem,ST}) where {ST} = ivp
+
+homogeneize(ivp::IVP{ConstrainedContinuousIdentitySystem{XT} ,ST}) where {N, XT<:LazySet{N}, ST} = ivp
+
+function homogeneize(ivp::IVP{AffineContinuousSystem{N, MT, VT}, ST}) where {N, MT<:AbstractMatrix{N}, VT<:AbstractVector{N}, ST}
+    # homogeneized state matrix
+    A = state_matrix(ivp)
+    c = affine_term(ivp)
+    Â = _homogeneize_state_matrix(A, Singleton(c))
+    # homogeneized input set
+    X0 = initial_state(ivp)
+    Y0 = _homogeneize_initial_state(X0)
+    ivph = IVP(LinearContinuousSystem(Â),Y0)
+    return ivph
+end
+
+function homogeneize(ivp::IVP{LinearControlContinuousSystem{N, MT, MT}, ST}) where {N, MT<:AbstractMatrix{N}, ST}
+    println("NOT USED")
+end
+
+function homogeneize(ivp::IVP{AffineControlContinuousSystem{N, MT, MT,VT}, ST}) where {N, MT<:AbstractMatrix{N}, VT<:AbstractVector{N}, ST}
+    println("NOT USED")
+end
+
+function homogeneize(ivp::IVP{ConstrainedLinearControlContinuousSystem{N,MT,MT,XT,VT},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, VT<:AbstractVector{N}, ST<:LazySet{N}}
+    # homogeneized state matrix
+    A = state_matrix(ivp)
+    B = input_matrix(ivp)
+    Â = _homogeneize_state_matrix(A, B)
+    # homogeneized input set
+    X0 = initial_state(ivp)
+    Z0 = inputset(ivp)
+    Y0 = _homogeneize_initial_state(X0,Z0)
+    # homogeneized state set
+    Y = _homogeneize_stateset(stateset(ivp),Z0)
+    ivph = IVP(CLCS(Â, Y), Y0)
+    return ivph
+end
