@@ -187,17 +187,23 @@ function _decompose(X::LazySet{N},
     return CartesianProductArray(result)
 end
 
-# split the symmetric box [-1, 1]^n in nparts in each dimension
+# split the symmetric box [-1, 1]^n in nparts in each dimension,
+# resulting in n^nparts boxes
 function _split_symmetric_box(n::Int, nparts::Int)
     return IA.mince(symBox(n), nparts)
 end
 
-# split the symmetric box [-1, 1]^n in partition[i] parts for each dimension
-function _split_symmetric_box(D::Int, partition::Vector{Int})
-    S = BallInf(zeros(D), 1.0)
+# split the symmetric box [-1, 1]^n in partition[i] parts for each dimension,
+# resulting in prod(D^partition[i] for i in 1:n) boxes
+function _split_symmetric_box(n::Int, partition::Vector{Int})
+    S = BallInf(zeros(n), 1.0)
     Sp = split(S, partition)
     return convert.(IA.IntervalBox, Sp)
 end
+
+#function _split_symmetric_box(D::Int, partition::Vector{Int})
+#    reutrn IA.nice(symBox(n), partition)
+#end
 
 # =========================
 # Overapproximation

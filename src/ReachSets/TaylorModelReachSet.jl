@@ -55,6 +55,85 @@ function project(R::TaylorModelReachSet, vars::NTuple{D, M}) where {D, M<:Intege
 end
 
 # ======================
+# Evaluation methods
+# ======================
+
+#
+# FIXME refactor to ReachabilityAnalysis.jl
+#
+using ReachabilityAnalysis: symBox
+
+function TaylorModels.evaluate(R::TaylorModelReachSet{N}, t=tspan(R), B::IntervalBox{D, N}=symBox(dim(R));
+                               partition=nothing, nsdiv=1, ntdiv=1) where {D, N}
+
+    @assert B ⊆ symBox(D)
+    X = set(R)
+
+    # renormalize dt
+    #= FIXME edge cases (evaluating at domain(R).lo or domain(R).hi may have issues...)
+    dtn = domain(R)
+    if t == tstart(R)
+        dt = zero(N)
+    elseif t == tend(R)
+        dt = dtn.hi
+    else
+        dt = t - tstart(R)
+    end
+``  =#
+    tn = t - tstart(R)
+
+    # time domain splittig
+    if isa(tn, IntervalArithmetic.Interval) && ntdiv > 1
+        Δtdiv = IntervalArithmetic.mince(tn, ntdiv)
+    else
+        Δtdiv = tn
+    end
+
+    @assert partition == nothing && nsdiv == 1 && ntdiv == 1
+
+    Xdt = evaluate(X, tn)
+
+    return IntervalBox(_evaluate(Xdt, B))
+end
+
+_evaluate(X, B::IntervalBox) = evaluate.(X, Ref(B))
+
+# ======================
+# Random Sampling
+# ======================
+
+LazySets.sample(R::AbstractLazyReachSet, args...; kwargs...) = sample(set(R), args...; kwargs...)
+
+LazySets.sample(R::IA.Interval) = sample(convert(Interval, R))[1]
+LazySets.sample(R::IA.Interval, nsamples) = sample(convert(Interval, R), nsamples)
+
+LazySets.sample(R::IA.IntervalBox) = sample(convert(Hyperrectangle, R))
+LazySets.sample(R::IA.IntervalBox, nsamples) = sample(convert(Hyperrectangle, R), nsamples)
+
+LazySets.sample(R::TaylorModelReachSet{N}) where {N} = sample(R)[1]
+
+function LazySets.sample(R::TaylorModelReachSet{N}, nsamples) where {N}
+    X = set(R)
+
+    # sample time domain
+    tsamples = sample(domain(R), nsamples)
+
+    # sample spatial domain
+    S = symBox(dim(R))
+    spsamples = sample(S, nsamples)
+
+    res = Vector{Vector{N}}()
+    for i in 1:nsamples
+        ti = tsamples[i]
+        x = spsamples[i]
+        y = evaluate(evaluate(X, ti), x)
+        ym = mid.(y)
+        push!(res, ym)
+    end
+    return res
+end
+
+# ======================
 # Intersection methods
 # ======================
 
@@ -214,22 +293,12 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
 
     # partition the symmetric box
     S = symBox(D)
-    if isnothing(partition)
-        if nsdiv == 1
-            partition = [S]
-
-        else
-            # FIXME (also below) may use IntervalArithmetic.mince directly
-            partition = fill(nsdiv, D)
-            Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
-            partition = convert.(IntervalBox, Sdiv)
-        end
-
+    if nsdiv == 1 && isnothing(partition)
+        partition = [S]
     else
-        Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
-        partition = convert.(IntervalBox, Sdiv)
+        part = _split_symmetric_box(D, partition)
     end
-    nparts = length(partition)
+    nparts = length(part)
 
     # preallocate output vectors
     ST = Hyperrectangle{N, SVector{D, N}, SVector{D, N}}
@@ -237,10 +306,11 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     R̂out = Vector{ReachSet{N, ST}}(undef, nparts * ntdiv)
 
     # evaluate the spatial variables in the symmetric box
-    @inbounds for k in 1:ntdiv
+    for k in 1:ntdiv
+        Xk = X_Δt[k]
         for j in 1:nparts
-            Bj = partition[j]
-            Xk = X_Δt[k]
+            Bj = part[j]
+
             X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:D])
 
             idx = j + (k-1)*nparts
@@ -254,7 +324,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
 end
 
 # overapproximate taylor model reachset with one zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
+function _overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
     # dimension of the reachset
     n = dim(R)
 
