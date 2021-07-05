@@ -56,6 +56,11 @@ function reconstruct(R::ReachSet, Y::LazySet)
     return ReachSet(Y, tspan(R))
 end
 
+# constructor with a time point
+function ReachSet(X::ST, t::N) where {N, ST<:LazySet{N}}
+    return ReachSet(X, interval(t))
+end
+
 #=
 # specialized concrete projection of zonotopic set by removing zero generators
 function linear_map(R::ReachSet{N, <:AbstractZonotope{N}}, variables::NTuple{D, M}; check_vars::Bool=true) where {D, M<:Integer}
