@@ -69,6 +69,8 @@ A hyperrectangle.
 
 We compute `H^{⊗ pow}` where `H` is a hyperrectangular set by working with `H`
 as a product of intervals.
+
+See also `kron_pow` which requires `DynamicPolynomials.jl`.
 """
 function kron_pow(H::AbstractHyperrectangle, pow::Int)
     x = [Interval(low(H, j), high(H, j)) for j in 1:dim(H)]
@@ -169,6 +171,28 @@ function kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
     else
         return kron(x, kron_pow(x, pow-1))
     end
+end
+
+# FIXME add a dependency on DynamicPolynomials.jl
+function kron_pow(H::AbstractHyperrectangle{N}, pow::Int, x::Vector{<:AbstractVariable}) where {N}
+    n = dim(H)
+    @assert n == length(x)
+    #@polyvar x[1:n]
+    B = convert(IntervalBox, H)
+    dict = Dict((x[i] => i for i in 1:n)...)
+    y = kron_pow(x, pow)
+
+    out = Vector{IA.Interval{N}}(undef, length(y))
+    for (i, p) in enumerate(y)
+        aux = interval(1)
+        for (xj, j) in powers(p)
+            aux = aux * B[dict[xj]]^j
+        end
+        out[i] = aux
+    end
+    Bpow = IntervalBox(out)
+    Hpow = convert(Hyperrectangle, Bpow)
+    return Hpow
 end
 
 """
