@@ -72,7 +72,24 @@ as a product of intervals.
 
 See also `kron_pow` which requires `DynamicPolynomials.jl`.
 """
-function kron_pow(H::AbstractHyperrectangle, pow::Int)
+function kron_pow(H::AbstractHyperrectangle, pow::Int, algorithm=nothing)
+    if isnothing(algorithm)
+        if isdefined(@__MODULE__, :DynamicPolynomials)
+            algorithm = "symbolic"
+        else
+            algorithm = "explicit"
+        end
+    end
+    if algorithm == "explicit"
+        return _kron_pow_explicit(H, pow)
+    elseif algorithm == "symbolic"
+        return _kron_pow_symbolic(H, pow)
+    else
+        throw(ArgumentError("algorithm \"$algorithm\" is not known"))
+    end
+end
+
+function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
     x = [Interval(low(H, j), high(H, j)) for j in 1:dim(H)]
     r = reduce(kron, fill(x, pow))
 
@@ -126,9 +143,8 @@ end
 function load_kron_dynamicpolynomials()
 return quote
 
-function kron_pow(H::AbstractHyperrectangle{N}, pow::Int, x::Vector{<:AbstractVariable}) where {N}
+function _kron_pow_symbolic(H::AbstractHyperrectangle{N}, pow::Int) where {N}
     n = dim(H)
-    @assert n == length(x)
     @polyvar x[1:n]
     B = convert(IntervalBox, H)
     dict = Dict((x[i] => i for i in 1:n)...)
