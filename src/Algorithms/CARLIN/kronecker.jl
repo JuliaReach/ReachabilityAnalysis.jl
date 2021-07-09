@@ -72,7 +72,24 @@ as a product of intervals.
 
 See also `kron_pow` which requires `DynamicPolynomials.jl`.
 """
-function kron_pow(H::AbstractHyperrectangle, pow::Int)
+function kron_pow(H::AbstractHyperrectangle, pow::Int, algorithm=nothing)
+    if isnothing(algorithm)
+        if isdefined(@__MODULE__, :DynamicPolynomials)
+            algorithm = "symbolic"
+        else
+            algorithm = "explicit"
+        end
+    end
+    if algorithm == "explicit"
+        return _kron_pow_explicit(H, pow)
+    elseif algorithm == "symbolic"
+        return _kron_pow_symbolic(H, pow)
+    else
+        throw(ArgumentError("algorithm \"$algorithm\" is not known"))
+    end
+end
+
+function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
     x = [Interval(low(H, j), high(H, j)) for j in 1:dim(H)]
     r = reduce(kron, fill(x, pow))
 
@@ -118,6 +135,35 @@ function kron_pow_stack(H::AbstractHyperrectangle, pow::Int)
     out = [kron_pow(H, i) for i in 1:pow]
     return CartesianProductArray(out)
 end
+
+# ------------------------------------------------------------
+# Functionality that requires MultivariatePolynomials.jl
+# ------------------------------------------------------------
+
+function load_kron_dynamicpolynomials()
+return quote
+
+function _kron_pow_symbolic(H::AbstractHyperrectangle{N}, pow::Int) where {N}
+    n = dim(H)
+    @polyvar x[1:n]
+    B = convert(IntervalBox, H)
+    dict = Dict((x[i] => i for i in 1:n)...)
+    y = kron_pow(x, pow)
+
+    out = Vector{IA.Interval{N}}(undef, length(y))
+    for (i, p) in enumerate(y)
+        aux = interval(1)
+        for (xj, j) in powers(p)
+            aux = aux * B[dict[xj]]^j
+        end
+        out[i] = aux
+    end
+    Bpow = IntervalBox(out)
+    Hpow = convert(Hyperrectangle, Bpow)
+    return Hpow
+end
+
+end end  # quote / load_kron_dynamicpolynomials()
 
 # ------------------------------------------------------------
 # Functionality that requires MultivariatePolynomials.jl
@@ -171,28 +217,6 @@ function kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
     else
         return kron(x, kron_pow(x, pow-1))
     end
-end
-
-# FIXME add a dependency on DynamicPolynomials.jl
-function kron_pow(H::AbstractHyperrectangle{N}, pow::Int, x::Vector{<:AbstractVariable}) where {N}
-    n = dim(H)
-    @assert n == length(x)
-    #@polyvar x[1:n]
-    B = convert(IntervalBox, H)
-    dict = Dict((x[i] => i for i in 1:n)...)
-    y = kron_pow(x, pow)
-
-    out = Vector{IA.Interval{N}}(undef, length(y))
-    for (i, p) in enumerate(y)
-        aux = interval(1)
-        for (xj, j) in powers(p)
-            aux = aux * B[dict[xj]]^j
-        end
-        out[i] = aux
-    end
-    Bpow = IntervalBox(out)
-    Hpow = convert(Hyperrectangle, Bpow)
-    return Hpow
 end
 
 """
