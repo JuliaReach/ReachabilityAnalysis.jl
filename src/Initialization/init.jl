@@ -53,7 +53,7 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, is_intersection_empty, directions,
                  linear_map, LinearMap, _split, split!, set, array, _isapprox
 
-import Base: ∈, convert
+import Base: ∈, ∩, convert
 import LinearAlgebra: normalize
 
 import CommonSolve: solve # common solve name

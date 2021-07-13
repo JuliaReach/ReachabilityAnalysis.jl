@@ -399,6 +399,8 @@ end
 
 # compute the matrix Φ₂ = A^{-2} (exp(A*δ) - I - A*δ) assuming that A is invertible
 # and explicitly computing inv(A); this function optionally receives Φ = exp(Aδ)
+# FIXME don't pass algorithm since it is ignore if Φ is given
+#@time Φ2 = ReachabilityAnalysis._Φ₂_inv(abs.(A), δ, ReachabilityAnalysis.BaseExp, Φ);
 function _Φ₂_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     Aδ = A * δ
     if isnothing(Φ)
@@ -408,7 +410,7 @@ function _Φ₂_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     N = eltype(A)
     In = Matrix(one(N)*I, n, n)
     B = Φ - In - Aδ
-    Ainv = inv(A)
+    Ainv = inv(Matrix(A))
     Ainvsqr = Ainv^2
     return Ainvsqr * B
 end

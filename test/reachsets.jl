@@ -8,6 +8,10 @@
     # constructor with a time point
     R = ReachSet(X, 1.0)
     @test tspan(R) == interval(1.0)
+
+    # if the time is an integer, it is converted to a float
+    R = ReachSet(X, 1)
+    @test tspan(R) == interval(1.0)
 end
 
 @testset "Reach-set projections" begin
