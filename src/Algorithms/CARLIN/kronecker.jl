@@ -137,7 +137,7 @@ function kron_pow_stack(H::AbstractHyperrectangle, pow::Int)
 end
 
 # ------------------------------------------------------------
-# Functionality that requires MultivariatePolynomials.jl
+# Functionality that requires DynamicPolynomials.jl
 # ------------------------------------------------------------
 
 function load_kron_dynamicpolynomials()
