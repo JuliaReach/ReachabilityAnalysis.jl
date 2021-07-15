@@ -369,7 +369,7 @@ Aδ && δI_n && 0 \\\\
 It can be shown that
 ```math
 \\exp(P_{3n}) = \\begin{pmatrix}
-Φ(A, δ) && Φ₁(A, δ) && 0 \\\\
+Φ(A, δ) && Φ₁(A, δ) && Φ₂(A, δ) \\\\
 0 && 0     && δI_n \\\\
 0 && 0     && 0
 \\end{pmatrix}.
