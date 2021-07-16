@@ -408,7 +408,7 @@ function _Φ₂_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     N = eltype(A)
     In = Matrix(one(N)*I, n, n)
     B = Φ - In - Aδ
-    Ainv = inv(A)
+    Ainv = inv(Matrix(A))
     Ainvsqr = Ainv^2
     return Ainvsqr * B
 end

@@ -25,10 +25,28 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
     end
 
     # discretize system
-    ivp_discr = discretize(ivp_norm, δ, approx_model)
-    Φ = state_matrix(ivp_discr)
-    Ω₀ = initial_state(ivp_discr)
-    X = stateset(ivp_discr)
+    #@time ivp_discr = discretize(ivp_norm, δ, approx_model)
+    #Φ = state_matrix(ivp_discr)
+    #Ω₀ = initial_state(ivp_discr)
+    #X = stateset(ivp_discr)
+
+    # temp
+    A = ivp_norm.s.A
+    n = size(A, 1)
+    X0 = ivp_norm.x0
+    @assert isa(X0, Hyperrectangle)
+    aux0 = Matrix(A .* δ)
+    Φ = exp(aux0)
+    # sih(A^2 * X0)
+    A2 = A^2
+    aux1 = Hyperrectangle(zeros(n), abs.(A2 * X0.center) + abs.(A2) * X0.radius)
+    B = Φ - Matrix(1.0I, n, n) - aux0
+    invA = inv(Matrix(A))
+    phi2 = invA^2 * B
+    # sih(phi2 * aux1)
+    Eplus = Hyperrectangle(zeros(n), abs.(phi2) * aux1.radius)
+    Ω₀ = CH(X0, Φ*X0 ⊕ Eplus) # box_approximation ?
+    X = Universe(n)
 
     if alg.sparse # ad-hoc conversion of Φ to sparse representation
         Φ = sparse(Φ)
@@ -37,7 +55,7 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
     cacheval = Val(alg.cache)
 
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
-    got_homogeneous = !hasinput(ivp_discr)
+    got_homogeneous = true # !hasinput(ivp_discr)
 
     # NOTE: option :static currently ignored!
 
