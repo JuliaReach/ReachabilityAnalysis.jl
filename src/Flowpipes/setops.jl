@@ -390,6 +390,10 @@ function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
     HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
+function Base.:(*)(M::AbstractMatrix, X::UnionSetArray{N, <:AbstractSingleton{N}}) where {N}
+    return UnionSetArray([linear_map(M, p) for p in array(X)])
+end
+
 """
     relative_error(x, x_ref)
 

@@ -271,6 +271,11 @@ function LazySets.affine_map(M, b, fp::Flowpipe)
     return Flowpipe(out, fp.ext)
 end
 
+function LazySets.translate(fp::Flowpipe, v::AbstractVector)
+    out = [reconstruct(R, translate(set(R), v)) for R in fp]
+    return Flowpipe(out, fp.ext)
+end
+
 # lazy intersection
 # use the flag `filter` (optional, default: `true`) to remove empty sets
 @commutative function Base.:∩(fp::Flowpipe, X::LazySet; filter=true)
