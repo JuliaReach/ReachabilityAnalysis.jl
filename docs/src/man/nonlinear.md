@@ -177,37 +177,21 @@ using parentheses:
 end
 ```
 
-### Why do I get an `ArgumentError` when trying to plot a solution?
+### How are solutions obtained with Taylor models methods plotted?
 
-For flowpipes computed using algorithm `TMJets`, the representation is a
-*Taylor model flowpipe*, and as such we don't have methods to visualize them exactly.
-However, to reason about such flowpipes, either for plotting or performing set-based
-operations, we can *overapproximate* them with other set representations
--- usually, convex sets such as boxes or zonotopes--. For instance, the command
-`overapproximate(sol, Zonotope)` applies `overapproximate(Ri, Zonotope)` for each
-reach-set `Ri` in the solution `sol`.
+Flowpipes computed using algorithm `TMJets` (or its variations),
+use Taylor model reach-set representations (`TaylorModelReachSet`),
+which define an implicit set in time and in space. Since exact visualization of
+such objects is difficult (and often unnecessary), we resort to an outer approximation
+with simpler sets. Either for plotting or performing set-based operations, we
+can *overapproximate* a `TaylorModelReachSet` with other set representations -- usually,
+convex sets such as boxes or zonotopes--. The command `overapproximate(sol, Zonotope)`
+applies `overapproximate(Ri, Zonotope)` for each reach-set `Ri` in the solution `sol`.
 
-!!! note
-    The default plotting behavior may change in the future, see discussion in
-    issue [#173](https://github.com/JuliaReach/ReachabilityAnalysis.jl/issues/173).
-
-**Example.** Consider the differential equation `x'(t) = x^2(t) - 1`, given the interval
-initial condition `[0.4, 0.5]`:
-
-```julia
-function f!(dx, x, p, t)
-    dx[1] = x[1]^2 - 1.0
-end
-prob = @ivp(x' = f!(x), dim: 1, x(0) ∈ 0.4 .. 0.5)
-sol = solve(prob, T=10.0)
-```
-Trying to plot the solution with the command `plot(sol, vars=(1, 2))` will fail with
-an `ArgumentError`. However, you can plot the zonotopic overapproximation of this flowpipe:
-
-```julia
-solz = overapproximate(sol, Zonotope)
-plot(solz, vars=(0, 1))
-```
+By default, when plotting the solution obtained with such solvers, the zonotopic
+overapproximation of the flowpipe is used, with a single zonotope
+per Taylor model reach-set. Such approximation, while it is generally coarse,
+is often sufficient for visualization purposes.
 
 ### Equations with constant terms (`BoundsError`)
 

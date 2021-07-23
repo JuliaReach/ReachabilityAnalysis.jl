@@ -7,8 +7,10 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       RecipesBase,                 # plotting
       Parameters,                  # structs with kwargs
       StaticArrays,                # statically sized arrays
-      RecursiveArrayTools,         # vector of arrays type
-      ExprTools                    # manipulate function definition expressions
+      RecursiveArrayTools          # vector of arrays type
+
+# manipulate function definition expressions
+using ExprTools: splitdef, combinedef
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -53,6 +55,7 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, is_intersection_empty, directions,
                  linear_map, LinearMap, _split, split!, set, array, _isapprox
 
+import MathematicalSystems: discretize
 import Base: ∈, convert
 import LinearAlgebra: normalize
 
