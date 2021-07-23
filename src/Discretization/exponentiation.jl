@@ -370,8 +370,8 @@ It can be shown that
 ```math
 \\exp(P_{3n}) = \\begin{pmatrix}
 Φ(A, δ) && Φ₁(A, δ) && Φ₂(A, δ) \\\\
-0 && 0     && δI_n \\\\
-0 && 0     && 0
+0 && I_n     && δI_n \\\\
+0 && 0     && I_n
 \\end{pmatrix}.
 ```
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₂ = P_{3n}[1:n, (2*n+1):3*n]`.
