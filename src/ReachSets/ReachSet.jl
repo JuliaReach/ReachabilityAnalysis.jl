@@ -57,7 +57,7 @@ function reconstruct(R::ReachSet, Y::LazySet)
 end
 
 # constructor with a time point
-function ReachSet(X::ST, t::N) where {N, ST<:LazySet{N}}
+function ReachSet(X::ST, t::Real) where {N, ST<:LazySet{N}}
     return ReachSet(X, interval(t))
 end
 

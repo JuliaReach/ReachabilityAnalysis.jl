@@ -111,25 +111,21 @@ end
 # evaluate a flowpipe at a given time interval: gives possibly more than one reach set
 # i.e. first and last sets and those in between them
 function (fp::Flowpipe)(dt::TimeInterval)
-    # here we assume that indices are one-based, ie. form 1 .. n
-    firstidx = 0
-    lastidx = 0
+    idx = Vector{Int}()
     α = inf(dt)
     β = sup(dt)
     Xk = array(fp)
     for (i, X) in enumerate(Xk)
-        if α ∈ tspan(X)
-            firstidx = i
-        end
-        if β ∈ tspan(X)
-            lastidx = i
+        if !isempty(tspan(X) ∩ dt)
+            push!(idx, i)
         end
     end
-    if firstidx == 0 || lastidx == 0
-        throw(ArgumentError("the time interval $dt is not contained in the time span, " *
+
+    if isempty(idx)
+        throw(ArgumentError("the time interval $dt does not intersect the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
-    return view(Xk, firstidx:lastidx)
+    return view(Xk, idx)
 end
 
 # concrete projection of a flowpipe along variables `vars`
@@ -271,8 +267,37 @@ function LazySets.linear_map(M, fp::Flowpipe)
 end
 
 function LazySets.affine_map(M, b, fp::Flowpipe)
-    out = [ReachSet(affine_map(M, set(R), b), tspan(R)) for R in fp]
+    out = [reconstruct(R, affine_map(M, set(R), b)) for R in fp]
     return Flowpipe(out, fp.ext)
+end
+
+function LazySets.translate(fp::Flowpipe, v::AbstractVector)
+    out = [reconstruct(R, translate(set(R), v)) for R in fp]
+    return Flowpipe(out, fp.ext)
+end
+
+# lazy intersection
+# use the flag `filter` (optional, default: `true`) to remove empty sets
+@commutative function Base.:∩(fp::Flowpipe, X::LazySet; filter=true)
+    out = [reconstruct(R, set(R) ∩ X) for R in fp]
+
+    if filter
+        # keep the sets which are not empty
+        filter!(!isempty, out)
+    end
+    return Flowpipe(out, fp.ext)
+end
+
+# concrete intersection
+# use the flag `filter` (optional, default: `true`) to remove empty sets
+@commutative function LazySets.intersection(fp::Flowpipe, X::LazySet; filter=true)
+    out = [reconstruct(R, intersection(set(R), X)) for R in fp]
+
+    if filter
+        # keep the sets which are not empty
+        filter!(!isempty, out)
+    end
+    return Flowpipe(identity.(out), fp.ext)
 end
 
 # --------------------------------------------
