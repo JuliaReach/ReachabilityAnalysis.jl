@@ -25,6 +25,10 @@ using LazySets.Arrays: SingleEntryVector
     dirs_1_3 = [SingleEntryVector(1, 5, 1.0), SingleEntryVector(3, 5, 1.0),
                 SingleEntryVector(1, 5, -1.0), SingleEntryVector(3, 5, -1.0)]
     @test collect(alg.template) == dirs_1_3
+
+    # alias using dim
+    alg2 = LGG09(δ=0.01, vars=(1, 3), dim=5)
+    @test collect(alg2.template) == dirs_1_3
 end
 
 @testset "LGG09 algorithm: 1d" begin
