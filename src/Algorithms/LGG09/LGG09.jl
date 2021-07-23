@@ -13,6 +13,9 @@ using support functions.
                     see `Notes` below for possible options
 - `template`     -- (alias: `dirs`) struct that holds the directions (either lazily or concretely)
                     for each support function evaluation defining the template
+- `vars`         -- (optional, default: all variables are computed) an integer or a vector of integers
+                    specifying the variables of interest to automatically construct a template
+                    using canonical directions; requires that `n` (or `dim`) is specified as well
 - `static`       -- (optional, default: `false`) if `true`, use statically sized arrays
 - `threaded`     -- (optional, default: `false`) if `true`, use multi-threading
                     to compute different template directions in parallel
@@ -60,14 +63,21 @@ function LGG09(; δ::N,
                dirs=nothing, # alias for template
                vars=missing, # shortcut to specify variables of interest
                n=missing,    # required to construct the template from vars
+               dim=missing,  # alias for n
                static::Bool=false,
                threaded::Bool=false,
                sparse::Bool=false,
                cache::Bool=true) where {N, AM}
 
     if !ismissing(vars)
-        ismissing(n) && throw(ArgumentError("the ambient dimension, `n`, should be specified"))
-        directions = _get_template(vars, n)
+        if !ismissing(n)
+            _n = n
+        elseif !ismissing(dim)
+            _n = dim
+        else
+            throw(ArgumentError("the ambient dimension, `n` (or `dim`), should be specified"))
+        end
+        directions = _get_template(vars, _n)
     elseif !isnothing(dirs)
         directions = _get_template(dirs)
     elseif !isnothing(template)

@@ -73,6 +73,10 @@ as a product of intervals.
 See also `kron_pow` which requires `DynamicPolynomials.jl`.
 """
 function kron_pow(H::AbstractHyperrectangle, pow::Int, algorithm=nothing)
+    if pow == 1
+        return H
+    end
+
     if isnothing(algorithm)
         if isdefined(@__MODULE__, :DynamicPolynomials)
             algorithm = "symbolic"
@@ -137,7 +141,7 @@ function kron_pow_stack(H::AbstractHyperrectangle, pow::Int)
 end
 
 # ------------------------------------------------------------
-# Functionality that requires MultivariatePolynomials.jl
+# Functionality that requires DynamicPolynomials.jl
 # ------------------------------------------------------------
 
 function load_kron_dynamicpolynomials()
