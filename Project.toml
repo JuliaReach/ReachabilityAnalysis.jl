@@ -1,7 +1,7 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
 authors = ["mforets <mforets@gmail.com>", "schillic <christian.schilling@ist.ac.at>", "dfcaporale <dfcaporale@gmail.com>"]
-version = "0.14.17"
+version = "0.15.0"
 
 [deps]
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
