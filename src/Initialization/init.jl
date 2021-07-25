@@ -7,8 +7,10 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       RecipesBase,                 # plotting
       Parameters,                  # structs with kwargs
       StaticArrays,                # statically sized arrays
-      RecursiveArrayTools,         # vector of arrays type
-      ExprTools                    # manipulate function definition expressions
+      RecursiveArrayTools          # vector of arrays type
+
+# manipulate function definition expressions
+using ExprTools: splitdef, combinedef
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -53,7 +55,8 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, is_intersection_empty, directions,
                  linear_map, LinearMap, _split, split!, set, array, _isapprox
 
-import Base: ∈, convert
+import MathematicalSystems: discretize
+import Base: ∈, ∩, convert
 import LinearAlgebra: normalize
 
 import CommonSolve: solve # common solve name
@@ -121,6 +124,9 @@ function __init__()
 
     # tools for symbolic algebra
     @require MultivariatePolynomials = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3" include("init_MultivariatePolynomials.jl")
+
+    # sparse dynamic representation of multivariate polynomials
+    @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
 end
 
 # ===========================

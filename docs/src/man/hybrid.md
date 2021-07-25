@@ -21,6 +21,20 @@ TODO: definition of HA
 
 TODO: high-level description of the hybrid solve
 
+## Flowpipe-guard intersections
+
+In this section we illustrate the available methods to compute flowpipe-guard intersections. We will see how to use the function `cluster` to select a clustering strategies to cope with the case when there are several intersecting sets. We will also show examples of choosing different intersection templates.
+
+We'll take for our running example a two-dimensional rotating system with dynamics
+
+```math
+ \begin{aligned}
+   \dot{x} &= y \\
+   \dot{y} &= - x
+\end{aligned}
+```
+and define the guard ``G: \\{(x, y) \in \\mathbb{R}^2: x ≥ 1.3 \\}``.
+
 ## Customizing the solver
 
 TODO: further examples on how to customize the discrete post-operator

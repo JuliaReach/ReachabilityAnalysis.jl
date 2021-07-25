@@ -61,8 +61,11 @@ end
     @test F(1.0) == F[end]
     @test F(0.05 .. 0.15) == F[1:2]
 
-    # time interval not contained in flowpipe
-    @test_throws ArgumentError F(0.05 .. 1.05)
+    # time interval *not* strictly contained in flowpipe returns a subset
+    @test tspan(F(0.05 .. 1.05)) == tspan(F)
+
+    # time interval totally outside the flowpipe returns an error
+    @test_throws ArgumentError F(2 .. 3)
 
     # test that in the border of the time transition we get two reachsets
     F = flowpipe(sol)

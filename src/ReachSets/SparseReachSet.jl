@@ -63,3 +63,8 @@ end
 function reconstruct(R::SparseReachSet, Y::LazySet)
     return SparseReachSet(Y, tspan(R), vars(R))
 end
+
+# constructor with a time point
+function SparseReachSet(X::ST, t::Real, vars::AbstractVector) where {N, ST<:LazySet{N}}
+    return SparseReachSet(X, interval(t), vars)
+end
