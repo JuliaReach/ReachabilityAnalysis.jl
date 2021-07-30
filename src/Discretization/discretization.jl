@@ -101,11 +101,14 @@ include("CorrectionHull.jl")
 # Intersect one step forward in time with one step backward
 include("StepIntersect.jl")
 
+# Forward approximation from d/dt
+include("ForwardDdt.jl")
+
 # =========================================================================
 # Alternatives to apply the set operation depending on the desired output
 # =========================================================================
 
-function _apply_setops(X, alg::Forward)
+function _apply_setops(X, alg::AbstractApproximationModel)
     if hasbackend(alg)
         _apply_setops(X, alg.setops, alg.backend)
     else
