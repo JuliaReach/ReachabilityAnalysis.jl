@@ -49,7 +49,7 @@ computing suitable over-approximations (or under-approximations) of it.
 
 ## Set representations
 
-Subets of $\mathbb{R}^n$ can be represented in different ways. Depending on the
+Subsets of $\mathbb{R}^n$ can be represented in different ways. Depending on the
 type of operation that we want to apply, one set representation may be more convenient
 than another one. There are two important characteristics:
 
@@ -57,7 +57,7 @@ than another one. There are two important characteristics:
 
 - **Cost:** To measure the cost of making a given operation on a set, we consider the total number of binary operations, denoted with $\mathrm{Op}(\cdot)$. (....)
 
-In the rest of this sectio we define the usual set representations used in reachability analysis and recall some fundamental properties. Moreover, we show how to define these sets using the library `LazySets.jl`.
+In the rest of this section we define the usual set representations used in reachability analysis and recall some fundamental properties. Moreover, we show how to define these sets using the library `LazySets.jl`.
 
 ## Over- and under- approximations
 
