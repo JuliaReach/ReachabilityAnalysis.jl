@@ -1,9 +1,10 @@
 using .DifferentialEquations
 const DE = DifferentialEquations
 
+using HybridSystems: states
+
 # extend the solve API for initial-value problems
 function _solve_ensemble(ivp::InitialValueProblem, args...;
-                         trajectories=100,
                          trajectories_alg=DE.Tsit5(),
                          ensemble_alg=DE.EnsembleThreads(),
                          inplace=true,
@@ -25,8 +26,11 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     sampler = get(kwargs, :sampler, LazySets._default_sampler(X0))
     rng = get(kwargs, :rng, LazySets.GLOBAL_RNG)
     seed = get(kwargs, :seed, nothing)
+    trajectories = get(kwargs, :trajectories, 100)
     include_vertices = get(kwargs, :include_vertices, false)
     X0_samples = sample(X0, trajectories; sampler=sampler, rng=rng, seed=seed, include_vertices=include_vertices)
+    # number of trajectories may increase if vertices got included
+    trajectories = length(X0_samples)
 
     # formulate ensemble ODE problem
     ensemble_prob = ODEProblem(field, first(X0_samples), tspan)
