@@ -32,6 +32,7 @@ using LazySets: linear_map!
 # LazySets internal functions frequently used
 using LazySets.Arrays: projection_matrix, SingleEntryVector
 using LazySets.Approximations: AbstractDirections
+using LazySets: @commutative
 
 # aliases for intervals
 const IM = IntervalMatrices
@@ -162,38 +163,4 @@ macro requires(module_name)
     m = Meta.quot(Symbol(module_name))
     return esc(:(@assert isdefined(@__MODULE__, $m) "package `$($m)` is required " *
                     "for this function; do `using $($m)` and try again"))
-end
-
-"""
-    @commutative(FUN)
-
-Macro to declare that a given function `FUN` is commutative, returning the original
-`FUN` and a new method of `FUN` where the first and second arguments are swapped.
-
-### Input
-
-- `FUN` -- function name
-
-### Output
-
-A quoted expression containing the function definitions.
-"""
-macro commutative(FUN)
-    # split the function definition expression
-    def = splitdef(FUN)
-    FUNARGS = copy(def[:args])
-
-    # swap arguments 1 and 2
-    aux = def[:args][1]
-    def[:args][1] = def[:args][2]
-    def[:args][2] = aux
-
-    # the new function calls f with swapped arguments
-    def[:body] = quote ($(def[:name]))($(FUNARGS...)) end
-
-    _FUN = combinedef(def)
-    return quote
-        $(esc(FUN))
-        $(esc(_FUN))
-     end
 end
