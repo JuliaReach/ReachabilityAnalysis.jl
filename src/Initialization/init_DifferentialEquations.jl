@@ -1,6 +1,8 @@
 using .DifferentialEquations
 const DE = DifferentialEquations
 
+using HybridSystems: states
+
 # extend the solve API for initial-value problems
 function _solve_ensemble(ivp::InitialValueProblem, args...;
                          trajectories_alg=DE.Tsit5(),
