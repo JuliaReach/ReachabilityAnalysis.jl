@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                    :(using ReachabilityAnalysis); recursive=true)
 
 # generate Literate documentation
-#include("generate.jl")
+include("generate.jl")
 
 makedocs(
     format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
