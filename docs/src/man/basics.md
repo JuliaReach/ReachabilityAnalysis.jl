@@ -5,7 +5,7 @@ end
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Basics
+# Set representations
 
 ## Introduction
 
