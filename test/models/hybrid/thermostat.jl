@@ -4,9 +4,6 @@
 # Section 1.3.4.
 # ============================================================================
 
-using Reachability, HybridSystems, MathematicalSystems, LazySets, LinearAlgebra
-using LazySets: HalfSpace  # resolve name-space conflicts with Polyhedra
-
 function thermostat()
     c_a = 0.1
 
@@ -14,20 +11,16 @@ function thermostat()
     automaton = LightAutomaton(2)
 
     # mode on
-    A = hcat(-c_a)
-    B = hcat(30.)
-    U = Singleton([c_a])
+    A = hcat(c_a)
     inv = HalfSpace([1.0], 22.0)  # x ≤ 22
     # @vars x v
     # @set x ≤ 22
-    m_on = ConstrainedLinearControlContinuousSystem(A, B, inv, ConstantInput(U))
+    m_on = ConstrainedLinearContinuousSystem(A, inv)
 
     # mode off
     A = hcat(-c_a)
-    B = hcat(0.0)
-    U = Singleton([0.0])
     inv = HalfSpace([-1.0], -18.0)  # x ≥ 18
-    m_off = ConstrainedLinearControlContinuousSystem(A, B, inv, ConstantInput(U))
+    m_off = ConstrainedLinearContinuousSystem(A, inv)
 
     # modes
     modes = [m_on, m_off]
@@ -50,14 +43,9 @@ function thermostat()
 
     ℋ = HybridSystem(automaton, modes, resetmaps, switchings)
 
-    # initial condition in mode off
+    # initial condition in mode on
     X0 = Singleton([18.0])
-    initial_condition = [(2, X0)]
+    initial_condition = [(1, X0)]
 
-    system = InitialValueProblem(ℋ, initial_condition)
-
-    options = Options(:mode=>"reach", :T=>5.0,
-                      :max_jumps=>1, :verbosity=>1)
-
-    return (system, options)
+    return InitialValueProblem(ℋ, initial_condition)
 end

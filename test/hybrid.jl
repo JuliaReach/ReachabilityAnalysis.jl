@@ -163,3 +163,26 @@ end
     # scenario with parameter variation
     # tested in test/algorithms/ASB07.jl
 end
+
+@testset "Thermostat simulations" begin
+    S = thermostat()
+    T = 5.0
+
+    # solve with default options (no simulations)
+    sol = solve(S, T=T)
+
+    # will have many intermediate steps
+    solsd = solve(S, T=T, ensemble=true, trajectories=10, use_discrete_callback=true)
+    @test length(ensemble(solsd)) == 10
+
+    solsd = solve(S, T=T, ensemble=true, trajectories=10, include_vertices=true, use_discrete_callback=true)
+    @test length(ensemble(solsd)) == 10 + 2
+
+    # will handle invariants continuously but not have many intermediate steps
+    solsc = solve(S, T=T, ensemble=true, trajectories=10)
+    @test length(ensemble(solsc)) == 10
+
+    # will handle invariants continuously with additionally many intermediate steps
+    solscstep = solve(S, T=T, ensemble=true, trajectories=10, dtmax=0.1)
+    @test length(ensemble(solscstep)) == 10
+end
