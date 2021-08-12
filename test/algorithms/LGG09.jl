@@ -50,3 +50,22 @@ end
     @test setrep(sol) == HPolyhedron{Float64, Vector{Float64}}
     @test dim(sol) == 5
 end
+
+@testset "LGG09 algorithm: underapproximation" begin
+    X0 = BallInf([1.0, 1.0], 0.1)
+    function foo()
+        A = [0.0 1.0; -1.0 0.0]
+        prob = @ivp(x' = Ax, x(0) ∈ X0)
+        tspan = (0.0, 20.0)
+        return prob, tspan
+    end
+    prob, dt = foo()
+    δ = 2e-1
+
+    approx_model = ReachabilityAnalysis.ForwardDdt()
+    sol = solve(prob, tspan=(0.0, 20.0),
+                alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
+    approx_model = ReachabilityAnalysis.ForwardDdt(oa=false)
+    sol_ua = solve(prob, tspan=(0.0, 20.0),
+                   alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
+end
