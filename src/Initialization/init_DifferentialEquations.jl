@@ -245,11 +245,14 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
     # filter for correct number of trajectories
     include_vertices = get(kwargs, :include_vertices, false)
     if !include_vertices
+        # with k initial regions, we collected up to `k * trajectories` many
+        # samples (some regions may be empty), so we reduce to a random
+        # collection of `trajectories` samples
         rng = get(kwargs, :rng, LazySets.GLOBAL_RNG)
-        samples = LazySets.Random.shuffle!(rng, all_samples)[1:trajectories]
+        all_samples = LazySets.Random.shuffle!(rng, all_samples)[1:trajectories]
     end
 
-    return samples
+    return all_samples
 end
 
 # sample initial states of hybrid system given a set X0
