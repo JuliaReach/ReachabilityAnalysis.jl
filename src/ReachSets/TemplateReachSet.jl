@@ -46,6 +46,11 @@ function TemplateReachSet(dirs::AbstractDirections, R::AbstractLazyReachSet)
     return TemplateReachSet(dirs, set(R), tspan(R))
 end
 
+# constructor with a time point
+function TemplateReachSet(dirs::AbstractDirections{N}, X::LazySet, t::N) where {N}
+    return TemplateReachSet(dirs, X, interval(t))
+end
+
 # abstract reachset interface
 function set(R::TemplateReachSet)
     T = isbounding(R.dirs) ? HPolytope : HPolyhedron

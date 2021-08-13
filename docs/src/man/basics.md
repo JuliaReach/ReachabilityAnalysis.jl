@@ -5,7 +5,7 @@ end
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Basics
+# Set representations
 
 ## Introduction
 
@@ -49,7 +49,7 @@ computing suitable over-approximations (or under-approximations) of it.
 
 ## Set representations
 
-Subets of $\mathbb{R}^n$ can be represented in different ways. Depending on the
+Subsets of $\mathbb{R}^n$ can be represented in different ways. Depending on the
 type of operation that we want to apply, one set representation may be more convenient
 than another one. There are two important characteristics:
 
@@ -57,21 +57,26 @@ than another one. There are two important characteristics:
 
 - **Cost:** To measure the cost of making a given operation on a set, we consider the total number of binary operations, denoted with $\mathrm{Op}(\cdot)$. (....)
 
-In the rest of this sectio we define the usual set representations used in reachability analysis and recall some fundamental properties. Moreover, we show how to define these sets using the library `LazySets.jl`.
+In the rest of this section we define the usual set representations used in reachability analysis and recall some fundamental properties. Moreover, we show how to define these sets using the library `LazySets.jl`.
+
+## Over- and under- approximations
+
+
+Given a set ``\mathcal{X} \subseteq \mathbb{R}^n``, any subset of ``\mathcal{X}``
+is said to be an *underapproximation*. Conversely, any set containing ``\mathcal{X}``
+is said to be an *overapproximation*.
 
 ### Polyhedra
 
 A hyperplane is the set $\mathcal{H} = \{x ∈ \mathbb{R}^n | a^Tx = b\}$, where $a ∈ \mathbb{R}^n$ is the normal vector and $b ∈ \mathbb{R}$ is the displacement.
 
-In `LazySets.jl`, the type `hyperplane` can be used to define a hyperplane. For example, . . . .
+In `LazySets.jl`, the type `hyperplane` can be used to define a hyperplane.
 
-EJEMPLO <<<<<
 
 A halfspace is the set $\mathcal{H} = \{x ∈ \mathbb{R}^n | a^Tx ≤ b\}$, where $a ∈ \mathbb{R}^n$ is the normal vector and $b ∈ \mathbb{R}$ is the displacement. Please note that a half-space defines the region on one side of the hyperplane ``a^Tx = b``.
 
-In `LazySets.jl`, the type `HalfSpace` can be used to define a half-space. For example, . . . .
+In `LazySets.jl`, the type `HalfSpace` can be used to define a half-space.
 
-EJEMPLO <<<<<
 
 When we consider the intersection of a finite subset of half-spaces, we get a polyhedron. A polyhedron is thus the set defined as $\mathcal{P} ⊆ \mathbb{R}^n$,
 ```math
@@ -80,7 +85,6 @@ When we consider the intersection of a finite subset of half-spaces, we get a po
 where $a_i \in \mathbb{R}^n$ and $b_i \in \mathbb{R}$. A polytope is a bounded polyhedron.
 
 In `LazySets.jl`, the types `HPolyhedron` and `HPolytope` representent polyhedron and polytopes respectively. For example, . . . .
-
 
 
 ### Support functions
@@ -133,7 +137,9 @@ The following table summarizes the number of
 
 which touches and contains $\mathcal{X}$ . If $\ell$ is of unit length, then
 $\rho_{\mathcal{X}}(\ell)$ is the signed distance of $\mathcal{H}_{\ell}$ to the origin.
+
 Evaluating the support function for a set of directions $L ⊆ \mathbb{R}^n$ provides an overapproximation
+
 ```math
     \lceil \mathcal{X} \rceil _L = \bigcap_{\ell \in L} \{ x \in \mathbb{R}^n | \ell^T x \leq \rho_{\mathcal{X}}(\ell) \}
 ```
@@ -192,13 +198,15 @@ $CH(Z_1, e^{A\delta}Z_1) \subseteq \frac{1}{2}(c + e^{A\delta}c,\langle v_1 + e^
 
 ### Hausdorff distance
 
+Tthe notion of Hausdorff distance can be used to *measure* the distance between sets.
+It constitutes a practical theoretical tool to quantify the quality of an approximation.
+
 ```math
   d_H(\mathcal{X}, \mathcal{Y}) = \max \left( \sup_{x \in \mathcal{X}}\inf_{y \in \mathcal{Y}} \Vert x - y \Vert, \sup_{y \in \mathcal{Y}}\inf_{x \in \mathcal{X}} \Vert x - y \Vert \right)
 ```
 
 
 ### Taylor models
-
 
 
 ```@example
@@ -246,34 +254,3 @@ We consider as a running example in this section the simple harmonic oscillator,
 ## Flowpipes
 
 A flowpipe represents a collection of reach-sets and behaves like their set union.
-
-
-## (TO CLEANUP)
-
-Given a set ``\mathcal{X} \subseteq \mathbb{R}^n``, any subset of ``\mathcal{X}``
-is said to be an *underapproximation*. Conversely, any set containing ``\mathcal{X}``
-is said to be an *overapproximation*. In this section we recall the definitions
-and give some examples of the basic set operations commonly used to construct
-reachability algorithms. Such operations are not only required to propagate
-reachable sets
-
-We begin with the notion of Hausdorff distance which, as a way to *measure*
-(in the informal sense) the distance between sets, constitutes a practical tool to
-quantify the quality of an approximation.
-
-## Hybrid systems
-
-Up to now we have discussed about the continuous case only, but there is a rich
-literature in hybrid systems reachability; *hybrid* here means those dynamical
-systems which are given by one or more continuous-time dynamics (often, systems
-of ODEs in each mode or location) coupled with discrete transitions between
-continuous modes. In our context it is standard to model these systems using the
-terminology of *hybrid automata*, and we also model hybrid systems with such framework
-in this library. The concept of reach-set, flowpipe and safety verification are
-naturally extended to hybrid automata, although there is the additional complication
-that the flowpipe must include the behaviors for all possible transitions between
-discrete modes that are compatible with the dynamics.
-
-
-
-## References

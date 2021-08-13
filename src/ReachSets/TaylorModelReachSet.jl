@@ -54,6 +54,11 @@ function project(R::TaylorModelReachSet, vars::NTuple{D, M}) where {D, M<:Intege
             "available; try first to overapproximate the Taylor model and the  project"))
 end
 
+# constructor with a time point
+function TaylorModelReachSet(X::Vector{TaylorModel1{TaylorN{N}, N}}, t::Real) where {N}
+    return TaylorModelReachSet(X, interval(t))
+end
+
 # ======================
 # Intersection methods
 # ======================

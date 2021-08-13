@@ -1,3 +1,19 @@
+@testset "Reach-set constructors" begin
+    X = BallInf(ones(2), 1.0)
+
+    # constructor with a time interval
+    R = ReachSet(X, 0 .. 1)
+    @test tspan(R) == 0 .. 1
+
+    # constructor with a time point
+    R = ReachSet(X, 1.0)
+    @test tspan(R) == interval(1.0)
+
+    # if the time is an integer, it is converted to a float
+    R = ReachSet(X, 1)
+    @test tspan(R) == interval(1.0)
+end
+
 @testset "Reach-set projections" begin
     X = BallInf(zeros(5), 1.0)
     B = BallInf(zeros(2), 1.0)

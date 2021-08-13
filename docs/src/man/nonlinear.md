@@ -3,7 +3,118 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Nonlinear ordinary differential equations
+# Taylor models methods
+
+## Univariate example
+
+We begin the section with a small example that mixes intervals, the sine function,
+and differential equations. It is easy to check that the function
+
+```math
+x(t) = x_0 \exp\left(\cos(t) - 1\right),\qquad x_0 \in \mathbb{R},
+```
+solves the following differential equation:
+
+```math
+x'(t) = -x(t) ~ \sin(t),\qquad t \geq 0.
+```
+
+Standard integration schemes fail to produce helpful solutions if the initial state is an interval,
+for different reason, e.g. dependency problems.
+
+```@example nonlinear_univariate
+using DifferentialEquations, IntervalArithmetic
+
+# initial condition
+x₀ = [-1 .. 1]
+
+# define the problem
+function f(dx, x, p, t)
+    dx[1] = -x[1] * sin(t)
+end
+
+# pass to solvers
+prob = ODEProblem(f, x₀, (0.0, 2.0))
+sol = solve(prob, Tsit5(), adaptive=false, dt=0.05, reltol=1e-6)
+nothing # hide
+```
+There is no plot recipe readily available so we create it by hand using LazySets.
+
+```@example nonlinear_univariate
+using LazySets, Plots
+using LazySets: Interval
+
+out = [Interval(sol.t[i]) × Interval(sol.u[i][1]) for i in 1:20]
+
+plot(out, xlab="t", ylab="x(t)", lw=3.0, alpha=1., c=:black, marker=:none, lab="", title="Standard integrator with an interval initial condition")
+```
+
+On the contrary, specialized algorithms can handle this case without noticeable wrapping effect, producing a sequence of sets whose union covers the true solution for all initial points.
+The corresponding solution using reachability analysis is simple; .
+
+```@example nonlinear_univariate
+using ReachabilityAnalysis, Plots
+
+# define the model (same as before)
+function f(dx, x, p, t)
+    dx[1] = -x[1] * sin(1.0 * t)
+end
+
+# define the set of initial states
+X0 = -1 .. 1
+
+# define the initial-value problem
+prob = @ivp(x' = f(x), x(0) ∈ X0, dim=1)
+
+# solve it using a Taylor model method
+sol = solve(prob, alg=TMJets21a(abstol=1e-10), T=15)
+
+# visualize the solution in time
+plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model based) integrator")
+```
+
+It is illustrative to plot the computed flowpipe and the known analytic solution
+for a range of initial conditions that cover the range of `U0`. We can do so by
+overlaying exact solutions taken uniformly from the initial interval.
+
+```@example nonlinear_univariate
+analytic_sol(x0) = t -> x0 * exp(cos(t) - 1.0)
+
+dt = range(0, 15, length=100)
+x0vals = range(-1, 1, length=25)
+
+fig = plot()
+plot!(fig, sol, lw=0.0, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model based) integrator")
+[plot!(fig, dt, analytic_sol(x0).(dt), lab="", c=:magenta, lw=2.0, xlab="t", ylab="x(t)") for x0 in x0vals]
+fig
+```
+
+```@example nonlinear_univariate
+# number of computed reach-sets
+length(sol)
+```
+
+```@example nonlinear_univariate
+# reach-set representation
+typeof(sol[1])
+```
+
+```@example nonlinear_univariate
+set(sol[1])
+```
+
+```@example nonlinear_univariate
+sol_univariate = deepcopy(sol); # for further use in this notebook
+```
+
+## Taylor series and Taylor models
+
+## Taylor model reach-set representation
+
+## Evaluation and overapproximation
+
+## Construction and propagation
+
 
 ## Overview
 
@@ -177,37 +288,21 @@ using parentheses:
 end
 ```
 
-### Why do I get an `ArgumentError` when trying to plot a solution?
+### How are solutions obtained with Taylor models methods plotted?
 
-For flowpipes computed using algorithm `TMJets`, the representation is a
-*Taylor model flowpipe*, and as such we don't have methods to visualize them exactly.
-However, to reason about such flowpipes, either for plotting or performing set-based
-operations, we can *overapproximate* them with other set representations
--- usually, convex sets such as boxes or zonotopes--. For instance, the command
-`overapproximate(sol, Zonotope)` applies `overapproximate(Ri, Zonotope)` for each
-reach-set `Ri` in the solution `sol`.
+Flowpipes computed using algorithm `TMJets` (or its variations),
+use Taylor model reach-set representations (`TaylorModelReachSet`),
+which define an implicit set in time and in space. Since exact visualization of
+such objects is difficult (and often unnecessary), we resort to an outer approximation
+with simpler sets. Either for plotting or performing set-based operations, we
+can *overapproximate* a `TaylorModelReachSet` with other set representations -- usually,
+convex sets such as boxes or zonotopes--. The command `overapproximate(sol, Zonotope)`
+applies `overapproximate(Ri, Zonotope)` for each reach-set `Ri` in the solution `sol`.
 
-!!! note
-    The default plotting behavior may change in the future, see discussion in
-    issue [#173](https://github.com/JuliaReach/ReachabilityAnalysis.jl/issues/173).
-
-**Example.** Consider the differential equation `x'(t) = x^2(t) - 1`, given the interval
-initial condition `[0.4, 0.5]`:
-
-```julia
-function f!(dx, x, p, t)
-    dx[1] = x[1]^2 - 1.0
-end
-prob = @ivp(x' = f!(x), dim: 1, x(0) ∈ 0.4 .. 0.5)
-sol = solve(prob, T=10.0)
-```
-Trying to plot the solution with the command `plot(sol, vars=(1, 2))` will fail with
-an `ArgumentError`. However, you can plot the zonotopic overapproximation of this flowpipe:
-
-```julia
-solz = overapproximate(sol, Zonotope)
-plot(solz, vars=(0, 1))
-```
+By default, when plotting the solution obtained with such solvers, the zonotopic
+overapproximation of the flowpipe is used, with a single zonotope
+per Taylor model reach-set. Such approximation, while it is generally coarse,
+is often sufficient for visualization purposes.
 
 ### Equations with constant terms (`BoundsError`)
 

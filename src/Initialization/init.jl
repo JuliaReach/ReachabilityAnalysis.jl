@@ -7,8 +7,10 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       RecipesBase,                 # plotting
       Parameters,                  # structs with kwargs
       StaticArrays,                # statically sized arrays
-      RecursiveArrayTools,         # vector of arrays type
-      ExprTools                    # manipulate function definition expressions
+      RecursiveArrayTools          # vector of arrays type
+
+# manipulate function definition expressions
+using ExprTools: splitdef, combinedef
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -30,6 +32,7 @@ using LazySets: linear_map!
 # LazySets internal functions frequently used
 using LazySets.Arrays: projection_matrix, SingleEntryVector
 using LazySets.Approximations: AbstractDirections
+using LazySets: @commutative
 
 # aliases for intervals
 const IM = IntervalMatrices
@@ -53,7 +56,8 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, is_intersection_empty, directions,
                  linear_map, LinearMap, _split, split!, set, array, _isapprox
 
-import Base: ∈, convert
+import MathematicalSystems: discretize
+import Base: ∈, ∩, convert
 import LinearAlgebra: normalize
 
 import CommonSolve: solve # common solve name
@@ -121,6 +125,9 @@ function __init__()
 
     # tools for symbolic algebra
     @require MultivariatePolynomials = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3" include("init_MultivariatePolynomials.jl")
+
+    # sparse dynamic representation of multivariate polynomials
+    @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
 end
 
 # ===========================
@@ -156,38 +163,4 @@ macro requires(module_name)
     m = Meta.quot(Symbol(module_name))
     return esc(:(@assert isdefined(@__MODULE__, $m) "package `$($m)` is required " *
                     "for this function; do `using $($m)` and try again"))
-end
-
-"""
-    @commutative(FUN)
-
-Macro to declare that a given function `FUN` is commutative, returning the original
-`FUN` and a new method of `FUN` where the first and second arguments are swapped.
-
-### Input
-
-- `FUN` -- function name
-
-### Output
-
-A quoted expression containing the function definitions.
-"""
-macro commutative(FUN)
-    # split the function definition expression
-    def = splitdef(FUN)
-    FUNARGS = copy(def[:args])
-
-    # swap arguments 1 and 2
-    aux = def[:args][1]
-    def[:args][1] = def[:args][2]
-    def[:args][2] = aux
-
-    # the new function calls f with swapped arguments
-    def[:body] = quote ($(def[:name]))($(FUNARGS...)) end
-
-    _FUN = combinedef(def)
-    return quote
-        $(esc(FUN))
-        $(esc(_FUN))
-     end
 end

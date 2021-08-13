@@ -2,6 +2,8 @@
 # Main solve for hybrid systems
 # =====================================
 
+const DTMAX_SIM_DEFAULT = 1e-1  # default time step for simulation with discrete events
+
 # TODO API to specify the hybrid-specific options as a "DiscretePost" struct
 # TODO pass internal options (eg. first_mode_representative, throw_error, etc.)
 
@@ -74,12 +76,15 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         q = location(elem)
         X0 = state(elem)
         S = mode(H, q)
+        ivp_current = IVP(S, X0)
         time_span = TimeInterval(t0, T-tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
-        F = post(cpost, IVP(S, X0), time_span; Δt0=Δt0, kwargs...)
+        F = post(cpost, ivp_current, time_span; Δt0=Δt0, kwargs...)
 
         # assign location q to this flowpipe
         F.ext[:loc_id] = q
         push!(out, F)
+
+        I⁻ = stateset(H, q)
 
         #=
         # NOTE: here we may take the concrete intersection with the source invariant
@@ -90,8 +95,6 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         compute the concrete intersection.
         =#
         if intersect_source_invariant
-            I⁻ = stateset(H, q)
-
             # assign location q to this flowpipe
             F_in_inv = Flowpipe(undef, STwl, 0)
 
@@ -107,10 +110,10 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
         # process jumps for all outgoing transitions with source q
         for t in out_transitions(H, q)
-
             # instantiate post_d : X -> (R(X ∩ G ∩ I⁻) ⊕ W) ∩ I⁺
             discrete_post = DiscreteTransition(H, t)
             G = guard(discrete_post)
+            r = target(H, t)
 
             # find reach-sets that may take the jump
             jump_rset_idx = Vector{Int}()
@@ -133,26 +136,24 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                 isa(X, EmptySet) && continue # isempty(X)
 
                 count_jumps += 1
-
-                # check if this location has already been explored;
-                # if it is not the case, add it to the waiting list
-                r = target(H, t)
-                Xr = StateInLocation(X, r)
-
                 hit_max_jumps = count_jumps > max_jumps
                 if hit_max_jumps
                     @warn "maximum number of jumps reached; try increasing `max_jumps`"
+                    continue
                 end
 
+                Xr = StateInLocation(X, r)
                 if fixpoint_check
-                    if !hit_max_jumps && !(Xr ⊆ explored_list)
-                        push!(waiting_list, tspan(Xci), Xr)
-                    end
+                    # check if this location has already been explored;
+                    # if it is not the case, add it to the waiting list
+                    add_to_waiting_list = !(Xr ⊆ explored_list)
                 else
                     # We only push the set Xci if it intersects with time_span
-                    if !hit_max_jumps && !IA.isdisjoint(tspan(Xci), time_span0)
-                        push!(waiting_list, tspan(Xci), Xr)
-                    end
+                    add_to_waiting_list = !IA.isdisjoint(tspan(Xci), time_span0)
+                end
+
+                if add_to_waiting_list
+                    push!(waiting_list, tspan(Xci), Xr)
                 end
             end
         end # for
@@ -164,7 +165,16 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     else
         HFout = HybridFlowpipe(out)
     end
-    sol = ReachSolution(HFout, cpost)
+
+    got_ensemble = get(kwargs, :ensemble, false)
+    if got_ensemble
+        @requires DifferentialEquations
+        ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
+        dict = Dict{Symbol,Any}(:ensemble=>ensemble_sol)
+        sol = ReachSolution(HFout, cpost, dict)
+    else
+        sol = ReachSolution(HFout, cpost)
+    end
 end
 
 # =====================================

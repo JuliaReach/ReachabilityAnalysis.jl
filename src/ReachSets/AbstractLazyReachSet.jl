@@ -63,6 +63,7 @@ LazySets.volume(R::AbstractLazyReachSet) = volume(set(R))
 Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(ST, set(R))
 Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalBox, set(R))
 LazySets.complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
+Base.isempty(R::AbstractLazyReachSet) = isempty(set(R))
 
 function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))

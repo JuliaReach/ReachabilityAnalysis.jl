@@ -25,6 +25,10 @@ using LazySets.Arrays: SingleEntryVector
     dirs_1_3 = [SingleEntryVector(1, 5, 1.0), SingleEntryVector(3, 5, 1.0),
                 SingleEntryVector(1, 5, -1.0), SingleEntryVector(3, 5, -1.0)]
     @test collect(alg.template) == dirs_1_3
+
+    # alias using dim
+    alg2 = LGG09(δ=0.01, vars=(1, 3), dim=5)
+    @test collect(alg2.template) == dirs_1_3
 end
 
 @testset "LGG09 algorithm: 1d" begin
@@ -45,4 +49,23 @@ end
     sol = solve(prob, tspan=dt, LGG09(δ=0.01, template=box5d))
     @test setrep(sol) == HPolyhedron{Float64, Vector{Float64}}
     @test dim(sol) == 5
+end
+
+@testset "LGG09 algorithm: underapproximation" begin
+    X0 = BallInf([1.0, 1.0], 0.1)
+    function foo()
+        A = [0.0 1.0; -1.0 0.0]
+        prob = @ivp(x' = Ax, x(0) ∈ X0)
+        tspan = (0.0, 20.0)
+        return prob, tspan
+    end
+    prob, dt = foo()
+    δ = 2e-1
+
+    approx_model = ReachabilityAnalysis.ForwardDdt()
+    sol = solve(prob, tspan=(0.0, 20.0),
+                alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
+    approx_model = ReachabilityAnalysis.ForwardDdt(oa=false)
+    sol_ua = solve(prob, tspan=(0.0, 20.0),
+                   alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
 end
