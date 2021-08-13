@@ -335,7 +335,7 @@ where ``A`` is a square matrix of order ``n`` and ``δ > 0``.
 
 ### Input
 
-- `A`      -- coefficients smatrix
+- `A`      -- coefficients matrix
 - `δ`      -- step size
 - `alg`    -- (optional, default: `BaseExp`) the method used to take the matrix
                exponential of the coefficient matrix; see the documentation of

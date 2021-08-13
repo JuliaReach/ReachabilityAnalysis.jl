@@ -61,19 +61,21 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
     # run the continuous-post operator
     F = post(cpost, ivp, tspan; kwargs...)
 
+    # optionally compute ensemble simulations
     got_ensemble = get(kwargs, :ensemble, false)
+    dict = Dict{Symbol,Any}(:ensemble=>nothing)
     if got_ensemble
         @requires DifferentialEquations
-        # compute trajectories using ensemble simulation
         ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
-        dict = Dict{Symbol,Any}(:ensemble=>ensemble_sol)
-        sol = ReachSolution(F, cpost, dict)
-    else
-        # wrap the flowpipe and algorithm in a solution structure
-        sol = ReachSolution(F, cpost)
+        dict[:ensemble] = ensemble_sol
     end
 
-    return sol
+    _solve_return(ivp, F, cpost, dict, args...; kwargs...)
+end
+
+# wrap the flowpipe and algorithm in a solution structure
+function _solve_return(ivp::IVP{<:AbstractContinuousSystem}, F, cpost, dict, args...; kwargs...)
+    sol = ReachSolution(F, cpost, dict)
 end
 
 # solve for distributed initial conditions; uses multi-threaded implementation by default
