@@ -14,6 +14,7 @@ const IA = IntervalArithmetic
 
 # optional dependencies
 using Symbolics
+import DifferentialEquations
 
 # load test models
 include("models/harmonic_oscillator.jl")
@@ -22,10 +23,11 @@ include("models/exponential1D.jl")
 include("models/motor.jl")
 include("models/linear5D.jl")
 include("models/VanDerPol.jl")
-include("models/EMBrake.jl");
+include("models/EMBrake.jl")
 include("models/bouncing_ball.jl")
 include("models/burgers.jl")
 include("models/Brusselator.jl")
+include("models/hybrid/thermostat.jl")
 
 #include("utils.jl")
 include("solve.jl")
