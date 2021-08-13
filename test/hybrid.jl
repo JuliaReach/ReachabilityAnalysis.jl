@@ -176,7 +176,7 @@ end
     @test length(ensemble(solsd)) == 10
 
     solsd = solve(S, T=T, ensemble=true, trajectories=10, include_vertices=true, use_discrete_callback=true)
-    @test length(ensemble(solsd)) == 10 + 2
+    @test length(ensemble(solsd)) == 10 + 1  # singleton initial condition
 
     # will handle invariants continuously but not have many intermediate steps
     solsc = solve(S, T=T, ensemble=true, trajectories=10)
