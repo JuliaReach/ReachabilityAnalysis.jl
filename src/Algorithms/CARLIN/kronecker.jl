@@ -29,6 +29,10 @@ julia> [kron_pow(2 .. 3, i) for i in 1:3]
 ```
 """
 function kron_pow(x::IA.Interval, pow::Int)
+    if pow == 1
+        return x
+    end
+
     return x^pow
 end
 
@@ -47,6 +51,10 @@ Given an interval x and an integer pow, compute `x^pow`.
 An interval enclosure of `x^pow` as a LazySets `Interval`.
 """
 function kron_pow(x::Interval, pow::Int)
+    if pow == 1
+        return x
+    end
+
     return Interval(kron_pow(x.dat, pow))
 end
 
