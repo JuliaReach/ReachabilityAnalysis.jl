@@ -261,6 +261,19 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem, <:AdmissibleSet};
     H = system(ivp)
     X0 = initial_state(ivp)
     X0_distributed = [(loc, X0) for loc in states(H)]
+
+    # filter invalid combinations (empty intersection with invariant)
+    i = 1
+    while i <= length(X0_distributed)
+        loc, X0 = X0_distributed[i]
+        inv = stateset(H, loc)
+        if isdisjoint(inv, X0)
+            deleteat!(X0_distributed, i)
+        else
+            i += 1
+        end
+    end
+
     return _sample_initial(IVP(H, X0_distributed))
 end
 
