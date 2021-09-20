@@ -103,9 +103,9 @@ function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
 end
 
 """
-    kron_pow_stack(x::Union{<:Interval, <:IA.Interval}, pow::Int)
+    kron_pow_stack(x::IA.Interval, pow::Int)
 
-Return an array with the interval powers `[x, x^2, …, x^pow]`.
+Return a hyperrectangle with the interval powers `[x, x^2, …, x^pow]`.
 
 ### Input
 
@@ -114,10 +114,28 @@ Return an array with the interval powers `[x, x^2, …, x^pow]`.
 
 ### Output
 
-A vector of elements of the same type as `x` such that the `i`-th element is the interval `x^i`.
+A hyperrectangle such that the `i`-th dimension is the interval `x^i`.
 """
-function kron_pow_stack(x::Union{<:Interval, <:IA.Interval}, pow::Int)
-    return [kron_pow(x, i) for i in 1:pow]
+function kron_pow_stack(x::IA.Interval, pow::Int)
+    return convert(Hyperrectangle, IntervalBox([kron_pow(x, i) for i in 1:pow]))
+end
+
+"""
+    kron_pow_stack(x::Interval, pow::Int)
+
+Return a hyperrectangle with the interval powers `[x, x^2, …, x^pow]`.
+
+### Input
+
+- `x`   -- interval
+- `pow` -- integer power
+
+### Output
+
+A hyperrectangle such that the `i`-th dimension is the interval `x^i`.
+"""
+function kron_pow_stack(x::Interval, pow::Int)
+    return convert(Hyperrectangle, CartesianProductArray([kron_pow(x, i) for i in 1:pow]))
 end
 
 """
