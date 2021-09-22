@@ -202,8 +202,6 @@ end end  # quote / load_kron_dynamicpolynomials()
 function load_kron_multivariate()
 return quote
 
-import Base: findfirst, findall
-
 """
     kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
 
@@ -247,115 +245,6 @@ function kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
     else
         return kron(x, kron_pow(x, pow-1))
     end
-end
-
-"""
-    findfirst(y::Vector{<:AbstractMonomialLike}, x::AbstractMonomialLike)
-
-Return the first position of the multivariate monomial ``x`` in the vector of monomials ``y``.
-
-### Input
-
-- `y` -- vector of multivariate monomials
-- `x` -- multivariate monomials
-
-### Output
-
-An integer where each integer represents the index in the array `y`
-corresponding to the first match, i.e. `y[i] == x` where `i` is the output integer,
-or `nothing` if there is no match.
-
-### Notes
-
-Let ``x = (x_1, x_2, …, x_n)`` be given, and let ``y_i = x^{[i]}``.
-Given the multi-index ``I = (i_1, i_2, …, i_n)``, this function returns the
-first position of ``x^I`` in the array ``y`` (resp. all positions using `findall`).
-
-### Examples
-
-```julia
-julia> using DynamicPolynomials
-
-julia> @polyvar x[1:2]
-(PolyVar{true}[x₁, x₂],)
-
-julia> y = kron_pow(x, 2)
-4-element Array{Monomial{true},1}:
- x₁²
- x₁x₂
- x₁x₂
- x₂²
-
-julia> findfirst(y, x[1]*x[2])
-2
-```
-"""
-function findfirst(y::Vector{<:AbstractMonomialLike}, x::AbstractMonomialLike)
-    pow = exponents(x)
-    @assert sum(pow) == sum(exponents(first(y))) "power indices don't match the power in the lifted vector"
-    xv = variables(x)
-    _findfirst(y, xv, pow)
-end
-
-"""
-    findall(y::Vector{<:AbstractMonomialLike}, x::AbstractMonomialLike)
-
-Return all positions of the multivariate monomial ``x`` in the vector of monomials ``y``.
-
-### Input
-
-- `y` -- vector of multivariate monomials
-- `x` -- multivariate monomials
-
-### Output
-
-A vector of integers where each integer represents the index in the array `y`
-corresponding to a match, i.e. `y[i] == x` for all elements `i` in the output array.
-
-### Notes
-
-Let ``x = (x_1, x_2, …, x_n)`` be given, and let ``y_i = x^{[i]}``.
-Given the multi-index ``I = (i_1, i_2, …, i_n)``, this function returns all
-positions of ``x^I`` in the array ``y`` (resp. the first position using `findfirst`).
-
-### Examples
-
-```julia
-julia> using DynamicPolynomials
-
-julia> @polyvar x[1:2]
-(PolyVar{true}[x₁, x₂],)
-
-julia> y = kron_pow(x, 2)
-4-element Array{Monomial{true},1}:
- x₁²
- x₁x₂
- x₁x₂
- x₂²
-
-julia> findall(y, x[1]*x[2])
-2-element Array{Int64,1}:
- 2
- 3
-```
-"""
-function findall(y::Vector{<:AbstractMonomialLike}, x::AbstractMonomialLike)
-    pow = exponents(x)
-    @assert sum(pow) == sum(exponents(first(y))) "power indices don't match the power in the lifted vector"
-    xv = variables(x)
-    _findall(y, xv, pow)
-end
-
-function _findfirst(y, x, pow)
-    yp = powers.(y)
-    t = ntuple(i -> (x[i], pow[i]), length(pow))
-    idx = findfirst(pi -> pi == t, yp)
-end
-
-function _findall(y, x, pow)
-    yp = powers.(y)
-    t = ntuple(i -> (x[i], pow[i]), length(pow))
-    idx = findall(pi -> pi == t, yp)
 end
 
 end end  # quote / load_kron_multivariate()
