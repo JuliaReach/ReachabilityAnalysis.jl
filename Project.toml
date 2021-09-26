@@ -1,8 +1,9 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
 authors = ["Marcelo Forets <mforets@gmail.com>",
-           "Christian Schilling <git@christianschilling.net>"]
-version = "0.15.0"
+           "Christian Schilling <git@christianschilling.net>",
+           "Daniel Freire Caporale <dfcaporale@gmail.com>"]
+version = "0.15.1"
 
 [deps]
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -37,7 +38,7 @@ ExponentialUtilities = "1.6, 1.7, 1.8"
 ExprTools = "0.1"
 HybridSystems = "0.3"
 IntervalArithmetic = "0.16, 0.17, 0.18, 0.19"
-IntervalMatrices = "0.6"
+IntervalMatrices = "0.6, 0.7"
 LazySets = "1.49"
 MathematicalSystems = "0.11"
 MultivariatePolynomials = "0.3"
