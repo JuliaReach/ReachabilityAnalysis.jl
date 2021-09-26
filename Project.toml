@@ -1,6 +1,8 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
-authors = ["mforets <mforets@gmail.com>", "schillic <christian.schilling@ist.ac.at>", "dfcaporale <dfcaporale@gmail.com>"]
+authors = ["Marcelo Forets <mforets@gmail.com>",
+           "Christian Schilling <git@christianschilling.net>",
+           "Daniel Freire Caporale <dfcaporale@gmail.com>"]
 version = "0.15.1"
 
 [deps]

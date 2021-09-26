@@ -1,11 +1,100 @@
-ENV["GKSwstype"] = "100"  # set 'GR environment' to 'no output' (for Travis CI)
 using Documenter, ReachabilityAnalysis
 
 DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                    :(using ReachabilityAnalysis); recursive=true)
 
-# generate Literate documentation
-include("generate.jl")
+# pass --fast as an argument to skip rebuilding the examples and running doctests
+const _FAST = findfirst(isequal("--fast"), ARGS) !== nothing
+
+# ========================
+# Generate examples
+# ========================
+if !_FAST
+    include("generate.jl")
+end
+
+# ========================
+# Tutorials
+# ========================
+
+SET_REPRESENTATIONS = ["Set representations" => [
+    "Introduction"                     => "tutorials/set_representations/introduction.md",
+    "Hyperrectangular sets"            => "tutorials/set_representations/hyperrectangles.md",
+    "Zonotopic sets"                   => "tutorials/set_representations/zonotopes.md",
+    "Polyhedral computations"          => "tutorials/set_representations/polyhedral_computations.md",
+    "Lazy set representations"         => "tutorials/set_representations/lazy_sets.md",
+    "Computing with support functions" => "tutorials/set_representations/support_functions.md",
+    #"Other set operations"             => "tutorials/set_representations/other_set_operations.md",
+    "LazySets type hierarchy"          => "tutorials/set_representations/lazysets_hierarchy.md",
+    "Numerical tolerance"              => "tutorials/set_representations/tolerance.md",
+    "Metric notions"                   => "tutorials/set_representations/distances.md"]]
+
+LINEAR_METHODS = ["Linear methods" => [
+    "Quickstart"                       => "tutorials/linear_methods/introduction.md",
+    "Discrete time reachability"       => "tutorials/linear_methods/discrete_time.md",
+    "Dense time reachability"          => "tutorials/linear_methods/dense_time.md",
+#    "Propagating zonotopes"            => "tutorials/linear_methods/zonotopes_setprop.md",
+#    "Propagating hyperrectangles"      => "tutorials/linear_methods/hyperrectangles_setprop.md",
+#    "Propagating support functions"    => "tutorials/linear_methods/supfunc_setprop.md",
+    #"Helicopter model"                 => "models/Helicopter.md",
+    "Helicopter model"                 => "tutorials/linear_methods/helicopter.md",
+    "Structural model"                 => "models/ISS.md"]]
+
+UNCERTAIN_INPUTS = ["Modeling uncertain inputs" => [
+    "Introduction"                     => "tutorials/uncertain_inputs/introduction.md",
+    "Building model"                   => "models/Building.md",
+    "Operational amplifier"            => "models/OpAmp.md"]]
+
+TAYLOR_METHODS = ["Taylor methods"     => [
+    "Introduction"                     => "tutorials/taylor_methods/introduction.md",
+    "Taylor model reach-sets"          => "tutorials/taylor_methods/taylor_model_reachsets.md",
+    "Domain splitting"                 => "tutorials/taylor_methods/domain_splitting.md",
+    "Common gotchas"                   => "tutorials/taylor_methods/gotchas.md",
+    "Lotka-Volterra"                   => "models/LotkaVolterra.md",
+    "Van der Pol oscillator"           => "models/VanDerPol.md",
+    "Lorenz system"                    => "models/Lorenz.md"]]
+
+UNCERTAIN_PARAMETERS = ["Modeling uncertain parameters" => [
+    "Introduction"                     => "tutorials/parametric_reachability/introduction.md",
+    "Transmision line"                 => "models/TransmissionLine.md"]]
+
+HYBRID_SYSTEMS = ["Hybrid systems" => [
+    "Introduction"                     => "tutorials/hybrid_systems/introduction.md",
+    "Thermostat model"                 => "tutorials/hybrid_systems/thermostat.md"]]
+
+CLOCKED_SYSTEMS = ["Clocked systems"  => [
+    "Introduction"                     => "tutorials/clocked_systems/introduction.md",
+    "Platoon"                          => "models/Platoon.md",
+    "Electro-mechanic break"           => "models/EMBrake.md"]]
+
+BACKWARDS_REACHABILITY = ["Backwards reachability" => [
+    "Introduction"                     => "tutorials/backwards_reachability/introduction.md",
+    "Projectile motion"                => "models/Projectile.md"]]
+
+LINEAR_PDE = ["Linear PDEs" => [
+    "Introduction"                     => "tutorials/linear_pde/introduction.md",
+    "Clamped beam"                     => "tutorials/linear_pde/clamped.md",
+    "Heat transfer"                    => "tutorials/linear_pde/heat_transfer.md",
+    "Concrete heat of hydration"       => "tutorials/linear_pde/concrete.md"]]
+#   "Clamped beam"                     => "examples/Clamped.md",
+#   "Heat transfer"                    => "examples/Heat1D.md",
+#   "Concrete heat of hydration"       => "examples/Concrete.md"
+
+SOLVERS = ["ASB07"    => "lib/algorithms/ASB07.md",
+           "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
+           "BOX"      => "lib/algorithms/BOX.md",
+           "CARLIN"   => "lib/algorithms/CARLIN.md",
+           "GLGM06"   => "lib/algorithms/GLGM06.md",
+           "INT"      => "lib/algorithms/INT.md",
+           "LGG09"    => "lib/algorithms/LGG09.md",
+           "ORBIT"    => "lib/algorithms/ORBIT.md",
+           "QINT"     => "lib/algorithms/QINT.md",
+           "TMJets"   => "lib/algorithms/TMJets.md",
+           "VREP"     => "lib/algorithms/VREP.md"]
+
+# ========================
+# Docs contents
+# ========================
 
 makedocs(
     format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
@@ -15,60 +104,59 @@ makedocs(
     doctest = false,
     strict = false,
     pages = [
-        "Home" => "index.md",
-        "Manual" => Any["Set representations" => "man/basics.md",
-                        "Linear methods" => "man/linear.md",
-                        "Modeling uncertain inputs" => "man/inputs.md",
-                        "Taylor models methods" => "man/nonlinear.md",
-                        "Semidiscrete PDEs" => "man/structure.md",
-                        "Hybrid systems" => "man/hybrid.md",
-                        "Clocked systems" => "man/clocked.md",
-                        "Parametric reachability" => "man/parametric.md",
-                        "Backwards reachability" => "man/backwards.md",
-                        "Benchmarks" => "man/benchmarks.md",
-                        "Model library" => "man/library.md",
-                        "Frequently Asked Questions (FAQ)" => "man/faq.md"],
-        "Examples" => Any["Overview" => "man/examples_overview.md",
-                          "Operational amplifier" => "models/OpAmp.md",
-                          "Square wave oscillator" => "models/SquareWaveOscillator.md",
-                          "Van der Pol oscillator" => "models/VanDerPol.md",
-                          "Duffing oscillator" => "models/DuffingOscillator.md",
-                          "Transmision line" => "models/TransmissionLine.md",
-                          "Laub-Loomis" => "models/LaubLoomis.md",
-                          "Building" => "models/Building.md",
-                          "Production-Destruction" => "models/ProductionDestruction.md",
-                          "Lotka-Volterra" => "models/LotkaVolterra.md",
-                          "Brusselator" => "models/Brusselator.md",
-                          "Structural Model" => "models/ISS.md",
-                          "Lorenz system" => "models/Lorenz.md",
-                          "Platoon" => "models/Platoon.md",
-                          "Quadrotor" => "models/Quadrotor.md",
-                          "SEIR model" => "models/SEIR.md",
-                          "Spacecraft" => "models/Spacecraft.md"],
-                          # "Electromechanic break" => "man/EMBrake.md"
-        "Algorithms" => Any["ASB07" => "lib/algorithms/ASB07.md",
-                            "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
-                            "BOX" => "lib/algorithms/BOX.md",
-                            "CARLIN" => "lib/algorithms/CARLIN.md",
-                            "GLGM06" => "lib/algorithms/GLGM06.md",
-                            "INT" => "lib/algorithms/INT.md",
-                            "LGG09" => "lib/algorithms/LGG09.md",
-                            "ORBIT" => "lib/algorithms/ORBIT.md",
-                            "QINT" => "lib/algorithms/QINT.md",
-                            "TMJets" => "lib/algorithms/TMJets.md",
-                            "VREP" => "lib/algorithms/VREP.md"],
-        "API Reference" => Any["Reach-sets" => "lib/reachsets.md",
-                               "Flowpipes" => "lib/flowpipes.md",
-                               "Solutions" => "lib/solutions.md",
-                               "Systems" => "lib/systems.md",
-                               "Discretization" => "lib/discretize.md",
-                               "Projections" => "lib/projections.md",
-                               "Clustering" => "lib/clustering.md",
-                               "Further set operations" => "lib/operations.md",
-                               "Distributed computations" => "lib/distributed.md",
-                               "Internal functions and macros" => "lib/internals.md"],
-        "References" => "references.md",
-        "About" => "about.md"
+        "Introduction" => "index.md",
+
+        "Tutorials"    => vcat(SET_REPRESENTATIONS,
+                          LINEAR_METHODS,
+                          UNCERTAIN_INPUTS,
+                          TAYLOR_METHODS,
+                          UNCERTAIN_PARAMETERS,
+                          LINEAR_PDE,
+                          HYBRID_SYSTEMS,
+                          CLOCKED_SYSTEMS),
+
+        "Manual"       => ["Models"        => "man/models.md",
+                           "Reach-sets"    => "man/reachsets.md",
+                           "Flowpipes"     => "man/flowpipes.md",
+                           "Algorithms"    => "man/solvers.md",
+                           "Solutions"     => "man/solutions.md",
+                           "Invariants"    => "man/invariants.md",
+                           "Visualization" => "man/visualization.md",
+                           "Projections"   => "man/projections.md",
+                           "Clustering"    => "man/clustering.md"],
+
+        "Benchmarks" => ["Repeatability evaluations"   => "man/benchmarks/repeatability.md",
+                         "Model library"               => "man/benchmarks/model_library.md",
+                         "Comparison with other tools" => "man/benchmarks/comparison.md",
+                         "Benchmark repository"        => "man/benchmarks/benchmarks.md",
+                         "Filtered oscillator"         => "man/benchmarks/filtered_oscillator.md"],
+
+        "Further examples" => ["Overview"               => "man/examples_overview.md",
+                               "Duffing oscillator"     => "models/DuffingOscillator.md",
+                               "Laub-Loomis"            => "models/LaubLoomis.md",
+                               "Production-Destruction" => "models/ProductionDestruction.md",
+                               "Brusselator"            => "models/Brusselator.md",
+                               "Quadrotor"              => "models/Quadrotor.md",
+                               "Epidemic model"         => "models/SEIR.md",
+                               "Spacecraft"             => "models/Spacecraft.md"],
+
+        "API Reference" => ["Reach-sets"                    => "lib/reachsets.md",
+                            "Flowpipes"                     => "lib/flowpipes.md",
+                            "Algorithms"                    => SOLVERS,
+                            "Solutions"                     => "lib/solutions.md",
+                            "Systems"                       => "lib/systems.md",
+                            "Discretization"                => "lib/discretize.md",
+                            "Projections"                   => "lib/projections.md",
+                            "Clustering"                    => "lib/clustering.md",
+                            "Further set operations"        => "lib/operations.md",
+                            "Distributed computations"      => "lib/distributed.md",
+                            "Internal functions and macros" => "lib/internals.md"],
+
+        "Frequently Asked Questions (FAQ)" => "man/faq.md",
+
+        "Bibliography" => "references.md",
+
+        "How to contribute" => "about.md"
     ]
 )
 
