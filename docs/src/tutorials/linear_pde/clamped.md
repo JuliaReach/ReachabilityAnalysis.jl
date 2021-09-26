@@ -1,0 +1,1 @@
+# Clamped beam model

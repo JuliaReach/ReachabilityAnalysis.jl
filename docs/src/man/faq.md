@@ -135,9 +135,6 @@ with the `trajectories` keyword argument.
 ```@example
 using ReachabilityAnalysis, DifferentialEquations
 
-# to avoid namespace conflicts
-using ReachabilityAnalysis: solve
-
 # formulate initial-value problem
 prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 0.5)
 

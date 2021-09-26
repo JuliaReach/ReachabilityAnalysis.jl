@@ -146,88 +146,10 @@ Evaluating the support function for a set of directions $L ⊆ \mathbb{R}^n$ pro
 
 i.e., $\mathcal{X} ⊆ \lceil \mathcal{X} \rceil _L$. If $L = \mathbb{R}^n$, then $\mathcal{X} = \lceil \mathcal{X} \rceil _L$, so the support function represents any convex set $\mathcal{X}$ exactly. If $L$ is a finite set of directions $L = {\ell_1, . . . , \ell_m}$, then $\lceil \mathcal{X} \rceil _L$ is a polyhedron.
 
-### Hyperrectangular sets
-
-A special class of polyhedra are (...)
-
-
-### Zonotopic sets
-
-Zonotopes are a sub-class of polytopes defined as the image of a unit cube under
-an affine transformation. An equivalent characterization of zonotopes is the
-generator representation. Here, $Z ⊆ \mathbb{R}^n$ is defined by a center $c ∈ \mathbb{R}^n$ and a finite number of generators $g_1, . . . , g_p ∈ \mathbb{R}^n$
-such that
-
-```math
-Z = \{ c + \sum_{i=1}^{p} \xi_i g_i | \xi_i ∈ [−1, 1]\}.
-```
-It is common to note $Z = (c, \langle g_1 . . . , g_p \rangle)$ or simply
-$Z = (c, G)$, where $g_i$ is the $i$-th column of $G$.
-
-
- We introduce the order of a zonotope as $o = \frac{k}{n}$.
-The order of a Zonotope `Z` in LazySets can be calculated using the function `order(Z)`.
-
-```@example zonotope_example_1
-using LazySets, Plots
-Z = Zonotope([1, 1.], [-1 0.3 1.5 0.3; 0 0.1 -0.3 0.3])
-plot(Z)
-quiver!(fill(1., 4), fill(1., 4), quiver=(genmat(Z)[1, :], genmat(Z)[2, :]), color=:black)
-```
-
-There are other useful characterization of zonotopes. A zonotope can be seen as the Minkowski addition of line segments resulting in centrally symmetric convex polytopes as shown in the following figure, which illustrates how each generator spans the zonotope.
-
-The cost is measured in terms of the number of binary operations, $\mathrm{Op}(\cdot)$.
-
-
-$Z_1 = (c, \langle v_1, \dotsb, v_k \rangle), Z_2 = (d, \langle w_1, \dotsb, w_m \rangle) \subset \mathbb{R}^n, M \in \mathbb{R}^{m \times n}$
-
-$Z_1 \oplus Z_2 = (c+d, \langle v_1, \dotsb, v_k, w_1, \dotsb, w_m \rangle)$
-
-$MZ_1 = (Mc, \langle Mv_1, \dotsb, Mv_k \rangle)$
-
-$CH(Z_1, e^{A\delta}Z_1) \subseteq \frac{1}{2}(c + e^{A\delta}c,\langle v_1 + e^{A\delta}v_1, \dotsb, v_k+e^{A\delta}v_k, v_1 - e^{A\delta}v_1, v_k - e^{A\delta}v_k, c - e^{A\delta}c \rangle )$
-
-| Operation                 | Simplification Rule | Cost               |
-|---------------------------|---------------------|--------------------|
-| $Z_1 \oplus Z_2$          |                     |      $n$            |
-| $MZ_1$                    |                     |      $2mn(k+1)$              |
-| $CH(Z_1, e^{A\delta}Z_1)$ |                     |      $2n^2(k+1)+2n(k+2)$         |
 
 
 
-### Hausdorff distance
 
-Tthe notion of Hausdorff distance can be used to *measure* the distance between sets.
-It constitutes a practical theoretical tool to quantify the quality of an approximation.
-
-```math
-  d_H(\mathcal{X}, \mathcal{Y}) = \max \left( \sup_{x \in \mathcal{X}}\inf_{y \in \mathcal{Y}} \Vert x - y \Vert, \sup_{y \in \mathcal{Y}}\inf_{x \in \mathcal{X}} \Vert x - y \Vert \right)
-```
-
-
-### Taylor models
-
-
-```@example
-#=
-using ReachabilityAnalysis, Plots
-
-f(x) = -6x^3 + (13/3)x^2 + (31/3)x
-dom = -3.5 .. 3.5
-
-plot(f, -3.5, 3.5, lab="f", xlab="x")
-
-x = Taylor1(5)
-set_taylor1_varname("x")
-f(x)
-
-rem = 0 .. 0
-x0 = 0.0
-dom = -3.5 .. 3.5
-tm = TaylorModel1(f(x), rem, x0, dom)
-=#
-```
 
 ## Reach-sets
 
