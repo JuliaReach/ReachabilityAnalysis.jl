@@ -72,12 +72,12 @@ function homogeneize(sys::SOACS)
 
     A = [Zn           In     ;
         -invM*K       -invM*C]
-    f0 = vcat(zeros(n), invM * F)
+    b0 = vcat(zeros(n), invM * b)
 
     m = 2n
     Aext = spzeros(m+1, m+1)
     Aext[1:m, 1:m] .= A
-    Aext[1:m, m+1] .= f0
+    Aext[1:m, m+1] .= b0
 
     return @system(x' = Aext*x)
 end
