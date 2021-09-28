@@ -49,6 +49,17 @@ end
     sol = solve(prob, tspan=dt, LGG09(δ=0.01, template=box5d))
     @test setrep(sol) == HPolyhedron{Float64, Vector{Float64}}
     @test dim(sol) == 5
+
+    # equivalent algorithm definitions
+    alg0 = LGG09(δ=0.01, template=box5d)
+    @test
+    alg1 = LGG09(δ=0.01, template=BoxDirections(5))
+    alg2 = LGG09(δ=0.01, template=:box, n=5)
+    alg3 = LGG09(δ=0.01, template=:box, dim=5)
+    @test alg1 == alg2 == alg3
+
+    @test !(alg0 == alg1) # alg1-3 use single-entry vectors, but alg0 uses Vector
+    @test collect(alg0.template) == Vector.(collect(alg1.template))
 end
 
 @testset "LGG09 algorithm: underapproximation" begin
