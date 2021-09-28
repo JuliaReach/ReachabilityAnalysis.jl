@@ -52,7 +52,6 @@ end
 
     # equivalent algorithm definitions
     alg0 = LGG09(δ=0.01, template=box5d)
-    @test
     alg1 = LGG09(δ=0.01, template=BoxDirections(5))
     alg2 = LGG09(δ=0.01, template=:box, n=5)
     alg3 = LGG09(δ=0.01, template=:box, dim=5)
@@ -60,6 +59,10 @@ end
 
     @test !(alg0 == alg1) # alg1-3 use single-entry vectors, but alg0 uses Vector
     @test collect(alg0.template) == Vector.(collect(alg1.template))
+    
+    # other directions
+    alg4 = LGG09(δ=0.01, template=:oct, dim=5)
+    @test alg4.template isa OctDirections && dim(alg4.template) == 5
 end
 
 @testset "LGG09 algorithm: underapproximation" begin
