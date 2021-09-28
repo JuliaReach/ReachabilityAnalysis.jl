@@ -69,19 +69,35 @@ function LGG09(; δ::N,
                sparse::Bool=false,
                cache::Bool=true) where {N, AM}
 
-    if !ismissing(vars)
-        if !ismissing(n)
-            _n = n
-        elseif !ismissing(dim)
-            _n = dim
-        else
+    got_vars = !ismissing(vars)
+
+    _n = missing
+    if !ismissing(n)
+        _n = n
+    elseif !ismissing(dim)
+        _n = dim
+    end
+    got_dim = !ismissing(_n)
+
+    _template = missing
+    if !isnothing(dirs)
+        _template = dirs
+    elseif !isnothing(template)
+        _template = template
+    end
+    got_template = !ismissing(_template)
+
+    if got_vars
+        if !got_dim
             throw(ArgumentError("the ambient dimension, `n` (or `dim`), should be specified"))
         end
         directions = _get_template(vars, _n)
-    elseif !isnothing(dirs)
-        directions = _get_template(dirs)
-    elseif !isnothing(template)
-        directions = _get_template(template)
+    elseif got_template
+        if got_dim
+            directions = _get_template(_template, _n)
+        else
+            directions = _get_template(_template)
+        end
     else
         throw(ArgumentError("either `vars`, `dirs` or `template` should be specified"))
     end
@@ -93,7 +109,12 @@ _get_template(template::AbstractDirections) = template
 _get_template(template::AbstractVector{N}) where {N<:Number} = CustomDirections([template])
 _get_template(template::AbstractVector{VT}) where {N<:Number, VT<:AbstractVector{N}} = CustomDirections(template)
 
+_get_template(template::Symbol, n::Int) = _get_template(Val(template), n)
+_get_template(::Val{:box}, n) = BoxDirections(n)
+_get_template(::Val{:oct}, n) = OctDirections(n)
+
 _get_template(vars::Int, n::Int) = _get_template((vars,), n)
+
 
 function _get_template(vars::VecOrTuple, n::Int)
     m = length(vars)
