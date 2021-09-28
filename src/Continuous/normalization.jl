@@ -285,7 +285,25 @@ function normalize(system::AbstractSystem)
     throw(ArgumentError("the system type $(typeof(system)) is currently not supported"))
 end
 
-# convenience extension to IVPs
+"""
+    normalize(ivp::InitialValueProblem)
+
+Transform an initial-value problem into a normalized (or canonical) form.
+
+### Input
+
+- `ivp` -- initial-value problem
+
+### Output
+
+Either the same initial-value problem if it already conforms to a canonical form,
+or a new one otherwise.
+
+### Notes
+
+This function extends [`normalize`](@ref normalize(::AbstractSystem)) for
+initial-value problems.
+"""
 function normalize(ivp::InitialValueProblem)
     return IVP(normalize(system(ivp)), initial_state(ivp))
 end
@@ -576,61 +594,4 @@ function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractLinearC
         ivp_norm = IVP(S_norm, X0_norm)
     end
     return ivp_norm
-end
-
-# ====================================================
-# Homogeneization of linear systems
-# ====================================================
-
-# Transform the canonical initial-value problem x' = Ax + u, x ∈ X
-# with u(0) ∈ U = {u} is a singleton into the (also canonical)
-# homogeneous problem y' = Â * y, y ∈ Y
-function homogeneize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
-    # homogeneized state matrix
-    U = inputset(ivp) |> ReachabilityAnalysis.next_set
-    A = state_matrix(ivp)
-    Â = _homogeneize_state_matrix(A, U)
-
-    # homogeneized input set
-    X0 = initial_state(ivp)
-    Y0 = _homogeneize_initial_state(X0)
-
-    X = stateset(ivp)
-    Y = _homogeneize_stateset(X)
-    ivph = IVP(CLCS(Â, Y), Y0)
-    return ivph
-end
-
-function _homogeneize_state_matrix(A::AbstractMatrix, U::Singleton)
-    u = element(U)
-    n = size(A, 1)
-    Â = zeros(n+1, n+1)
-    Â[1:n, 1:n] .= A
-    Â[1:n, n+1] .= u
-    return Â
-end
-
-function _homogeneize_initial_state(X0::Singleton{N}) where {N}
-    x0 = element(X0)
-    y0 = vcat(x0, one(N))
-    Y0 = Singleton(y0)
-    return Y0
-end
-
-function _homogeneize_initial_state(X0::LazySet{N}) where {N}
-    Y0 = X0 × Singleton(ones(N, 1))
-    return Y0
-end
-
-function _homogeneize_stateset(X::Universe)
-    Universe(dim(X) + 1)
-end
-
-function _homogeneize_stateset(X::LazySet)
-    X × Universe(1)
-end
-
-function _homogeneize_stateset(X::HalfSpace{N}) where {N}
-    a′ = vcat(X.a, zero(N))
-    HalfSpace(a′, X.b)
 end
