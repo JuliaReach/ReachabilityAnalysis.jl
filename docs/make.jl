@@ -80,18 +80,31 @@ LINEAR_PDE = ["Linear PDEs" => [
 #   "Heat transfer"                    => "examples/Heat1D.md",
 #   "Concrete heat of hydration"       => "examples/Concrete.md"
 
-LINEAR_SOLVERS = ["ASB07"    => "lib/algorithms/ASB07.md",
-                  "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
-                  "BOX"      => "lib/algorithms/BOX.md",
-                  "GLGM06"   => "lib/algorithms/GLGM06.md",
-                  "INT"      => "lib/algorithms/INT.md",
-                  "LGG09"    => "lib/algorithms/LGG09.md",
-                  "ORBIT"    => "lib/algorithms/ORBIT.md",
-                  "VREP"     => "lib/algorithms/VREP.md"]
+LINEAR_SOLVERS = ["ASB07"    => "man/algorithms/ASB07.md",
+                  "BFFPSV18" => "man/algorithms/BFFPSV18.md",
+                  "BOX"      => "man/algorithms/BOX.md",
+                  "GLGM06"   => "man/algorithms/GLGM06.md",
+                  "INT"      => "man/algorithms/INT.md",
+                  "LGG09"    => "man/algorithms/LGG09.md",
+                  "ORBIT"    => "man/algorithms/ORBIT.md",
+                  "VREP"     => "man/algorithms/VREP.md"]
 
-NONLINEAR_SOLVERS = ["CARLIN"   => "lib/algorithms/CARLIN.md",
-                     "QINT"     => "lib/algorithms/QINT.md",
-                     "TMJets"   => "lib/algorithms/TMJets.md"]
+LINEAR_SOLVERS_API = ["ASB07"    => "lib/algorithms/ASB07.md",
+                      "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
+                      "BOX"      => "lib/algorithms/BOX.md",
+                      "GLGM06"   => "lib/algorithms/GLGM06.md",
+                      "INT"      => "lib/algorithms/INT.md",
+                      "LGG09"    => "lib/algorithms/LGG09.md",
+                      "ORBIT"    => "lib/algorithms/ORBIT.md",
+                      "VREP"     => "lib/algorithms/VREP.md"]
+
+NONLINEAR_SOLVERS = ["CARLIN"   => "man/algorithms/CARLIN.md",
+                     "QINT"     => "man/algorithms/QINT.md",
+                     "TMJets"   => "man/algorithms/TMJets.md"]
+
+NONLINEAR_SOLVERS_API = ["CARLIN"   => "lib/algorithms/CARLIN.md",
+                         "QINT"     => "lib/algorithms/QINT.md",
+                         "TMJets"   => "lib/algorithms/TMJets.md"]
 
 # ========================
 # Docs contents
@@ -116,16 +129,16 @@ makedocs(
                           HYBRID_SYSTEMS,
                           CLOCKED_SYSTEMS),
 
-        "Manual"       => ["Systems"       => "man/systems.md",
-                           "Reach-sets"    => "man/reachsets.md",
-                           "Flowpipes"     => "man/flowpipes.md",
-                           "Linear solvers"    => "man/linear_solvers.md",
-                           "Nonlinear solvers" => "man/nonlinear_solvers.md",
-                           "Solutions"     => "man/solutions.md",
-                           "Invariants"    => "man/invariants.md",
-                           "Visualization" => "man/visualization.md",
-                           "Projections"   => "man/projections.md",
-                           "Clustering"    => "man/clustering.md"],
+        "Manual"       => ["Systems"           => "man/systems.md",
+                           "Reach-sets"        => "man/reachsets.md",
+                           "Flowpipes"         => "man/flowpipes.md",
+                           "Linear solvers"    => LINEAR_SOLVERS,
+                           "Nonlinear solvers" => NONLINEAR_SOLVERS,
+                           "Solutions"         => "man/solutions.md",
+                           "Invariants"        => "man/invariants.md",
+                           "Visualization"     => "man/visualization.md",
+                           "Projections"       => "man/projections.md",
+                           "Clustering"        => "man/clustering.md"],
 
         "Benchmarks" => ["Repeatability evaluations"   => "man/benchmarks/repeatability.md",
                          "Model library"               => "man/benchmarks/model_library.md",
@@ -145,8 +158,8 @@ makedocs(
         "API Reference" => ["Systems"                       => "lib/systems.md",
                             "Reach-sets"                    => "lib/reachsets.md",
                             "Flowpipes"                     => "lib/flowpipes.md",
-                            "Linear solvers"                => LINEAR_SOLVERS,
-                            "Nonlinear solvers"             => NONLINEAR_SOLVERS,
+                            "Linear solvers"                => LINEAR_SOLVERS_API,
+                            "Nonlinear solvers"             => NONLINEAR_SOLVERS_API,
                             "Solutions"                     => "lib/solutions.md",
                             "Discretization"                => "lib/discretize.md",
                             "Projections"                   => "lib/projections.md",

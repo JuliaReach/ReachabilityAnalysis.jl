@@ -3,6 +3,8 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-```@docs
-ORBIT
-```
+# Zonotope-based method (GLGM06)
+
+## Method
+
+## Examples

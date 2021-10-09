@@ -3,6 +3,8 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-```@docs
-ORBIT
-```
+# Interval matrix-zonotope method (ASB07)
+
+## Method
+
+## Examples
