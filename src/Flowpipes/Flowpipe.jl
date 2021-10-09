@@ -239,7 +239,7 @@ tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr), contiguous=true)
 tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
 
 # further setops
-LazySets.is_intersection_empty(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+LazySets.isdisjoint(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
 Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
 Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 

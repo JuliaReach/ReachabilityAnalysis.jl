@@ -145,13 +145,8 @@ LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.
 # ------------------------------
 
 # interface
-is_intersection_empty(sol::ReachSolution, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
-is_intersection_empty(Y::SetOrReachSet, sol::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
-Base.isdisjoint(sol::ReachSolution, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
-Base.isdisjoint(Y::SetOrReachSet, sol::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol.F, Y, method)
-
-is_intersection_empty(sol1::ReachSolution, sol2::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol1.F, sol2.F, method)
-Base.isdisjoint(sol1::ReachSolution, sol2::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = is_intersection_empty(sol1.F, sol2.F, method)
+isdisjoint(sol1::ReachSolution, sol2::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = isdisjoint(sol1.F, sol2.F, method)
+@commutative isdisjoint(sol::ReachSolution, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = isdisjoint(sol.F, Y, method)
 
 # ------------------------------
 # Methods to check inclusion

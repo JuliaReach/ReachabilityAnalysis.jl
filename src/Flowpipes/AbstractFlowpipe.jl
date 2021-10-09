@@ -235,13 +235,8 @@ Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
 # ------------------------------
 
 # interface
-is_intersection_empty(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
-is_intersection_empty(Y::SetOrReachSet, F::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
-Base.isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
-Base.isdisjoint(Y::SetOrReachSet, F::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
-
-is_intersection_empty(F1::AbstractFlowpipe, F2::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> isdisjoint(F1, X, method), array(F2))
-Base.isdisjoint(F1::AbstractFlowpipe, F2::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> isdisjoint(F1, X, method), array(F2))
+isdisjoint(F1::AbstractFlowpipe, F2::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> isdisjoint(F1, X, method), array(F2))
+@commutative isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
 
 # flowpipe and vector of reach-sets TODO
 
