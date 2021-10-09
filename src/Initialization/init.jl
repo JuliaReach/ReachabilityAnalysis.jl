@@ -24,7 +24,7 @@ using ExprTools: splitdef, combinedef
 using LazySets: LinearMap, AffineMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
-using LazySets: Interval, isdisjoint, radius, sample, ∅, dim, scale, scale!
+using LazySets: Interval, radius, sample, ∅, dim, scale, scale!
 
 # in-place set operations
 using LazySets: linear_map!
@@ -53,11 +53,11 @@ const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.In
 
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
-                 intersection, is_intersection_empty, directions,
-                 linear_map, LinearMap, _split, split!, set, array, _isapprox
+                 intersection, directions, linear_map, LinearMap, _split, split!,
+                 set, array, _isapprox
 
 import MathematicalSystems: discretize
-import Base: ∈, ∩, convert
+import Base: ∈, ∩, convert, isdisjoint
 import LinearAlgebra: normalize
 
 import CommonSolve: solve # common solve name
