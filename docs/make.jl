@@ -60,6 +60,7 @@ UNCERTAIN_PARAMETERS = ["Modeling uncertain parameters" => [
 
 HYBRID_SYSTEMS = ["Hybrid systems" => [
     "Introduction"                     => "tutorials/hybrid_systems/introduction.md",
+    "Square wave oscillator"           => "models/SquareWaveOscillator.md",
     "Thermostat model"                 => "tutorials/hybrid_systems/thermostat.md"]]
 
 CLOCKED_SYSTEMS = ["Clocked systems"  => [
