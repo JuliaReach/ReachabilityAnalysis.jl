@@ -118,7 +118,7 @@ makedocs(
     doctest = false,
     strict = false,
     pages = [
-        "Introduction" => "index.md",
+        "Overview" => "index.md",
 
         "Tutorials"    => vcat(SET_REPRESENTATIONS,
                           LINEAR_METHODS,
