@@ -3,6 +3,8 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-```@docs
-ORBIT
-```
+# One-dimensional quadratic propagation (QINT)
+
+## Method
+
+## Examples

@@ -3,6 +3,8 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-```@docs
-ORBIT
-```
+# Hyperrectangle-based method (BOX)
+
+## Method
+
+## Examples
