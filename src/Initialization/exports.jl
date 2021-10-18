@@ -3,7 +3,7 @@ export
     solve,
     normalize,
     discretize,
-    homogeneize,
+    homogenize,
     ensemble,
 
 # Algorithms

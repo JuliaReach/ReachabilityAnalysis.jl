@@ -26,5 +26,5 @@ normalize(::InitialValueProblem)
 ## Homogeneization
 
 ```@docs
-homogeneize
+homogenize
 ```
