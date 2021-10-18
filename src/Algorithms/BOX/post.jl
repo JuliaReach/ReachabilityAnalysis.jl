@@ -15,9 +15,9 @@ function post(alg::BOX{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)
 
-    # homogeneize the initial-value problem
-    if haskey(kwargs, :homogeneize) && kwargs[:homogeneize] == true
-        ivp_norm = homogeneize(ivp_norm)
+    # homogenize the initial-value problem
+    if haskey(kwargs, :homogenize) && kwargs[:homogenize] == true
+        ivp_norm = homogenize(ivp_norm)
     end
 
     # discretize system
