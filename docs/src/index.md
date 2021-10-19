@@ -7,48 +7,31 @@ DocTestSetup = :(using ReachabilityAnalysis)
 ## What is reachability analysis?
 
 Reachability analysis is a numerical method that aims to compute sets of states
-reachable by dynamical systems under model uncertainties.
+reachable by dynamical systems from all initial states and for all admissible inputs
+and parameters.
 
 ## Where is reachability being applied?
 
-### Robotics
+Reachability analysis is of interest in diverse domains including automotive,
+aerospace, power systems, system biology, analog/mixed-signal circuits, robotics,
+and safe machine learning. We refer to [[AFG20]](@ref) for an up-to-date review with relevant references.
 
+Below we briefly comment on a few remarkable problems where reachability is being
+applied. We refer to the technical literature for further applications;
+see [Bibliography](@ref) for a selection of papers to get you started!
 
-
-### Aeronautics
-
-
-
-### Robotics
-
-
-## What kind of problems does reachability address?
-
-Reachability analysis has applications in diverse domains such as:
-
-### Safety verification
-
-Determining whether a system is safe, i.e. to verify
+**Formal verification.** Determining whether a system is safe, i.e. to verify
 if it does not enter into a region of unsafe sets. Typical applications are
 assessing the critical distance between autonomous vehicles or robots, or critical
 concentration of chemicals in a reactor.
 
-### Validation of control strategies
-
-Checking if the system trajectories stay in a region around a reference trajectory, or reach a goal region around a setpoint,
+**Validation of control strategies.** Checking if the system trajectories stay in a region around a reference trajectory, or reach a goal region around a setpoint,
 for any admissible value of the non-deterministic inputs, initial conditions
 or noise.
 
-### Controller synthesis
+**Controller synthesis.** The controller synthesis problem consists in finding parameter sets of controllers that satisfy safety or performance constraints.
 
-Finding parameter sets of controllers that satisfy safety or performance constraints.
-
-### Deep neural network verification
-
-Providing formal guarantees for the network behavior subject to perturbations in the inputs, e.g. detecting that small changes in an input image do not cause the network o misclassify it.
-
-We refer to the technical literature for further applications; see [Bibliography](@ref) for a selection of papers to get you started!
-
+**Deep neural network verification.** Providing formal guarantees for the network behavior subject to perturbations in the inputs, e.g. detecting that small changes in an input image do not cause the network o misclassify it.
 
 ## How to read this manual
 
@@ -63,23 +46,15 @@ with working code so that you can also experiment with the answers.
 This library implements reachability analysis methods for systems of ordinary
 differential equations (ODEs), for both continuous and hybrid dynamical systems.
 
-The following types of ODEs are currently supported:
+The following types of systems are currently supported:
 
 - Continuous ODEs with linear dynamics.
 - Continuous ODEs with non-linear dynamics.
 - Hybrid systems with piecewise-affine dynamics.
 - Hybrid systems with non-linear dynamics.
+- Hybrid systems with space-triggered or time-triggered transitions.
 
-For hybrid systems, the transitions may be space-triggered or time-triggered
-(or both).
-
-In all the problems mentioned above, the library can handle uncertainties in
-the sets of initial states, inputs, or parameter variation.
-
-We refer to the `Algorithms` section for detailed descriptions of the algorithms
-available, as well as the references to the technical literature.
-
-- Solve the same ODE repeatedly for an *infinite* number of different initial conditions.
+The library can handle uncertainties in the sets of initial states, inputs, or parameter variation.
 
 ## How to install the package?
 
