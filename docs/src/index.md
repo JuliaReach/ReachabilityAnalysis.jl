@@ -14,11 +14,12 @@ and parameters.
 
 Reachability analysis is of interest in diverse domains including automotive,
 aerospace, power systems, system biology, analog/mixed-signal circuits, robotics,
-and safe machine learning. We refer to [[AFG20]](@ref) for an up-to-date review with relevant references.
+and safe machine learning.
 
 Below we briefly comment on a few remarkable problems where reachability is being
 applied. We refer to the technical literature for further applications;
-see [Bibliography](@ref) for a selection of papers to get you started!
+see [Bibliography](@all_ref) for a selection of papers to get you started!
+An up-to-date review with relevant references can be found in [[AFG20]](@ref).
 
 **Formal verification.** Determining whether a system is safe, i.e. to verify
 if it does not enter into a region of unsafe sets. Typical applications are
@@ -39,7 +40,7 @@ Please note that the manual contains a [Frequently Asked Questions (FAQ)](https:
 with working code so that you can also experiment with the answers.
 
 !!! note
-    If you have questions, want to chat about how to apply this package, or if you found a bug or have trouble running an example, feel free to open an issue or make a pull request on the [project's GitHub page](https://github.com/mforets/ReachabilityAnalysis.jl). You can also find us at the [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge), and at the `#reachability-analysis` stream on JuliaLang's zulip channel.
+    If you have questions, want to chat about how to apply this package, or if you found a bug or have trouble running an example, feel free to open an issue or make a pull request on the [project's GitHub page](https://github.com/mforets/ReachabilityAnalysis.jl). You can also find us at the [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge), and at the `#reachability-analysis` stream on [JuliaLang's zulip](https://julialang.zulipchat.com) channel.
 
 ## Features
 
