@@ -95,6 +95,9 @@ include("Forward.jl")
 # Backward approximation
 include("Backward.jl")
 
+# Optimization in template directions
+include("TemplateOptimization.jl")
+
 # Discretize using the correction hull of the matrix exponential
 include("CorrectionHull.jl")
 
