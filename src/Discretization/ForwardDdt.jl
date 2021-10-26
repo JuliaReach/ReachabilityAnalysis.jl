@@ -92,9 +92,9 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::ForwardDdt)
 end
 
 function _estimate_bloating_value_ddt(A, X0, δ)
-    norm_A = opnorm(A)
-    u = 1/8 * norm_A^2 * δ^2
-    v = exp(norm_A * δ) - 1 - (norm_A * δ) - (norm_A^2 * δ^2 / 2)
+    norm_A_δ = opnorm(A) * δ
+    u = 1/8 * norm_A_δ^2
+    v = exp(norm_A_δ) - 1 - norm_A_δ - (norm_A_δ^2 / 2)
     return (u + v) * norm(X0)
 end
 
