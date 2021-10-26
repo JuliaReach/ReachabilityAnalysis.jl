@@ -1,4 +1,4 @@
-using JuMP
+using .JuMP
 
 struct ForwardBackward{EM, SO, SI, IT, BT, S<:MOI.AbstractOptimizer} <: AbstractApproximationModel
     exp::EM

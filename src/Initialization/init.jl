@@ -119,6 +119,9 @@ function __init__()
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
 
+    # methods that require optimization modeling and solvers
+    @require JuMP = "4076af6c-e467-56ae-b986-b466b2749572" include("init_JuMP.jl")
+
     # tools for symbolic computation
     #@require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
     @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" include("init_Symbolics.jl")
