@@ -123,7 +123,8 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
         u = center(Uz)
         Uz = Zonotope(zeros(dim(U)), genmat(Uz))
         F = input_correction(A_interval, δ, alg.order)
-        Fu = Singleton(F * u)
+        Fu = F * u
+        Fu = convert(Hyperrectangle, IntervalBox(Fu))  # convert to LazySet type
         Ω0 = minkowski_sum(Ω0, Fu)
     end
     # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
