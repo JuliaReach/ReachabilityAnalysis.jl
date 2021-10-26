@@ -64,9 +64,12 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     return InitialValueProblem(Sdis, Ω0)
 end
 
-function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg)
+function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg, P=nothing)
     X0z = _convert_or_overapproximate(X0, Zonotope)
     Y = _overapproximate(Φ * X0z, Zonotope)
+    if !isnothing(P)
+        Y = minkowski_sum(Y, P)
+    end
 
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
@@ -116,12 +119,28 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
 
     A_interval = _interval_matrix(A)
 
-    Ω0 = _discretize_chull(A_interval, Φ, X0, δ, alg)
+    origin_not_contained_in_U = zeros(dim(U)) ∉ Uz
 
-    if zeros(dim(U)) ∉ Uz
-        # shift U to origin and apply another correction hull to the offset
+    if origin_not_contained_in_U
+        # shift U to origin
         u = center(Uz)
         Uz = Zonotope(zeros(dim(U)), genmat(Uz))
+    end
+
+    Cδ = _Cδ(A_interval, δ, alg.order)
+
+    if origin_not_contained_in_U
+        # compute C(δ) * u
+        Pu = Cδ * u
+        Pu = convert(Hyperrectangle, IntervalBox(Pu))  # convert to LazySet type
+    else
+        Pu = nothing
+    end
+
+    Ω0 = _discretize_chull(A_interval, Φ, X0, δ, alg, Pu)
+
+    if origin_not_contained_in_U
+        # apply another correction hull for the shifted U
         F = input_correction(A_interval, δ, alg.order)
         Fu = F * u
         Fu = convert(Hyperrectangle, IntervalBox(Fu))  # convert to LazySet type
@@ -130,8 +149,10 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
 
     # compute C(δ) * U
-    Cδ = _Cδ(A_interval, δ, alg.order)
     Ud = _overapproximate(Cδ * Uz, Zonotope)
+
+    # add inputs to Ω0
+    Ω0 = minkowski_sum(Ω0, Ud)
 
     B = Matrix(IdentityMultiple(one(eltype(A)), size(A, 1)))
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, Ud)
