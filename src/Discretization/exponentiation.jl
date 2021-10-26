@@ -117,11 +117,19 @@ _alias(alg::Val{:pade}) = PadeExp
 @inline _exp(A::SparseMatrixCSC, ::PadeExpAlg) = padm(A)
 
 function _exp(A::AbstractMatrix, alg::IntervalExpAlg)
-    return exp_overapproximation(A, one(eltype(A)), alg.order)
+    return exp_overapproximation(_interval_matrix(A), one(eltype(A)), alg.order)
 end
 
 function _exp(A::AbstractMatrix, δ, alg::IntervalExpAlg)
-    return exp_overapproximation(A, δ, alg.order)
+    return exp_overapproximation(_interval_matrix(A), δ, alg.order)
+end
+
+function _interval_matrix(A::AbstractIntervalMatrix)
+    return A
+end
+
+function _interval_matrix(A::AbstractMatrix)
+    return IntervalMatrix(A)
 end
 
 """
