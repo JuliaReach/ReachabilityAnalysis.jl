@@ -102,7 +102,6 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     X0 = initial_state(ivp)
     X = stateset(ivp)
     U = next_set(inputset(ivp), 1) # inputset(ivp)
-    n = size(A, 1)
 
     # here U is an interval matrix map of a lazyset, TODO refactor / dispatch
     if isa(U, LinearMap)
@@ -112,32 +111,28 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     else # LazySet
         Uz = _convert_or_overapproximate(Zonotope, U)
     end
-    if zeros(dim(U)) ∉ Uz
-        error("this function is not implemented, see issue #253")
-    end
-
-    # TODO refactor Ω0_homog
-    # TODO refactor / dispatch
-    X0z = _convert_or_overapproximate(Zonotope, X0)
 
     Φ = _exp(A, δ, alg.exp)
-    if isinterval(Φ)
-        Y = _overapproximate(Φ * X0z, Zonotope)
-    else
-        Y = linear_map(Φ, X0z)
-    end
 
-    H = overapproximate(CH(X0z, Y), Zonotope)
-    F = correction_hull(A, δ, alg.order)
-    R = _overapproximate(F * X0z, Zonotope)
-    Ω0_homog = minkowski_sum(H, R)
+    A_interval = _interval_matrix(A)
+
+    Ω0 = _discretize_chull(A_interval, Φ, X0, δ, alg)
+
+    if zeros(dim(U)) ∉ Uz
+        # shift U to origin and apply another correction hull to the offset
+        u = center(Uz)
+        Uz = Zonotope(zeros(dim(U)), genmat(Uz))
+        F = input_correction(A_interval, δ, alg.order)
+        Fu = Singleton(F * u)
+        Ω0 = minkowski_sum(Ω0, Fu)
+    end
+    # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
 
     # compute C(δ) * U
-    Cδ = _Cδ(A, δ, alg.order)
+    Cδ = _Cδ(A_interval, δ, alg.order)
     Ud = _overapproximate(Cδ * Uz, Zonotope)
-    Ω0 = minkowski_sum(Ω0_homog, Ud)
-    # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
-    Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
-    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
+
+    B = Matrix(IdentityMultiple(one(eltype(A)), size(A, 1)))
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, Ud)
     return InitialValueProblem(Sdis, Ω0)
 end
