@@ -29,6 +29,7 @@ export
     CorrectionHull,
     NoBloating,
     StepIntersect,
+    ForwardBackward,
 
 # Flowpipes
     flowpipe,

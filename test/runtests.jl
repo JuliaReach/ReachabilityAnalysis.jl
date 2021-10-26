@@ -15,6 +15,7 @@ const IA = IntervalArithmetic
 # optional dependencies
 using Symbolics
 import DifferentialEquations
+import JuMP
 
 # load test models
 include("models/harmonic_oscillator.jl")

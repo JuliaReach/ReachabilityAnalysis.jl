@@ -5,9 +5,11 @@ end
 CurrentModule = ReachabilityAnalysis
 ```
 
-## Hyperrectangular sets
+# Hyperrectangular sets
 
-A special class of polyhedra are (...)
+## Definition
 
 
-##  Set propagation using hyperrectangles
+
+
+##  Set propagation

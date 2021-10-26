@@ -104,6 +104,9 @@ include("StepIntersect.jl")
 # Forward approximation from d/dt
 include("ForwardDdt.jl")
 
+# Forward-Backward discretization using continuous convex hull
+include("ForwardBackward.jl")
+
 # =========================================================================
 # Alternatives to apply the set operation depending on the desired output
 # =========================================================================
