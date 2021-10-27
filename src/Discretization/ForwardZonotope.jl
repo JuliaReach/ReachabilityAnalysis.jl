@@ -57,7 +57,7 @@ function discretize(ivp::IVP{<:CLCS, <:AbstractZonotope}, δ, alg::ForwardZonoto
     Φ = _exp(A, δ, alg.exp)
 
     # shared code
-    Z, α = _discretize_zonotope(Φ, X0, alg::ForwardZonotope, δ, norm_A)
+    Z, α = _discretize_zonotope(Φ, X0, alg, δ, norm_A)
 
     # compute bloating of Z
     Ω0 = minkowski_sum(Z, BallInf(zeros(n), α))
