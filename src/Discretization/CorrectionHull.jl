@@ -64,9 +64,12 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
     return InitialValueProblem(Sdis, Ω0)
 end
 
-function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg)
+function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg, P=nothing)
     X0z = _convert_or_overapproximate(X0, Zonotope)
     Y = _overapproximate(Φ * X0z, Zonotope)
+    if !isnothing(P)
+        Y = minkowski_sum(Y, P)
+    end
 
     H = overapproximate(CH(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
@@ -102,42 +105,57 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     X0 = initial_state(ivp)
     X = stateset(ivp)
     U = next_set(inputset(ivp), 1) # inputset(ivp)
-    n = size(A, 1)
 
     # here U is an interval matrix map of a lazyset, TODO refactor / dispatch
     if isa(U, LinearMap)
         Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
-        B = matrix(U)
+        B = matrix(U) # TODO remove this case, since preprocessing normalize(ivp) would make B the identity
         Uz = isinterval(B) ? _overapproximate(B * Uz, Zonotope) : linear_map(B, Uz)
     else # LazySet
         Uz = _convert_or_overapproximate(Zonotope, U)
     end
-    if zeros(dim(U)) ∉ Uz
-        error("this function is not implemented, see issue #253")
-    end
-
-    # TODO refactor Ω0_homog
-    # TODO refactor / dispatch
-    X0z = _convert_or_overapproximate(Zonotope, X0)
 
     Φ = _exp(A, δ, alg.exp)
-    if isinterval(Φ)
-        Y = _overapproximate(Φ * X0z, Zonotope)
-    else
-        Y = linear_map(Φ, X0z)
+
+    A_interval = _interval_matrix(A)
+
+    origin_not_contained_in_U = zeros(dim(U)) ∉ Uz
+
+    if origin_not_contained_in_U
+        # shift U to origin
+        u = center(Uz)
+        Uz = Zonotope(zeros(dim(U)), genmat(Uz))
     end
 
-    H = overapproximate(CH(X0z, Y), Zonotope)
-    F = correction_hull(A, δ, alg.order)
-    R = _overapproximate(F * X0z, Zonotope)
-    Ω0_homog = minkowski_sum(H, R)
+    # note: this evaluates Φ₁(A, δ) using Taylor expansion of the interval matrix
+    Cδ = _Cδ(A_interval, δ, alg.order)
+
+    if origin_not_contained_in_U
+        # compute C(δ) * u
+        Pu = Cδ * u
+        Pu = convert(Hyperrectangle, IntervalBox(Pu))  # convert to LazySet type
+    else
+        Pu = nothing
+    end
+
+    Ω0 = _discretize_chull(A_interval, Φ, X0, δ, alg, Pu)
+
+    if origin_not_contained_in_U
+        # apply another correction hull for the shifted U
+        F = input_correction(A_interval, δ, alg.order)
+        Fu = F * u
+        Fu = convert(Hyperrectangle, IntervalBox(Fu))  # convert to LazySet type
+        Ω0 = minkowski_sum(Ω0, Fu)
+    end
+    # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
 
     # compute C(δ) * U
-    Cδ = _Cδ(A, δ, alg.order)
     Ud = _overapproximate(Cδ * Uz, Zonotope)
-    Ω0 = minkowski_sum(Ω0_homog, Ud)
-    # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
-    Idn = Φ # IntervalMatrix(one(A)) or IdentityMultiple(one(eltype(A)), n) # FIXME
-    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, Idn, X, Ud)
+
+    # add inputs to Ω0
+    Ω0 = minkowski_sum(Ω0, Ud)
+
+    B = Matrix(IdentityMultiple(one(eltype(A)), size(A, 1)))
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, Ud)
     return InitialValueProblem(Sdis, Ω0)
 end

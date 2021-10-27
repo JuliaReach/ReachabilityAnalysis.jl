@@ -1,4 +1,4 @@
-using IntervalMatrices: correction_hull
+using IntervalMatrices: correction_hull, input_correction
 
 # ==================================
 # Abstract interface
