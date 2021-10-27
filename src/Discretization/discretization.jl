@@ -107,6 +107,9 @@ include("ForwardDdt.jl")
 # Forward-Backward discretization using continuous convex hull
 include("ForwardBackward.jl")
 
+# Forward approximation with zonotope
+include("ForwardZonotope.jl")
+
 # =========================================================================
 # Alternatives to apply the set operation depending on the desired output
 # =========================================================================
