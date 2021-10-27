@@ -109,7 +109,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     # here U is an interval matrix map of a lazyset, TODO refactor / dispatch
     if isa(U, LinearMap)
         Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
-        B = matrix(U)
+        B = matrix(U) # TODO remove this case, since preprocessing normalize(ivp) would make B the identity
         Uz = isinterval(B) ? _overapproximate(B * Uz, Zonotope) : linear_map(B, Uz)
     else # LazySet
         Uz = _convert_or_overapproximate(Zonotope, U)
@@ -127,6 +127,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
         Uz = Zonotope(zeros(dim(U)), genmat(Uz))
     end
 
+    # note: this evaluates Φ₁(A, δ) using Taylor expansion of the interval matrix
     Cδ = _Cδ(A_interval, δ, alg.order)
 
     if origin_not_contained_in_U
