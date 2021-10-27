@@ -12,19 +12,19 @@ Reachability analysis is concerned with computing rigorous approximations of the
 of states reachable by a dynamical system. In the scope of this package are systems
 modeled by **continuous** or **hybrid** dynamical systems, where the dynamics changes with discrete events.
 Systems are modelled by ordinary differential equations (ODEs) or semi-discrete partial differential equations (PDEs),
-with uncertain initial states, uncertain parameters or non-deterministic inputs.
+with **uncertain initial states**, **uncertain parameters** or **non-deterministic inputs**.
 
 The library is oriented towards a class of numerical methods known as **set propagation techniques:**
 to compute the set of states reachable by continuous or hybrid systems, such methods iteratively
 propagate a sequence of sets starting from the set of initial states, according to the systems' dynamics.
 
-See our [Commonly asked questions](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/man/faq/#Commonly-asked-questions-(FAQ)-1) (FAQ) section for pointers to the relevant literature, related tools and more.
+See our [Frequently asked questions](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/man/faq/#Commonly-asked-questions-(FAQ)-1) (FAQ) section for pointers to the relevant literature, related tools and more.
 
 ## 🎯  Table of Contents
 
 💾 [Installation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--installation)
 
-📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation) << WORK-IN-PROGRESS
+📙 [Documentation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--documentation)
 
 🎨 [Features](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--features)
 
@@ -159,9 +159,14 @@ plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
 
 ## :blue_book: Publications
 
-This library has been applied in a number of scientic works. We list them in reverse chronological order.
+This library has been applied in a number of scientic works. 
 
-[11] **Combining Set Propagation with Finite Element Methods for Time Integration in Transient Solid Mechanics Problems.** Forets, Marcelo, Daniel Freire Caporale, and Jorge M. Pérez Zerpa. arXiv preprint [arXiv:2105.05841](https://arxiv.org/abs/2105.05841) (2021).
+<details>
+<summary>Click to see the full list of publications that use ReachabilityAnalysis.jl.</summary>
+  
+We list them in reverse chronological order.
+  
+[11] **Combining Set Propagation with Finite Element Methods for Time Integration in Transient Solid Mechanics Problems.** Forets, Marcelo, Daniel Freire Caporale, and Jorge M. Pérez Zerpa. arXiv preprint [arXiv:2105.05841](https://arxiv.org/abs/2105.05841). Accepted in Computers & Structures (2021).
 
 [10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325). Published in
 [18th ACM-IEEE International Conference on Formal Methods and Models for System Design
@@ -188,7 +193,9 @@ Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Veri
 
 *Note:* Articles [1-7] use the former codebase `Reachability.jl`.
 
-## 📜  Citation
+</details>
+  
+## 📜  How to cite
 
 Research credit and full references to the scientific papers presenting the algorithms implemented in this package can be found in the source code for each algorithm and in the [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.
 
