@@ -82,7 +82,7 @@ function discretize(ivp::IVP{<:CLCCS, <:AbstractZonotope}, δ, alg::ForwardZonot
     Φ = _exp(A, δ, alg.exp)
 
     # shared code
-    Z, α = _discretize_zonotope(Φ, X0, alg::ForwardZonotope, δ, norm_A)
+    Z, α = _discretize_zonotope(Φ, X0, alg, δ, norm_A)
 
     # compute bloating factor β
     U = next_set(inputset(ivp), 1)
