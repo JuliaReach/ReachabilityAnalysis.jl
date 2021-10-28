@@ -68,7 +68,7 @@ function _post!(U::LazySet, alg::ORBIT{N, VT}, F, ivp, NSTEPS, Δt0;
     A = state_matrix(ivp)
     n = size(A, 1)
     X0 = initial_state(ivp)
-    U = U = next_set(inputset(ivp), 1)
+    U = next_set(inputset(ivp), 1)
 
     # discretized matrix
     Φ = _exp(A, δ, approx_model.exp)
