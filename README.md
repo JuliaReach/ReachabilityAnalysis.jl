@@ -34,7 +34,7 @@ See our [Frequently asked questions](https://juliareach.github.io/ReachabilityAn
 
 :blue_book: [Publications](https://github.com/JuliaReach/ReachabilityAnalysis.jl#blue_book-publications)
 
-📜 [Citation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#--citation)
+📜 [Citation](https://github.com/JuliaReach/ReachabilityAnalysis.jl#how-to-cite)
 
 ## 💾  Installation
 
