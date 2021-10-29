@@ -95,23 +95,23 @@ include("Forward.jl")
 # Backward approximation
 include("Backward.jl")
 
+# Intersect one step forward in time with one step backward
+include("StepIntersect.jl")
+
 # Discretize using the correction hull of the matrix exponential
 include("CorrectionHull.jl")
 
-# Intersect one step forward in time with one step backward
-include("StepIntersect.jl")
+# First-order approximation from d/dt
+include("FirstOrderddt.jl")
+
+# First-order approximation with zonotope
+include("FirstOrderZonotope.jl")
 
 # First-order approximation
 include("FirstOrder.jl")
 
-# Forward approximation from d/dt
-include("FirstOrderddt.jl")
-
 # Forward-Backward discretization using continuous convex hull
 include("ForwardBackward.jl")
-
-# Forward approximation with zonotope
-include("ForwardZonotope.jl")
 
 # =========================================================================
 # Alternatives to apply the set operation depending on the desired output

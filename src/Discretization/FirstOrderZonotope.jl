@@ -1,6 +1,6 @@
-# ==================================
-# Approximation model with zonotopes
-# ==================================
+# ==============================================
+# First-order approximation model with zonotopes
+# ==============================================
 
 """
     FirstOrderZonotope{EM} <: AbstractApproximationModel

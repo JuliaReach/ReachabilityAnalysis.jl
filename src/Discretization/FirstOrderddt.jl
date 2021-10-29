@@ -1,6 +1,6 @@
-# ==================================
-# Forward approximation from d/dt
-# ==================================
+# ===================================
+# First-order approximation from d/dt
+# ===================================
 
 """
     FirstOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
