@@ -23,13 +23,15 @@ export
     VREP,
 
 # Approximation models
-    Forward,
-    Backward,
-    Discrete,
+    FirstOrderddt,
+    FirstOrderZonotope,
     CorrectionHull,
+    FirstOrder,
+    ForwardBackward,
+    #Backward,
+    Forward,
     NoBloating,
     StepIntersect,
-    ForwardBackward,
 
 # Flowpipes
     flowpipe,

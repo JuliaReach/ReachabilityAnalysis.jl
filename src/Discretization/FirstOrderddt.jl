@@ -3,10 +3,10 @@
 # ==================================
 
 """
-    ForwardDdt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
+    FirstOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 
-Forward approximation model used in `d/dt`. It can be used for overapproximation
-and underapproximation.
+First order approximation model used in the tool `d/dt`.
+It can be used for overapproximation and underapproximation.
 
 ### Fields
 
@@ -37,7 +37,7 @@ set.
 E. Asarin, T. Dang, O. Maler, O. Bournez: *Approximate reachability analysis of
 piecewise-linear dynamical systems*. HSCC 2000.
 """
-struct ForwardDdt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
+struct FirstOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     oa::Bool
     exp::EM
     setops::SO
@@ -46,16 +46,16 @@ struct ForwardDdt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     backend::BT
 end
 
-hasbackend(alg::ForwardDdt) = !isnothing(alg.backend)
+hasbackend(alg::FirstOrderddt) = !isnothing(alg.backend)
 
 # convenience constructor using symbols
-function ForwardDdt(; oa::Bool=true, exp=BaseExp, setops=:lazy, sih=:concrete,
+function FirstOrderddt(; oa::Bool=true, exp=BaseExp, setops=:lazy, sih=:concrete,
                       inv=false, backend=nothing)
-    return ForwardDdt(oa, _alias(exp), _alias(setops), Val(sih), Val(inv), backend)
+    return FirstOrderddt(oa, _alias(exp), _alias(setops), Val(sih), Val(inv), backend)
 end
 
-function Base.show(io::IO, alg::ForwardDdt)
-    print(io, "`ForwardDdt` approximation model with: \n")
+function Base.show(io::IO, alg::FirstOrderddt)
+    print(io, "`FirstOrderddt` approximation model with: \n")
     print(io, "    - $(alg.oa ? "over" : "under")approximation \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
     print(io, "    - set operations method: $(alg.setops)\n")
@@ -64,14 +64,14 @@ function Base.show(io::IO, alg::ForwardDdt)
     print(io, "    - polyhedral computations backend: $(alg.backend)")
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::ForwardDdt) = print(io, alg)
+Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderddt) = print(io, alg)
 
 # ------------------------------------------------------------
-# ForwardDdt Approximation: Homogeneous case
+# FirstOrderddt Approximation: Homogeneous case
 # ------------------------------------------------------------
 
 # if A == |A|, then Φ can be reused in the computation of Φ₂(|A|, δ)
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::ForwardDdt)
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::FirstOrderddt)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 

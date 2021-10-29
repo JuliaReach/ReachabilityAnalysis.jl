@@ -3,9 +3,9 @@
 # ==================================
 
 """
-    ForwardZonotope{EM} <: AbstractApproximationModel
+    FirstOrderZonotope{EM} <: AbstractApproximationModel
 
-Forward approximation model that works with zonotopes.
+First order approximation model that works with zonotopes.
 
 ### Fields
 
@@ -27,27 +27,27 @@ respectively.
 
 A. Girard: Reachability of uncertain linear systems using zonotopes. HSCC 2005.
 """
-struct ForwardZonotope{EM} <: AbstractApproximationModel
+struct FirstOrderZonotope{EM} <: AbstractApproximationModel
     exp::EM
 end
 
 # convenience constructor
-function ForwardZonotope(; exp=BaseExp)
-    return ForwardZonotope(exp)
+function FirstOrderZonotope(; exp=BaseExp)
+    return FirstOrderZonotope(exp)
 end
 
-function Base.show(io::IO, alg::ForwardZonotope)
-    print(io, "`ForwardZonotope` approximation model with: \n")
+function Base.show(io::IO, alg::FirstOrderZonotope)
+    print(io, "`FirstOrderZonotope` approximation model with: \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::ForwardZonotope) = print(io, alg)
+Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderZonotope) = print(io, alg)
 
 # -----------------------------------------------
-# ForwardZonotope approximation: Homogeneous case
+# FirstOrderZonotope approximation: Homogeneous case
 # -----------------------------------------------
 
-function discretize(ivp::IVP{<:CLCS, <:AbstractZonotope}, δ, alg::ForwardZonotope)
+function discretize(ivp::IVP{<:CLCS, <:AbstractZonotope}, δ, alg::FirstOrderZonotope)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     n = dim(X0)
@@ -69,10 +69,10 @@ function discretize(ivp::IVP{<:CLCS, <:AbstractZonotope}, δ, alg::ForwardZonoto
 end
 
 # -------------------------------------------------
-# ForwardZonotope approximation: Inhomogeneous case
+# FirstOrderZonotope approximation: Inhomogeneous case
 # -------------------------------------------------
 
-function discretize(ivp::IVP{<:CLCCS, <:AbstractZonotope}, δ, alg::ForwardZonotope)
+function discretize(ivp::IVP{<:CLCCS, <:AbstractZonotope}, δ, alg::FirstOrderZonotope)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     n = dim(X0)
@@ -106,7 +106,7 @@ end
 # Common code
 # -----------
 
-function _discretize_zonotope(Φ, X0, alg::ForwardZonotope, δ, norm_A)
+function _discretize_zonotope(Φ, X0, alg::FirstOrderZonotope, δ, norm_A)
     c = center(X0)
     G = genmat(X0)
     n, p = size(G)
