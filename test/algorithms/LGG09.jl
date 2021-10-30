@@ -76,10 +76,10 @@ end
     prob, dt = foo()
     δ = 2e-1
 
-    approx_model = ReachabilityAnalysis.ForwardDdt()
+    approx_model = ReachabilityAnalysis.FirstOrderddt()
     sol = solve(prob, tspan=(0.0, 20.0),
                 alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
-    approx_model = ReachabilityAnalysis.ForwardDdt(oa=false)
+    approx_model = ReachabilityAnalysis.FirstOrderddt(oa=false)
     sol_ua = solve(prob, tspan=(0.0, 20.0),
                    alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
 end
