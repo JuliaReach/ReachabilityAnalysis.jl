@@ -132,8 +132,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
 
     if origin_not_contained_in_U
         # compute C(δ) * u
-        Pu = Cδ * u
-        Pu = convert(Hyperrectangle, IntervalBox(Pu))  # convert to LazySet type
+        Pu = _convert_intervals_to_box_with_vectors(Cδ * u)
     else
         Pu = nothing
     end
@@ -143,8 +142,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     if origin_not_contained_in_U
         # apply another correction hull for the shifted U
         F = input_correction(A_interval, δ, alg.order)
-        Fu = F * u
-        Fu = convert(Hyperrectangle, IntervalBox(Fu))  # convert to LazySet type
+        Fu = _convert_intervals_to_box_with_vectors(F * u)
         Ω0 = minkowski_sum(Ω0, Fu)
     end
     # Ω0 = _apply_setops(Ω0, alg.setops) # TODO requires to add `setops` field to the struct
@@ -158,4 +156,13 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
     B = Matrix(IdentityMultiple(one(eltype(A)), size(A, 1)))
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, Ud)
     return InitialValueProblem(Sdis, Ω0)
+end
+
+# convert a vector of intervals to a hyperrectangle with normal vector type
+function _convert_intervals_to_box_with_vectors(intervals)
+    # convert to Hyperrectangle
+    H = convert(Hyperrectangle, IntervalBox(intervals))
+    # remove static vectors (they scale poorly)
+    H = Hyperrectangle(Vector(center(H)), Vector(radius_hyperrectangle(H)))
+    return H
 end
