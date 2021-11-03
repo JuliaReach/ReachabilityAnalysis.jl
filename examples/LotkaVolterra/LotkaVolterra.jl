@@ -28,7 +28,7 @@
 # We set those parameters as ``\alpha = 1.5 , \beta = 1 , \gamma = 3`` and
 # ``\delta = 1``.
 
-using ReachabilityAnalysis, JLD2
+using ReachabilityAnalysis
 
 @taylorize function lotkavolterra!(dx, x, params, t)
     local α, β, γ, δ = 1.5, 1., 3., 1.
