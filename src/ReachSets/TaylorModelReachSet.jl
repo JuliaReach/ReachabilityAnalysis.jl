@@ -5,11 +5,11 @@
 using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 
 """
-    TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
+    TaylorModelReachSet{N, S} <: AbstractTaylorModelReachSet{N}
 
 Reach-set representation consisting of a vector of taylor models in one variable
 (the "time" variable) whose coefficients are multivariate polynomials
-(the "space" variables).
+(the "space" variables).`
 
 ### Notes
 
@@ -17,8 +17,8 @@ The parameter `N` refers to the numerical type of the representation.
 The space variables are assumed to be normalized to the interval `[-1, 1]`.
 It is assumed that the time domain is the same for all components.
 """
-struct TaylorModelReachSet{N} <: AbstractTaylorModelReachSet{N}
-    X::Vector{TaylorModel1{TaylorN{N}, N}}
+struct TaylorModelReachSet{N, S} <: AbstractTaylorModelReachSet{N}
+    X::Vector{TaylorModel1{TaylorN{S}, N}}
     Δt::TimeInterval
 end
 
