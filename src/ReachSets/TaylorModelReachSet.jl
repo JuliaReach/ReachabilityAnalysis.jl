@@ -9,7 +9,7 @@ using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 
 Reach-set representation consisting of a vector of taylor models in one variable
 (the "time" variable) whose coefficients are multivariate polynomials
-(the "space" variables).`
+(the "space" variables).
 
 ### Notes
 
