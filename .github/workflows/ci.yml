@@ -22,14 +22,28 @@ jobs:
         julia-version: ['1.6', 'nightly']
         julia-arch: [x64]
         os: [ubuntu-latest, macOS-latest, windows-latest]
-
+    env:
+      JULIA_PKG_SERVER: ''
     steps:
-      - uses: actions/checkout@v2
-      - name: "Set up Julia"
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up Julia
         uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
+      - name: Install dependencies
+        run: |
+          julia --project --color=yes -e 'using Pkg; Pkg.build(verbose=true)'
+        shell: bash
+      - name: Build
+        run: |
+          julia --project --color=yes --check-bounds=yes -e 'using Pkg;
+              Pkg.test(coverage=true);
+              Pkg.add("Coverage");
+              using Coverage;
+              Codecov.submit(process_folder())'
+        shell: bash
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts
@@ -44,8 +58,3 @@ jobs:
         continue-on-error: ${{ matrix.julia-version == 'nightly' }}
       - uses: julia-actions/julia-runtest@v1
         continue-on-error: ${{ matrix.julia-version == 'nightly' }}
-      #- uses: julia-actions/julia-processcoverage@v1
-      #- uses: coverallsapp/github-action@master
-      #  with:
-      #    path-to-lcov: lcov.info
-      #    github-token: ${{ secrets.GITHUB_TOKEN }}
