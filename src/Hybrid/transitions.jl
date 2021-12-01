@@ -178,7 +178,7 @@ function apply(tr::DiscreteTransition{<:IdentityMap, <:ZeroSet, GT, IT⁻, IT⁺
                                 IT⁺<:AbstractPolyhedron{N}}
 
     vlist = vertices_list(X) # TODO pass the backend as an option
-    Xhrep = tohrep(vlist)
+    Xhrep = tohrep(VPolytope(vlist))
     return apply(tr, Xhrep, method)
 end
 
