@@ -12,6 +12,7 @@ an affine transformation. For example,
 
 ```@example zonotope_definition
 using LazySets, Plots #hide
+using LazySets: center #hide
 
 B = BallInf(zeros(2), 1.0) # unit cube
 M = [0 1; -1 0] # an affine transformation
@@ -37,7 +38,7 @@ $Z = (c, G)$, where $g_i$ is the $i$-th column of $G$. In the examle of above,
 
 The generators can be
 
-```@example
+```@example zonotope_definition
 Z3 = Zonotope([1.0, 0.0], [0.1 0.0; 0.0 0.1])
 ```
 
@@ -47,8 +48,7 @@ of a given zonotope.
 
 
 
-```@example zonotope_example_1
-
+```@example zonotope_definition
 Z = Zonotope([1, 1.], [-1 0.3 1.5 0.3; 0 0.1 -0.3 0.3])
 plot(Z)
 quiver!(fill(1., 4), fill(1., 4), quiver=(genmat(Z)[1, :], genmat(Z)[2, :]), color=:black)

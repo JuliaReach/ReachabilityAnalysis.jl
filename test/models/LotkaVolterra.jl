@@ -1,4 +1,4 @@
-using ReachabilityAnalysis, JLD2
+using ReachabilityAnalysis
 
 @taylorize function lotkavolterra!(dx, x, params, t)
     local α, β, γ, δ = 1.5, 1., 3., 1.
