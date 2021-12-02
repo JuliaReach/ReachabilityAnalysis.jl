@@ -114,7 +114,7 @@ NONLINEAR_SOLVERS_API = ["CARLIN"   => "lib/algorithms/CARLIN.md",
 makedocs(
     format = Documenter.HTML(prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
                              collapselevel = 1,
-                             assets = ["assets/juliareach-light.css"]),
+                             assets = ["assets/aligned.css"]),
     sitename = "ReachabilityAnalysis.jl",
     doctest = false,
     strict = false,
