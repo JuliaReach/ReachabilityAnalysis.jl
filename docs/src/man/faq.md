@@ -29,7 +29,7 @@ contains an extensive list of pointers related to reachability analysis tools fo
 dynamical systems. Languages and tools for hybrid systems design are described in the review article
 [[CPPSV06]](@ref) (a bit outdated with respect to the tools since it is of 2006).
 
-A subset of such tools has participated in recent editions of of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
+A subset of such tools has participated in recent editions of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
 [ARCH-COMP](https://cps-vo.org/group/ARCH). In alphabetic order: [Ariadne](http://www.ariadne-cps.org/), [CORA](https://tumcps.github.io/CORA/),
 [C2E2](http://publish.illinois.edu/c2e2-tool/), [DynIbex](https://perso.ensta-paris.fr/~chapoutot/dynibex/),
 [Flow*](https://flowstar.org/), [HyDRA](https://ths.rwth-aachen.de/research/projects/hypro/),
