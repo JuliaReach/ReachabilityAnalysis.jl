@@ -259,12 +259,15 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
 end
 
 # overapproximate taylor model reachset with one zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
+                         tdom::TimeInterval=domain(R),
+                         dom::IntervalBox=symBox(dim(R))) where {N}
+    if !(dom ⊆ symBox(dim(R)))
+        throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
+    end
+
     # dimension of the reachset
     n = dim(R)
-
-    # normalized time domain
-    tdom = domain(R)
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
@@ -273,7 +276,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
-    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), dom) for j in 1:n]
 
     # compute floating point rigorous polynomial approximation
     # fX̂ is a TaylorModelN whose coefficients are floats
