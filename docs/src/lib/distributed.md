@@ -56,8 +56,8 @@ an initial-value problem with an array of initial conditions.
 ## About BLAS threads
 
 To control the number of threads used by your BLAS library, use the function
-`Base.LinAlg.BLAS.set_num_threads(n)`, where `n` is an integer. Furthermore,
-the function `get_num_threads()` defined below will return the current value.
+`BLAS.set_num_threads(n)`, where `n` is an integer. Furthermore,
+the function `BLAS.get_num_threads()` defined below will return the current value.
 
 *Note.* If you are using Julia v"0.7-" (run the command `VERSION` to find this),
 instead of `Base.LinAlg` below use `LinearAlgebra`, and this module should have
