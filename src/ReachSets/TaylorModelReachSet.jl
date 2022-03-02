@@ -259,27 +259,35 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
 end
 
 # overapproximate taylor model reachset with one zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}) where {N}
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
+                         Δt::TimeInterval=tspan(R),
+                         dom::IntervalBox=symBox(dim(R))) where {N}
+    if !(dom ⊆ symBox(dim(R)))
+        throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
+    end
+    if !(Δt ⊆ tspan(R))
+        throw(ArgumentError("the given time range $Δt does not belong to the " *
+                            "reach-set's time span, $(tspan(R))"))
+    end
+
     # dimension of the reachset
     n = dim(R)
-
-    # normalized time domain
-    tdom = domain(R)
 
     # evaluate the Taylor model in time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X = set(R)
+    tdom = Δt - tstart(R)  # normalize time (to TM-internal time)
+    tdom = tdom ∩ domain(R)  # intersection handles round-off errors
     X_Δt = evaluate(X, tdom)
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
-    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), dom) for j in 1:n]
 
     # compute floating point rigorous polynomial approximation
     # fX̂ is a TaylorModelN whose coefficients are floats
     fX̂ = fp_rpa.(X̂)
 
-    Δt = tspan(R)
     # LazySets can overapproximate a Taylor model with a Zonotope
     Zi = overapproximate(fX̂, Zonotope)
     return ReachSet(Zi, Δt)
@@ -322,52 +330,14 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
 
     X = set(R)
-    Δtn = domain(R)
-    if t == tstart(R)
-        tn = zero(N)
-    elseif t == tend(R)
-        tn = Δtn.hi
-    else
-        tn = t - tstart(R)
-    end
+    tn = t - tstart(R)  # normalize time (to TM-internal time)
+    tn = tn ∩ domain(R)  # intersection handles round-off errors
     X_Δt = evaluate(X, tn)
     n = dim(R)
     X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
     Zi = overapproximate(fX̂, Zonotope, remove_zero_generators=remove_zero_generators)
     Δt = TimeInterval(t, t)
-    return ReachSet(Zi, Δt)
-end
-
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, Δt::TimeInterval) where {N}
-    @assert Δt ⊆ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
-
-    X = set(R)
-    Δtn = domain(R)
-
-    if Δt.lo == tstart(R)
-        dtn_lo = zero(N)
-    elseif Δt.lo == tend(R)
-        dtn_lo = Δtn.hi
-    else
-        dtn_lo = Δt.lo - tstart(R)
-    end
-
-    if Δt.hi == tstart(R)
-        dtn_hi = zero(N)
-    elseif Δt.hi == tend(R)
-        dtn_hi = Δtn.hi
-    else
-        dtn_hi = Δt - tstart(R)
-    end
-
-    dtn = IA.Interval(dtn_lo, dtn_hi)
-    X_Δt = evaluate(X, dtn)
-    n = dim(R)
-    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
-    fX̂ = fp_rpa.(X̂)
-    Zi = overapproximate(fX̂, Zonotope)
-
     return ReachSet(Zi, Δt)
 end
 

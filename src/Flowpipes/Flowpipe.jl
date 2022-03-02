@@ -62,6 +62,7 @@ Base.size(fp::Flowpipe) = (length(fp.Xk),)
 Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
 Base.push!(fp::Flowpipe, args...) = push!(fp.Xk, args...)
 Base.keys(fp::Flowpipe) = keys(fp.Xk)
+Base.append!(fp::Flowpipe{N, RT, VT}, v::VT) where {N, RT, VT} = append!(fp.Xk, v)
 
 numtype(::Flowpipe{N}) where {N} = N
 setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
