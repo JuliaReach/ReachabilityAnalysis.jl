@@ -331,7 +331,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
 
     X = set(R)
     tn = t - tstart(R)  # normalize time (to TM-internal time)
-    tn = tn ∩ domain(R)  # intersection handles round-off errors
+    tn = interval(tn) ∩ domain(R)  # intersection handles round-off errors
     X_Δt = evaluate(X, tn)
     n = dim(R)
     X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
