@@ -162,8 +162,8 @@ end
 # The time horizon is chosen as ``T = 0.7`` seconds. We consider a
 # scaling factor ``\alpha = 1e-9``.
 
-# We are interested in the step response to an input voltage ``U_{in}(t)``, constant
-# for ``t \in [0, T]`` over the domain ``U_{in} = [0.99, 1.01]``.
+# We are interested in the step response to an input voltage ``U_{in}(t)``
+# arbitrarily varying over the domain ``U_{in} = [0.99, 1.01]`` for all ``t \in [0, T]``.
 
 # We consider the case of ``\eta = 20`` nodes as in [AKS11], such that the system
 # has ``n = 40`` state variables.

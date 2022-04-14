@@ -43,7 +43,8 @@ LINEAR_METHODS = ["Linear methods" => [
 UNCERTAIN_INPUTS = ["Modeling uncertain inputs" => [
     "Introduction"                     => "tutorials/uncertain_inputs/introduction.md",
     "Building model"                   => "models/Building.md",
-    "Operational amplifier"            => "models/OpAmp.md"]]
+    "Operational amplifier"            => "models/OpAmp.md",
+    "Transmision line"                 => "models/TransmissionLine.md",]]
 
 TAYLOR_METHODS = ["Taylor methods"     => [
     "Introduction"                     => "tutorials/taylor_methods/introduction.md",
@@ -56,7 +57,7 @@ TAYLOR_METHODS = ["Taylor methods"     => [
 
 UNCERTAIN_PARAMETERS = ["Modeling uncertain parameters" => [
     "Introduction"                     => "tutorials/parametric_reachability/introduction.md",
-    "Transmision line"                 => "models/TransmissionLine.md"]]
+    ]]
 
 HYBRID_SYSTEMS = ["Hybrid systems" => [
     "Introduction"                     => "tutorials/hybrid_systems/introduction.md",
