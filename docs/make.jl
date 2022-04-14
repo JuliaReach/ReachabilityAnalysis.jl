@@ -36,41 +36,41 @@ LINEAR_METHODS = ["Linear methods" => [
 #    "Propagating zonotopes"            => "tutorials/linear_methods/zonotopes_setprop.md",
 #    "Propagating hyperrectangles"      => "tutorials/linear_methods/hyperrectangles_setprop.md",
 #    "Propagating support functions"    => "tutorials/linear_methods/supfunc_setprop.md",
-    #"Helicopter model"                 => "models/Helicopter.md",
+    #"Helicopter model"                 => "generated_examples/Helicopter.md",
     "Helicopter model"                 => "tutorials/linear_methods/helicopter.md",
-    "Structural model"                 => "models/ISS.md"]]
+    "Structural model"                 => "generated_examples/ISS.md"]]
 
 UNCERTAIN_INPUTS = ["Modeling uncertain inputs" => [
     "Introduction"                     => "tutorials/uncertain_inputs/introduction.md",
-    "Building model"                   => "models/Building.md",
-    "Operational amplifier"            => "models/OpAmp.md"]]
+    "Building model"                   => "generated_examples/Building.md",
+    "Operational amplifier"            => "generated_examples/OpAmp.md"]]
 
 TAYLOR_METHODS = ["Taylor methods"     => [
     "Introduction"                     => "tutorials/taylor_methods/introduction.md",
     "Taylor model reach-sets"          => "tutorials/taylor_methods/taylor_model_reachsets.md",
     "Domain splitting"                 => "tutorials/taylor_methods/domain_splitting.md",
     "Common gotchas"                   => "tutorials/taylor_methods/gotchas.md",
-    "Lotka-Volterra"                   => "models/LotkaVolterra.md",
-    "Van der Pol oscillator"           => "models/VanDerPol.md",
-    "Lorenz system"                    => "models/Lorenz.md"]]
+    "Lotka-Volterra"                   => "generated_examples/LotkaVolterra.md",
+    "Van der Pol oscillator"           => "generated_examples/VanDerPol.md",
+    "Lorenz system"                    => "generated_examples/Lorenz.md"]]
 
 UNCERTAIN_PARAMETERS = ["Modeling uncertain parameters" => [
     "Introduction"                     => "tutorials/parametric_reachability/introduction.md",
-    "Transmision line"                 => "models/TransmissionLine.md"]]
+    "Transmision line"                 => "generated_examples/TransmissionLine.md"]]
 
 HYBRID_SYSTEMS = ["Hybrid systems" => [
     "Introduction"                     => "tutorials/hybrid_systems/introduction.md",
-    "Square wave oscillator"           => "models/SquareWaveOscillator.md",
+    "Square wave oscillator"           => "generated_examples/SquareWaveOscillator.md",
     "Thermostat model"                 => "tutorials/hybrid_systems/thermostat.md"]]
 
 CLOCKED_SYSTEMS = ["Clocked systems"  => [
     "Introduction"                     => "tutorials/clocked_systems/introduction.md",
-    "Platoon"                          => "models/Platoon.md",
-    "Electro-mechanic break"           => "models/EMBrake.md"]]
+    "Platoon"                          => "generated_examples/Platoon.md",
+    "Electro-mechanic break"           => "generated_examples/EMBrake.md"]]
 
 BACKWARDS_REACHABILITY = ["Backwards reachability" => [
     "Introduction"                     => "tutorials/backwards_reachability/introduction.md",
-    "Projectile motion"                => "models/Projectile.md"]]
+    "Projectile motion"                => "generated_examples/Projectile.md"]]
 
 LINEAR_PDE = ["Linear PDEs" => [
     "Introduction"                     => "tutorials/linear_pde/introduction.md",
@@ -148,13 +148,13 @@ makedocs(
                          "Filtered oscillator"         => "man/benchmarks/filtered_oscillator.md"],
 
         "Further examples" => ["Overview"               => "man/examples_overview.md",
-                               "Duffing oscillator"     => "models/DuffingOscillator.md",
-                               "Laub-Loomis"            => "models/LaubLoomis.md",
-                               "Production-Destruction" => "models/ProductionDestruction.md",
-                               "Brusselator"            => "models/Brusselator.md",
-                               "Quadrotor"              => "models/Quadrotor.md",
-                               "Epidemic model"         => "models/SEIR.md",
-                               "Spacecraft"             => "models/Spacecraft.md"],
+                               "Duffing oscillator"     => "generated_examples/DuffingOscillator.md",
+                               "Laub-Loomis"            => "generated_examples/LaubLoomis.md",
+                               "Production-Destruction" => "generated_examples/ProductionDestruction.md",
+                               "Brusselator"            => "generated_examples/Brusselator.md",
+                               "Quadrotor"              => "generated_examples/Quadrotor.md",
+                               "Epidemic model"         => "generated_examples/SEIR.md",
+                               "Spacecraft"             => "generated_examples/Spacecraft.md"],
 
         "API Reference" => ["Systems"                       => "lib/systems.md",
                             "Reach-sets"                    => "lib/reachsets.md",

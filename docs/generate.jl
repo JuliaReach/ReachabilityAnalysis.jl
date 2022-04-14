@@ -8,7 +8,7 @@ source_dir = joinpath(@__DIR__, "..", "examples")
 target_dir_jl = joinpath(@__DIR__, "..", "test", "models")
 
 # target directory for the markdown files (used by Documenter)
-target_dir_md = joinpath(@__DIR__, "src", "models")
+target_dir_md = joinpath(@__DIR__, "src", "generated_examples")
 mkpath(target_dir_md)
 
 # model files in sub-directories of source_dir
