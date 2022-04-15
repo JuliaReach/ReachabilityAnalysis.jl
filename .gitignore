@@ -11,9 +11,8 @@ deps/deps.jl
 *.blg
 *.log
 *.out
-*.DS_Store
+.DS_Store
 
 docs/build/
 docs/site/
-docs/src/models/
-docs/.DS_Store
+docs/src/generated_examples/
