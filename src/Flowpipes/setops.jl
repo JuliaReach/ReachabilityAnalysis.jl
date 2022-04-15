@@ -123,11 +123,14 @@ function Base.convert(::Type{Singleton},
     return Singleton(vcat(x, y))
 end
 
-# overload sampling functions
-LazySets._default_sampler(X::IntervalArithmetic.Interval) = LazySets._default_sampler(convert(Interval, X))
-LazySets._default_sampler(X::IntervalArithmetic.IntervalBox) = LazySets._default_sampler(convert(Hyperrectangle, X))
-LazySets.sample(X::IntervalArithmetic.Interval, d::Integer; kwargs...) = sample(convert(Interval, X), d; kwargs...)
-LazySets.sample(X::IntervalArithmetic.IntervalBox, d::Integer; kwargs...) = sample(convert(Hyperrectangle, X), d; kwargs...)
+# duck-typing sampling functions
+LazySets._default_sampler(X::IA.Interval) = LazySets._default_sampler(convert(Interval, X))
+LazySets._default_sampler(X::IA.IntervalBox) = LazySets._default_sampler(convert(Hyperrectangle, X))
+LazySets._default_sampler(X::AbstractVector{<:Real}) = LazySets._default_sampler(Singleton(X))
+
+LazySets.sample(X::IA.Interval, d::Integer; kwargs...) = sample(convert(Interval, X), d; kwargs...)
+LazySets.sample(X::IA.IntervalBox, d::Integer; kwargs...) = sample(convert(Hyperrectangle, X), d; kwargs...)
+LazySets.sample(X::AbstractVector{<:Real}, d::Integer; kwargs...) = sample(Singleton(X), d; kwargs...)
 
 # ------------------------------------------------
 # Functions to handle splitting of IntervalBoxes

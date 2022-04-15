@@ -1,21 +1,22 @@
-using Test, ReachabilityAnalysis, StaticArrays
+using Test, ReachabilityAnalysis
 
 using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
                            DeterministicSwitching, NonDeterministicSwitching,
                            BoxEnclosure, ZonotopeEnclosure
 
+# optional dependencies
+using Symbolics
+import DifferentialEquations
+import JuMP
+using StaticArrays
 using Polyhedra, CDDLib # for VREP algorithm
+
 # fix namespace conflicts with Polyhedra
 using LazySets: dim, HalfSpace, Interval, Line2D, translate, project
 const RA = ReachabilityAnalysis
 
 import IntervalArithmetic
 const IA = IntervalArithmetic
-
-# optional dependencies
-using Symbolics
-import DifferentialEquations
-import JuMP
 
 # load test models
 include("models/harmonic_oscillator.jl")
@@ -30,16 +31,14 @@ include("models/burgers.jl")
 include("models/Brusselator.jl")
 include("models/hybrid/thermostat.jl")
 
-#include("utils.jl")
 include("solve.jl")
 include("reachsets.jl")
 include("flowpipes.jl")
-#include("traces.jl")
+include("traces.jl")
 include("setops.jl")
 include("arrayops.jl")
 include("symbolics.jl")
 
-# algorithms
 include("algorithms/INT.jl")
 include("algorithms/BOX.jl")
 include("algorithms/GLGM06.jl")
@@ -51,4 +50,5 @@ include("algorithms/ORBIT.jl")
 include("algorithms/QINT.jl")
 include("algorithms/VREP.jl")
 
+# hybrid systems
 include("hybrid.jl")
