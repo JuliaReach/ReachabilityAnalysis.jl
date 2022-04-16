@@ -55,7 +55,6 @@ function project(R::TaylorModelReachSet, vars::NTuple{D, M}) where {D, M<:Intege
 end
 
 # constructor with a time point
-#function TaylorModelReachSet(X::Vector{TaylorModel1{TaylorN{N}, N}}, t::Real) where {N}
 function TaylorModelReachSet(X::Vector{TaylorModel1{TaylorN{S}, N}}, t::Real) where {S, N}
     return TaylorModelReachSet(X, interval(t))
 end
