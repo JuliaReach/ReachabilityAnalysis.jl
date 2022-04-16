@@ -101,10 +101,17 @@ end
     @test tspan(c) == tspan(d) == 0..1
     @test isequivalent(set(overapproximate(c, Zonotope)), set(R))
     @test isequivalent(set(overapproximate(d, Zonotope)), set(R))
+                    
+end
 
+@testset "Taylor model reach-sets with non-float coefficients" begin
+    
+    using TaylorModels:Taylor1
+    
     order = 4
     X0 = BallInf(ones(2), 0.1)
     t = Taylor1(order+1)
+    
     A = [0 0..0.1; 0..0.2 0..0.3]*t
     n = size(A, 1)
     R = ReachSet(X0, 0 .. 1)
@@ -122,7 +129,8 @@ end
     C_tm = [TaylorModel1(C1[i], X0_tm[i].rem, X0_tm[i].x0, X0_tm[i].dom) for i in 1:length(C1)]
     tm_rs = TaylorModelReachSet(C_tm, 0 .. 1);
     X1 = set(overapproximate(tm_rs, Hyperrectangle))
+
     @test isa(tm_rs, TaylorModelReachSet)
     @test isa(X1, Hyperrectangle)
-
+    
 end
