@@ -58,11 +58,12 @@ end
     U = Singleton([0.,0.,0.,-9.81])
     prob = @ivp(x' = A * x + Matrix(1.0I, 4, 4) * u,  x(0) ∈ X0, u ∈ U, x ∈ Universe(4))
     cons = LinearConstraint([24., 0., 1, 0], 375.)
-    alg = BFFPSV18(δ=0.01, vars=[1, 2, 3, 4], partition=[[i] for i in 1:4])
-    sol = solve(prob, T=20.0)
+    sol = solve(prob, T=20.0, δ=1e-2)
 
     # equivalent ways
-    @test all(set(R) for R in sol) == all(R ⊆ cons for R in sol) == sol ⊆ cons
+    @test all(set(R) ⊆ cons for R in sol)
+    @test all(R ⊆ cons for R in sol)
+    @test sol ⊆ cons
 end
 
 @testset "Flowpipe constructors" begin
