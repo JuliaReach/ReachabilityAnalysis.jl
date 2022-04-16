@@ -198,7 +198,14 @@ LazySets.box_approximation(R::TaylorModelReachSet) = _overapproximate(R, Hyperre
 # e.g. if the partition is uniform for each dimension, the number of returned sets
 # is nsdiv^D * ntdiv
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
-                         partition=nothing, nsdiv=1, ntdiv=1) where {N}
+                         partition=nothing, nsdiv=nothing, ntdiv=1) where {N}
+
+    if !isnothing(partition) && !isnothing(nsdiv)
+        throw(ArgumentError("either `partition` or `nsdiv` should be specified, not both"))
+    end
+    if isnothing(partition) && isnothing(nsdiv)
+        nsdiv = 1
+    end
 
     # no splitting
     if isnothing(partition) && nsdiv == 1 && ntdiv == 1
@@ -222,7 +229,6 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     if isnothing(partition)
         if nsdiv == 1
             partition = [S]
-
         else
             # FIXME (also below) may use IntervalArithmetic.mince directly
             partition = fill(nsdiv, D)
@@ -262,6 +268,7 @@ end
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
                          Δt::TimeInterval=tspan(R),
                          dom::IntervalBox=symBox(dim(R))) where {N}
+    @assert dim(R) == dim(dom) "the dimension of the reach-set should match the dimension of the domain, but they are $(dim(R)) and $(dim(dom)) respectively"
     if !(dom ⊆ symBox(dim(R)))
         throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
     end

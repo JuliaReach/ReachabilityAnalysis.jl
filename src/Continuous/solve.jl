@@ -2,6 +2,8 @@
 # Solve function for continuous systems
 # ======================================
 
+const AbstractContinuousSystem_ = AbstractContinuousSystem # to trick the linter
+ 
 """
     solve(ivp::IVP{<:AbstractContinuousSystem}, tspan, alg; kwargs...)
 
@@ -44,7 +46,7 @@ The solution of a reachability problem, as an instance of a `ReachSolution`.
 - Use the `threading` option to use multi-threading parallelism. This option applies
   for initial-value problems whose initial condition is a vector of sets.
 """
-function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
+function solve(ivp::IVP{<:AbstractContinuousSystem_}, args...; kwargs...)
 
     # preliminary checks
     _check_dim(ivp)
@@ -54,7 +56,7 @@ function solve(ivp::IVP{<:AbstractContinuousSystem}, args...; kwargs...)
 
     # get the continuous post or find a default one
     cpost = _get_cpost(ivp, args...; kwargs...)
-    if cpost == nothing
+    if isnothing(cpost)
         cpost = _default_cpost(ivp, tspan; kwargs...)
     end
 
