@@ -1,3 +1,5 @@
+using TaylorModels: Taylor1, TaylorModel1
+
 @testset "Reach-set constructors" begin
     X = BallInf(ones(2), 1.0)
 
@@ -101,30 +103,24 @@ end
     @test tspan(c) == tspan(d) == 0..1
     @test isequivalent(set(overapproximate(c, Zonotope)), set(R))
     @test isequivalent(set(overapproximate(d, Zonotope)), set(R))
-                    
+
 end
 
 @testset "Taylor model reach-sets with non-float coefficients" begin
-    
-    using TaylorModels:Taylor1
-    
+
     order = 4
     X0 = BallInf(ones(2), 0.1)
     t = Taylor1(order+1)
-    
+
     A = [0 0..0.1; 0..0.2 0..0.3]*t
-    n = size(A, 1)
+    #n = size(A, 1)
     R = ReachSet(X0, 0 .. 1)
     RTM = overapproximate(R, TaylorModelReachSet)
     X0_tm = set(RTM)
-    C = Vector{Vector{TaylorN{IntervalArithmetic.Interval{Float64}}}}(undef, n)
-    Y = [X.pol.coeffs[1] for X in X0_tm]
-    for i in 1:n
-        C[i] = A[i,1].coeffs*Y[1]
-        for j in 2:n
-            C[i] += A[i,j].coeffs*Y[j]
-        end
-    end
+
+    Y = [X0_tm[1].pol.coeffs[1], X0_tm[2].pol.coeffs[1]]
+    C = [A[1,1].coeffs*Y[1] + A[1,2].coeffs*Y[2], A[2,1].coeffs*Y[1] + A[2,2].coeffs*Y[2]]
+
     C1 = Taylor1.(C)
     C_tm = [TaylorModel1(C1[i], X0_tm[i].rem, X0_tm[i].x0, X0_tm[i].dom) for i in 1:length(C1)]
     tm_rs = TaylorModelReachSet(C_tm, 0 .. 1);
@@ -132,5 +128,5 @@ end
 
     @test isa(tm_rs, TaylorModelReachSet)
     @test isa(X1, Hyperrectangle)
-    
+
 end
