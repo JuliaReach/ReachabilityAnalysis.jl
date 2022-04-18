@@ -4,9 +4,6 @@ using TaylorModels: set_variables,
                     Taylor1,
                     TaylorModel1
 
-import IntervalArithmetic
-const IA = IntervalArithmetic
-
 @testset "Reach-set constructors" begin
     X = BallInf(ones(2), 1.0)
 
@@ -114,7 +111,6 @@ end
 end
 
 @testset "Taylor model reach-sets with non-float coefficients" begin
-
     Δt, orderT, orderQ = 0..1, 4, 3
     x = set_variables(IA.Interval{Float64}, "x", order=orderQ, numvars=2)
     p1 = Taylor1([0, (0..0.1) + (0..0.01)*x[2]], orderT)
@@ -122,7 +118,37 @@ end
     vec = [TaylorModel1(p1, zeroI, zeroI, Δt), TaylorModel1(p2, zeroI, zeroI, Δt)]
     T = TaylorModelReachSet(vec, Δt)
     H = set(overapproximate(T, Hyperrectangle))
-
     @test isa(T, TaylorModelReachSet) && isa(H, Hyperrectangle)
+end
 
+@testset "Overapproximation of a Taylor model reach-set with a zonotope" begin
+    # Create a Hyperrectangle centered at 5 and of radius 1
+    H = Hyperrectangle([5.0, 5.0], [1.0, 1.0]) # = (4 .. 6) × (4 .. 6)
+
+    # Make it a reach-set assigning the time interval 0 .. 1
+    R = ReachSet(H, 0 .. 1)
+
+    # Convert to its Taylor model representation
+    T = overapproximate(R, TaylorModelReachSet)
+
+    # coordinate functions with domain [-1, 1]^2
+    #    f1(x, y) = 5.0 + 1.0 x₁ + [0, 0]
+    #    f2(x, y) = 5.0 + 1.0 x₂ + [0, 0]
+
+    # evaluate the range of T using a zontope
+    Z0 = overapproximate(T, Zonotope) |> set
+    @test isequivalent(set(Z0), H)
+
+    # same but specifying the domain
+    Z0 = overapproximate(T, Zonotope, dom=IntervalBox(-1 .. 1, 2))
+    @test isequivalent(set(Z0), H)
+
+    # evaluate over 1/4th the domain
+    Z1 = overapproximate(T, Zonotope, dom=IntervalBox(0 .. 1.0, 2))
+    @test isequivalent(set(Z1), Hyperrectangle([5.5, 5.5], [0.5, 0.5]))
+
+    # evaluate over a custom domain
+    doms = mince(IntervalBox(-1 .. 1, 2), (5, 6))
+    Z = [overapproximate(T, Zonotope, dom=d) for d in doms]
+    @test isequivalent(ConvexHullArray(set.(Z)), set(Z0))
 end

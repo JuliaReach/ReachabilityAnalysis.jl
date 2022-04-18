@@ -149,9 +149,60 @@ end
     return false
 end
 
-# ==============================================================
-# Conversion and overapproximation of Taylor model reach-sets
-# ==============================================================
+# ======================
+# Remainder handling
+# ======================
+
+using TaylorModels: shrink_wrapping!
+
+function _shrink_wrapping(R::TaylorModelReachSet)
+    rem = remainder(R)
+    dt = domain(R)
+    n = dim(R)
+
+    # if all remainders are zero => nothing to do
+    all(iszero, rem) && return R
+
+    # transform into a TaylorN whose coeffs are floats
+    X = set(R)
+    Xev = evaluate.(X, dt)
+    W = [TaylorModelN(Xev[i], zeroI, zeroBox(n), symBox(n)) for i in 1:n]
+    Wfp = fp_rpa.(W)
+
+    # absorb remainder in the polynomial part
+    shrink_wrapping!(Wfp)
+
+    # transform back to a TaylorModel1 of TaylorN
+    orderT = get_order(set(R)[1])
+    p = [Taylor1(TaylorN(polynomial(Wfp[i])), orderT) for i in 1:n]
+    Y = [TaylorModel1(p[i], zeroI, zeroI, dt) for i in 1:n]
+
+    return TaylorModelReachSet(Y, tspan(R))
+end
+
+# ======================
+# Domain handling
+# ======================
+
+# Given a vector of multivariate polynomials in the normalized symmetric box
+# `[-1, 1]^n`, and a (sub)-domain `dom ⊆ D`, with low/high bounds
+# `a, b ∈ R^n` respectively, apply the transformation
+# `x[i] <- (a[i] + b[i]) / 2 + (b[i] - a[i]) / 2 * x[i]` for each `i = 1, .., n`,
+# which amounts to rescaling and shifting the polynomials according to `dom`. 
+function _taylor_shift(X::Vector{TaylorN{S}}, dom::IntervalBox) where {S}
+    x = get_variables()
+    n = length(x) # number of variables
+    @assert n == length(X) == dim(dom)
+    (dom == symBox(n)) && return X
+
+    a, b = low(dom), high(dom)
+    transf = [(a[i] + b[i]) / 2 + (b[i] - a[i]) / 2 * x[i] for i in 1:n]
+    return [evaluate(X[i], transf) for i in 1:n]
+end
+
+# =================================
+# Conversion and overapproximation
+# =================================
 
 # no-op
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:TaylorModelReachSet}) where {N}
@@ -282,15 +333,18 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
     n = dim(R)
 
     # evaluate the Taylor model in time
-    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X = set(R)
     tdom = Δt - tstart(R)  # normalize time (to TM-internal time)
     tdom = tdom ∩ domain(R)  # intersection handles round-off errors
+    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X_Δt = evaluate(X, tdom)
+
+    # transform the domain if it's strictly inside `[-1, 1]^n`
+    X_Δt = _taylor_shift(X_Δt, dom)
 
     # builds the associated taylor model for each coordinate j = 1...n
     #  X̂ is a TaylorModelN whose coefficients are intervals
-    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), dom) for j in 1:n]
+    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
 
     # compute floating point rigorous polynomial approximation
     # fX̂ is a TaylorModelN whose coefficients are floats
@@ -543,35 +597,4 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N, <:Zonotope, <
     @inbounds vTM[n+1] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
 
     return TaylorModelReachSet(vTM, Δt)
-end
-
-# ======================
-# Remainder handling
-# ======================
-
-using TaylorModels: shrink_wrapping!
-
-function _shrink_wrapping(R::TaylorModelReachSet)
-    rem = remainder(R)
-    dt = domain(R)
-    n = dim(R)
-
-    # if all remainders are zero => nothing to do
-    all(iszero, rem) && return R
-
-    # transform into a TaylorN whose coeffs are floats
-    X = set(R)
-    Xev = evaluate.(X, dt)
-    W = [TaylorModelN(Xev[i], zeroI, zeroBox(n), symBox(n)) for i in 1:n]
-    Wfp = fp_rpa.(W)
-
-    # absorb remainder in the polynomial part
-    shrink_wrapping!(Wfp)
-
-    # transform back to a TaylorModel1 of TaylorN
-    orderT = get_order(set(R)[1])
-    p = [Taylor1(TaylorN(polynomial(Wfp[i])), orderT) for i in 1:n]
-    Y = [TaylorModel1(p[i], zeroI, zeroI, dt) for i in 1:n]
-
-    return TaylorModelReachSet(Y, tspan(R))
 end
