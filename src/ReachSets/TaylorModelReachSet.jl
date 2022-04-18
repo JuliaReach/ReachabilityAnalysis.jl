@@ -339,7 +339,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X_Δt = evaluate(X, tdom)
 
-    # transform the domain if it's strictly inside `[-1, 1]^n`
+    # transform the domain if needed
     X_Δt = _taylor_shift(X_Δt, dom)
 
     # builds the associated taylor model for each coordinate j = 1...n
