@@ -1,4 +1,11 @@
-using TaylorModels: Taylor1, TaylorModel1
+using ReachabilityAnalysis: zeroI
+
+using TaylorModels: set_variables,
+                    Taylor1,
+                    TaylorModel1
+
+import IntervalArithmetic
+const IA = IntervalArithmetic
 
 @testset "Reach-set constructors" begin
     X = BallInf(ones(2), 1.0)
@@ -108,25 +115,14 @@ end
 
 @testset "Taylor model reach-sets with non-float coefficients" begin
 
-    order = 4
-    X0 = BallInf(ones(2), 0.1)
-    t = Taylor1(order+1)
+    Δt, orderT, orderQ = 0..1, 4, 3
+    x = set_variables(IA.Interval{Float64}, "x", order=orderQ, numvars=2)
+    p1 = Taylor1([0, (0..0.1) + (0..0.01)*x[2]], orderT)
+    p2 = Taylor1([0, (0..0.5) + (0..0.02)*x[1] + (0..0.03)*x[2]], orderT)
+    vec = [TaylorModel1(p1, zeroI, zeroI, Δt), TaylorModel1(p2, zeroI, zeroI, Δt)]
+    T = TaylorModelReachSet(vec, Δt)
+    H = set(overapproximate(T, Hyperrectangle))
 
-    A = [0 0..0.1; 0..0.2 0..0.3]*t
-    #n = size(A, 1)
-    R = ReachSet(X0, 0 .. 1)
-    RTM = overapproximate(R, TaylorModelReachSet)
-    X0_tm = set(RTM)
-
-    Y = [X0_tm[1].pol.coeffs[1], X0_tm[2].pol.coeffs[1]]
-    C = [A[1,1].coeffs*Y[1] + A[1,2].coeffs*Y[2], A[2,1].coeffs*Y[1] + A[2,2].coeffs*Y[2]]
-
-    C1 = Taylor1.(C)
-    C_tm = [TaylorModel1(C1[i], X0_tm[i].rem, X0_tm[i].x0, X0_tm[i].dom) for i in 1:length(C1)]
-    tm_rs = TaylorModelReachSet(C_tm, 0 .. 1);
-    X1 = set(overapproximate(tm_rs, Hyperrectangle))
-
-    @test isa(tm_rs, TaylorModelReachSet)
-    @test isa(X1, Hyperrectangle)
+    @test isa(T, TaylorModelReachSet) && isa(H, Hyperrectangle)
 
 end
