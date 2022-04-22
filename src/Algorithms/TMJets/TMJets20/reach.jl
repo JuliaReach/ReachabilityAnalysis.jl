@@ -211,19 +211,19 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
         t0::T, tmax::T, sign_tstep::Int,
         xTMN::Vector{TaylorModelN{N,T,T}}, xv::Vector{IntervalBox{N,T}},
         rem::Vector{IA.Interval{T}}, zbox::IntervalBox{N,T}, symIbox::IntervalBox{N,T},
-        nsteps::Int, orderT::Int, abstol::T, params, parse_eqs::Bool,
+        nsteps::Int, orderT::Int, abstol::T, params, tmpTaylor, arrTaylor, parse_eqs::Bool,
         check_property::Function=(t, x)->true, adaptive::Bool=true) where {N,T}
 
     # One step integration (non-validated)
     # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, t, x, dx, xaux, params)
     # δt = TaylorIntegration.stepsize(x, abstol)
-    δt = TaylorIntegration.taylorstep!(f!, t, x, dx, xaux, abstol, params, parse_eqs)
+    δt = TaylorIntegration.taylorstep!(f!, t, x, dx, xaux, abstol, params, tmpTaylor, arrTaylor, parse_eqs)
     f!(dx, x, params, t)  # Update `dx[:][orderT]`
 
     # One step integration for the initial box
     # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, tI, xI, dxI, xauxI, params)
     # δtI = TaylorIntegration.stepsize(xI, abstol)
-    δtI = TaylorIntegration.taylorstep!(f!, tI, xI, dxI, xauxI, abstol, params, parse_eqs)
+    δtI = TaylorIntegration.taylorstep!(f!, tI, xI, dxI, xauxI, abstol, params, tmpTaylor, arrTaylor, parse_eqs)
     f!(dxI, xI, params, tI)  # Update `dxI[:][orderT+1]`
 
     # Step size
@@ -328,7 +328,7 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
     @inbounds xv[1] = TM.evaluate(xTMN, symIbox)
 
     # Determine if specialized jetcoeffs! method exists (built by @taylorize)
-    parse_eqs = TaylorIntegration._determine_parsing!(parse_eqs, f!, t, x, dx, params)
+    parse_eqs, tmpTaylor, arrTaylor = TaylorIntegration._determine_parsing!(parse_eqs, f!, t, x, dx, params)
 
     local success # if true, the validation step succeeded
     local _t0 # represents how much the integration could advance until validation failed
@@ -340,7 +340,7 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
         # Validated step of the integration
         (success, δt, _t0) = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
                                              t0, tmax, sign_tstep, xTMN, xv, rem, zbox, symIbox,
-                                             nsteps, orderT, abstol, params, parse_eqs, check_property, adaptive)
+                                             nsteps, orderT, abstol, params, tmpTaylor, arrTaylor, parse_eqs, check_property, adaptive)
 
         if adaptive && !success
             break
