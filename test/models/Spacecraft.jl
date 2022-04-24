@@ -28,7 +28,7 @@ function mymul!(v, A, x)
     return nothing
 end
 
-@taylorize function spacecraft_approaching!(du, u, p, t)
+@taylorize function spacecraft_approaching!(du, u, p, time)
     x, y, vx, vy, t = u
 
     rx = r + x
@@ -59,7 +59,7 @@ end
     return du
 end
 
-@taylorize function spacecraft_attempt!(du, u, p, t)
+@taylorize function spacecraft_attempt!(du, u, p, time)
     x, y, vx, vy, t = u
 
     rx = r + x
@@ -90,7 +90,7 @@ end
     return du
 end
 
-@taylorize function spacecraft_aborting!(du, u, p, t)
+@taylorize function spacecraft_aborting!(du, u, p, time)
     x, y, vx, vy, t = u
 
     rx = r + x
