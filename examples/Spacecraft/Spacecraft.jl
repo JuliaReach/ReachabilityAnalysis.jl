@@ -90,7 +90,7 @@ end
 
 # ### Dynamics in the 'approaching' mode
 
-@taylorize function spacecraft_approaching!(du, u, p, t)
+@taylorize function spacecraft_approaching!(du, u, p, time)
     x, y, vx, vy, t = u
 
     rx = r + x
@@ -123,7 +123,7 @@ end
 
 # ### Dynamics in the 'rendezvous attempt' mode
 
-@taylorize function spacecraft_attempt!(du, u, p, t)
+@taylorize function spacecraft_attempt!(du, u, p, time)
     x, y, vx, vy, t = u
 
     rx = r + x
@@ -156,7 +156,7 @@ end
 
 # ### Dynamics in the 'aborting' mode
 
-@taylorize function spacecraft_aborting!(du, u, p, t)
+@taylorize function spacecraft_aborting!(du, u, p, time)
     x, y, vx, vy, t = u
 
     rx = r + x
