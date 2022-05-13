@@ -13,4 +13,9 @@
     sol = solve(prob, T=10.0, alg=CARLIN(N=3, bloat=false))
     @test dim(sol) == 1
     @test ρ([1.0], sol(10.0)) < 0.01
+
+    # Use the compressed Kronecker form
+    sol = solve(prob, T=10.0, alg=CARLIN(N=3, bloat=false, compress=true))
+    @test dim(sol) == 1
+    @test ρ([1.0], sol(10.0)) < 0.01
 end

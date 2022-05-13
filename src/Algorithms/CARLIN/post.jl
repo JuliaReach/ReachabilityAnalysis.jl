@@ -13,7 +13,12 @@ function _template(; n, N)
     return CustomDirections(dirs)
 end
 
-# TODO refactor
+# TODO check if it can be removed
+function _project(sol, vars)
+    πsol_1n = Flowpipe([ReachSet(set(project(R, vars)), tspan(R)) for R in sol])
+end
+
+# TODO refactor to MathematicalSystems
 import MathematicalSystems: statedim
 
 struct CanonicalQuadraticForm{T, MT<:AbstractMatrix{T}} <: AbstractContinuousSystem
@@ -30,12 +35,10 @@ function canonical_form(s::BlackBoxContinuousSystem)
     @requires Symbolics
     f = s.f
     # differentiate
-
 end
 
 function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=interval(0), kwargs...)
-    @unpack N, compressed, δ, bloat, resets = alg
-    @assert compressed == false
+    @unpack N, compress, δ, bloat, resets = alg
 
     # for now we assume there are no resets
     if haskey(kwargs, :NSTEPS)
@@ -55,5 +58,5 @@ function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=int
     dirs = _template(n=n, N=N)
     alg = LGG09(δ=δ, template=dirs, approx_model=Forward())
 
-    return reach_CARLIN_alg(X0, F1, F2; alg, resets, N, T, Δt0, bloat)
+    return reach_CARLIN_alg(X0, F1, F2; alg, resets, N, T, Δt0, bloat, compress)
 end
