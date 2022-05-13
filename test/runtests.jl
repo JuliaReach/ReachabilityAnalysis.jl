@@ -41,6 +41,7 @@ include("symbolics.jl")
 
 include("algorithms/INT.jl")
 include("algorithms/BOX.jl")
+include("algorithms/CARLIN.jl")
 include("algorithms/GLGM06.jl")
 include("algorithms/LGG09.jl")
 include("algorithms/ASB07.jl")
