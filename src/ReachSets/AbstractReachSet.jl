@@ -266,7 +266,3 @@ _intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersec
 @commutative function _intersection(R::AbstractReachSet, X::LazySet, method::AbstractIntersectionMethod)
     return _intersection(set(R), X, method)
 end
-
-# ------------------------------
-# Methods to check inclusion
-# ------------------------------

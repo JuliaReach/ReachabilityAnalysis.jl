@@ -55,8 +55,10 @@ end
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
 LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
-Base.:⊆(R::AbstractLazyReachSet, X::LazySet) = ⊆(set(R), X)
-Base.:⊆(X::LazySet, R::AbstractLazyReachSet) = ⊆(X, set(R))
+for ST in (LazySet, UnionSet, UnionSetArray)
+    @eval Base.:⊆(R::AbstractLazyReachSet, X::$(ST)) = ⊆(set(R), X)
+    @eval Base.:⊆(X::$(ST), R::AbstractLazyReachSet) = ⊆(X, set(R))
+end
 Base.:⊆(R::AbstractLazyReachSet, S::AbstractLazyReachSet) = ⊆(set(R), set(S))
 LazySets.area(R::AbstractLazyReachSet) = area(set(R))
 LazySets.volume(R::AbstractLazyReachSet) = volume(set(R))
