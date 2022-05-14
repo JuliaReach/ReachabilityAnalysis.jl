@@ -29,7 +29,7 @@ end
 # Conservative linearization
 # ------------------------------------------
 
-_new_variables(n) = [Num(SymbolicUtils.Sym{Real}(:x, i)) for i in 1:n]
+_new_variables(n) = [Symbolics.variable(:x, i, T=Real) for i in 1:n]
 
 function _linearize(ivp::InitialValueProblem,
                     alg::AbstractRangeEnclosureMethod=IntervalArithmeticEnclosure())
