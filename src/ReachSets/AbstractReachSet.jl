@@ -34,7 +34,7 @@ following methods:
 abstract type AbstractReachSet{N} end
 
 # convenience union for dispatch on structs that behave like a set
-const SetOrReachSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox, AbstractReachSet}
+const SetOrReachSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.IntervalBox,AbstractReachSet}
 
 """
     basetype(T::Type{<:AbstractReachSet})
@@ -131,7 +131,7 @@ function tspan(::AbstractReachSet) end
 
 # if `contiguous` is true, we assume that the time span of each reach-set in this slice
 # is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
-function tstart(F::VRT; contiguous=false) where {RT<:AbstractReachSet, VRT<:AbstractVector{RT}}
+function tstart(F::VRT; contiguous=false) where {RT<:AbstractReachSet,VRT<:AbstractVector{RT}}
     if contiguous
         t0 = tstart(first(F))
     else
@@ -142,7 +142,7 @@ end
 
 # if `contiguous` is true, we assume that the time span of each reach-set in this slice
 # is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
-function tend(F::VRT; contiguous=false) where {RT<:AbstractReachSet, VRT<:AbstractVector{RT}}
+function tend(F::VRT; contiguous=false) where {RT<:AbstractReachSet,VRT<:AbstractVector{RT}}
     if contiguous
         tf = tend(last(F))
     else
@@ -153,7 +153,7 @@ end
 
 # if `contiguous` is true, we assume that the time span of each reach-set in this slice
 # is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
-function tspan(F::VRT; contiguous=false) where {RT<:AbstractReachSet, VRT<:AbstractVector{RT}}
+function tspan(F::VRT; contiguous=false) where {RT<:AbstractReachSet,VRT<:AbstractVector{RT}}
     if contiguous
         t0 = tstart(first(F))
         tf = tend(last(F))
@@ -220,10 +220,10 @@ function shift(R::AbstractReachSet, t0::Number) end
 
 # fallback uses  internal function _is_intersection_empty, which admit a pre-processing
 # step for the reach-set / algorithm choice
-@commutative isdisjoint(R::AbstractReachSet, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) =_is_intersection_empty(R, Y, method)
+@commutative isdisjoint(R::AbstractReachSet, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = _is_intersection_empty(R, Y, method)
 
 # disambiguations
-isdisjoint(R1::AbstractReachSet, R2::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) =_is_intersection_empty(R1, R2, method)
+isdisjoint(R1::AbstractReachSet, R2::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = _is_intersection_empty(R1, R2, method)
 
 # vector of reach-sets
 @commutative isdisjoint(R::AbstractVector{<:AbstractReachSet}, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(Ri -> _is_intersection_empty(Ri, Y, method), R)
@@ -244,7 +244,7 @@ end
 end
 
 # used for disjointness check in continuos post-operators
-function _is_intersection_empty(P::HPolyhedron,  Z::Zonotope, ::BoxEnclosure)
+function _is_intersection_empty(P::HPolyhedron, Z::Zonotope, ::BoxEnclosure)
     return isdisjoint(P, box_approximation(Z))
 end
 
@@ -252,6 +252,8 @@ end
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::Dummy)
     return false
 end
+
+@commutative _is_intersection_empty(R::AbstractReachSet, Y::UnionSet{N,<:Interval{N},<:Interval{N}}, method::FallbackDisjointness) where {N} = isdisjoint(set(R), Y)
 
 # ------------------------------
 # Concrete intersection methods
