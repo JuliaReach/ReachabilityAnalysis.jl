@@ -6,29 +6,29 @@
                                           "the system's dimension argument `dim=...`"))
 
 # no-op
-_reconvert(Ω0::Zonotope{N, Vector{N}, Matrix{N}}, static::Val{false}, dim, ngens) where {N} = Ω0
-_reconvert(Ω0::Zonotope{N, <:SVector, <:SMatrix}, static::Val{true}, dim) where {N} = Ω0
+_reconvert(Ω0::Zonotope{N,Vector{N},Matrix{N}}, static::Val{false}, dim, ngens) where {N} = Ω0
+_reconvert(Ω0::Zonotope{N,<:SVector,<:SMatrix}, static::Val{true}, dim) where {N} = Ω0
 
 # convert any zonotope to be represented wih regular arrays
 _reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens) = Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 
 # convert any zonotope to be represented with static arrays
-function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Missing, ngens::Missing) where {N, VN, MN}
+function _reconvert(Ω0::Zonotope{N,VN,MN}, static::Val{true}, dim::Missing, ngens::Missing) where {N,VN,MN}
     n, m = size(Ω0.generators)
     _reconvert(Ω0, static, Val(n), Val(m))
 end
 
-function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N, VN, MN, n, p}
+function _reconvert(Ω0::Zonotope{N,VN,MN}, static::Val{true}, dim::Val{n}, ngens::Val{p}) where {N,VN,MN,n,p}
     G = Ω0.generators
     m = size(G, 2)
-    c = SVector{n, N}(Ω0.center)
+    c = SVector{n,N}(Ω0.center)
 
     if m == p
-        return Zonotope(c, SMatrix{n, p}(G))
+        return Zonotope(c, SMatrix{n,p}(G))
 
     elseif m < p
         # extend with zeros
-        Gext = hcat(SMatrix{n, m}(G), zeros(MMatrix{n, p-m, N}))
+        Gext = hcat(SMatrix{n,m}(G), zeros(MMatrix{n,p - m,N}))
         return Zonotope(c, Gext)
 
     else
@@ -38,9 +38,9 @@ function _reconvert(Ω0::Zonotope{N, VN, MN}, static::Val{true}, dim::Val{n}, ng
 end
 
 # no-op
-_reconvert(Ω0::Hyperrectangle{N, Vector{N}, Vector{N}}, static::Val{false}, dim::Missing) where {N} = Ω0
-_reconvert(Ω0::Hyperrectangle{N, Vector{N}, Vector{N}}, static::Val{true}, dim::Missing) where {N} = nodim_msg()
-_reconvert(Ω0::Hyperrectangle{N, <:SVector, <:SVector}, static::Val{true}, dim) where {N} = Ω0
+_reconvert(Ω0::Hyperrectangle{N,Vector{N},Vector{N}}, static::Val{false}, dim::Missing) where {N} = Ω0
+_reconvert(Ω0::Hyperrectangle{N,Vector{N},Vector{N}}, static::Val{true}, dim::Missing) where {N} = nodim_msg()
+_reconvert(Ω0::Hyperrectangle{N,<:SVector,<:SVector}, static::Val{true}, dim) where {N} = Ω0
 
 # convert any Hyperrectangle to be represented wih regular arrays
 function _reconvert(Ω0::Hyperrectangle, static::Val{false}, dim::Missing)
@@ -48,9 +48,9 @@ function _reconvert(Ω0::Hyperrectangle, static::Val{false}, dim::Missing)
 end
 
 # convert any Hyperrectangle to be represented with static arrays
-function _reconvert(Ω0::Hyperrectangle{N, VNC, VNR}, static::Val{true}, dim::Val{n}) where {N, VNC, VNR, n}
+function _reconvert(Ω0::Hyperrectangle{N,VNC,VNR}, static::Val{true}, dim::Val{n}) where {N,VNC,VNR,n}
     #n = length(Ω0.center) # dimension
-    Ω0 = Hyperrectangle(SVector{n, N}(Ω0.center), SVector{n, N}(Ω0.radius), check_bounds=false)
+    Ω0 = Hyperrectangle(SVector{n,N}(Ω0.center), SVector{n,N}(Ω0.radius), check_bounds=false)
 end
 
 # no-op
@@ -60,30 +60,30 @@ _reconvert(Φ::AbstractMatrix, static::Val{false}, dim) = Matrix(Φ)
 _reconvert(Φ::SMatrix, static::Val{true}, dim) = Φ
 _reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing) = _reconvert(Φ, static, Val(size(Φ, 1)))
 
-function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}, dim::Val{n}) where {N, n}
+function _reconvert(Φ::AbstractMatrix{N}, static::Val{true}, dim::Val{n}) where {N,n}
     #n = size(Φ, 1)
-    Φ = SMatrix{n, n, N, n*n}(Φ)
+    Φ = SMatrix{n,n,N,n * n}(Φ)
 end
 
-function _reconvert(Φ::IntervalMatrix{N, IN, Matrix{IN}}, static::Val{true}, dim::Val{n}) where {N, IN, n}
+function _reconvert(Φ::IntervalMatrix{N,IN,Matrix{IN}}, static::Val{true}, dim::Val{n}) where {N,IN,n}
     #n = size(Φ, 1)
-    Φ = IntervalMatrix(SMatrix{n, n, IN, n*n}(Φ))
+    Φ = IntervalMatrix(SMatrix{n,n,IN,n * n}(Φ))
 end
 
 # AbstractVPolygon is not yet available in LazySets
-const VPOLY{N, VN} = Union{VPolygon{N, VN}, VPolytope{N, VN}}
+const VPOLY{N,VN} = Union{VPolygon{N,VN},VPolytope{N,VN}}
 
 # no-op
-_reconvert(V::VPOLY{N, VN}, static::Val{false}, dim) where {N, VN<:AbstractVector{N}} = V
-_reconvert(V::VPOLY{N, VN}, static::Val{true}, dim) where {N, VN<:SVector{N}} = V
+_reconvert(V::VPOLY{N,VN}, static::Val{false}, dim) where {N,VN<:AbstractVector{N}} = V
+_reconvert(V::VPOLY{N,VN}, static::Val{true}, dim) where {N,VN<:SVector{N}} = V
 
-function _reconvert(V::VPOLY{N, VN}, static::Val{true}, dim::Val{n}) where {N, VN<:AbstractVector{N}, n}
+function _reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Val{n}) where {N,VN<:AbstractVector{N},n}
     VP = n == 2 ? VPolygon : VPolytope
-    return VP([SVector{n, N}(vi) for vi in vertices_list(V)])
+    return VP([SVector{n,N}(vi) for vi in vertices_list(V)])
 end
 
 # dimension is missing
-function _reconvert(V::VPOLY{N, VN}, static::Val{true}, dim::Missing) where {N, VN<:AbstractVector{N}}
+function _reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Missing) where {N,VN<:AbstractVector{N}}
     _reconvert(V, static, Val(LazySets.dim(V)))
 end
 
@@ -102,22 +102,22 @@ function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
     return _convert_or_overapproximate(T, X)
 end
 
-function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N, VT}}) where {N, VT}
+function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N,VT}}) where {N,VT}
     # TODO create overapproximation using VT directly
     Y = overapproximate(X, BoxDirections(dim(X)))
     return convert(T, Y)
 end
 
-Base.convert(::Type{HPolytope{N, VT}}, P::HPolytope{N, VT}) where {N, VT} = P
-Base.convert(::Type{HPolytope{N, VT}}, P) where {N, VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
+Base.convert(::Type{HPolytope{N,VT}}, P::HPolytope{N,VT}) where {N,VT} = P
+Base.convert(::Type{HPolytope{N,VT}}, P) where {N,VT} = HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
 
-function Base.convert(::Type{Hyperrectangle{N, Vector{N}, Vector{N}}},
-                      H::Hyperrectangle{N, SVector{L, N}, SVector{L, N}}) where {N, L}
+function Base.convert(::Type{Hyperrectangle{N,Vector{N},Vector{N}}},
+    H::Hyperrectangle{N,SVector{L,N},SVector{L,N}}) where {N,L}
     return Hyperrectangle(Vector(H.center), Vector(H.radius))
 end
 
 function Base.convert(::Type{Singleton},
-                      cp::CartesianProduct{N, S1, S2}) where{N, S1<:Singleton{N}, S2<:Singleton{N}}
+    cp::CartesianProduct{N,S1,S2}) where {N,S1<:Singleton{N},S2<:Singleton{N}}
     x = element(cp.X)
     y = element(cp.Y)
     return Singleton(vcat(x, y))
@@ -137,25 +137,36 @@ LazySets.low(dom::IntervalBox, i::Int) = inf(dom.v[i])
 LazySets.high(dom::IntervalBox) = sup.(dom.v)
 LazySets.high(dom::IntervalBox, i::Int) = sup(dom.v[i])
 
+LazySets.low(dom::IA.Interval) = inf(dom)
+function LazySets.low(dom::IA.Interval, i::Int)
+    @assert i == 1
+    inf(dom)
+end
+LazySets.high(dom::IA.Interval) = sup(dom)
+function LazySets.high(dom::IA.Interval, i::Int)
+    @assert i == 1
+    sup(dom)
+end
+
 # ------------------------------------------------
 # Functions to handle splitting of IntervalBoxes
 # TODO refactor to LazySets
 # See also: LazySets#2651, IntervalArithmetic#444
 # ------------------------------------------------
 
-function Base.convert(HT::Type{Hyperrectangle{N, Vector{N}, Vector{N}}}, H::AbstractHyperrectangle) where {N}
+function Base.convert(HT::Type{Hyperrectangle{N,Vector{N},Vector{N}}}, H::AbstractHyperrectangle) where {N}
     c = convert(Vector{N}, LazySets.center(H))
     r = convert(Vector{N}, radius_hyperrectangle(H))
     return Hyperrectangle(c, r)
 end
 
-function Base.convert(HT::Type{Hyperrectangle{N, Vector{N}, Vector{N}}}, B::IntervalBox{D, N}) where {D, N}
+function Base.convert(HT::Type{Hyperrectangle{N,Vector{N},Vector{N}}}, B::IntervalBox{D,N}) where {D,N}
     H = convert(Hyperrectangle, B)
-    return convert(Hyperrectangle{N, Vector{N}, Vector{N}}, H)
+    return convert(Hyperrectangle{N,Vector{N},Vector{N}}, H)
 end
 
-function LazySets.split(B::IntervalBox{D, N}, partition::AbstractVector{Int}) where {D, N}
-    H = convert(Hyperrectangle{N, Vector{N}, Vector{N}}, B)
+function LazySets.split(B::IntervalBox{D,N}, partition::AbstractVector{Int}) where {D,N}
+    H = convert(Hyperrectangle{N,Vector{N},Vector{N}}, B)
     return split(H, partition)
 end
 
@@ -164,11 +175,11 @@ end
 # =========================
 
 # extend LazySets concrete projection for other arg fomats
-LazySets.project(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = project(X, collect(vars))
+LazySets.project(X::LazySet, vars::NTuple{D,<:Integer}) where {D} = project(X, collect(vars))
 LazySets.project(X::LazySet; vars) = project(X, vars)
 
 # extend LazySets lazy projection for other arg fomats
-LazySets.Projection(X::LazySet, vars::NTuple{D, <:Integer}) where {D} = Projection(X, collect(vars))
+LazySets.Projection(X::LazySet, vars::NTuple{D,<:Integer}) where {D} = Projection(X, collect(vars))
 LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 
 # ===============================
@@ -183,8 +194,8 @@ LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 #const Partition{N, VT} = AbstractVector{VT} where {VT<:AbstractVector{Int}}
 
 function _decompose(X::LazySet{N},
-                    blocks, # ::AbstractVector{<:AbstractVector{Int}}
-                    set_type::Type{ST}) where {N, ST<:LazySet}
+    blocks, # ::AbstractVector{<:AbstractVector{Int}}
+    set_type::Type{ST}) where {N,ST<:LazySet}
     n = dim(X)
     result = Vector{ST}(undef, length(blocks))
 
@@ -230,8 +241,8 @@ function _overapproximate_hparallelotope(Z::AbstractZonotope, indices=1:dim(Z))
     return linear_map(Γ, □Γ⁻¹Z)
 end
 
-function _overapproximate(lm::LinearMap{N, <:AbstractZonotope{N}, NM, <:AbstractIntervalMatrix{NM}},
-                            ::Type{<:Zonotope}) where {N<:Real, NM}
+function _overapproximate(lm::LinearMap{N,<:AbstractZonotope{N},NM,<:AbstractIntervalMatrix{NM}},
+    ::Type{<:Zonotope}) where {N<:Real,NM}
 
     Mc, Ms = _split(matrix(lm))
     Z = LazySets.set(lm)
@@ -241,9 +252,9 @@ function _overapproximate(lm::LinearMap{N, <:AbstractZonotope{N}, NM, <:Abstract
 end
 
 function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
-                                              Ms::AbstractMatrix{N},
-                                              c::AbstractVector{N},
-                                              G::AbstractMatrix{N}) where {N}
+    Ms::AbstractMatrix{N},
+    c::AbstractVector{N},
+    G::AbstractMatrix{N}) where {N}
     n = length(c)
     m = size(G, 2) # number of generators
     c_oa = Mc * c
@@ -267,10 +278,10 @@ function _overapproximate_interval_linear_map(Mc::AbstractMatrix{N},
     return Zonotope(c_oa, G_oa)
 end
 
-function _overapproximate_interval_linear_map(Mc::SMatrix{n, n, N, LM},
-                                              Ms::SMatrix{n, n, N, LM},
-                                              c::SVector{n, N},
-                                              G::SMatrix{n, m, N, LG}) where {n, N, LM, m, LG}
+function _overapproximate_interval_linear_map(Mc::SMatrix{n,n,N,LM},
+    Ms::SMatrix{n,n,N,LM},
+    c::SVector{n,N},
+    G::SMatrix{n,m,N,LG}) where {n,N,LM,m,LG}
     c_oa = Mc * c
     Ggens = Mc * G
 
@@ -284,7 +295,7 @@ function _overapproximate_interval_linear_map(Mc::SMatrix{n, n, N, LM},
     q = size(Mc, 1)
     α = Ms * dvec # vector of length q
     αnz = findall(!iszero, α)
-    DV = zeros(MMatrix{q, q, N}) # NOTE: sole difference with regular arrays, may refactor
+    DV = zeros(MMatrix{q,q,N}) # NOTE: sole difference with regular arrays, may refactor
     @inbounds for (j, idx) in enumerate(αnz)
         DV[j, idx] = α[idx]
     end
@@ -305,7 +316,7 @@ function _split_fallback!(A::IntervalMatrix{T}, C, S) where {T}
     return C, S
 end
 
-function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, MT<:AbstractMatrix{IT}}
+function _split(A::IntervalMatrix{T,IT,MT}) where {T,IT,MT<:AbstractMatrix{IT}}
     m, n = size(A)
     C = Matrix{T}(undef, m, n)
     S = Matrix{T}(undef, m, n)
@@ -313,13 +324,13 @@ function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, MT<:AbstractMatrix{I
     return C, S
 end
 
-function _split(A::IntervalMatrix{T, IT, MT}) where {T, IT, ST, MT<:StaticArray{ST, IT}}
+function _split(A::IntervalMatrix{T,IT,MT}) where {T,IT,ST,MT<:StaticArray{ST,IT}}
     m, n = size(A)
     # TODO: use MMatrix and convert to SMatrix afterwards?
     C = Matrix{T}(undef, m, n)
     S = Matrix{T}(undef, m, n)
     _split_fallback!(A, C, S)
-    return SMatrix{m, n, T}(C), SMatrix{m, n, T}(S)
+    return SMatrix{m,n,T}(C), SMatrix{m,n,T}(S)
 end
 
 _symmetric_interval_hull(x::Interval) = LazySets.symmetric_interval_hull(x)
@@ -398,7 +409,7 @@ function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
     HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
-function Base.:(*)(M::AbstractMatrix, X::UnionSetArray{N, <:AbstractSingleton{N}}) where {N}
+function Base.:(*)(M::AbstractMatrix, X::UnionSetArray{N,<:AbstractSingleton{N}}) where {N}
     return UnionSetArray([linear_map(M, p) for p in array(X)])
 end
 
@@ -464,8 +475,8 @@ _reduce_order(Z::Zonotope, r::Number, ::GIR05; force_reduction::Bool=false) = _r
 _reduce_order(Z::Zonotope, r::Number, ::COMB03; force_reduction::Bool=false) = _reduce_order_COMB03(Z, r, force_reduction=force_reduction)
 
 # zonotope with mixed static array types
-function _reduce_order(Z::Zonotope{N, SVector{n, N}, MMatrix{n, p, N, L}},
-                       r::Number, alg::GIR05; force_reduction::Bool=false) where {n, N, p, L}
+function _reduce_order(Z::Zonotope{N,SVector{n,N},MMatrix{n,p,N,L}},
+    r::Number, alg::GIR05; force_reduction::Bool=false) where {n,N,p,L}
     c = Z.center
     G = SMatrix(Z.generators)
     return _reduce_order(Zonotope(c, G), r, alg, force_reduction=force_reduction)
@@ -518,14 +529,14 @@ function _interval_hull(G::AbstractMatrix{N}, indices) where {N}
 end
 
 # implementation for static arrays
-function _interval_hull(G::SMatrix{n, p, N, L}, indices) where {n, p, N, L}
-    Lred = zeros(MMatrix{n, n, N})
+function _interval_hull(G::SMatrix{n,p,N,L}, indices) where {n,p,N,L}
+    Lred = zeros(MMatrix{n,n,N})
     @inbounds for i in 1:n
         for j in indices
             Lred[i, i] += abs(G[i, j])
         end
     end
-    return SMatrix{n, n}(Lred)
+    return SMatrix{n,n}(Lred)
 end
 
 # given an n x p matrix G and a vector of m integer indices with m <= p,
@@ -536,9 +547,9 @@ function _hcat_KLred(G::AbstractMatrix, indices, Lred::AbstractMatrix)
 end
 
 # implementation for static arrays
-function _hcat_KLred(G::SMatrix{n, p, N, L1}, indices, Lred::SMatrix{n, n, N, L2}) where {n, p, N, L1, L2}
+function _hcat_KLred(G::SMatrix{n,p,N,L1}, indices, Lred::SMatrix{n,n,N,L2}) where {n,p,N,L1,L2}
     m = length(indices)
-    K = SMatrix{n, m}(view(G, :, indices))
+    K = SMatrix{n,m}(view(G, :, indices))
     return hcat(K, Lred)
 end
 
@@ -640,9 +651,9 @@ using LazySets: _geq, _leq
     b = H.b
     N = promote_type(eltype(X), eltype(H))
     if a > zero(N)
-        return !_leq(min(X), b/a)
+        return !_leq(min(X), b / a)
     else
-        return !_geq(max(X), b/a)
+        return !_geq(max(X), b / a)
     end
 end
 
@@ -658,7 +669,7 @@ end
 # more efficiently using support functions
 # see LazySets.is_intersection_empty_helper_halfspace
 @commutative function isdisjoint(X::AbstractPolytope{N},
-                                 Y::UnionSetArray{N, <:HalfSpace{N}}) where {N}
+    Y::UnionSetArray{N,<:HalfSpace{N}}) where {N}
     if dim(X) == 2 # use vrep in 2D
         Xp = convert(VPolygon, X)
         return all(Yi -> isdisjoint(Xp, Yi), array(Y))
@@ -687,11 +698,11 @@ end
 # -----------------------
 
 # converts the normal vector of a list of half-spaces to be a Vector
-const VECH{N, VT} = Vector{HalfSpace{N, VT}}
-_to_vec(c::HalfSpace{N, Vector{N}}) where {N} = c
-_to_vec(c::HalfSpace{N, VT}) where {N, VT<:AbstractVector{N}} = HalfSpace(Vector(c.a), c.b)
-_to_vec(x::VECH{N, Vector{N}}) where {N} = x
-_to_vec(x::VECH{N, VT}) where {N, VT<:AbstractVector{N}} = broadcast(_to_vec, x)
+const VECH{N,VT} = Vector{HalfSpace{N,VT}}
+_to_vec(c::HalfSpace{N,Vector{N}}) where {N} = c
+_to_vec(c::HalfSpace{N,VT}) where {N,VT<:AbstractVector{N}} = HalfSpace(Vector(c.a), c.b)
+_to_vec(x::VECH{N,Vector{N}}) where {N} = x
+_to_vec(x::VECH{N,VT}) where {N,VT<:AbstractVector{N}} = broadcast(_to_vec, x)
 
 # concatenates lists of half-spaces such that the normal vectors of the final list
 # are all Vector
@@ -705,7 +716,7 @@ abstract type AbstractIntersectionMethod end
 
 # "fallback" implementation that uses LazySets intersection(X, Y)
 struct FallbackIntersection{T} <: AbstractIntersectionMethod
-     backend::T
+    backend::T
 end
 
 _intersection(X::LazySet, Y::LazySet, ::FallbackIntersection) = intersection(X, Y)
@@ -738,7 +749,7 @@ struct HRepIntersection <: AbstractIntersectionMethod
     #
 end
 
-setrep(::HRepIntersection) = HPolytope{Float64, Vector{Float64}}
+setrep(::HRepIntersection) = HPolytope{Float64,Vector{Float64}}
 
 function _intersection(X::AbstractPolyhedron, Y::AbstractPolyhedron, ::HRepIntersection)
     clist_X = constraints_list(X)
@@ -775,7 +786,7 @@ struct BoxIntersection <: AbstractIntersectionMethod
     #
 end
 
-setrep(::BoxIntersection) = Hyperrectangle{Float64, Vector{Float64}, Vector{Float64}}
+setrep(::BoxIntersection) = Hyperrectangle{Float64,Vector{Float64},Vector{Float64}}
 
 # ------------------------
 # TemplateHullIntersection
@@ -792,38 +803,38 @@ setrep(::BoxIntersection) = Hyperrectangle{Float64, Vector{Float64}, Vector{Floa
 #
 # if lazy = true, use specialized approximation of lazy intersections
 # assuming that Y is polyhedral
-struct TemplateHullIntersection{N, VN, TN, L} <: AbstractIntersectionMethod
+struct TemplateHullIntersection{N,VN,TN,L} <: AbstractIntersectionMethod
     dirs::TN
     lazy::L
 end
 
 # constructor with template directions provided
-function TemplateHullIntersection(dirs::TN; lazy=false) where {N, VN, TN<:AbstractDirections{N, VN}}
+function TemplateHullIntersection(dirs::TN; lazy=false) where {N,VN,TN<:AbstractDirections{N,VN}}
     lazy_val = Val(lazy)
-    TemplateHullIntersection{N, VN, TN, typeof(lazy_val)}(dirs, lazy_val)
+    TemplateHullIntersection{N,VN,TN,typeof(lazy_val)}(dirs, lazy_val)
 end
 
 # constructor without template directions => directions are missing until evaluated
-function TemplateHullIntersection{N, VN}(; lazy=false) where {N, VN<:AbstractVector{N}}
+function TemplateHullIntersection{N,VN}(; lazy=false) where {N,VN<:AbstractVector{N}}
     lazy_val = Val(lazy)
-    TemplateHullIntersection{N, VN, Missing, typeof(lazy_val)}(missing, lazy_val)
+    TemplateHullIntersection{N,VN,Missing,typeof(lazy_val)}(missing, lazy_val)
 end
 
 function TemplateHullIntersection(; lazy=false)
-    TemplateHullIntersection{Float64, Vector{Float64}}(; lazy=lazy)
+    TemplateHullIntersection{Float64,Vector{Float64}}(; lazy=lazy)
 end
 
-setrep(::TemplateHullIntersection{N, VN}) where {N, VN} = HPolytope{N, VN}
-setrep(::TemplateHullIntersection{N, SEV}) where {N, SEV<:SingleEntryVector{N}} = Union{HPolytope{N, SEV}, HPolytope{N, Vector{N}}}
-setrep(::TemplateHullIntersection{N, SP}) where {N, SP<:SparseVector{N}} = Union{HPolytope{N, SP}, HPolytope{N, Vector{N}}}
+setrep(::TemplateHullIntersection{N,VN}) where {N,VN} = HPolytope{N,VN}
+setrep(::TemplateHullIntersection{N,SEV}) where {N,SEV<:SingleEntryVector{N}} = Union{HPolytope{N,SEV},HPolytope{N,Vector{N}}}
+setrep(::TemplateHullIntersection{N,SP}) where {N,SP<:SparseVector{N}} = Union{HPolytope{N,SP},HPolytope{N,Vector{N}}}
 
 # if the template directions is missing => use the constraints of both X and Y
 # doesn't remove redundant constraints
-function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, Missing, Val{false}}) where {N, VN}
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N,VN,Missing,Val{false}}) where {N,VN}
     clist_X = constraints_list(X)
     clist_Y = constraints_list(Y)
 
-    out = Vector{HalfSpace{N, VN}}()
+    out = Vector{HalfSpace{N,VN}}()
     sizehint!(out, length(clist_X) + length(clist_Y))
 
     @inbounds for (i, c) in enumerate(clist_X)
@@ -842,9 +853,9 @@ function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{
 end
 
 # use ρ(d, X∩Y) ≤ min(ρ(d, X), ρ(d, Y)) for each d in the template
-function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, TN, Val{false}}) where {N, VN, TN<:AbstractDirections{N, VN}}
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N,VN,TN,Val{false}}) where {N,VN,TN<:AbstractDirections{N,VN}}
     dirs = method.dirs
-    out = Vector{HalfSpace{N, VN}}(undef, length(dirs))
+    out = Vector{HalfSpace{N,VN}}(undef, length(dirs))
     @inbounds for (i, d) in enumerate(dirs)
         d = convert(VN, d)
         b = min(ρ(d, X), ρ(d, Y))
@@ -855,9 +866,9 @@ end
 
 # compute the min of X ∩ Hi for each Hi in Y (assuming the second set is polyhedral,
 # requires the list of constraints of Y) for each template direction d
-function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N, VN, TN, Val{true}}) where {N, VN, TN<:AbstractDirections{N, VN}}
+function _intersection(X::LazySet, Y::LazySet, method::TemplateHullIntersection{N,VN,TN,Val{true}}) where {N,VN,TN<:AbstractDirections{N,VN}}
     dirs = method.dirs
-    out = Vector{HalfSpace{N, VN}}(undef, length(dirs))
+    out = Vector{HalfSpace{N,VN}}(undef, length(dirs))
     H = constraints_list(Y)
 
     @inbounds for (i, d) in enumerate(dirs)
@@ -878,8 +889,8 @@ abstract type AbstractInclusionMethod end
 
 # no pre-processing of the sets
 struct FallbackInclusion <: AbstractInclusionMethod
-#
+    #
 end
 
-_iscontained(X::LazySet, Y::LazySet, ::FallbackInclusion) = LazySets.⊆(X, Y)
+_iscontained(X::LazySet, Y::LazySet, ::FallbackInclusion) = LazySets .⊆ (X, Y)
 _iscontained(X, Y) = _iscontained(X, Y, FallbackInclusion())
