@@ -255,6 +255,8 @@ end
 
 @commutative _is_intersection_empty(R::AbstractReachSet, Y::UnionSet{N,<:Interval{N},<:Interval{N}}, method::FallbackDisjointness) where {N} = isdisjoint(set(R), Y)
 
+@commutative _is_intersection_empty(R::AbstractReachSet, Y::UnionSetArray{N,<:Interval{N}}, method::FallbackDisjointness) where {N} = isdisjoint(set(R), Y)
+
 # ------------------------------
 # Concrete intersection methods
 # ------------------------------
@@ -266,7 +268,3 @@ _intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersec
 @commutative function _intersection(R::AbstractReachSet, X::LazySet, method::AbstractIntersectionMethod)
     return _intersection(set(R), X, method)
 end
-
-# ------------------------------
-# Methods to check inclusion
-# ------------------------------
