@@ -116,12 +116,6 @@ function Base.:⊆(R::TaylorModelReachSet, X::LazySet)
     return set(Rz) ⊆ X
 end
 
-# FIXME see https://github.com/JuliaIntervals/IntervalArithmetic.jl/issues/519
-function Base.:⊆(I::IA.Interval, B::IntervalBox)
-    @assert dim(B) == 1
-    ⊆(I, B[1])
-end
-
 # ======================
 # Disjointness checks
 # ======================
