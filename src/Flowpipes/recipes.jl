@@ -114,7 +114,7 @@ end
 
 function _check_vars(vars)
     if vars == nothing
-        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+        throw(ArgumentError("default plotting variables not implemented yet; you need " *
               "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
               "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
     end
