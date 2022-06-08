@@ -201,6 +201,19 @@ function _taylor_shift(X::Vector{TaylorN{S}}, dom) where {S}
 end
 
 # =================================
+# Evaluation
+# =================================
+
+function evaluate(R::TaylorModelReachSet, Δt::TimeInterval)
+    n = dim(R)
+    X = set(R)
+    Δtn = (Δt - tstart(R)) ∩ domain(R)
+    [fp_rpa(TaylorModelN(evaluate(X[i], Δtn), zeroI, zeroBox(n), symBox(n))) for i in 1:n]
+end
+
+evaluate(R::TaylorModelReachSet, t::Real) = evaluate(R, interval(t))
+
+# =================================
 # Conversion and overapproximation
 # =================================
 

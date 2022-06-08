@@ -3,11 +3,10 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Taylor methods
+# Introduction
 
-## Univariate example
-
-We begin the section with a small example that mixes intervals, the sine function, and differential equations. It is easy to check that the function
+This section provides a quickstart to the Taylor-models reachability method with a *univariate oscillator* as running example.
+It is a small example that mixes intervals, the sine function, and differential equations. It is easy to check that the function
 
 ```math
 x(t) = x_0 \exp\left(\cos(t) - 1\right),\qquad x_0 \in \mathbb{R},
@@ -47,9 +46,10 @@ out = [Interval(sol.t[i]) × Interval(sol.u[i][1]) for i in 1:20]
 
 plot(out, xlab="t", ylab="x(t)", lw=3.0, alpha=1., c=:black, marker=:none, lab="", title="Standard integrator with an interval initial condition")
 ```
-Such divergence observed in the solution is due to using an algorithm which doesn't take into account the dependency problem when the initial condition is an interval.
+The divergence observed in the solution is due to using an algorithm which doesn't specialize for intervals hence suffers from dependency problems.
 
-On the contrary, specialized algorithms can handle this case without noticeable wrapping effect, producing a sequence of sets whose union covers the true solution for all initial points. The corresponding solution using [`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) can be obtained as follows:
+However, specialized algorithms can handle this case without noticeable wrapping effect, producing a sequence of sets whose union covers the true solution for all initial points. We use the [`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) interface to the algorithm [`TMJets21a`](@ref), which is itself implemented in
+[`TaylorModels.jl`](https://github.com/JuliaIntervals/TaylorModels.jl).
 
 ```@example nonlinear_univariate
 using ReachabilityAnalysis, Plots
@@ -73,8 +73,8 @@ plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model b
 ```
 
 It is illustrative to plot the computed flowpipe and the known analytic solution
-for a range of initial conditions that cover the range of `U0`. We can do so by
-overlaying exact solutions taken uniformly from the initial interval.
+for a range of initial conditions that cover the range of the initial interval `X0 = -1 .. 1`.
+We can do so by overlaying exact solutions taken uniformly from the initial interval.
 
 ```@example nonlinear_univariate
 analytic_sol(x0) = t -> x0 * exp(cos(t) - 1.0)
@@ -88,21 +88,12 @@ plot!(fig, sol, lw=0.0, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (
 fig
 ```
 
-Several methods exist to analyze the solution. For example, the number of reach-sets can be obtained using
-`length` (or [`numrsets`](@ref) more generally for hybrid solutions):
+[`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) defines several methods to analyze the solution.
+For example, the number of reach-sets can be obtained using `length` (more generally, use [`numrsets`](@ref) for hybrid systems):
 
 ```@example nonlinear_univariate
 # number of computed reach-sets
 length(sol)
-```
-The type of reach-set representation as well as the set representation can be obtained as well:
-```@example nonlinear_univariate
-# type of the reach-set representation
-rsetrep(sol)
-```
-```@example nonlinear_univariate
-# type of the set representation
-setrep(sol)
 ```
 
 Solutions implement the array interface hence it is possible to index them: 
@@ -110,19 +101,19 @@ Solutions implement the array interface hence it is possible to index them:
 # first reach-set of the flowpipe
 sol[1]
 ```
+Note that `sol[1]` is an expansion in *time* whose coefficients are polynomials in *space*.
 The associated time span can be obtained with [`tspan`](@ref):
 ```@example nonlinear_univariate
 # time span of this reach-set
-sol[1]
+tspan(sol[1])
 ```
 Similarly we can print the last reach-set: 
 ```@example nonlinear_univariate
-sol[end-1:end]
+sol[end]
 ```
 
 ```@example nonlinear_univariate
 tspan(sol[end])
-[14.9499, 15]
 ```
 It is also possible to filter solutions by the time variable using parentheses:
 
@@ -142,9 +133,35 @@ Filtering by the time span also works with time intervals; in the following exam
 length(sol(1.0 .. 3.0))
 ```
 
+On the other hand, evaluating over a given time point or time interval can be achieved using the [`evaluate`](@ref) function:
+
+```@example nonlinear_univariate
+# evaluate over the full time interval ≈ [0, 0.100777]
+evaluate(sol[1], tspan(sol[1]))
+```
+```@example nonlinear_univariate
+# evaluate over the final time point 0.10077670723811318
+evaluate(sol[1], tend(sol[1]))
+```
+```@example nonlinear_univariate
+# evaluate the final reach-set at the final time point
+evaluate(sol[end], 15.0)
+```
+
 Finally, note that the solution structure, apart from storing the resulting flowpipe, contains information
 about the algorithm that was used to obtain it:
 
 ```@example nonlinear_univariate
 sol.alg
 ```
+
+The type of reach-set representation as well as the set representation can be obtained using [`rsetrep`](@ref) and [`setrep`](@ref) respectively.
+```@example nonlinear_univariate
+# type of the reach-set representation
+rsetrep(sol)
+```
+```@example nonlinear_univariate
+# type of the set representation
+setrep(sol)
+```
+The following section discusses more details about those representations.
