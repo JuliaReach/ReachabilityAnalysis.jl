@@ -1,13 +1,13 @@
 # # Transmission line circuit
 #
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/TransmissionLine.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/TransmissionLine.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: linear continuous system\
 #md #     State dimension: parametric, typically between 4 to 40\
 #md #     Application domain: Power Systems Stability
 #
-# We consider the transmission line model used in [AKS11].
+# We consider the transmission line model used in [^AKS11].
 # The RLC circuit of the transmission line is shown below.
 # In the circuit, ``U_{in}`` is the voltage at the sending end,
 # and ``U_{out}`` is the voltage at the receiving end.
@@ -165,7 +165,7 @@ end
 # We are interested in the step response to an input voltage ``U_{in}(t)``
 # arbitrarily varying over the domain ``U_{in} = [0.99, 1.01]`` for all ``t \in [0, T]``.
 
-# We consider the case of ``\eta = 20`` nodes as in [AKS11], such that the system
+# We consider the case of ``\eta = 20`` nodes as in [^AKS11], such that the system
 # has ``n = 40`` state variables.
 
 η = 20 # order
@@ -200,10 +200,10 @@ Uout_vs_t = @. (-1.0) * project(sol, η);
 plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 
 #md # !!! tip "Technical note"
-#md #     Since we are only interested in the behavior of ``U_{out}``, we can use
-#md #     algorithm `BFFPSV18` with the options `alg=BFFPSV18(δ=1e-3, dim=statedim(P), vars=[η]))`,
-#md #     which will use an interval (1D) decomposition of the state space and only compute
-#md #     the flowpipe associated with variable ``\eta``.
+#md #     Since we are only interested in the behavior of ``U_{out}``, we could use a support function based algorithm
+#md #     (see e.g. [^GLG08] which can be used as [`LGG09`](@ref) in this library), or the decomposition-based algorithm
+#md #     [`BFFPSV18`](@ref) with the options `alg=BFFPSV18(δ=1e-3, dim=statedim(P), vars=[η]))`. Those options
+#md #     will use an interval (1D) decomposition of the state space and only compute the flowpipe associated with variable ``\eta``.
 
 # ## References
 
@@ -211,4 +211,4 @@ plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0
 
 # [^K15]: Kluever, Craig A. [Dynamic systems: modeling, simulation, and control.](https://www.wiley.com/en-us/Dynamic+Systems%3A+Modeling%2C+Simulation%2C+and+Control-p-9781118289457). John Wiley & Sons, 2015.
 
-# [^GLG08]: Girard, Antoine, and Colas Le Guernic. [Efficient reachability analysis for linear systems using support functions.]() IFAC Proceedings Volumes 41.2 (2008): 8966-8971.
+# [^GLG08]: Girard, Antoine, and Colas Le Guernic. [Efficient reachability analysis for linear systems using support functions.](https://www.sciencedirect.com/science/article/pii/S1474667016403939) IFAC Proceedings Volumes 41.2 (2008): 8966-8971.

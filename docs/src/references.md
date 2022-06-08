@@ -209,6 +209,33 @@ Combastel, C. *A state bounding observer based on zonotopes.*
 
 ---
 
+#### [CPPSV06]
+
+Carloni, L. P., Passerone, R., Pinto, A., & Sangiovanni-Vincentelli, A. L. [*Languages and tools for hybrid systems design.*](https://www.nowpublishers.com/article/Details/EDA-001)
+Foundations and Trends® in Electronic Design Automation, 1(1–2), 1-193. 2006.
+
+```@raw html
+<li style="list-style: none"><details>
+<summary>BibTex entry</summary>
+```
+```
+@article{carloni2006languages,
+  title={Languages and tools for hybrid systems design},
+  author={Carloni, Luca P and Passerone, Roberto and Pinto, Alessandro and Sangiovanni-Vincentelli, Alberto L and others},
+  journal={Foundations and Trends{\textregistered} in Electronic Design Automation},
+  volume={1},
+  number={1--2},
+  pages={1--193},
+  year={2006},
+  publisher={Now Publishers, Inc.}
+} 
+```
+```@raw html
+</details></li></ul>
+```
+
+---
+
 #### [FRE11]
 
 Frehse, G., Le Guernic, C., Donzé, A., Cotton, S., Ray, R., Lebeltel,
