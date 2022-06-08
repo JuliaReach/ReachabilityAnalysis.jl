@@ -177,7 +177,7 @@ in the initial set. It is easy to check that by decreasing the step-size, the en
 of the solution at $[0, 0.05]$ converges to the true value (from outside), and similarly
 for other time intervals.
 
-### On time intervals representation
+### More about time intervals
 
 The time span associated to a reach-sets is an *interval* satisfying the rules of interval arithmetic. We use `IntervalArithmetic.jl` to represent time intervals.
 

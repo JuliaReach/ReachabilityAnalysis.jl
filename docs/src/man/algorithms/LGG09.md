@@ -76,7 +76,7 @@ sequence that accounts for the effect of the accumulated inputs.
 
 ## Implementation details
 
-The reach-set representation used is a [TemplateReachSet](@ref), which stores the
+The reach-set representation used is a [`TemplateReachSet`](@ref), which stores the
 directions used (vector of vectors) and the support function evaluated at each direction
 (matrix, see below). The set representation, `set(R::TemplateReachSet)`, is either a polyhedron in constraint form
 (`HPolyhedron`), or a polytope (`HPolytope`) if the directions are bounding, i.e.

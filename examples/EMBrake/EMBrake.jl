@@ -1,5 +1,5 @@
 # # Electromechanic break
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/EMBrake.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/EMBrake.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: Affine system\

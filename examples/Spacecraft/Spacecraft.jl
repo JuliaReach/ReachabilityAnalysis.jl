@@ -1,5 +1,5 @@
 # # Spacecraft
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/Spacecraft.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/Spacecraft.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: hybrid system with nonlinear dynamics\

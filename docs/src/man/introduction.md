@@ -38,8 +38,7 @@ the time-span $0 ≤ t ≤ T = 4.0$. The reachability approach guarantees that
 the trajectories are always included in the resulting *flowpipe*. In the following
 section we introduce the terminology used in reachability analysis and formulate the
 reachability problem for a general class of mathematical systems. Further examples on
-how to use the library for other types of systems can be found in later sections of the manual,
-or you can directly jump to the [[Overview]](@ref) part.
+how to use the library for other types of systems can be found in later sections of the manual.
 
 ## Terminology
 

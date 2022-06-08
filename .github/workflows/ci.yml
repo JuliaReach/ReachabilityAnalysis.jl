@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: ['1.7', 'nightly']
+        julia-version: ['1.7'] # , 'nightly']
         julia-arch: [x64]
         os: [ubuntu-latest, macOS-latest, windows-latest]
     env:
@@ -36,10 +36,10 @@ jobs:
         uses: julia-actions/cache@v1
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
-        continue-on-error: ${{ matrix.julia-version == 'nightly' }}
+        #continue-on-error: ${{ matrix.julia-version == 'nightly' }}
       - name: Run tests
         uses: julia-actions/julia-runtest@v1
-        continue-on-error: ${{ matrix.julia-version == 'nightly' }}
+        #continue-on-error: ${{ matrix.julia-version == 'nightly' }}
       - name: Process coverage
         uses: julia-actions/julia-processcoverage@v1
       - name: Upload coverage

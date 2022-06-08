@@ -1,5 +1,5 @@
 # # Heat PDE
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/Heat3D.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/Heat3D.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: Affine system\
