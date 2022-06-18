@@ -8,7 +8,7 @@ function thermostat()
     c_a = 0.1
 
     # automaton structure
-    automaton = LightAutomaton(2)
+    automaton = GraphAutomaton(2)
 
     # mode on
     A = hcat(c_a)

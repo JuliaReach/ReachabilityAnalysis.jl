@@ -18,7 +18,7 @@ function lotka_volterra_hybrid(; nsplit=1,
     B_intᶜ = complement(B_int)
 
     # define modes
-    aut = LightAutomaton(3)
+    aut = GraphAutomaton(3)
     outside = @system(x' = lotka_volterra!(x), dim: 2, x ∈ B_intᶜ)
     inside = @system(x' = lotka_volterra!(x), dim: 2, x ∈ B_ext)
     outside_unconstrained = @system(x' = lotka_volterra!(x), dim: 2, x ∈ Universe(2))
