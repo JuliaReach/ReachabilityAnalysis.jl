@@ -198,7 +198,7 @@ function spacecraft(; abort_time=(120.0, 150.0))
     n = 4 + 1  # number of variables
     t_abort_lower, t_abort_upper = abort_time
 
-    automaton = LightAutomaton(3)
+    automaton = GraphAutomaton(3)
 
     ## mode 1 "approaching"
     invariant = HalfSpace(x <= -100, var)

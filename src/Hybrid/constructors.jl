@@ -6,7 +6,7 @@ import HybridSystems: HybridSystem
 
 # hybrid automaton with one location and a self-loop TODO comparare / use OneStateAutomaton
 function HybridSystem(mode::AbstractContinuousSystem, reset_map::AbstractMap)
-    automaton = LightAutomaton(1)
+    automaton = GraphAutomaton(1)
     add_transition!(automaton, 1, 1, 1)
     return HybridSystem(automaton, [mode], [reset_map], [AutonomousSwitching()])
 end

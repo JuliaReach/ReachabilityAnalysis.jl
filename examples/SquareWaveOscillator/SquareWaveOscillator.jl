@@ -32,7 +32,7 @@ function multistable_oscillator(; X0 = Interval(0.0, 0.05),
     I₋ = HalfSpace(x >= α*V₋)
     m2 = @system(x' = Ax + b, x ∈ I₋)
 
-    automaton = LightAutomaton(2)
+    automaton = GraphAutomaton(2)
     add_transition!(automaton, 1, 2, 1)
     g1 = Hyperplane(x == α*V₊)
     r1 = ConstrainedIdentityMap(1, g1)

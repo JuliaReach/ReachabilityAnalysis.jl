@@ -73,7 +73,7 @@ function platoon(; deterministic_switching::Bool=true,
     n = 9 + 1
 
     # transition graph
-    automaton = LightAutomaton(2)
+    automaton = GraphAutomaton(2)
     add_transition!(automaton, 1, 2, 1)
     add_transition!(automaton, 2, 1, 2)
 

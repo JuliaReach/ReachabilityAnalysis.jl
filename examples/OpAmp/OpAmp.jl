@@ -158,7 +158,7 @@ function opamp_with_saturation(; X0 = BallInf(zeros(2), 0.0),
     β = hcat(-1/(R₁ * C))
 
     ## transition graph
-    automaton = LightAutomaton(2)
+    automaton = GraphAutomaton(2)
     add_transition!(automaton, 1, 2, 1)
 
     ## modes
