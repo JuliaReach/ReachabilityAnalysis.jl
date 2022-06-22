@@ -116,21 +116,24 @@ function __init__()
     # numerical differential equations suite
     @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
 
+    # sparse dynamic representation of multivariate polynomials
+    @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
+
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
+
+    # external reachability backend: Flow* C++ library
+    @require Flowstar = "a8054ddd-9dca-4d20-8ffe-ae96ec1541f1" include("init_Flowstar.jl")
 
     # methods that require optimization modeling and solvers
     @require JuMP = "4076af6c-e467-56ae-b986-b466b2749572" include("init_JuMP.jl")
 
-    # tools for symbolic computation
-    #@require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
-    @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" include("init_Symbolics.jl")
-
     # tools for symbolic algebra
     @require MultivariatePolynomials = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3" include("init_MultivariatePolynomials.jl")
 
-    # sparse dynamic representation of multivariate polynomials
-    @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
+    # tools for symbolic computation
+    #@require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
+    @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" include("init_Symbolics.jl")
 end
 
 # ===========================
