@@ -1,3 +1,3 @@
-using .Flowstar
+export FLOWSTAR
 
 include("../Algorithms/FLOWSTAR/post.jl")

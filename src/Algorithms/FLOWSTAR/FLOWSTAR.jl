@@ -9,5 +9,3 @@ end
 
 numtype(::FLOWSTAR) = Float64
 rsetrep(::FLOWSTAR) = TaylorModelReachSet{Float64, IA.Interval{Float64}}
-
-include("post.jl")
