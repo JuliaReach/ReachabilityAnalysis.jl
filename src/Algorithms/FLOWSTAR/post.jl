@@ -18,7 +18,12 @@ function post(alg::FLOWSTAR, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     X0 = initial_state(ivp_norm)
 
     # extract model file if present
-    model = get(kwargs, :model, error("the model file needs to be passed as a keyword argument"))
+    model = if !haskey(kwargs, :model)
+        # temporary
+        throw(ArgumentError("the model file needs to be passed as a keyword argument"))
+    else
+        kwargs[:model]
+    end
 
     # call Flow*
     sol = FlowstarContinuousSolution(model)
