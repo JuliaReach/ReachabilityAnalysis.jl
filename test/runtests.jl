@@ -10,7 +10,7 @@ import DifferentialEquations
 import JuMP
 using StaticArrays
 using Polyhedra, CDDLib # for VREP algorithm
-using Flowstar # for FLOWSTAR algorithm
+import Flowstar # for FLOWSTAR algorithm
 
 # fix namespace conflicts with Polyhedra
 using LazySets: dim, HalfSpace, Interval, Line2D, translate, project

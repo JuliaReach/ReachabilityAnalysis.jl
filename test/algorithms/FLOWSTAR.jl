@@ -1,8 +1,10 @@
 @testset "FLOWSTAR algorithm" begin
-    model = "models/LotkaVolterra.model"
+    model = joinpath(@__DIR__, "..", "models", "LotkaVolterra.model")
+    println("model = $model")
     ivp = @ivp(BlackBoxContinuousSystem(model, 2), x(0) ∈ (4.8 .. 5.2) × (1.8 .. 2.2))
     sol = solve(ivp, tspan=(0, 1), FLOWSTAR())
-    @test sol isa ReachabilityAnalysis.ReachSolution{Flowpipe{Float64, TaylorModelReachSet{Float64, IntervalArithmetic.Interval{Float64}}, Vector{TaylorModelReachSet{Float64, IntervalArithmetic.Interval{Float64}}}}, FLOWSTAR}
+    RT = TaylorModelReachSet{Float64, IntervalArithmetic.Interval{Float64}}
+    @test sol isa ReachabilityAnalysis.ReachSolution{Flowpipe{Float64, RT, Vector{RT}}, FLOWSTAR}
 
     #=
     TODO Add example with model file generation:
