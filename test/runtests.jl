@@ -10,6 +10,7 @@ import DifferentialEquations
 import JuMP
 using StaticArrays
 using Polyhedra, CDDLib # for VREP algorithm
+using Flowstar # for FLOWSTAR algorithm
 
 # fix namespace conflicts with Polyhedra
 using LazySets: dim, HalfSpace, Interval, Line2D, translate, project
@@ -50,6 +51,7 @@ include("algorithms/TMJets.jl")
 include("algorithms/ORBIT.jl")
 include("algorithms/QINT.jl")
 include("algorithms/VREP.jl")
+include("algorithms/FLOWSTAR.jl")
 
 # hybrid systems
 include("hybrid.jl")

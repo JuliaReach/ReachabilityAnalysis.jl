@@ -2,7 +2,6 @@ using .Flowstar: FlowstarContinuousSolution
 
 function post(alg::FLOWSTAR, ivp::IVP{<:AbstractContinuousSystem}, timespan;
               Δt0::TimeInterval=zeroI, kwargs...)
-    println("kwargs = $kwargs")
     @requires Flowstar
 
     @unpack remainder_estimation, precondition, order_min, order_max, cutoff, precision = alg
@@ -10,20 +9,8 @@ function post(alg::FLOWSTAR, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     # initial time and final time
     t0, T = tstart(timespan), tend(timespan)
 
-    # vector field
-    f! = (islinear(ivp) || isaffine(ivp)) ? inplace_field!(ivp) : VectorField(ivp)
-
-    # initial set
-    ivp_norm = _normalize(ivp)
-    X0 = initial_state(ivp_norm)
-
-    # extract model file if present
-    model = if !haskey(kwargs, :model)
-        # temporary
-        throw(ArgumentError("the model file needs to be passed as a keyword argument"))
-    else
-        kwargs[:model]
-    end
+    # extract model file
+    model = extract_model(ivp)
 
     # call Flow*
     sol = FlowstarContinuousSolution(model)
@@ -43,4 +30,24 @@ function post(alg::FLOWSTAR, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     end
     ext = Dict{Symbol, Any}()
     return Flowpipe(F, ext)
+end
+
+function extract_model(ivp::IVP{BlackBoxContinuousSystem{String}, XT}) where XT
+    # consistency of t0, T, X0 with the model is not checked
+    ivp.s.f
+end
+
+function extract_model(ivp::IVP{<:AbstractContinuousSystem})
+    error("not implemented")
+
+    #=
+    # vector field
+    f! = (islinear(ivp) || isaffine(ivp)) ? inplace_field!(ivp) : VectorField(ivp)
+
+    # TODO string(ivp)
+
+    # initial set
+    ivp_norm = _normalize(ivp)
+    X0 = initial_state(ivp_norm)
+    =#
 end
