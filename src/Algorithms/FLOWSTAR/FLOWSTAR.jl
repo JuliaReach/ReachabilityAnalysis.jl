@@ -1,10 +1,12 @@
-Base.@kwdef struct FLOWSTAR <: AbstractContinuousPost
-    remainder_estimation::Float64=1e-5
-    precondition::String="QR"
-    order_min::Int64=4
-    order_max::Int64=10
-    cutoff::Float64=1e-20
-    precision::Int64=53
+struct FLOWSTAR{ST, OT, PT, IT} <: AbstractContinuousPost
+    step_size::ST
+    order::OT
+    remainder_estimation::Float64
+    precondition::PT
+    cutoff::Float64
+    precision::Int64
+    verbose::Bool
+    scheme::IT
 end
 
 numtype(::FLOWSTAR) = Float64
