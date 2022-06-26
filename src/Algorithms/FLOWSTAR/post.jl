@@ -37,6 +37,7 @@ function post(alg::FLOWSTAR{ST,OT,PT, IT}, ivp::IVP{<:AbstractContinuousSystem},
         s, n = system(ivp), statedim(ivp)
 
         # vector field in string form
+        @requires Symbolics
         fstr = convert(Vector{Tuple{String,String}}, s)
         
         # initial set
