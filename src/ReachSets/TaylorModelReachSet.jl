@@ -24,14 +24,16 @@ struct TaylorModelReachSet{N,S} <: AbstractTaylorModelReachSet{N}
 end
 
 # interface functions
-@inline set(R::TaylorModelReachSet) = R.X
-@inline setrep(::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N},N}}
-@inline setrep(::Type{TaylorModelReachSet{N}}) where {N} = Vector{TaylorModel1{TaylorN{N},N}}
-@inline tstart(R::TaylorModelReachSet) = tstart(R.Δt) # t0 - δt + Δt0.lo
-@inline tend(R::TaylorModelReachSet) = tend(R.Δt) # t0 + Δt0.hi
-@inline tspan(R::TaylorModelReachSet) = R.Δt # # Interval(tstart(R), tend(R))
-@inline dim(R::TaylorModelReachSet) = get_numvars()
-@inline vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)),)
+set(R::TaylorModelReachSet) = R.X
+setrep(::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N},N}}
+setrep(::Type{TaylorModelReachSet{N, N}}) where {N} = TaylorModelReachSet{N, N}
+setrep(::Type{TaylorModelReachSet{N, IA.Interval{N}}}) where {N} = TaylorModelReachSet{N, IA.Interval{N}}
+setrep(::Type{TaylorModelReachSet{N}}) where {N} = Vector{TaylorModel1{TaylorN{N},N}}
+tstart(R::TaylorModelReachSet) = tstart(R.Δt) # t0 - δt + Δt0.lo
+tend(R::TaylorModelReachSet) = tend(R.Δt) # t0 + Δt0.hi
+tspan(R::TaylorModelReachSet) = R.Δt # # Interval(tstart(R), tend(R))
+dim(R::TaylorModelReachSet) = get_numvars()
+vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)),)
 
 # overload getter functions for the taylor model
 # we assume that the first element is representative

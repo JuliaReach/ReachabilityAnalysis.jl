@@ -1,0 +1,30 @@
+continuous reachability
+{
+ state var x,y
+
+ setting
+ {
+  fixed steps 0.02
+  time 1
+  remainder estimation 1e-5
+  QR precondition
+  gnuplot octagon x,y
+  adaptive orders { min 4 , max 6 }
+  cutoff 1e-20
+  precision 53
+  output Lotka_Volterra
+  print on
+ }
+
+ poly ode 2
+ {
+  x' = 1.5*x - x*y
+  y' = -3*y + x*y
+ }
+
+ init
+ {
+  x in [4.8 , 5.2]
+  y in [1.8 , 2.2]
+ }
+}
