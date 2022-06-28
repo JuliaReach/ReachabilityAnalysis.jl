@@ -10,6 +10,7 @@ import DifferentialEquations
 import JuMP
 using StaticArrays
 using Polyhedra, CDDLib # for VREP algorithm
+using TaylorModels # for TMJets algorithm
 import Flowstar # for FLOWSTAR algorithm
 
 # fix namespace conflicts with Polyhedra
