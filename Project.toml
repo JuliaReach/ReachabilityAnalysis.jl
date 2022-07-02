@@ -1,6 +1,6 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
-version = "0.18.7"
+version = "0.18.8"
 
 [deps]
 CarlemanLinearization = "4803f6b2-022a-4c1b-a771-522a3413ec86"
@@ -32,7 +32,7 @@ DynamicPolynomials = "0.3 - 0.4"
 Expokit = "0.2"
 ExponentialUtilities = "1"
 ExprTools = "0.1"
-Flowstar = "0.2"
+Flowstar = "0.2.4"
 HybridSystems = "0.4"
 IntervalArithmetic = "0.16 - 0.20"
 IntervalMatrices = "0.6 - 0.8"
