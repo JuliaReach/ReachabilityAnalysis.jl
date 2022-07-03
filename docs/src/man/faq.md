@@ -98,13 +98,16 @@ B′′ = R(π/2) * B
 □B′ = box_approximation(B′)
 □B′′ = box_approximation(R(π/4) * □B′)
 
-plot(B, ratio=1, lw=2.0, style=:dash)
+fig = plot(B, ratio=1, lw=2.0, style=:dash)
 plot!(B′, lw=2.0, style=:dash)
 plot!(B′′, lw=2.0, style=:dash)
 
 plot!(□B, lw=2.0, style=:solid)
 plot!(□B′, lw=2.0, style=:solid)
 plot!(□B′′, lw=2.0, style=:solid)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ### Does reachability solve for the vertices of the set?
@@ -144,8 +147,11 @@ sol = solve(prob, tspan=(0.0, 1.0), ensemble=true, trajectories=250)
 # plot flowpipe and the ensemble solution
 using Plots
 
-plot(sol, vars=(0, 1), linewidth=0.2, xlab="t", ylab="x(t)")
+fig = plot(sol, vars=(0, 1), linewidth=0.2, xlab="t", ylab="x(t)")
 plot!(ensemble(sol), vars=(0, 1), linealpha=1.0)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 Please note that the latency (compilation time) of the first `using` line is long, typically one minute with Julia v1.5.3.
 
@@ -181,12 +187,15 @@ prob = @ivp(X' = AX, X(0) ∈ X0)
 
 f(ΔT) = solve(prob, tspan=(0.0, 5.0), alg=GLGM06(δ=ΔT))
 
-plot(f(0.3), vars=(0, 1), lab="ΔT=0.3", color=:yellow)
+fig = plot(f(0.3), vars=(0, 1), lab="ΔT=0.3", color=:yellow)
 plot!(f(0.1), vars=(0, 1), lab="ΔT=0.1", color=:lightblue)
 plot!(f(0.05), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.05", color=:green)
 
 dom = 0:0.01:5.0
 plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ### Why do I see boxes for single initial conditions?
@@ -212,7 +221,7 @@ we can more accurately know the exact value of the solution, and the width of th
 boxes intersecting the time point `3.0` decrease by a factor 2.5x.
 
 ```@example cosine
-plot(f(0.1)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.1", color=:lightblue)
+fig = plot(f(0.1)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.1", color=:lightblue)
 
 I(Δt, t) = -ρ([-1.0, 0.0], f(Δt)(t)) .. ρ([1.0, 0.0], f(Δt)(t)) |> Interval
 
@@ -227,6 +236,9 @@ plot!(y -> min(I005), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:green, lab="
 
 dom = 2.9:0.01:3.1
 plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ### Why do some trajectories escape the flowpipe?
@@ -250,7 +262,10 @@ prob = @ivp(x' = Ax, x(0) ∈ B)
 
 # multi-threaded solve
 sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
-plot(sol, vars=(0, 2), c=:red, alpha=.5, lw=0.2, xlab="t", ylab="y")
+fig = plot(sol, vars=(0, 2), c=:red, alpha=.5, lw=0.2, xlab="t", ylab="y")
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 On the other hand, please note that in the example of above, you can compute with
 a single integration the flowpipe corresponding to the convex hull of the elements
@@ -260,6 +275,9 @@ in the array `B`.
 prob = @ivp(x' = Ax, x(0) ∈ ConvexHullArray(B))
 sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
 plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ## Modeling questions

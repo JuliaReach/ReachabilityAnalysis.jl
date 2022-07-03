@@ -137,7 +137,10 @@ property, vol = prod_dest_verif(solI)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
+fig = plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ## Case P
 
@@ -164,7 +167,9 @@ property, vol = prod_dest_verif(solP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
+fig = plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ## Case I & P
 
@@ -183,7 +188,9 @@ property, vol = prod_dest_verif(solIP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-plot(solIP, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
+fig = plot(solIP, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ## Performance optimization
 

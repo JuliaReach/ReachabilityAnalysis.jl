@@ -37,7 +37,7 @@ M(θ) = [cos(θ) sin(θ); -sin(θ) cos(θ)]
 ```
 
 ```@example discrete_propagation
-plot(X0, c=:white)
+fig = plot(X0, c=:white)
 plot!(M(pi/4) * X0, c=:white)
 
 # center of the initial set
@@ -53,6 +53,9 @@ plot!(M(pi/4) * V)
 
 xlims!(0.0, 1.8) # hide
 ylims!(-0.4, 1.4) # hide
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ```@example discrete_propagation
@@ -93,8 +96,10 @@ X0z = convert(Zonotope, X0)
 
 arr = [linear_map(M(θi), X0z) for θi in range(0, 2pi, length=50)]
 
-plot(arr, ratio=1., alpha=1.)
+fig = plot(arr, ratio=1., alpha=1.)
 plot!(X0, lw=2.0, ls=:dash, alpha=1., c=:white)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ```@example discrete_propagation
@@ -126,9 +131,11 @@ M(2pi/50) * genmat(arr[1])
 The set effectively rotates clockwise around the origin:
 
 ```@example discrete_propagation
-plot(Singleton(zeros(2)))
+fig = plot(Singleton(zeros(2)))
 plot!(arr[1:10], ratio=1., alpha=1.)
 plot!(X0, lw=2.0, ls=:dash, alpha=1., c=:white)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 !!! note "Animations with Plots"
@@ -159,15 +166,19 @@ nothing # hide
 We can pass an array of reach-sets to the plotting function:
 
 ```@example discrete_propagation
-plot(Rsets, vars=(1, 2), xlab="x", ylab="y", ratio=1., c=:blue)
+fig = plot(Rsets, vars=(1, 2), xlab="x", ylab="y", ratio=1., c=:blue)
 plot!(X0, c=:white, alpha=.6)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 Since reach-sets have time information, we can also plot the sequence *in time*.
 
 ```@example discrete_propagation
-plot(Rsets, vars=(0, 1), xlab="t", lab="x(t)", lw=2.0, lc=:blue, alpha=1.)
+fig = plot(Rsets, vars=(0, 1), xlab="t", lab="x(t)", lw=2.0, lc=:blue, alpha=1.)
 plot!(Rsets, vars=(0, 2), lab="y(t)", lw=2.0, lc=:orange, alpha=1.)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ## What is a flowpipe?
@@ -186,7 +197,9 @@ typeof(F)
 We can plot flowpipes, and all the reach-sets are plotted with the same color.
 
 ```@example discrete_propagation
-plot(F, vars=(1, 2), ratio=1.)
+fig = plot(F, vars=(1, 2), ratio=1.)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 Flowpipes implement Julia's array inteface.
@@ -199,6 +212,8 @@ For instance, do `F[1:3:end]` to plot one every three elements:
 
 ```@example discrete_propagation
 plot!(F[1:3:end], vars=(1, 2), c=:red)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 Of course, it is also possible to use the wrapped array (do `array(F)`) directly. However, flowpipes can be used to filter reach-sets in time, among other operations.
@@ -228,10 +243,12 @@ length(aux)
 ```
 
 ```@example discrete_propagation
-plot(F, vars=(0, 1), xlab="t", ylab="x", lw=2.0, alpha=1.)
+fig = plot(F, vars=(0, 1), xlab="t", ylab="x", lw=2.0, alpha=1.)
 
 # get all those reach-set whose time span is greater than 40
 plot!(aux, vars=(0, 1), lw=2.0, lc=:red, alpha=1.)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 Finally, observe that set operations with flowpipes are also supported. The following
@@ -243,9 +260,11 @@ H  = HalfSpace([1, 1.], 1.) # x + y ≤ 1
 Q = F ∩ H  # perform a lazy intersection
 
 # plot the result
-plot(H, alpha=.3, lab="H", c=:grey)
+fig = plot(H, alpha=.3, lab="H", c=:grey)
 plot!(F ∩ H, vars=(1, 2), ratio=1., lab="F ∩ H")
 xlims!(-2.0, 2.0); ylims!(-2, 2.)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ### Using the solve interface for discrete problems
