@@ -24,7 +24,7 @@ export
     VREP,
 
 # Approximation models
-    FirstOrderddt,
+    SecondOrderddt,
     FirstOrderZonotope,
     CorrectionHull,
     FirstOrder,
