@@ -37,9 +37,9 @@ jobs:
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
         #continue-on-error: ${{ matrix.julia-version == 'nightly' }}
-      - name: Install unreleased dependencies
-        run: julia --project --color=yes -e 'using Pkg; Pkg.add(url="https://github.com/agerlach/Flowstar.jl")'
-        shell: bash
+      #- name: Install unreleased dependencies
+      #  run: julia --project --color=yes -e 'using Pkg; Pkg.add(url="https://github.com/...")'
+      #  shell: bash
       - name: Run tests
         uses: julia-actions/julia-runtest@v1
         #continue-on-error: ${{ matrix.julia-version == 'nightly' }}
