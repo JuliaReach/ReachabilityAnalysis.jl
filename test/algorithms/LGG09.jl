@@ -76,7 +76,7 @@ end
     prob, dt = foo()
     δ = 2e-1
 
-    approx_model = ReachabilityAnalysis.SecondOrderddt()
+    approx_model = SecondOrderddt()
     sol = solve(prob, tspan=(0.0, 20.0),
                 alg=LGG09(δ=δ, template=PolarDirections(40), approx_model=approx_model))
     approx_model = ReachabilityAnalysis.SecondOrderddt(oa=false)
