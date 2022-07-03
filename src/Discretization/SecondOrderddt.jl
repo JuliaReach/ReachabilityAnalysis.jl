@@ -3,7 +3,7 @@
 # ===================================
 
 """
-    FirstOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
+    SecondOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 
 First order approximation model used in the tool `d/dt`.
 It can be used for overapproximation and underapproximation.
@@ -37,7 +37,7 @@ set.
 E. Asarin, T. Dang, O. Maler, O. Bournez: *Approximate reachability analysis of
 piecewise-linear dynamical systems*. HSCC 2000.
 """
-struct FirstOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
+struct SecondOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     oa::Bool
     exp::EM
     setops::SO
@@ -46,16 +46,16 @@ struct FirstOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
     backend::BT
 end
 
-hasbackend(alg::FirstOrderddt) = !isnothing(alg.backend)
+hasbackend(alg::SecondOrderddt) = !isnothing(alg.backend)
 
 # convenience constructor using symbols
-function FirstOrderddt(; oa::Bool=true, exp=BaseExp, setops=:lazy, sih=:concrete,
+function SecondOrderddt(; oa::Bool=true, exp=BaseExp, setops=:lazy, sih=:concrete,
                       inv=false, backend=nothing)
-    return FirstOrderddt(oa, _alias(exp), _alias(setops), Val(sih), Val(inv), backend)
+    return SecondOrderddt(oa, _alias(exp), _alias(setops), Val(sih), Val(inv), backend)
 end
 
-function Base.show(io::IO, alg::FirstOrderddt)
-    print(io, "`FirstOrderddt` approximation model with: \n")
+function Base.show(io::IO, alg::SecondOrderddt)
+    print(io, "`SecondOrderddt` approximation model with: \n")
     print(io, "    - $(alg.oa ? "over" : "under")approximation \n")
     print(io, "    - exponentiation method: $(alg.exp) \n")
     print(io, "    - set operations method: $(alg.setops)\n")
@@ -64,14 +64,14 @@ function Base.show(io::IO, alg::FirstOrderddt)
     print(io, "    - polyhedral computations backend: $(alg.backend)")
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderddt) = print(io, alg)
+Base.show(io::IO, m::MIME"text/plain", alg::SecondOrderddt) = print(io, alg)
 
 # ------------------------------------------------------------
-# FirstOrderddt Approximation: Homogeneous case
+# SecondOrderddt Approximation: Homogeneous case
 # ------------------------------------------------------------
 
 # if A == |A|, then Φ can be reused in the computation of Φ₂(|A|, δ)
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::FirstOrderddt)
+function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::SecondOrderddt)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
