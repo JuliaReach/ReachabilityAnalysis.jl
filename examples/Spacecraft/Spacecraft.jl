@@ -347,7 +347,10 @@ solz = overapproximate(sol, Zonotope);
 
 #----------------
 
-plot(solz, vars=(1, 2), xlab="x", ylab="y")
+fig = plot(solz, vars=(1, 2), xlab="x", ylab="y")
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #-
 
@@ -385,6 +388,7 @@ for k in 2:length(idx_aborting)
 end
 
 fig
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ## References
 

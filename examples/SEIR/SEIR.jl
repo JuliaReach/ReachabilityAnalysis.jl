@@ -78,3 +78,6 @@ plot!(fig, solz, vars=(0, 2), color=:green, lw=0.0, lab="E")
 plot!(fig, solz, vars=(0, 3), color=:red, lw=0.0, lab="I")
 plot!(solz, vars=(0, 4), color=:grey, lw=0.0, lab="R")
 fig
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide

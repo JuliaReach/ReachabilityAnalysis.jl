@@ -56,7 +56,10 @@ prob = multistable_oscillator()
 
 sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=false);
 
-plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #-
 
@@ -70,8 +73,10 @@ location.(sol)
 # If we plot the last 10 reach-sets of the first flowpipe, we observe that only the
 # last 3 actually intersect the guard:
 
-plot(sol[1][end-10:end], vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol[1][end-10:end], vars=(0, 1), xlab="t", ylab="v-")
 plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # We now cluster those reach-sets into a single hyperrectangle:
 
@@ -79,10 +84,12 @@ Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
 
 # Plotting `Xc` matches with the flowpipe after the jump:
 
-plot(sol[1][end-10:end], vars=(0, 1))
+fig = plot(sol[1][end-10:end], vars=(0, 1))
 plot!(sol[2][1:10], vars=(0, 1))
 plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 plot!(Xc[1], vars=(0, 1), c=:grey)
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # Finally, we note that the algorithm finds an invariant of the system after the first
 # period. To activate such check pass the `fixpoint_check=true` flag to the hybrid
@@ -92,7 +99,9 @@ sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=true);
 
 #-
 
-plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # When the fixpoint check is activated, the computation terminates as soon as the
 # last reach-set is contained in a previously explored initial state.

@@ -197,7 +197,10 @@ Uout_vs_t = @. (-1.0) * project(sol, η);
 
 #-
 
-plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+fig = plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #md # !!! tip "Technical note"
 #md #     Since we are only interested in the behavior of ``U_{out}``, we could use a support function based algorithm

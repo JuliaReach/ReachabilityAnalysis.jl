@@ -233,8 +233,11 @@ dmin_specification(sol_PLAD01_BND42, 42)
 
 using Plots, LaTeXStrings
 
-plot(sol_PLAD01_BND42, vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND42", lw=0.1)
+fig = plot(sol_PLAD01_BND42, vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND42", lw=0.1)
 plot!(x->x, x->-42., 0., 20., linewidth=2, color="red", linestyle=:dash, leg=nothing)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #  ### PLAD01 - BND30
 
@@ -283,8 +286,10 @@ dmin_specification(sol_PLAD01_BND30, 30)
 
 #-
 
-plot(sol_PLAD01_BND30, vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND30", lw=0.1)
+fig = plot(sol_PLAD01_BND30, vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND30", lw=0.1)
 plot!(x->x, x->-30., 0., 20., linewidth=2, color="red", linestyle=:dash, leg=nothing)
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ## References
 

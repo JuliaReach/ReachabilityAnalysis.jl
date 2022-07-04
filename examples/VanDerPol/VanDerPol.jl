@@ -89,17 +89,24 @@ solz = overapproximate(sol, Zonotope); #!jl
 # That shows that the property is satisfied. Below we plot the flowpipe in the
 # x-y plane, together with the horizontal line ``y = 2.75``.
 
-plot(solz, vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
+fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
 plot!(x -> 2.75, color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #!jl
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # We can also plot the state variables ``x(t)`` and ``y(t)`` as a function of time
 # (recall that `0` in `vars` is used to denote the time variable):
 
-plot(solz, vars=(0, 1), lw=0.2, xlab="t", ylab="x") #!jl
+fig = plot(solz, vars=(0, 1), lw=0.2, xlab="t", ylab="x") #!jl
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #-
 
-plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
+fig = plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ## Invariant Set
 #
@@ -107,10 +114,12 @@ plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
 # other words, we can algorithmically prove that the flowpipe re-enters from where
 # it started after giving one loop, using inclusion checks.
 
-plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
+fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
 plot!(X0, color=:orange, lab="X0") #!jl
 plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
 plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # It is seen that the reach-set corresponding to the time-span
 
@@ -129,11 +138,13 @@ tspan(solz[388])  #!jl
 # is similar to the method of [Poincaré sections](https://en.wikipedia.org/wiki/Poincar%C3%A9_map).
 
 line = LineSegment([1, 2.], [2., 2.5]) #!jl
-plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
+fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
 plot!(X0, color=:orange, lab="X0") #!jl
 plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
 plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
 plot!(line, lw=2.0) #!jl
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # Then we can define a function to get the cross section of the flowpipe. The
 # function needs the flowpipe, a line segment that cuts the flowpipe and the
@@ -167,8 +178,10 @@ llast = norm(ilast.q - ilast.p); #!jl
 
 #-
 
-plot(ifirst, lw=3.0, alpha=1.0, label="First subsets", legend=:bottomright) #!jl
+fig = plot(ifirst, lw=3.0, alpha=1.0, label="First subsets", legend=:bottomright) #!jl
 plot!(ilast, lw=5.0, alpha=1.0, label="Last subset") #!jl
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #-
 

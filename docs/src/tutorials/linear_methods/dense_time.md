@@ -67,6 +67,9 @@ fig = plot(F[1], vars=(1, 2), lab="X0", c=:blue)
 plot!(fig, F[2], vars=(1, 2), lab="Φ * X0", c=:orange)
 [plot!(fig, xcoords, ycoords, seriestype=:path, lab="", c=:magenta, ratio=1.) for (xcoords, ycoords) in analytic_sol.(samples, Ref(tt))]
 fig
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ### Conservative time discretization
@@ -82,6 +85,9 @@ plot!(fig, F[2], vars=(1, 2), lab="Φ*X0", c=:orange)
 [plot!(fig, xcoords, ycoords, seriestype=:path, lab="", c=:magenta, ratio=1.) for (xcoords, ycoords) in analytic_sol.(samples, Ref(tt))]
 
 fig
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ```@example dense_propagation

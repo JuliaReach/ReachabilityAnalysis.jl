@@ -50,8 +50,11 @@ solz = overapproximate(sol, Zonotope);
 
 using Plots
 
-plot(solz, vars=(1, 2), alpha=0.3,lw=0., xlab="x", ylab="y", label="Flowpipe", legend=:bottomright)
+fig = plot(solz, vars=(1, 2), alpha=0.3,lw=0., xlab="x", ylab="y", label="Flowpipe", legend=:bottomright)
 plot!(X0, label="X(0)")
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 
 # # Adding parameter variation
@@ -76,7 +79,9 @@ prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0);
 sol = solve(prob, tspan=(0.0, 10.0));
 solz = overapproximate(sol, Zonotope);
 
-plot(solz, vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e-15", xlab="u1", ylab="u2")
+fig = plot(solz, vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e-15", xlab="u1", ylab="u2")
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # # Uncertain initial condition (u0)
 
@@ -92,9 +97,11 @@ prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0)
 
 sol = solve(prob, tspan=(0.0, 10.0), TMJets(abstol=1e-10))
 solz = overapproximate(sol, Zonotope)
-plot(solz, vars=(1, 2), color=:orange, lw=0.3,
+fig = plot(solz, vars=(1, 2), color=:orange, lw=0.3,
      lab="eps = 0.05", title="Uncertain u0 and uncertain params",
      xlab="u1", ylab="u2")
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 # ### ``\epsilon = 0.01``
 
@@ -106,3 +113,5 @@ solz = overapproximate(sol, Zonotope)
 plot!(solz, vars=(1, 2), color=:blue, lw=0.3,
   lab="eps = 0.01", title="Uncertain u0 and uncertain params",
   xlab="u1", ylab="u2")
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide

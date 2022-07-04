@@ -34,12 +34,19 @@ sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets21a());
 
 #-
 
-plot(sol, vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
+
+import DisplayAs  # hide
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #-
 
-plot(sol, vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)
+fig = plot(sol, vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 #-
 
-plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
+fig = plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
+
+DisplayAs.Text(DisplayAs.PNG(fig))  # hide

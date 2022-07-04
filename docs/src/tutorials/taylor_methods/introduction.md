@@ -44,7 +44,10 @@ using LazySets: Interval
 
 out = [Interval(sol.t[i]) × Interval(sol.u[i][1]) for i in 1:20]
 
-plot(out, xlab="t", ylab="x(t)", lw=3.0, alpha=1., c=:black, marker=:none, lab="", title="Standard integrator with an interval initial condition")
+fig = plot(out, xlab="t", ylab="x(t)", lw=3.0, alpha=1., c=:black, marker=:none, lab="", title="Standard integrator with an interval initial condition")
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 The divergence observed in the solution is due to using an algorithm which doesn't specialize for intervals hence suffers from dependency problems.
 
@@ -69,7 +72,10 @@ prob = @ivp(x' = f(x), x(0) ∈ X0, dim=1)
 sol = solve(prob, alg=TMJets21a(abstol=1e-10), T=15)
 
 # visualize the solution in time
-plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model based) integrator")
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model based) integrator")
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 It is illustrative to plot the computed flowpipe and the known analytic solution
@@ -86,6 +92,9 @@ fig = plot()
 plot!(fig, sol, lw=0.0, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model based) integrator")
 [plot!(fig, dt, analytic_sol(x0).(dt), lab="", c=:magenta, lw=2.0, xlab="t", ylab="x(t)") for x0 in x0vals]
 fig
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 [`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) defines several methods to analyze the solution.

@@ -51,7 +51,10 @@ sol = solve(prob, T=30.0,
             intersection_source_invariant_method=Thull,
             intersection_method=Thull);
 
-plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", lc=:blue)
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", lc=:blue)
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ```@example bouncing_ball
@@ -59,7 +62,10 @@ tspan(sol)
 ```
 
 ```@example bouncing_ball
-plot(sol, vars=(1, 2), xlab="x(t)", ylab="y(t)", lc=:blue)
+fig = plot(sol, vars=(1, 2), xlab="x(t)", ylab="y(t)", lc=:blue)
+
+import DisplayAs  # hide
+fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 ## Formalism
