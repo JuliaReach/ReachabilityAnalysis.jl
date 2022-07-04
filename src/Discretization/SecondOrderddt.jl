@@ -1,11 +1,11 @@
 # ===================================
-# First-order approximation from d/dt
+# Second-order approximation from d/dt
 # ===================================
 
 """
     SecondOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 
-First order approximation model used in the tool `d/dt`.
+Second-order approximation model used in the tool `d/dt`.
 It can be used for overapproximation and underapproximation.
 
 ### Fields
