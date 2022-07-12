@@ -36,7 +36,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
-    Ω0 = _reduce_order(Ω0, max_order, reduction_method)
+    Ω0 = reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
     Ω0 = _reconvert(Ω0, static, dim, ngens)

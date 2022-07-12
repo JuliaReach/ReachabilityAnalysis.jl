@@ -62,7 +62,7 @@ end
 function ASB07(; δ::N,
                approx_model::AM=CorrectionHull(order=10, exp=:interval),
                max_order::Int=5,
-               reduction_method::RM=GIR05(),
+               reduction_method::RM=LazySets.GIR05(),
                static::Bool=false,
                recursive::Bool=true,
                dim::Union{Int, Missing}=missing,

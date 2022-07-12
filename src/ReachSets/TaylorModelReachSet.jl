@@ -482,7 +482,7 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
     if order(Z) > 1
         if box_reduction
             # diagonal generators matrix
-            Z = _reduce_order(Z, 1)
+            Z = reduce_order(Z, 1)
         else
             # indices selects the indices that we want to keep
             Z = _overapproximate_hparallelotope(Z, indices)

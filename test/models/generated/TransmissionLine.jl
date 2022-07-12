@@ -41,5 +41,5 @@ sol = solve(P, T=0.7, alg=BOX(δ=1e-3));
 
 Uout_vs_t = @. (-1.0) * project(sol, η);
 
-plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
+fig = plot(Uout_vs_t, vars=(0, η), color=:blue, xlab="t", ylab="Uout", alpha=.5, lw=0.5)
 

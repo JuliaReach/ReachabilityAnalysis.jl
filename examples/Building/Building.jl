@@ -127,8 +127,8 @@ sol_BLDF01_dense = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.004, vars=(25), n=4
 
 fig = plot(sol_BLDF01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
-import DisplayAs  # hide
-fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Safety properties
 
@@ -148,7 +148,7 @@ sol_BLDF01_discrete = solve(prob_BLDF01, T=20.0, alg=LGG09(δ=0.01, vars=(25), n
 
 fig = plot(sol_BLDF01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
-fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Safety properties
 
@@ -174,7 +174,7 @@ sol_BLDC01_dense = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.005, vars=(25), n=4
 
 fig = plot(sol_BLDC01_dense, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
-fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Safety properties
 
@@ -194,7 +194,7 @@ sol_BLDC01_discrete = solve(prob_BLDC01, T=20.0, alg=LGG09(δ=0.01, vars=(25), n
 
 fig = plot(sol_BLDC01_discrete, vars=(0, 25), linecolor=:blue, color=:blue, alpha=0.8, lw=1.0, xlab="t", ylab="x25")
 
-fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Safety properties
 

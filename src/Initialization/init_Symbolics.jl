@@ -1,5 +1,8 @@
 using .Symbolics
 
+# required to avoid conflicts with IntervalMatrices
+using IntervalMatrices: infimum, supremum
+
 include("../Continuous/symbolics.jl")
 
 function Base.convert(::Type{Vector{Tuple{String, String}}}, s::BlackBoxContinuousSystem; params=[], t=nothing)

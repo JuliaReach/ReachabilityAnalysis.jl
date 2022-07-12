@@ -28,13 +28,13 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
         Zₖ = minkowski_sum(Wk₊, Zₖ)
-        Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
+        Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
 
         Δt += δ
         F[k] = ReachSet(Zₖʳ, Δt)
         k += 1
         Wk₊ = _overapproximate_interval_linear_map(Φc, Φs, Wk₊.center, Wk₊.generators)
-        Wk₊ = _reduce_order(Wk₊, max_order, reduction_method)
+        Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
     end
     return F
 end
@@ -69,7 +69,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
         Zₖ = minkowski_sum(Wk₊, Zₖ)
-        Zₖʳ = _reduce_order(Zₖ, max_order, reduction_method)
+        Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
         _is_intersection_empty(X, Zₖʳ) && break
 
         Δt += δ
@@ -77,7 +77,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         k += 1
 
         Wk₊ = _overapproximate_interval_linear_map(Φc, Φs, Wk₊.center, Wk₊.generators)
-        Wk₊ = _reduce_order(Wk₊, max_order, reduction_method)
+        Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
     end
     if k < NSTEPS + 1
         resize!(F, k-1)

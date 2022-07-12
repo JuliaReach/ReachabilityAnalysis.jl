@@ -73,10 +73,10 @@ X0 = Hyperrectangle([0., 1.5], [0.0, 0.1]);
 prob_const = opamp_with_saturation(X0=X0, γ = 0., δ = 0., Es = 3.)
 sol_const = solve(prob_const, T=0.1, alg=BOX(δ=1e-4));
 
-plot(sol_const, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Constant input signal", lw=0.2)
+fig = plot(sol_const, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Constant input signal", lw=0.2)
 plot!(x->x, x->1.5, 0., 0.1, line=2, color="red", linestyle=:dash, legend=nothing)
 
-plot(sol_const, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for constant input", lw=0.2)
+fig = plot(sol_const, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for constant input", lw=0.2)
 
 X0 = Singleton(zeros(2));
 
@@ -88,11 +88,11 @@ sol_lin = solve(prob_lin, T=0.1, alg=BOX(δ=1e-4));
 prob_exp = opamp_with_saturation(X0=X0, γ=-100., δ=100., Es=3.);
 sol_exp = solve(prob_exp, T=0.1, alg=BOX(δ=1e-4));
 
-plot(sol_lin, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Linear input w/saturation", lw=0.2)
+fig = plot(sol_lin, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Linear input w/saturation", lw=0.2)
 
-plot(sol_exp, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Exponential input", lw=0.2)
+fig = plot(sol_exp, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Exponential input", lw=0.2)
 
-plot(sol_lin, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for linear input", lw=0.2)
+fig = plot(sol_lin, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for linear input", lw=0.2)
 
-plot(sol_exp, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for exponential input", lw=0.2)
+fig = plot(sol_exp, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for exponential input", lw=0.2)
 

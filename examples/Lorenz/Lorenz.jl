@@ -62,8 +62,8 @@ solz = overapproximate(sol, Zonotope);
 
 fig = plot(solz, vars=(0, 1), xlab="t", ylab="x")
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # It is apparent by inspection that variable $x(t)$ does not exceed 20.0 in the computed
 # time span:
@@ -71,7 +71,7 @@ DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 fig = plot(solz(0.0 .. 1.5), vars=(0, 1), xlab="t", ylab="x", lw=0.0)
 plot!(x -> 20.0, c=:red, xlims=(0.0, 1.5), lab="")
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # We can prove that it is the case by computing the support function of the flowpipe
 # along direction `[1.0, 0.0, 0.0]`:
@@ -82,7 +82,7 @@ DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 fig = plot(solz, vars=(0, 2), xlab="t", ylab="y")
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Since we have computed overapproximations of the exact flowipe, the following
 # quantities are a lower bound on the exact minimum (resp. an uppper bound on the
@@ -96,7 +96,7 @@ DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 fig = plot(solz, vars=(0, 3), xlab="t", ylab="z")
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
@@ -105,4 +105,4 @@ DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 fig = plot(solz, vars=(1, 3))
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

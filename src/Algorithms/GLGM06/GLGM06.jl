@@ -80,7 +80,7 @@ function GLGM06(; δ::N,
                dim::Union{Int, Missing}=missing,
                ngens::Union{Int, Missing}=missing,
                preallocate::Bool=true,
-               reduction_method::RM=GIR05(),
+               reduction_method::RM=LazySets.GIR05(),
                disjointness_method::DM=NoEnclosure()) where {N, AM, RM<:AbstractReductionMethod, DM<:AbstractDisjointnessMethod}
 
     # algorithm with "preallocation" is only defined for the non-static case

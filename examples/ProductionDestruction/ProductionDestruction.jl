@@ -139,8 +139,8 @@ property, vol = prod_dest_verif(solI)
 
 fig = plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## Case P
 
@@ -169,7 +169,7 @@ property, vol = prod_dest_verif(solP)
 
 fig = plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## Case I & P
 
@@ -190,7 +190,7 @@ property, vol = prod_dest_verif(solIP)
 
 fig = plot(solIP, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## Performance optimization
 

@@ -244,7 +244,7 @@ prob = spacecraft()
 sol = solve_spacecraft(prob; k=25, s=missing)
 solz = overapproximate(sol, Zonotope);
 
-plot(solz, vars=(1, 2), xlab="x", ylab="y")
+fig = plot(solz, vars=(1, 2), xlab="x", ylab="y")
 
 idx_approaching = findall(x -> x == 1, location.(solz))
 idx_attempt = findall(x -> x == 2, location.(solz))

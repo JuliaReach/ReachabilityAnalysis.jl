@@ -19,20 +19,20 @@ sol = solve(prob, T=10.0, alg=alg);
 
 solz = overapproximate(sol, Zonotope);
 
-plot(solz, vars=(0, 1), xlab="t", ylab="x")
+fig = plot(solz, vars=(0, 1), xlab="t", ylab="x")
 
-plot(solz(0.0 .. 1.5), vars=(0, 1), xlab="t", ylab="x", lw=0.0)
+fig = plot(solz(0.0 .. 1.5), vars=(0, 1), xlab="t", ylab="x", lw=0.0)
 plot!(x -> 20.0, c=:red, xlims=(0.0, 1.5), lab="")
 
 ρ([1.0, 0.0, 0.0], solz(0.0 .. 1.5))
 
-plot(solz, vars=(0, 2), xlab="t", ylab="y")
+fig = plot(solz, vars=(0, 2), xlab="t", ylab="y")
 
 -ρ([0.0, -1.0, 0.0], solz)
 
 ρ([0.0, 1.0, 0.0], solz)
 
-plot(solz, vars=(0, 3), xlab="t", ylab="z")
+fig = plot(solz, vars=(0, 3), xlab="t", ylab="z")
 
-plot(solz, vars=(1, 3))
+fig = plot(solz, vars=(1, 3))
 

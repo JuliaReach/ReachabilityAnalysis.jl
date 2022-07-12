@@ -79,5 +79,5 @@ plot!(fig, solz, vars=(0, 3), color=:red, lw=0.0, lab="I")
 plot!(solz, vars=(0, 4), color=:grey, lw=0.0, lab="R")
 fig
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
