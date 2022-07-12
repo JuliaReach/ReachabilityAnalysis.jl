@@ -294,14 +294,16 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
         nsdiv = 1
     end
 
+    D = dim(R)
+    S = symBox(D)
+
     # no splitting
     if isnothing(partition) && nsdiv == 1 && ntdiv == 1
         return _overapproximate(R, Hyperrectangle; Δt, dom)
     end
     @assert Δt == tspan(R) "time subdomain not implemented"
-    @assert dom == symBox(R) "spatial subdomain not implemented"
+    @assert dom == S "spatial subdomain not implemented"
 
-    D = dim(R)
     X = set(R)
 
     # time domain splittig
@@ -314,7 +316,6 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     X_Δt = [evaluate(X, Δti) for Δti in Δtdiv]
 
     # partition the symmetric box
-    S = symBox(D)
     if isnothing(partition)
         if nsdiv == 1
             partition = [S]
