@@ -42,25 +42,25 @@ prob = multistable_oscillator()
 
 sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=false);
 
-plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
 
 tspan.(sol)
 
 location.(sol)
 
-plot(sol[1][end-10:end], vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol[1][end-10:end], vars=(0, 1), xlab="t", ylab="v-")
 plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 
 Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
 
-plot(sol[1][end-10:end], vars=(0, 1))
+fig = plot(sol[1][end-10:end], vars=(0, 1))
 plot!(sol[2][1:10], vars=(0, 1))
 plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 plot!(Xc[1], vars=(0, 1), c=:grey)
 
 sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=true);
 
-plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
 
 tspan(sol)
 

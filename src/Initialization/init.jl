@@ -32,7 +32,7 @@ using LazySets: linear_map!
 # LazySets internal functions frequently used
 using LazySets.Arrays: projection_matrix, SingleEntryVector
 using LazySets.Approximations: AbstractDirections
-using LazySets: @commutative
+using LazySets: @commutative, AbstractReductionMethod
 
 # aliases for intervals
 const IM = IntervalMatrices

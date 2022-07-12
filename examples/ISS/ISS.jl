@@ -146,8 +146,8 @@ Plots.plot!(fig, πsol_ISSF01[1:10:end], vars=(0, 1), linecolor=:blue, color=:bl
      bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm);
 fig
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ### ISSC01
 
@@ -187,7 +187,7 @@ Plots.plot!(fig, πsol_ISSC01, vars=(0, 1), linecolor=:blue, color=:blue, alpha=
     bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
 fig
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## References
 

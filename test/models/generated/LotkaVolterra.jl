@@ -14,7 +14,7 @@ solz = overapproximate(sol, Zonotope);
 
 using Plots
 
-plot(solz, vars=(1, 2), alpha=0.3,lw=0., xlab="x", ylab="y", label="Flowpipe", legend=:bottomright)
+fig = plot(solz, vars=(1, 2), alpha=0.3,lw=0., xlab="x", ylab="y", label="Flowpipe", legend=:bottomright)
 plot!(X0, label="X(0)")
 
 @taylorize function f(du, u, p, t)
@@ -36,7 +36,7 @@ prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0);
 sol = solve(prob, tspan=(0.0, 10.0));
 solz = overapproximate(sol, Zonotope);
 
-plot(solz, vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e-15", xlab="u1", ylab="u2")
+fig = plot(solz, vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e-15", xlab="u1", ylab="u2")
 
 u0 = Singleton([1.0, 1.0])
 □(ϵ) = BallInf(zeros(2), ϵ)
@@ -46,7 +46,7 @@ prob = @ivp(u' = f(u), dim: 7, u(0) ∈ U0)
 
 sol = solve(prob, tspan=(0.0, 10.0), TMJets(abstol=1e-10))
 solz = overapproximate(sol, Zonotope)
-plot(solz, vars=(1, 2), color=:orange, lw=0.3,
+fig = plot(solz, vars=(1, 2), color=:orange, lw=0.3,
      lab="eps = 0.05", title="Uncertain u0 and uncertain params",
      xlab="u1", ylab="u2")
 

@@ -99,8 +99,8 @@ sol_nondet = solve(opamp_nondet(), T=0.1, alg=INT(δ=1e-4));
 fig = plot()
 plot!(fig, sol_nondet, vars=(0, 1), xlab=L"t", ylab=L"e_{out}", title="Solution for non-deterministic input", lw=0.2)
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # The solution `sol_nondet` assumed that the initial state is at the origin.
 # Now we solve for three different initial conditions of increasing width.
@@ -120,7 +120,7 @@ plot!(fig, sol(Δt), vars=(0, 1), lab="X0 = 0", lw=0.2)
 
 fig
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #md # !!! tip "Visualization tip"
 #md #     The order in which we have defined the plots is such that the flowpipe
@@ -207,13 +207,13 @@ sol_const = solve(prob_const, T=0.1, alg=BOX(δ=1e-4));
 fig = plot(sol_const, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Constant input signal", lw=0.2)
 plot!(x->x, x->1.5, 0., 0.1, line=2, color="red", linestyle=:dash, legend=nothing)
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
 fig = plot(sol_const, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for constant input", lw=0.2)
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## Time-varying input
 
@@ -241,20 +241,20 @@ sol_exp = solve(prob_exp, T=0.1, alg=BOX(δ=1e-4));
 #-
 fig = plot(sol_lin, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Linear input w/saturation", lw=0.2)
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 #-
 fig = plot(sol_exp, vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)", title="Exponential input", lw=0.2)
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 fig = plot(sol_lin, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for linear input", lw=0.2)
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 #-
 fig = plot(sol_exp, vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)", title="Solution for exponential input", lw=0.2)
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## References
 

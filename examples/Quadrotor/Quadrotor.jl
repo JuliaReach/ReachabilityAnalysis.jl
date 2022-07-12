@@ -272,5 +272,5 @@ plot!(solz1, vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,
     xtick=[0., 1., 2., 3., 4., 5.], ytick=[-1., -0.5, 0., 0.5, 1., 1.5],
     xlims=(0., 5.), ylims=(-1., 1.5))
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

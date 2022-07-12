@@ -15,5 +15,3 @@ U0(r) = Singleton([1.0, 1.0]) ⊕ BallInf(zeros(2), r)
 
 bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim: 2)
 
-sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets20(orderT=6, orderQ=2))
-

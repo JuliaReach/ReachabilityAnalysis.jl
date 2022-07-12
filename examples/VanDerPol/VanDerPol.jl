@@ -92,21 +92,21 @@ solz = overapproximate(sol, Zonotope); #!jl
 fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
 plot!(x -> 2.75, color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #!jl
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # We can also plot the state variables ``x(t)`` and ``y(t)`` as a function of time
 # (recall that `0` in `vars` is used to denote the time variable):
 
 fig = plot(solz, vars=(0, 1), lw=0.2, xlab="t", ylab="x") #!jl
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
 fig = plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## Invariant Set
 #
@@ -119,7 +119,7 @@ plot!(X0, color=:orange, lab="X0") #!jl
 plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
 plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # It is seen that the reach-set corresponding to the time-span
 
@@ -144,7 +144,7 @@ plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #
 plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
 plot!(line, lw=2.0) #!jl
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Then we can define a function to get the cross section of the flowpipe. The
 # function needs the flowpipe, a line segment that cuts the flowpipe and the
@@ -181,7 +181,7 @@ llast = norm(ilast.q - ilast.p); #!jl
 fig = plot(ifirst, lw=3.0, alpha=1.0, label="First subsets", legend=:bottomright) #!jl
 plot!(ilast, lw=5.0, alpha=1.0, label="Last subset") #!jl
 
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 

@@ -158,9 +158,9 @@ solz3 = overapproximate(sol3, Zonotope);
 
 using Plots
 
-Plots.plot(solz3,  vars=(0, 3), linecolor="green",  color=:green,  alpha=0.8)
-Plots.plot!(solz2, vars=(0, 3), linecolor="blue",   color=:blue,   alpha=0.8)
-Plots.plot!(solz1, vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,
+fig = plot(solz3,  vars=(0, 3), linecolor="green",  color=:green,  alpha=0.8)
+plot!(solz2, vars=(0, 3), linecolor="blue",   color=:blue,   alpha=0.8)
+plot!(solz1, vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,
     xlab="t", ylab="x3",
     xtick=[0., 1., 2., 3., 4., 5.], ytick=[-1., -0.5, 0., 0.5, 1., 1.5],
     xlims=(0., 5.), ylims=(-1., 1.5))

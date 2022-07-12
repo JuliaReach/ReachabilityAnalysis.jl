@@ -143,8 +143,8 @@ plot!(fig, sol_1z, vars=(0, 4), linecolor="yellow", color=:yellow, alpha=0.8,
 plot!(fig, x->x, x->4.5, 0., 20., line=2, color="red", linestyle=:dash, legend=nothing)
 plot!(fig, x->x, x->5., 0., 20., line=2, color="red", linestyle=:dash, legend=nothing)
 
-import DisplayAs  # hide
-DisplayAs.Text(DisplayAs.PNG(fig))  # hide
+#!jl import DisplayAs  #hide
+#!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ## References
 

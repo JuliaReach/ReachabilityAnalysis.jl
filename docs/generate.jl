@@ -5,7 +5,7 @@ using Literate: script, markdown, notebook
 source_dir = joinpath(@__DIR__, "..", "examples")
 
 # target directory for the tests files (bare .jl files)
-target_dir_jl = joinpath(@__DIR__, "..", "test", "models")
+target_dir_jl = joinpath(@__DIR__, "..", "test", "models", "generated")
 
 # target directory for the markdown files (used by Documenter)
 target_dir_md = joinpath(@__DIR__, "src", "generated_examples")
