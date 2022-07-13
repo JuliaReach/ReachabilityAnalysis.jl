@@ -1,5 +1,5 @@
 eval(quote
-    using .ExponentialUtilities: expv, expv!, arnoldi, arnoldi!, KrylovSubspace
+    using .ExponentialUtilities: expv, expv!, phiv!, arnoldi!, KrylovSubspace
 
 # Compute out <- exp(A * NSTEPS * dt) * b
 function _expv(A, b, NSTEPS, dt; hermitian=false, m=min(30, size(A, 1)), tol=1e-7)
