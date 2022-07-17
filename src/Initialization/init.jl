@@ -122,6 +122,9 @@ function __init__()
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
 
+    # exponentiation methods for large sparse matrices
+    @require FastExpm = "7868e603-8603-432e-a1a1-694bd70b01f2" include("init_FastExpm.jl")
+
     # external reachability backend: Flow* C++ library
     @require Flowstar = "a8054ddd-9dca-4d20-8ffe-ae96ec1541f1" include("init_Flowstar.jl")
 

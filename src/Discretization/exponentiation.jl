@@ -432,6 +432,18 @@ function _Φ₂_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
     return IdentityMultiple(α, size(A, 1))
 end
 
+function _Eplus(A::SparseMatrixCSC{N, D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)), tol=1e-7) where {N, D}    
+    n = dim(X0)
+    A2 = A * A; # fast if A sparse
+    V = symmetric_interval_hull(A2 * X0)
+    v = V.radius
+    Aabs = copy(abs.(A))
+
+    @requires ExponentialUtilities
+    Pv = _phiv(Aabs, v, 1, δt; m, tol)
+    E⁺ = Hyperrectangle(zeros(n), Pv)
+end
+
 # ================
 # Absolute values
 # ================
