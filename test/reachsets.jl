@@ -108,6 +108,11 @@ end
     @test isequivalent(set(overapproximate(c, Zonotope)), set(R))
     @test isequivalent(set(overapproximate(d, Zonotope)), set(R))
 
+    # issue #654
+    Z = Zonotope([0.0, 0], [1.0; 2;;])
+    TM = overapproximate(Z, TaylorModelReachSet)
+    Z2 = set(overapproximate(TM, Zonotope))
+    @test Z == Z2
 end
 
 @testset "Taylor model reach-sets with non-float coefficients" begin

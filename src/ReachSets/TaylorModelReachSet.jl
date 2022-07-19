@@ -499,8 +499,9 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of Z
+    p = size(G, 2)  # the order may be < 1
     @inbounds for i in 1:n
-        pi = c[i] + sum(view(G, i, :) .* x)
+        pi = c[i] + sum(view(G, i, :) .* x[1:p])
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), zeroI, zeroI, Δtn)
     end
 
