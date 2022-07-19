@@ -1,12 +1,10 @@
-name: CI
+name: CI-PR
 
 on:
-  push:
+  pull_request:
     paths-ignore:
       - 'LICENSE'
       - 'README.md'
-    branches:
-      - master
 
 jobs:
   test:
@@ -20,6 +18,7 @@ jobs:
           - '1.7'
         os:
           - ubuntu-latest
+          - windows-latest
         arch:
           - x64
     env:
