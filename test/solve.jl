@@ -9,7 +9,7 @@
     sol = solve(prob, tspan=dt, static=true);
     @test sol.alg isa GLGM06
     @test sol.alg.static == Val{true}()
-    @test setrep(sol) == Zonotope{Float64,SArray{Tuple{8},Float64,1,8},SArray{Tuple{8,8},Float64,2,64}}
+    @test setrep(sol) == Zonotope{Float64,SArray{Tuple{8},Float64,1,8},SArray{Tuple{8,13},Float64,2,104}}
 
     # if the static kwarg is passed outside the algorithm => it is ignored
     sol = solve(prob, tspan=dt, alg=GLGM06(δ=1e-2), static=true);

@@ -66,7 +66,8 @@ end
 
     # using GLGM06 + template hull intersection
     dirs = PolarDirections(10)
-    sol = solve(prob, T=3.0, alg=GLGM06(δ=1e-2, max_order=10),
+    sol = solve(prob, T=3.0,
+                alg=GLGM06(δ=1e-2, max_order=10, approx_model=Forward()),
                 intersection_method=TemplateHullIntersection(dirs),
                 clustering_method=ZonotopeClustering(),
                 intersect_source_invariant=true)
@@ -152,12 +153,13 @@ end
 @testset "Time-triggered solve (EMBrake)" begin
     # scenario without parameter variation
     prob = embrake_no_pv()
-    sol = solve(prob, alg=GLGM06(δ=1e-7), max_jumps=2)
+    sol = solve(prob, alg=GLGM06(δ=1e-7, approx_model=Forward()), max_jumps=2)
     @test dim(sol) == 4
     @test sol.alg.static == Val(false)
     @test flowpipe(sol) isa HybridFlowpipe
 
-    sol = solve(prob, alg=GLGM06(δ=1e-7, static=true, max_order=1, dim=4, ngens=4), max_jumps=2)
+    sol = solve(prob, alg=GLGM06(δ=1e-7, approx_model=Forward(), static=true,
+                                 max_order=1, dim=4, ngens=4), max_jumps=2)
     @test sol.alg.static == Val(true)
 
     # scenario with parameter variation

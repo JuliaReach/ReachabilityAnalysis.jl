@@ -39,7 +39,7 @@ end
     # support function and support vector
     d = ones(2)
     @test ρ(d, fp) < 2.0
-    @test σ(d, fp) ≈ [0.7329355092, 0.7092773487]
+    @test σ(d, fp) ≈ [0.7502062459270877, 0.6989729206916551]
 
     # disjointness
     H = HalfSpace(d, 2.0)
@@ -58,7 +58,8 @@ end
     U = Singleton([0.,0.,0.,-9.81])
     prob = @ivp(x' = A * x + Matrix(1.0I, 4, 4) * u,  x(0) ∈ X0, u ∈ U, x ∈ Universe(4))
     cons = LinearConstraint([24., 0., 1, 0], 375.)
-    sol = solve(prob, T=20.0, δ=1e-2)
+    alg = GLGM06(δ=1e-2, approx_model=Forward())
+    sol = solve(prob, T=20.0, alg=alg)
 
     # equivalent ways
     @test all(set(R) ⊆ cons for R in sol)

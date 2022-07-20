@@ -7,8 +7,8 @@ linear systems using zonotopes.
 ## Fields
 
 - `δ`                -- step-size of the discretization
-- `approx_model`     -- (optional, default: `Forward`) approximation model;
-                        see `Notes` below for possible options
+- `approx_model`     -- (optional, default: `FirstOrderZonotope`) approximation
+                        model; see `Notes` below for possible options
 - `max_order`        -- (optional, default: `5`) maximum zonotope order
 - `static`           -- (optional, default: `false`) if `true`, convert the problem data
                         to statically sized arrays
@@ -42,11 +42,11 @@ is not necessarily fixed.
 The default approximation model is
 
 ```julia
-approx_model=Forward(sih=:concrete, exp=:base, setops=:lazy)
+approx_model=FirstOrderZonotope()
 ```
-Here, `Forward` refers to the forward-time adaptation of the approximation model
+Here, `FirstOrderZonotope` refers to the forward-time adaptation of the approximation model
 from Lemma 3 in [[FRE11]](@ref). Some of the options to compute this approximation can be specified,
-see the documentation of `Forward` for details.
+see the documentation of `FirstOrderZonotope` for details.
 
 ## References
 
@@ -74,7 +74,8 @@ end
 
 # convenience constructor using symbols
 function GLGM06(; δ::N,
-               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy), #CorrectionHull(order=10, exp=:base),
+               approx_model::AM=FirstOrderZonotope(),
+               #CorrectionHull(order=10),
                max_order::Int=5,
                static::Bool=false,
                dim::Union{Int, Missing}=missing,
