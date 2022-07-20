@@ -19,12 +19,12 @@ function ForwardBackward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, 
 end
 
 function Base.show(io::IO, alg::ForwardBackward)
-    print(io, "`ForwardBackward` approximation model with: \n")
-    print(io, "    - exponentiation method: $(alg.exp) \n")
+    print(io, "`ForwardBackward` approximation model with:\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
-    print(io, "    - invertibility assumption: $(alg.inv)")
-    print(io, "    - polyhedral computations backend: $(alg.backend)")
+    print(io, "    - invertibility assumption: $(alg.inv)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::ForwardBackward) = print(io, alg)

@@ -44,8 +44,8 @@ function StepIntersect(alg=Forward(); setops=alg.setops)
 end
 
 function Base.show(io::IO, alg::StepIntersect)
-    print(io, "`StepIntersect` approximation model with: \n")
-    print(io, "    - model: $(alg.model) \n")
+    print(io, "`StepIntersect` approximation model with:\n")
+    print(io, "    - model: $(alg.model)\n")
     print(io, "    - set operations method: $(alg.setops)\n")
 end
 

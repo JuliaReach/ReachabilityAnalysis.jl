@@ -44,12 +44,12 @@ function Backward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend
 end
 
 function Base.show(io::IO, alg::Backward)
-    print(io, "`Backward` approximation model with: \n")
-    print(io, "    - exponentiation method: $(alg.exp) \n")
+    print(io, "`Backward` approximation model with:\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
-    print(io, "    - invertibility assumption: $(alg.inv)")
-    print(io, "    - polyhedral computations backend: $(alg.backend)")
+    print(io, "    - invertibility assumption: $(alg.inv)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::Backward) = print(io, alg)
