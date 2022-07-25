@@ -37,8 +37,8 @@ function FirstOrderZonotope(; exp=BaseExp)
 end
 
 function Base.show(io::IO, alg::FirstOrderZonotope)
-    print(io, "`FirstOrderZonotope` approximation model with: \n")
-    print(io, "    - exponentiation method: $(alg.exp) \n")
+    print(io, "`FirstOrderZonotope` approximation model with:\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderZonotope) = print(io, alg)

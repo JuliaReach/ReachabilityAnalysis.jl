@@ -35,8 +35,8 @@ function FirstOrder(; exp=BaseExp)
 end
 
 function Base.show(io::IO, alg::FirstOrder)
-    print(io, "`FirstOrder` approximation model with: \n")
-    print(io, "    - exponentiation method: $(alg.exp) \n")
+    print(io, "`FirstOrder` approximation model with:\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::FirstOrder) = print(io, alg)

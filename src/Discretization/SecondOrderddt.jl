@@ -55,13 +55,13 @@ function SecondOrderddt(; oa::Bool=true, exp=BaseExp, setops=:lazy, sih=:concret
 end
 
 function Base.show(io::IO, alg::SecondOrderddt)
-    print(io, "`SecondOrderddt` approximation model with: \n")
-    print(io, "    - $(alg.oa ? "over" : "under")approximation \n")
-    print(io, "    - exponentiation method: $(alg.exp) \n")
+    print(io, "`SecondOrderddt` approximation model with:\n")
+    print(io, "    - $(alg.oa ? "over" : "under")approximation\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
-    print(io, "    - invertibility assumption: $(alg.inv)")
-    print(io, "    - polyhedral computations backend: $(alg.backend)")
+    print(io, "    - invertibility assumption: $(alg.inv)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::SecondOrderddt) = print(io, alg)

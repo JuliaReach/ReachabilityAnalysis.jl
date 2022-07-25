@@ -38,8 +38,8 @@ function CorrectionHull(; order::Int=10, exp=IntervalExpAlg(order))
 end
 
 function Base.show(io::IO, alg::CorrectionHull)
-    print(io, "`CorrectionHull` approximation model with: \n")
-    print(io, "    - exponentiation method: $(alg.exp) \n")
+    print(io, "`CorrectionHull` approximation model with:\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
     print(io, "    - order: $(alg.order)\n")
 end
 
