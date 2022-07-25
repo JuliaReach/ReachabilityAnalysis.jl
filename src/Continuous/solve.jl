@@ -324,11 +324,11 @@ end
 # Algorithm defaults
 # ===================
 
-# number of discrete steps used if only the time horizonis given
+# number of discrete steps used if only the time horizon is given
 const DEFAULT_NSTEPS = 100
 
-function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
-    if isaffine(ivp)
+function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, tspan; kwargs...)
+    if isaffine(S)
         if haskey(kwargs, :δ)
             δ = kwargs[:δ]
         elseif haskey(kwargs, :N)
@@ -343,11 +343,15 @@ function _default_cpost(ivp::AbstractContinuousSystem, tspan; kwargs...)
         else
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
-        if statedim(ivp) == 1 && !is_second_order(ivp)
+        if statedim(S) == 1 && !is_second_order(S)
             opC = INT(δ=δ)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
-            opC = GLGM06(δ=δ, static=static)
+            if ishybrid || !(X0 isa AbstractZonotope)
+                opC = GLGM06(δ=δ, static=static, approx_model=Forward())
+            else
+                opC = GLGM06(δ=δ, static=static)
+            end
         end
     else
         # check additional kwargs options if they exist, allowing some aliases
@@ -397,11 +401,11 @@ If the system is affine, then:
 If the system is not affine, then the algorithm `TMJets` is used.
 """
 function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
-    _default_cpost(system(ivp), tspan; kwargs...)
+    _default_cpost(system(ivp), initial_state(ivp), false, tspan; kwargs...)
 end
 
 # return a default algorithm, assuming that the first mode is representative
 function _default_cpost(ivp::IVP{<:AbstractHybridSystem}, tspan; kwargs...)
     first_mode = mode(system(ivp), 1)
-    _default_cpost(first_mode, tspan; kwargs...)
+    _default_cpost(first_mode, initial_state(ivp), true, tspan; kwargs...)
 end
