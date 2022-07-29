@@ -343,7 +343,7 @@ for CLC_S in (:CLCCS, :CLCDS)
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system))
-            $CLC_S(state_matrix(system), I(n, N), X, U)
+            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
@@ -356,7 +356,7 @@ for (CA_S, CLC_S) in ((:CACS, :CLCCS), (:CADS, :CLCDS))
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(affine_term(system))
-            $CLC_S(state_matrix(system), I(n, N), X, U)
+            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
@@ -369,7 +369,7 @@ for (A_S, CLC_S) in ((:ACS, :CLCCS), (:ADS, :CLCDS))
             n = statedim(system)
             X = Universe(n)
             U = _wrap_inputs(affine_term(system))
-            $CLC_S(state_matrix(system), I(n, N), X, U)
+            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
@@ -382,7 +382,7 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system), affine_term(system))
-            $CLC_S(state_matrix(system), I(n, N), X, U)
+            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
