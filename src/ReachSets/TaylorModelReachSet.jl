@@ -123,7 +123,6 @@ end
 # ======================
 
 _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = isdisjoint(set(overapproximate(R, Zonotope)), Y)
-_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::ZonotopeEnclosure) = isdisjoint(set(overapproximate(R, Zonotope)), Y)
 
 # FIXME when UnionSet, UnionSetArray <: LazySet
 _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray}, method::FallbackDisjointness) = isdisjoint(set(overapproximate(R, Zonotope)), Y)
