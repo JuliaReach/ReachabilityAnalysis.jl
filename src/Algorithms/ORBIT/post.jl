@@ -1,5 +1,3 @@
-using LazySets.Arrays: _vector_type
-
 function post(alg::ORBIT{N, VT, AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N, VT, AM}
 
@@ -110,7 +108,7 @@ end
 function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, X::Universe, Δt0) where {N}
     # preallocate output sequence
     n = size(Φ, 1)
-    VT = _vector_type(typeof(Φ))
+    VT = vector_type(typeof(Φ))
     out = Vector{VT}(undef, NSTEPS)
     @inbounds for i in 1:NSTEPS
         out[i] = VT(undef, n)

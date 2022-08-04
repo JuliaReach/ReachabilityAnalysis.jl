@@ -16,6 +16,7 @@ using ExprTools: splitdef, combinedef
 # are made available after loading ReachabilityAnalysis
 @reexport using HybridSystems,
                 IntervalMatrices,
+                ReachabilityBase,
                 LazySets,
                 MathematicalSystems,
                 TaylorIntegration
@@ -30,7 +31,8 @@ using LazySets: Interval, radius, sample, ∅, dim, scale, scale!
 using LazySets: linear_map!
 
 # LazySets internal functions frequently used
-using LazySets.Arrays: projection_matrix, SingleEntryVector
+using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
+    isinvertible, vector_type
 using LazySets.Approximations: AbstractDirections
 using LazySets: @commutative, AbstractReductionMethod
 

@@ -1,5 +1,4 @@
 using LinearAlgebra: checksquare
-using LazySets.Arrays: isinvertible
 
 # ==========================
 # Exponentiation functions

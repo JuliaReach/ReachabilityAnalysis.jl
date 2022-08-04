@@ -409,7 +409,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:LazySet, GT, IT⁻, IT
                                 IT⁺<:AbstractPolyhedron{N}}
 
     @unpack R, W, G, I⁻, I⁺ = tr
-    got_inv = LazySets.Arrays.isinvertible(R)
+    got_inv = isinvertible(R)
 
     m = length(X)
     Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
@@ -442,7 +442,7 @@ function apply(tr::DiscreteTransition{<:AbstractMatrix, <:ZeroSet, GT, IT⁻, IT
                                 IT⁺<:AbstractPolyhedron{N}}
 
     @unpack R, W, G, I⁻, I⁺ = tr
-    got_inv = LazySets.Arrays.isinvertible(R)
+    got_inv = isinvertible(R)
 
     m = length(X)
     Y = Vector{HPolytope{N, Vector{N}}}(undef, m)
