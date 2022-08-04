@@ -1,5 +1,5 @@
-set_rtol(Float64, 1e-12)
-set_ztol(Float64, 1e-13)
+ReachabilityBase.Comparison.set_rtol(Float64, 1e-12)
+ReachabilityBase.Comparison.set_ztol(Float64, 1e-13)
 
 # Fixed parameters
 

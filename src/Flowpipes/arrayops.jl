@@ -63,7 +63,7 @@ function logarithmic_norm_2(A::AbstractMatrix)
 end
 
 # ========================================================================
-# Specialized functions on LazySets.Arrays.SingleEntryVector
+# Specialized functions on SingleEntryVector
 # TODO refactor to LazySets.jl
 # ========================================================================
 

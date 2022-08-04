@@ -189,8 +189,6 @@ LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 #const Partition{}
 
 # concrete decomposition using a uniform block partition
-#using LazySets.Arrays: projection_matrix
-
 #const Partition{N, VT} = AbstractVector{VT} where {VT<:AbstractVector{Int}}
 
 function _decompose(X::LazySet{N},
