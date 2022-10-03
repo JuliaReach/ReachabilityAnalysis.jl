@@ -45,8 +45,8 @@ prob = @ivp(H, z(0) ∈ Z0);
 boxdirs = BoxDirections{Float64, Vector{Float64}}(2)
 Thull = TemplateHullIntersection(boxdirs)
 
-sol = solve(prob, T=30.0,
-            alg=GLGM06(δ=0.01), # or LGG09 with template=boxdirs,
+sol = solve(prob, T=5.0,
+            alg=LGG09(δ=0.02, template=boxdirs),
             clustering_method=LazyClustering(1, convex=false),
             intersection_source_invariant_method=Thull,
             intersection_method=Thull);
