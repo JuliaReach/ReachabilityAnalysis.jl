@@ -80,7 +80,9 @@ to the canonical form with the function [`normalize`](@ref).
 For references to the original papers introducing each algorithm, see the docstrings,
 e.g. `?Forward`.
 """
-function discretize(ivp::IVP, δ, alg::AbstractApproximationModel) end
+function discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
+    error("discretization not implemented for the given arguments: $ivp, $alg")
+end
 
 # =========================================
 # Conservative time discretization methods
