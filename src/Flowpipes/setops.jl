@@ -440,7 +440,7 @@ end
 # ==================================
 
 # zonotope with mixed static array types
-function LazySets.reduce_order(Z::Zonotope{N,SVector{n,N},MMatrix{n,p,N,L}}, r::Number, alg::AbstractReductionMethod) where {n,N,p,L}
+function LazySets.reduce_order(Z::Zonotope{N,SVector{n,N},MMatrix{n,p,N,L}}, r::Real, alg::AbstractReductionMethod) where {n,N,p,L}
     return reduce_order(Zonotope(Z.center, SMatrix(Z.generators)), r, alg)
 end
 
