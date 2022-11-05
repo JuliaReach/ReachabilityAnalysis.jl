@@ -42,7 +42,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
 
     # symmetrize intervals
     E_rad = [symmetric_interval_hull(Interval(ei)) for ei in E]
-    E_ball = [BallInf(zeros(n), max(ei)) for ei in E_rad]
+    E_ball = [BallInf(zeros(n), high(ei, 1)) for ei in E_rad]
 
     # sum the solution with the error
     fp_bloated = [ReachSet(set(Ri) ⊕ Ei, tspan(Ri)) for (Ri, Ei) in zip(πsol_1n, E_ball)] |> Flowpipe

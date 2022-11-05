@@ -337,7 +337,7 @@ _symmetric_interval_hull(x::Hyperrectangle) = LazySets.symmetric_interval_hull(x
 # type-stable version
 function _symmetric_interval_hull(S::LazySet{N}) where {N}
     # fallback returns a hyperrectangular set
-    (c, r) = LazySets.Approximations.box_approximation_helper(S)
+    (c, r) = box_approximation_helper(S)
     #if r[1] < 0
     #    return EmptySet{N}(dim(S))
     #end
@@ -346,7 +346,7 @@ end
 
 # type-stable version
 function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N}
-    c, r = LazySets.Approximations.box_approximation_helper(S)
+    c, r = box_approximation_helper(S)
     #if r[1] < 0
     #    return EmptySet{N}(dim(S))
     #end
@@ -363,37 +363,20 @@ function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interva
     return convert(Hyperrectangle, x)
 end
 
-LazySets.box_approximation(S::UnionSetArray) = overapproximate(S, Hyperrectangle)
-
-function LazySets.overapproximate(S::UnionSetArray{N}, ::Type{<:Hyperrectangle}) where {N}
-    c, r = box_approximation_helper(S)
-    if r[1] < 0
-        return EmptySet{N}(dim(S))
-    end
-    return Hyperrectangle(c, r)
-end
-
-@inline function box_approximation_helper(S::UnionSetArray{N}) where {N}
-    zero_N = zero(N)
-    one_N = one(N)
+@inline function box_approximation_helper(S::LazySet{N}) where {N}
     n = dim(S)
     c = Vector{N}(undef, n)
     r = Vector{N}(undef, n)
-    d = zeros(N, n)
     @inbounds for i in 1:n
-        d[i] = one_N
-        htop = ρ(d, S)
-        d[i] = -one_N
-        hbottom = -ρ(d, S)
-        d[i] = zero_N
-        c[i] = (htop + hbottom) / 2
-        r[i] = (htop - hbottom) / 2
+        l, h = extrema(S, i)
+        r[i] = (h - l) / 2
         if r[i] < 0
             # contradicting bounds => set is empty
             # terminate with first radius entry being negative
             r[1] = r[i]
             break
         end
+        c[i] = (h + l) / 2
     end
     return c, r
 end
@@ -457,7 +440,7 @@ end
 # ==================================
 
 # zonotope with mixed static array types
-function LazySets.reduce_order(Z::Zonotope{N,SVector{n,N},MMatrix{n,p,N,L}}, r::Number, alg::AbstractReductionMethod) where {n,N,p,L}
+function LazySets.reduce_order(Z::Zonotope{N,SVector{n,N},MMatrix{n,p,N,L}}, r::Real, alg::AbstractReductionMethod) where {n,N,p,L}
     return reduce_order(Zonotope(Z.center, SMatrix(Z.generators)), r, alg)
 end
 
