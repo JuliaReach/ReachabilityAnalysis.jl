@@ -8,7 +8,8 @@
 #
 # ## Model description
 #
-# We study the dynamics of a quadrotor as derived in [xxx]. Let us first introduce
+# We study the dynamics of a quadrotor, derived in [^B08] and used in [^GSA21].
+# Let us first introduce
 # the variables required to describe the model: the inertial (north) position
 # ``x_1``, the inertial (east) position ``x_2``, the altitude ``x_3``, the
 # longitudinal velocity ``x_4``, the lateral velocity ``x_5``, the vertical
@@ -31,7 +32,7 @@
 # ```
 #
 # Finally, we can write the set of ordinary differential equations for the
-# quadrotor according to [xxx]:
+# quadrotor according to [^B08] (Eq. (16-19)):
 # ```math
 # \left\{
 # \begin{array}{lcl}
@@ -274,3 +275,9 @@ plot!(solz1, vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,
 
 #!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
+
+# ## References
+
+# [^B08]: Beard, R. (2008). Quadrotor Dynamics and Control Rev 0.1. Technical Report Brigham Young University.
+
+# [^GSA21]: Geretti, L., Sandretto, J. A. D., Althoff, M., Benet, L., Chapoutot, A., Collins, P., Duggirala, P. S., Forets, M., Kim, E., Linares, U., Sanders, D. P., Schilling, C., & Wetzlinger, M. (2021). ARCH-COMP21 category report: Continuous and hybrid systems with nonlinear dynamics. In ARCH (pp. 32–54). EasyChair volume 80 of EPiC Series in Computing. [doi:10.29007/2jw8](https://www.doi.org/10.29007/2jw8).
