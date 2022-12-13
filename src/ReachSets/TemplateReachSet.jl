@@ -85,7 +85,7 @@ _getdirs(X::LazySet) = [c.a for c in constraints_list(X)]
 LazySets.CustomDirections(X::LazySet) = CustomDirections(_getdirs(X), dim(X)) # TODO may use isboundedtype trait
 
 # overapproximate a given reach-set with a template
-function overapproximate(R::AbstractLazyReachSet, dirs::AbstractDirections) where {VN}
+function overapproximate(R::AbstractLazyReachSet, dirs::AbstractDirections)
     return TemplateReachSet(dirs, R)
 end
 

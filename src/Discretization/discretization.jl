@@ -138,9 +138,9 @@ _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:concrete}) = linear_map(M, X
 # evantually we should use concretize, but requires fast fallback operations in 2D
 # such as Minkowski sum not yet available
 function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) where {N,
-                            AT<:AbstractPolytope{N}, MT,
-                            LM<:LinearMap{N, AT, N, MT},
-                            BT<:AbstractPolytope, MS<:MinkowskiSum{N, LM}}
+                            AT<:AbstractPolytope{N},
+                            LM<:LinearMap{N, AT, N},
+                            MS<:MinkowskiSum{N, LM}}
     n = dim(X)
     VT = n == 2 ? VPolygon : VPolytope
 
@@ -166,9 +166,9 @@ end
 
 # give X = CH(X₀, ΦX₀ ⊕ E₊), return a zonotope overapproximation
 function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:zono}, backend=nothing) where {N,
-                            AT<:AbstractZonotope{N}, MT,
-                            LM<:LinearMap{N, AT, N, MT},
-                            BT<:AbstractZonotope, MS<:MinkowskiSum{N, LM}}
+                            AT<:AbstractZonotope{N},
+                            LM<:LinearMap{N, AT, N},
+                            MS<:MinkowskiSum{N, LM}}
     # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
     A = X.X
     B = X.Y
