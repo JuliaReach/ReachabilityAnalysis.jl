@@ -377,11 +377,11 @@ end
 
 # TODO: refactor with Flowpipe
 # TODO extend projection of shifted flowpipes to use lazy projection if needed
-@recipe function plot_list(fp::ShiftedFlowpipe{N};
+@recipe function plot_list(fp::ShiftedFlowpipe{FT, N};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
                            Nφ=PLOT_POLAR_DIRECTIONS
-                          ) where {N}
+                          ) where {FT, N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -396,7 +396,7 @@ end
     first = true
     x = Vector{N}()
     y = Vector{N}()
-    for (i, Ri) in enumerate(fp)
+    for i in eachindex(fp.F)
         πRi = project(fp, i, vars) # project the reach-set
         Xi = set(πRi) # extract the set representation
 
