@@ -2,6 +2,7 @@ using .DifferentialEquations
 const DE = DifferentialEquations
 
 using HybridSystems: states
+using MathematicalSystems: islinear
 
 # extend the solve API for initial-value problems
 
