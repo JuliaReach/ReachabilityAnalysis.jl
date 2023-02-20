@@ -58,7 +58,7 @@ function _project_reachset(::Type{<:AbstractPolyhedron}, R, vars)
     # if the set is polyhedral and two-dimensional
     #   - if time is not required -> don't project
     #   - otherwise, make the projection (lazily)
-    if (dim(R) == 2) &&  (0 ∉ vars)
+    if (dim(R) == 2) && vars[1] == 1 && vars[2] == 2
         πR = set(R) # no-op
     else
         πR = Projection(R, vars) |> set # lazy projection
