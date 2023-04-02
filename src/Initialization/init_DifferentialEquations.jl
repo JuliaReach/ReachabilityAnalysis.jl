@@ -1,8 +1,10 @@
 using .DifferentialEquations
+using MathematicalSystems: islinear  # resolve namespace conflict
 const DE = DifferentialEquations
 
 using HybridSystems: states
-using MathematicalSystems: islinear
+
+const DEFAULT_TRAJECTORIES = 10
 
 # extend the solve API for initial-value problems
 
@@ -31,7 +33,7 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     if isnothing(initial_states)
         # sample initial states
         X0 = initial_state(ivp)
-        trajectories = get(kwargs, :trajectories, 100)
+        trajectories = get(kwargs, :trajectories, DEFAULT_TRAJECTORIES)
         initial_states = _sample_initial(X0, trajectories; kwargs...)
         # number of trajectories may increase if vertices got included
         trajectories = length(initial_states)
@@ -87,9 +89,9 @@ function _solve_ensemble(ivp::InitialValueProblem{<:AbstractHybridSystem},
         pop!(kwargs_sim, :T)
     end
 
-    time_span = _get_tspan(args...; kwargs...)
-    t0_g = tstart(time_span)
-    T = tend(time_span)
+    tspan = _get_tspan(args...; kwargs...)
+    t0_g = tstart(tspan)
+    T = tend(tspan)
 
     termination_action = (integrator) -> terminate!(integrator)
     use_discrete_callback = get(kwargs, :use_discrete_callback, false)
@@ -230,7 +232,7 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
     X0 = initial_state(ivp)
 
     # sample initial states from all possible initial regions
-    trajectories = get(kwargs, :trajectories, 100)
+    trajectories = get(kwargs, :trajectories, DEFAULT_TRAJECTORIES)
     all_samples = []
     for (loc, X0_loc) in X0
         inv = stateset(mode(H, loc))
@@ -275,7 +277,7 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem, <:AdmissibleSet};
         end
     end
 
-    return _sample_initial(IVP(H, X0_distributed))
+    return _sample_initial(IVP(H, X0_distributed); kwargs...)
 end
 
 # merge trajectory pieces into an ODESolution object
