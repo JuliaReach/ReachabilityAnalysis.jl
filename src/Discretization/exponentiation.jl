@@ -323,18 +323,13 @@ function _Φ₁_u(A, δ, alg, u::AbstractVector, Φ=nothing)
     return A \ x
 end
 
-function load_Φ₁_krylov()
-    return quote
-
-        # compute Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u without explicitly computing exp(Aδ)
-        # and assuming that A is invertible
-        function _Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
-            w = expv(1.0 * δ, A, u; m=alg.m, tol=alg.tol)
-            x = w - u
-            return A \ x
-        end
-    end
-end  # quote / load_Φ₁_krylov()
+# compute Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u without explicitly computing exp(Aδ)
+# and assuming that A is invertible
+function _Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
+    w = LazySets._expmv(δ, A, u; m=alg.m, tol=alg.tol)
+    x = w - u
+    return A \ x
+end
 
 """
     Φ₂(A::AbstractMatrix, δ, [alg]::AbstractExpAlg=BaseExp, [isinv]::Bool=false, [Φ]=nothing)
