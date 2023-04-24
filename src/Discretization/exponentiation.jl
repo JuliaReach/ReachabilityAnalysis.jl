@@ -113,7 +113,19 @@ _alias(alg::Val{:pade}) = PadeExp
 @inline _exp(A::AbstractMatrix, ::LazyExpAlg) = SparseMatrixExp(A)
 
 # pade approximants (requires Expokit.jl)
-@inline _exp(A::SparseMatrixCSC, ::PadeExpAlg) = padm(A)
+@inline function _exp(::AbstractMatrix, ::PadeExpAlg)
+    throw(ArgumentError("algorithm requires a sparse matrix"))
+end
+
+@inline function _exp(::SparseMatrixCSC, ::PadeExpAlg)
+    @requires Expokit
+end
+
+function load_expokit_pade()
+    return quote
+        @inline _exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
+    end
+end  # quote / load_expokit_pade
 
 function _exp(A::AbstractMatrix, alg::IntervalExpAlg)
     return exp_overapproximation(_interval_matrix(A), one(eltype(A)), alg.order)
@@ -165,18 +177,12 @@ A matrix or a lazy wrapper of the matrix exponential, depending on `alg`.
 
 ### Notes
 
-If the algorithm `LazyExp` is used, evaluations of the action of the matrix
-exponential are done with the `expmv` implementation from `Expokit`
-(but see `LazySets#1312` for the planned generalization to other backends).
+If the algorithm `LazyExp` is used, actions of the matrix exponential are
+evaluated with an external library such as `ExponentialUtilities.jl` or
+`Expokit.jl`.
 """
 function _exp(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp)
     n = checksquare(A)
-    return _exp(A * δ, alg)
-end
-
-function _exp(A::AbstractMatrix, δ, alg::PadeExpAlg)
-    n = checksquare(A)
-    @requires Expokit
     return _exp(A * δ, alg)
 end
 
@@ -431,7 +437,7 @@ function _Φ₂_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
     return IdentityMultiple(α, size(A, 1))
 end
 
-function _Eplus(A::SparseMatrixCSC{N, D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)), tol=1e-7) where {N, D}    
+function _Eplus(A::SparseMatrixCSC{N, D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)), tol=1e-7) where {N, D}
     n = dim(X0)
     A2 = A * A; # fast if A sparse
     V = symmetric_interval_hull(A2 * X0)

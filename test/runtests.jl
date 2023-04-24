@@ -13,6 +13,7 @@ using StaticArrays
 using Polyhedra, CDDLib # for VREP algorithm
 import TaylorModels # for TMJets algorithm
 import Flowstar # for FLOWSTAR algorithm
+import Expokit # for Padé approximation
 
 # fix namespace conflicts with Polyhedra
 using LazySets: dim, HalfSpace, Interval, Line2D, translate, project
@@ -35,6 +36,7 @@ include("models/generated/Brusselator.jl")
 include("models/hybrid/thermostat.jl")
 
 include("solve.jl")
+include("discretization.jl")
 include("reachsets.jl")
 include("flowpipes.jl")
 include("traces.jl")
