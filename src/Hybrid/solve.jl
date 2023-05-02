@@ -36,7 +36,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     time_span0 = time_span
     # get the continuous post or find a default one
     cpost = _get_cpost(ivp_distributed, args...; kwargs...)
-    if cpost == nothing
+    if isnothing(cpost)
         cpost = _default_cpost(ivp_distributed, time_span; kwargs...)
     end
 
@@ -248,7 +248,7 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
     # we may be able to refactor this option, / ad an in-place _distribute
     # as this option is only used for storing (eventually overapproximating)
     # the new waiting list elements
-    if intersection_method != nothing
+    if !isnothing(intersection_method)
         STwl = setrep(intersection_method)
         X0 = _overapproximate(X0, STwl)
     else
@@ -335,7 +335,7 @@ function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{M, ST}}};
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
-    if intersection_method != nothing
+    if !isnothing(intersection_method)
         STwl = setrep(intersection_method)
         X0vec = [(X0i[1], _overapproximate(X0i[2], STwl)) for X0i in X0vec]
     else
@@ -365,7 +365,7 @@ function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{ST, M}}};
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
-    if intersection_method != nothing
+    if !isnothing(intersection_method)
         STwl = setrep(intersection_method)
         X0vec = [(_overapproximate(X0i[1], STwl), X0i[2]) for X0i in X0vec]
     else

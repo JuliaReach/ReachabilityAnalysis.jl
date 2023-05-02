@@ -19,9 +19,9 @@ const K₁mc = K₁/mc
 const K₂mc = K₂/mc
 
 function mymul!(v, A, x)
-    @inbounds for ind = 1:length(v)
+    @inbounds for ind = eachindex(v)
         v[ind] = zero(x[1])
-        for jind = 1:length(x)
+        for jind = eachindex(x)
             v[ind] += A[ind, jind] * x[jind]
         end
     end
@@ -274,4 +274,3 @@ for k in 2:length(idx_aborting)
 end
 
 fig
-

@@ -105,7 +105,7 @@ For example, the number of reach-sets can be obtained using `length` (more gener
 length(sol)
 ```
 
-Solutions implement the array interface hence it is possible to index them: 
+Solutions implement the array interface hence it is possible to index them:
 ```@example nonlinear_univariate
 # first reach-set of the flowpipe
 sol[1]
@@ -116,7 +116,7 @@ The associated time span can be obtained with [`tspan`](@ref):
 # time span of this reach-set
 tspan(sol[1])
 ```
-Similarly we can print the last reach-set: 
+Similarly we can print the last reach-set:
 ```@example nonlinear_univariate
 sol[end]
 ```

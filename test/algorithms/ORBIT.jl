@@ -10,8 +10,8 @@ using LazySets: _isapprox
     sol = solve(prob, tspan=(0.0, 20.0), alg=ORBIT(δ=δ));
 
     # check result
-    @test sum((set(sol[k]).element[1] - cos(δ * (k-1)))^2 for k in 1:length(sol)) < eps(Float64)
-    @test sum((set(sol[k]).element[2] + sin(δ * (k-1)))^2 for k in 1:length(sol)) < eps(Float64)
+    @test sum((set(sol[k]).element[1] - cos(δ * (k-1)))^2 for k in eachindex(sol)) < eps(Float64)
+    @test sum((set(sol[k]).element[2] + sin(δ * (k-1)))^2 for k in eachindex(sol)) < eps(Float64)
 
     # test number of steps
     sol = solve(prob, tspan=(0.0, 3δ), alg=ORBIT(δ=δ));
@@ -35,6 +35,6 @@ using LazySets: _isapprox
     U = forced_oscillator_solution()
     U1 = k -> U((k-1) * δ)[1]
     U2 = k -> U((k-1) * δ)[2]
-    @test sum((set(sol[k]).element[1] - U1(k))^2 for k in 1:length(sol)) < eps(Float64)
-    @test sum((set(sol[k]).element[2] - U2(k))^2 for k in 1:length(sol)) < eps(Float64)
+    @test sum((set(sol[k]).element[1] - U1(k))^2 for k in eachindex(sol)) < eps(Float64)
+    @test sum((set(sol[k]).element[2] - U2(k))^2 for k in eachindex(sol)) < eps(Float64)
 end

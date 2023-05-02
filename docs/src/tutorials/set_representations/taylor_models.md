@@ -7,7 +7,6 @@ CurrentModule = ReachabilityAnalysis
 
 ## Taylor models
 
-
 ```@example
 #=
 using ReachabilityAnalysis, Plots

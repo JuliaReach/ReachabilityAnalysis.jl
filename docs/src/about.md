@@ -21,17 +21,21 @@ lookup, e.g. `mforets/7`.
 
 ### Unit testing and continuous integration (CI)
 
-This project is synchronized with Travis CI, such that each PR gets tested
+This project is synchronized with GitHub Actions such that each PR gets tested
 before merging (and the build is automatically triggered after each new commit).
-For the maintainability of this project, it is important to understand and fix the
-failing tests if they exist. We support Julia v1.0 and develop in the latest stable release.
-For experimentation we also build on the nightly branch.
+For the maintainability of this project, it is important to make all unit tests
+pass.
 
-To run the unit tests locally, you should do:
+To run the unit tests locally, you can do:
 
 ```julia
-$ julia --color=yes test/runtests.jl
+julia> using Pkg
+
+julia> Pkg.test("ReachabilityAnalysis")
 ```
+
+We also advise adding new unit tests when adding new features to ensure
+long-term support of your contributions.
 
 ### Contributing to the documentation
 
@@ -39,6 +43,6 @@ This documentation is written in Markdown, and it relies on
 [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) to produce the HTML
 layout. To build the documentation, run `make.jl`:
 
-```julia
+```bash
 $ julia --color=yes docs/make.jl
 ```
