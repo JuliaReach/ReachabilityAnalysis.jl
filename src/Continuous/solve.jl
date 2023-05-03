@@ -3,7 +3,7 @@
 # ======================================
 
 const AbstractContinuousSystem_ = AbstractContinuousSystem # to trick the linter
- 
+
 """
     solve(ivp::IVP{<:AbstractContinuousSystem}, tspan, alg; kwargs...)
 
@@ -86,7 +86,7 @@ function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuo
     _check_dim(ivp)
     tspan = _get_tspan(args...; kwargs...)
     cpost = _get_cpost(ivp, args...; kwargs...)
-    if cpost == nothing
+    if isnothing(cpost)
         cpost = _default_cpost(ivp, tspan; kwargs...)
     end
 

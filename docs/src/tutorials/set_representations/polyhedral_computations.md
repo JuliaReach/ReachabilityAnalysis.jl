@@ -17,4 +17,4 @@ Computing with concrete polyhedra in high dimensions is generally expensive. In 
 
 - Taking linear maps of sets in vertex representation, $MX$. This operation requires to map each vertex of $X$ under the transformation $M$. Linear transformations can also be done efficiently in constraint representation provided that the matrix $M$ is invertible. LazySets handles other cases ($M$ not invertible, and the sets either in constraint or in vertex representation), but they are generally expensive in high dimensions. However, using specific classes of sets (e.g. zonotopes).
 
-- 
+-

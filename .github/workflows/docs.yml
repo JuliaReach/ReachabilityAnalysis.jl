@@ -9,6 +9,9 @@ on:
       - master
     tags: '*'
   pull_request:
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
 
 jobs:
   build:
@@ -17,11 +20,11 @@ jobs:
       JULIA_PKG_SERVER: ''
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Julia
         uses: julia-actions/setup-julia@latest
         with:
-          version: 1.8
+          version: '1'
       - name: Install dependencies
         run: |
           julia --project=docs/ -e 'using Pkg;

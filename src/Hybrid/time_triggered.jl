@@ -52,7 +52,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 
     # get the continuous post or find a default one
     alg = _get_cpost(ivp, args...; kwargs...)
-    if alg == nothing
+    if isnothing(alg)
         alg = _default_cpost(ivp, tsp; kwargs...)
     end
 

@@ -46,7 +46,7 @@ using ReachabilityAnalysis, Polyhedra, CDDLib
 
 # ... define model ...
 # prob = @ivp(...)
-alg = VREP(δ=1e-3, static=true, dim=4, backend=CDDLib.Library()))
+alg = VREP(δ=1e-3, static=true, dim=4, backend=CDDLib.Library())
 solve(prob, tspan=(0.0, 1.0), alg=alg)
 ```
 Other backends are available e.g. [QHull.jl](https://github.com/JuliaPolyhedra/QHull.jl/).

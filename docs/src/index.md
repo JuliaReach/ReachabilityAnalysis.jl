@@ -62,6 +62,6 @@ The library can handle uncertainties in the sets of initial states, inputs, or p
 You can easily install `ReachabilityAnalysis.jl` from your Julia console
 (press `]` in the Julia REPL to enter the `pkg>` mode):
 
-```julia
+```
 pkg> add ReachabilityAnalysis
 ```
