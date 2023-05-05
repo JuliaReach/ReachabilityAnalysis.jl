@@ -49,7 +49,7 @@ In this fallback implementation, the flowpipe behaves like the union of the
 reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
 """
 function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
-    return map(Ri -> ρ(d, set(Ri)), array(fp)) |> maximum
+    return maximum(map(Ri -> ρ(d, set(Ri)), array(fp)))
 end
 
 """
@@ -85,7 +85,8 @@ end
 An integer representing the ambient dimension of the flowpipe.
 """
 function LazySets.dim(fp::AbstractFlowpipe)
-    length(fp) > 0 || throw(ArgumentError("the dimension is not defined because this flowpipe is empty"))
+    length(fp) > 0 ||
+        throw(ArgumentError("the dimension is not defined because this flowpipe is empty"))
     return dim(first(fp)) # assumes that the first set is representative
 end
 
@@ -235,13 +236,22 @@ Base.getindex(fp::AbstractFlowpipe, I::AbstractVector) = getindex(array(fp), I)
 # ------------------------------
 
 # interface
-isdisjoint(F1::AbstractFlowpipe, F2::AbstractFlowpipe, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> isdisjoint(F1, X, method), array(F2))
-@commutative isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+function isdisjoint(F1::AbstractFlowpipe, F2::AbstractFlowpipe,
+                    method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return all(X -> isdisjoint(F1, X, method), array(F2))
+end
+@commutative function isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet,
+                                 method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return all(X -> _is_intersection_empty(X, Y, method), array(F))
+end
 
 # flowpipe and vector of reach-sets TODO
 
 # internal
-_is_intersection_empty(F::AbstractFlowpipe, Y::SetOrReachSet, method::AbstractDisjointnessMethod) = all(X -> _is_intersection_empty(X, Y, method), array(F))
+function _is_intersection_empty(F::AbstractFlowpipe, Y::SetOrReachSet,
+                                method::AbstractDisjointnessMethod)
+    return all(X -> _is_intersection_empty(X, Y, method), array(F))
+end
 
 # ------------------------------
 # Methods to check inclusion

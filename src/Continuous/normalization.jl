@@ -31,13 +31,13 @@ ishybridsystem(T::Type{<:HybridSystem}) = true
 
 # systems that are second order
 function is_second_order(::ST) where {ST<:AbstractContinuousSystem}
-    ST <: SOLCS || ST <: SOACS || ST <: SOCLCCS || ST <: SOCACCS
+    return ST <: SOLCS || ST <: SOACS || ST <: SOCLCCS || ST <: SOCACCS
 end
 
 #export LCS, LDS, CLCS, CLDS, CLCCS, CLCDS, CACCS, CACDS, CACS, CADS, IVP, BBCS,
 #       CBBCS, CBBCCS
 
-*(M::AbstractMatrix, input::ConstantInput) =  ConstantInput(M * input.U)
+*(M::AbstractMatrix, input::ConstantInput) = ConstantInput(M * input.U)
 
 # convenience functions
 next_set(inputs::ConstantInput) = collect(nextinput(inputs, 1))[1]
@@ -80,7 +80,7 @@ julia> add_dimension(A, 2)
 """
 function add_dimension(A::AbstractMatrix, m=1)
     n = size(A, 1)
-    return vcat(hcat(A, zeros(n, m)), zeros(m, n+m))
+    return vcat(hcat(A, zeros(n, m)), zeros(m, n + m))
 end
 
 """
@@ -134,7 +134,7 @@ function add_dimension(X::LazySet, m=1)
 end
 
 function add_dimension(X::ZeroSet, m=1)
-    return ZeroSet(dim(X)+m)
+    return ZeroSet(dim(X) + m)
 end
 
 """
@@ -223,10 +223,10 @@ function add_dimension(cs, m=1)
 end
 
 # accepted types of non-deterministic inputs (non-canonical form)
-const UNCF{N} = Union{<:LazySet{N}, Vector{<:LazySet{N}}, <:AbstractInput} where {N}
+const UNCF{N} = Union{<:LazySet{N},Vector{<:LazySet{N}},<:AbstractInput} where {N}
 
 # accepted types for the state constraints (non-canonical form)
-const XNCF{N} = Union{<:LazySet{N}, Nothing} where {N}
+const XNCF{N} = Union{<:LazySet{N},Nothing} where {N}
 
 """
     normalize(system::AbstractSystem)
@@ -309,13 +309,13 @@ function normalize(ivp::InitialValueProblem)
 end
 
 # "black-box" like systems are not normalized; algorithms should handle this
-normalize(S::Union{BBCS, CBBCS, CBBCCS}) = S
+normalize(S::Union{BBCS,CBBCS,CBBCCS}) = S
 
 # x' = Ax, in the continuous case
 # x+ = Ax, in the discrete case
 for (L_S, CL_S) in ((:LCS, :CLCS), (:LDS, :CLDS))
     @eval begin
-        function normalize(system::$L_S{N, AN}) where {N, AN<:AbstractMatrix{N}}
+        function normalize(system::$L_S{N,AN}) where {N,AN<:AbstractMatrix{N}}
             n = statedim(system)
             X = Universe(n)
             return $CL_S(state_matrix(system), X)
@@ -327,7 +327,7 @@ end
 # x+ = Ax, x ∈ X in the discrete case
 for CL_S in (:CLCS, :CLDS)
     @eval begin
-        function normalize(system::$CL_S{N, AN, XT}) where {N, AN<:AbstractMatrix{N}, M, XT<:XNCF{M}}
+        function normalize(system::$CL_S{N,AN,XT}) where {N,AN<:AbstractMatrix{N},M,XT<:XNCF{M}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             return $CL_S(state_matrix(system), X)
@@ -339,11 +339,13 @@ end
 # x+ = Ax + Bu, x ∈ X, u ∈ U in the discrete case
 for CLC_S in (:CLCCS, :CLCDS)
     @eval begin
-        function normalize(system::$CLC_S{N, AN, BN, XT, UT}) where {N, AN<:AbstractMatrix{N}, NN, BN<:AbstractMatrix{NN}, M, XT<:XNCF{M}, UT<:UNCF{M}}
+        function normalize(system::$CLC_S{N,AN,BN,XT,UT}) where {N,AN<:AbstractMatrix{N},NN,
+                                                                 BN<:AbstractMatrix{NN},M,
+                                                                 XT<:XNCF{M},UT<:UNCF{M}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system))
-            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
+            return $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
@@ -352,11 +354,12 @@ end
 # x+ = Ax + b, x ∈ X, u ∈ U in the discrete case
 for (CA_S, CLC_S) in ((:CACS, :CLCCS), (:CADS, :CLCDS))
     @eval begin
-        function normalize(system::$CA_S{N, AN, VN, XT}) where {N, AN<:AbstractMatrix{N}, VN<:AbstractVector{N}, XT<:XNCF{N}}
+        function normalize(system::$CA_S{N,AN,VN,XT}) where {N,AN<:AbstractMatrix{N},
+                                                             VN<:AbstractVector{N},XT<:XNCF{N}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(affine_term(system))
-            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
+            return $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
@@ -365,11 +368,12 @@ end
 # x+ = Ax + b in the discrete case
 for (A_S, CLC_S) in ((:ACS, :CLCCS), (:ADS, :CLCDS))
     @eval begin
-        function normalize(system::$A_S{N, AN, VN}) where {N, AN<:AbstractMatrix{N}, VN<:AbstractVector{N}}
+        function normalize(system::$A_S{N,AN,VN}) where {N,AN<:AbstractMatrix{N},
+                                                         VN<:AbstractVector{N}}
             n = statedim(system)
             X = Universe(n)
             U = _wrap_inputs(affine_term(system))
-            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
+            return $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
@@ -378,17 +382,20 @@ end
 # x+ = Ax + Bu + c, x ∈ X, u ∈ U in the discrete case
 for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
     @eval begin
-        function normalize(system::$CAC_S{N, AN, BN, VN, XT, UT}) where {N, AN<:AbstractMatrix{N}, BN<:AbstractMatrix{N}, VN<:AbstractVector{N}, XT<:XNCF{N}, UT<:UNCF{N}}
+        function normalize(system::$CAC_S{N,AN,BN,VN,XT,UT}) where {N,AN<:AbstractMatrix{N},
+                                                                    BN<:AbstractMatrix{N},
+                                                                    VN<:AbstractVector{N},
+                                                                    XT<:XNCF{N},UT<:UNCF{N}}
             n = statedim(system)
             X = _wrap_invariant(stateset(system), n)
             U = _wrap_inputs(inputset(system), input_matrix(system), affine_term(system))
-            $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
+            return $CLC_S(state_matrix(system), Id(n, one(N)), X, U)
         end
     end
 end
 
 # fix type inference
-function _normalize(ivp::IVP{LCS{N, IdentityMultiple{N}}, Interval{N, IA.Interval{N}}}) where {N}
+function _normalize(ivp::IVP{LCS{N,IdentityMultiple{N}},Interval{N,IA.Interval{N}}}) where {N}
     return IVP(CLCS(ivp.s.A, Universe(1)), ivp.x0)
 end
 
@@ -408,15 +415,15 @@ end
 function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K; derivatives_last=true) where {N}
     n = size(M, 1)
     M⁻¹ = inv(Matrix(M))
-    Idn = Matrix(one(N)*I, n, n)
+    Idn = Matrix(one(N) * I, n, n)
     Zn = zeros(N, n, n)
 
     if derivatives_last
-        A = [Zn       Idn   ;
-             -M⁻¹*K   -M⁻¹*C]
+        A = [Zn Idn;
+             -M⁻¹*K -M⁻¹*C]
     else
-        A = [-M⁻¹*C   -M⁻¹*K;
-             Idn          Zn]
+        A = [-M⁻¹*C -M⁻¹*K;
+             Idn Zn]
     end
     return A, M⁻¹
 end
@@ -440,9 +447,9 @@ function normalize(system::SOACS{N}; derivatives_last=true) where {N}
 
     b = affine_term(system)
     if derivatives_last
-        c = vcat(zeros(N, n), M⁻¹*b)
+        c = vcat(zeros(N, n), M⁻¹ * b)
     else
-        c = vcat(M⁻¹*b, zeros(N, n))
+        c = vcat(M⁻¹ * b, zeros(N, n))
     end
 
     return normalize(ACS(A, c))
@@ -459,9 +466,9 @@ function normalize(system::SOCLCCS{N}; derivatives_last=true) where {N}
 
     A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
     if derivatives_last
-        B̃ = vcat(zeros(N, n), M⁻¹*B)
+        B̃ = vcat(zeros(N, n), M⁻¹ * B)
     else
-        B̃ = vcat(M⁻¹*B, zeros(N, n))
+        B̃ = vcat(M⁻¹ * B, zeros(N, n))
     end
     return normalize(CLCCS(A, B̃, X, U))
 end
@@ -479,11 +486,11 @@ function normalize(system::SOCACCS{N}; derivatives_last=true) where {N}
     A, M⁻¹ = _second_order_linear_matrix(M, C, K; derivatives_last=derivatives_last)
 
     if derivatives_last
-        B̃ = vcat(zeros(N, n), M⁻¹*B)
-        d̃ = vcat(zeros(N, n), M⁻¹*d)
+        B̃ = vcat(zeros(N, n), M⁻¹ * B)
+        d̃ = vcat(zeros(N, n), M⁻¹ * d)
     else
-        B̃ = vcat(M⁻¹*B, zeros(N, n))
-        d̃ = vcat(M⁻¹*d, zeros(N, n))
+        B̃ = vcat(M⁻¹ * B, zeros(N, n))
+        d̃ = vcat(M⁻¹ * d, zeros(N, n))
     end
     return normalize(CACCS(A, B̃, X, U, d̃))
 end
@@ -495,35 +502,54 @@ end
 _wrap_invariant(X::LazySet, n::Int) = X
 _wrap_invariant(X::Nothing, n::Int) = Universe(n)
 
-_wrap_inputs(U::AbstractInput, B::IdentityMultiple) = isidentity(B) ? U : map(u -> B*u, U)
-_wrap_inputs(U::AbstractInput, B::AbstractMatrix) = map(u -> B*u, U)
+_wrap_inputs(U::AbstractInput, B::IdentityMultiple) = isidentity(B) ? U : map(u -> B * u, U)
+_wrap_inputs(U::AbstractInput, B::AbstractMatrix) = map(u -> B * u, U)
 
-_wrap_inputs(U::LazySet, B::IdentityMultiple) = isidentity(B) ? ConstantInput(U) : ConstantInput(B*U)
-_wrap_inputs(U::LazySet, B::AbstractMatrix) = ConstantInput(B*U)
+function _wrap_inputs(U::LazySet, B::IdentityMultiple)
+    return isidentity(B) ? ConstantInput(U) : ConstantInput(B * U)
+end
+_wrap_inputs(U::LazySet, B::AbstractMatrix) = ConstantInput(B * U)
 
-_wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple) = isidentity(B) ? VaryingInput(U) : VaryingInput(map(u -> B*u, U))
-_wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix) = VaryingInput(map(u -> B*u, U))
+function _wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple)
+    return isidentity(B) ? VaryingInput(U) : VaryingInput(map(u -> B * u, U))
+end
+_wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix) = VaryingInput(map(u -> B * u, U))
 
-_wrap_inputs(U::AbstractInput, B::IdentityMultiple, c::AbstractVector) = isidentity(B) ? map(u -> u ⊕ c, U) : map(u -> B*u ⊕ c, U)
-_wrap_inputs(U::AbstractInput, B::AbstractMatrix, c::AbstractVector) = map(u -> B*u ⊕ c, U)
+function _wrap_inputs(U::AbstractInput, B::IdentityMultiple, c::AbstractVector)
+    return isidentity(B) ? map(u -> u ⊕ c, U) : map(u -> B * u ⊕ c, U)
+end
+_wrap_inputs(U::AbstractInput, B::AbstractMatrix, c::AbstractVector) = map(u -> B * u ⊕ c, U)
 
-_wrap_inputs(U::LazySet, B::IdentityMultiple, c::AbstractVector) = isidentity(B) ? ConstantInput(U ⊕ c) : ConstantInput(B*U ⊕ c)
-_wrap_inputs(U::LazySet, B::AbstractMatrix, c::AbstractVector) = ConstantInput(B*U ⊕ c)
+function _wrap_inputs(U::LazySet, B::IdentityMultiple, c::AbstractVector)
+    return isidentity(B) ? ConstantInput(U ⊕ c) : ConstantInput(B * U ⊕ c)
+end
+_wrap_inputs(U::LazySet, B::AbstractMatrix, c::AbstractVector) = ConstantInput(B * U ⊕ c)
 
-_wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple, c::AbstractVector) = isidentity(B) ? VaryingInput(map(u -> u ⊕ c, U)) : VaryingInput(map(u -> B*u ⊕ c, U))
-_wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector) = VaryingInput(map(u -> B*u ⊕ c, U))
+function _wrap_inputs(U::Vector{<:LazySet}, B::IdentityMultiple, c::AbstractVector)
+    return isidentity(B) ? VaryingInput(map(u -> u ⊕ c, U)) : VaryingInput(map(u -> B * u ⊕ c, U))
+end
+function _wrap_inputs(U::Vector{<:LazySet}, B::AbstractMatrix, c::AbstractVector)
+    return VaryingInput(map(u -> B * u ⊕ c, U))
+end
 
 _wrap_inputs(c::AbstractVector) = ConstantInput(Singleton(c))
 
 # special cases for interval systems
-function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{IT}, B::SparseMatrixCSC, X::XT, U::UT) where {XT, UT, IT<:IA.Interval}
-    CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
+function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{IT},
+                                                                      B::SparseMatrixCSC, X::XT,
+                                                                      U::UT) where {XT,UT,
+                                                                                    IT<:IA.Interval}
+    return CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
 end
-function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{IT}, B::Matrix{IT}, X::XT, U::UT) where {XT, UT, IT<:IA.Interval}
-    CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
+function MathematicalSystems.ConstrainedLinearControlContinuousSystem(A::Matrix{IT}, B::Matrix{IT},
+                                                                      X::XT,
+                                                                      U::UT) where {XT,UT,
+                                                                                    IT<:IA.Interval}
+    return CLCCS(IntervalMatrix(A), IntervalMatrix(B), X, U)
 end
-function MathematicalSystems.ConstrainedLinearControlDiscreteSystem(A::IntervalMatrix, B::Matrix, X::XT, U::UT) where {XT, UT}
-    CLCDS(A, IntervalMatrix(B), X, U)
+function MathematicalSystems.ConstrainedLinearControlDiscreteSystem(A::IntervalMatrix, B::Matrix,
+                                                                    X::XT, U::UT) where {XT,UT}
+    return CLCDS(A, IntervalMatrix(B), X, U)
 end
 
 # ==========================================================
@@ -573,10 +599,15 @@ _normalize_initial_state(ivp, X0::AbstractVector) = Singleton(X0)
 _normalize_initial_state(ivp, X0::IA.Interval) = convert(Interval, X0)
 _normalize_initial_state(ivp, X0::IA.IntervalBox) = convert(Hyperrectangle, X0)
 _normalize_initial_state(ivp, X0::Number) = Singleton([X0])
-_normalize_initial_state(ivp::IVP{<:SecondOrderSystem}, X0::Tuple{<:AbstractVector, <:AbstractVector}) = Singleton(vcat(X0[1], X0[2]))
-_normalize_initial_state(ivp::IVP{<:SecondOrderSystem}, X0::Tuple{<:LazySet, <:LazySet}) = X0[1] × X0[2]
+function _normalize_initial_state(ivp::IVP{<:SecondOrderSystem},
+                                  X0::Tuple{<:AbstractVector,<:AbstractVector})
+    return Singleton(vcat(X0[1], X0[2]))
+end
+function _normalize_initial_state(ivp::IVP{<:SecondOrderSystem}, X0::Tuple{<:LazySet,<:LazySet})
+    return X0[1] × X0[2]
+end
 
-const CanonicalLinearContinuousSystem = Union{CLCS, CLCCS}
+const CanonicalLinearContinuousSystem = Union{CLCS,CLCCS}
 
 function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractLinearContinuousSystem})
 

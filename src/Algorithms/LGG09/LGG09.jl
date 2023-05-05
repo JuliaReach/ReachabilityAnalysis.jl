@@ -45,7 +45,7 @@ This is an implementation of the algorithm from [[LGG09]](@ref).
 
 These methods are described at length in the dissertation [[LG09]](@ref).
 """
-struct LGG09{N, AM, VN, TN<:AbstractDirections{N, VN}, S, VA} <: AbstractContinuousPost
+struct LGG09{N,AM,VN,TN<:AbstractDirections{N,VN},S,VA} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     template::TN
@@ -58,7 +58,7 @@ end
 
 # convenience constructor using symbols
 function LGG09(; δ::N,
-               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
+               approx_model::AM=Forward(; sih=:concrete, exp=:base, setops=:lazy),
                template=nothing,
                dirs=nothing, # alias for template
                vars=missing, # shortcut to specify variables of interest
@@ -67,8 +67,7 @@ function LGG09(; δ::N,
                static::Bool=false,
                threaded::Bool=false,
                sparse::Bool=false,
-               cache::Bool=true) where {N, AM}
-
+               cache::Bool=true) where {N,AM}
     got_vars = !ismissing(vars)
 
     _n = missing
@@ -107,7 +106,9 @@ end
 
 _get_template(template::AbstractDirections) = template
 _get_template(template::AbstractVector{N}) where {N<:Number} = CustomDirections([template])
-_get_template(template::AbstractVector{VT}) where {N<:Number, VT<:AbstractVector{N}} = CustomDirections(template)
+function _get_template(template::AbstractVector{VT}) where {N<:Number,VT<:AbstractVector{N}}
+    return CustomDirections(template)
+end
 
 _get_template(template::Symbol, n::Int) = _get_template(Val(template), n)
 _get_template(::Val{:box}, n) = BoxDirections(n)
@@ -115,17 +116,16 @@ _get_template(::Val{:oct}, n) = OctDirections(n)
 
 _get_template(vars::Int, n::Int) = _get_template((vars,), n)
 
-
 function _get_template(vars::VecOrTuple, n::Int)
     m = length(vars)
     @assert m ≤ n "the number of variables should not exceed `n`"
-    dirs = Vector{SingleEntryVector{Float64}}(undef, 2*m)
+    dirs = Vector{SingleEntryVector{Float64}}(undef, 2 * m)
 
     @inbounds for (i, vi) in enumerate(vars)
         d₊ = SingleEntryVector(vi, n, 1.0)
         d₋ = SingleEntryVector(vi, n, -1.0)
         dirs[i] = d₊
-        dirs[i+m] = d₋
+        dirs[i + m] = d₋
     end
     return CustomDirections(dirs, n)
 end
@@ -134,9 +134,9 @@ step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
 setrep(alg::LGG09) = setrep(alg.template)
 
-function rsetrep(alg::LGG09{N, AM, VN, TN}) where {N, AM, VN, TN}
-    SN = SubArray{N, 1, Matrix{N}, Tuple{Base.Slice{Base.OneTo{Int}}, Int}, true}
-    return TemplateReachSet{N, VN, TN, SN}
+function rsetrep(alg::LGG09{N,AM,VN,TN}) where {N,AM,VN,TN}
+    SN = SubArray{N,1,Matrix{N},Tuple{Base.Slice{Base.OneTo{Int}},Int},true}
+    return TemplateReachSet{N,VN,TN,SN}
 end
 
 include("reach_homog.jl")

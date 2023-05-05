@@ -65,24 +65,25 @@ function solve(ivp::IVP{<:AbstractContinuousSystem_}, args...; kwargs...)
 
     # optionally compute ensemble simulations
     got_ensemble = get(kwargs, :ensemble, false)
-    dict = Dict{Symbol,Any}(:ensemble=>nothing)
+    dict = Dict{Symbol,Any}(:ensemble => nothing)
     if got_ensemble
         @requires DifferentialEquations
         ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
         dict[:ensemble] = ensemble_sol
     end
 
-    _solve_return(ivp, F, cpost, dict, args...; kwargs...)
+    return _solve_return(ivp, F, cpost, dict, args...; kwargs...)
 end
 
 # wrap the flowpipe and algorithm in a solution structure
 function _solve_return(ivp::IVP{<:AbstractContinuousSystem}, F, cpost, dict, args...; kwargs...)
-    sol = ReachSolution(F, cpost, dict)
+    return sol = ReachSolution(F, cpost, dict)
 end
 
 # solve for distributed initial conditions; uses multi-threaded implementation by default
-function solve(ivp::IVP{AT, VT}, args...; kwargs...) where {AT<:AbstractContinuousSystem,
-                                                            ST<:Union{LazySet, IntervalBox}, VT<:AbstractVector{ST}}
+function solve(ivp::IVP{AT,VT}, args...;
+               kwargs...) where {AT<:AbstractContinuousSystem,
+                                 ST<:Union{LazySet,IntervalBox},VT<:AbstractVector{ST}}
     _check_dim(ivp)
     tspan = _get_tspan(args...; kwargs...)
     cpost = _get_cpost(ivp, args...; kwargs...)
@@ -105,7 +106,7 @@ end
 
 function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...)
     nsets = length(X0)
-    FT = Flowpipe{numtype(cpost), rsetrep(cpost)} # TODO add third parameter
+    FT = Flowpipe{numtype(cpost),rsetrep(cpost)} # TODO add third parameter
     sol_tot = Vector{FT}(undef, nsets)
 
     Threads.@threads for i in 1:length(X0)
@@ -133,7 +134,7 @@ Abstract supertype of all continuous post operators.
 """
 abstract type AbstractContinuousPost <: AbstractPost end
 
-setrep(::InitialValueProblem{HS, ST}) where {HS, ST} = ST
+setrep(::InitialValueProblem{HS,ST}) where {HS,ST} = ST
 
 # ==================
 # Argument handling
@@ -141,21 +142,22 @@ setrep(::InitialValueProblem{HS, ST}) where {HS, ST} = ST
 
 # extend dimension for common IntervalArithmetic types
 LazySets.dim(::IA.Interval) = 1
-LazySets.dim(::IA.IntervalBox{D, N}) where {D, N} = D
+LazySets.dim(::IA.IntervalBox{D,N}) where {D,N} = D
 
 # lazy sets (or sets that behave like such -- TODO update once UnionSet <: LazySet)
-_dim(X::Union{<:LazySet, <:IA.Interval, <:IA.IntervalBox, <:UnionSet, <:UnionSetArray}) = dim(X)
+_dim(X::Union{<:LazySet,<:IA.Interval,<:IA.IntervalBox,<:UnionSet,<:UnionSetArray}) = dim(X)
 
 # singleton elements
 _dim(X::Number) = 1
 _dim(X::AbstractVector{N}) where {N<:Number} = length(X)
 
 # vector of sets
-function  _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
-                <:IA.Interval, <:IA.IntervalBox, <:UnionSet, <:UnionSetArray}}
+function _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
+                                                      <:IA.Interval,<:IA.IntervalBox,<:UnionSet,
+                                                      <:UnionSetArray}}
     n = _dim(first(X))
-    all(X -> _dim(X) == n, X)  || throw(ArgumentError("dimension mismatch between " *
-            "the initial sets in this array; expected only sets of dimension $n"))
+    all(X -> _dim(X) == n, X) || throw(ArgumentError("dimension mismatch between " *
+                                                     "the initial sets in this array; expected only sets of dimension $n"))
     return n
 end
 
@@ -174,8 +176,8 @@ function _check_dim(S, X0; throw_error::Bool=true)
     return false
 end
 
-_dim(X0::Tuple{VT, VT}) where {N, VT<:AbstractVector{N}} = length(X0[1]) + length(X0[2])
-_dim(X0::Tuple{<:LazySet{N}, <:LazySet{N}}) where {N} = dim(X0[1]) + dim(X0[2])
+_dim(X0::Tuple{VT,VT}) where {N,VT<:AbstractVector{N}} = length(X0[1]) + length(X0[2])
+_dim(X0::Tuple{<:LazySet{N},<:LazySet{N}}) where {N} = dim(X0[1]) + dim(X0[2])
 
 function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
                              SecondOrderAffineContinuousSystem,
@@ -184,7 +186,7 @@ function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
                     X0; throw_error::Bool=true)
     n = statedim(S)
     d = _dim(X0)
-    d == 2*n && return true
+    d == 2 * n && return true
 
     if throw_error
         throw(ArgumentError("the dimension of the initial state should be " *
@@ -197,12 +199,12 @@ end
 function _check_dim(ivp::InitialValueProblem{<:AbstractContinuousSystem}; throw_error::Bool=true)
     S = system(ivp)
     X0 = initial_state(ivp)
-    _check_dim(S, X0, throw_error=throw_error)
+    return _check_dim(S, X0; throw_error=throw_error)
 end
 
 # promotion from tuple-like arguments
-@inline _promote_tspan((t1, t2)::Tuple{T, T}) where {T} = TimeInterval(t1, t2)
-@inline _promote_tspan((t1, t2)::Tuple{T, S}) where {T, S} = TimeInterval(promote(t1, t2))
+@inline _promote_tspan((t1, t2)::Tuple{T,T}) where {T} = TimeInterval(t1, t2)
+@inline _promote_tspan((t1, t2)::Tuple{T,S}) where {T,S} = TimeInterval(promote(t1, t2))
 
 # no-op, corresponds to (inf(tspan), sup(tspan))
 @inline _promote_tspan(tspan::IA.Interval) = tspan
@@ -228,18 +230,18 @@ function _get_tspan(args...; kwargs...)
     # throw error for repeated arguments
     if got_tspan && got_T
         throw(ArgumentError("cannot parse the time horizon `T` and the " *
-            "time span `tspan` simultaneously; use one or the other"))
+                            "time span `tspan` simultaneously; use one or the other"))
     elseif got_tspan && got_NSTEPS
         throw(ArgumentError("cannot parse the time span `tspan` and the " *
-            "number of steps `NSTEPS` simultaneously; use one or the other"))
+                            "number of steps `NSTEPS` simultaneously; use one or the other"))
     elseif got_T && got_NSTEPS
         throw(ArgumentError("cannot parse the time horizon `T` and the " *
-            "number of steps `NSTEPS` simultaneously; use one or the other"))
+                            "number of steps `NSTEPS` simultaneously; use one or the other"))
     end
 
     # parse time span
     if got_tspan
-        tspan =_promote_tspan(kwargs[:tspan])
+        tspan = _promote_tspan(kwargs[:tspan])
 
     elseif got_T
         tspan = _promote_tspan(kwargs[:T])
@@ -250,15 +252,15 @@ function _get_tspan(args...; kwargs...)
     elseif !isempty(args) && applicable(_promote_tspan, args[1])
         # applies to tuples, vectors, LazySets.Interval, IA.Interval, and numbers
         tspan = _promote_tspan(args[1])
-#=
-        (args[1] isa Tuple{Float64, Float64} || # time span given as tuple
-                              args[1] isa Vector{Float64}         || # time span given as vector
-                              args[1] isa Interval ||  # time span given as LazySets.Interval
-                              args[1] isa IntervalArithmetic.Interval || # time span given as IA.Interval
-                              args[1] isa Real) # got time horizon as first argument
-=#
+        #=
+                (args[1] isa Tuple{Float64, Float64} || # time span given as tuple
+                                      args[1] isa Vector{Float64}         || # time span given as vector
+                                      args[1] isa Interval ||  # time span given as LazySets.Interval
+                                      args[1] isa IntervalArithmetic.Interval || # time span given as IA.Interval
+                                      args[1] isa Real) # got time horizon as first argument
+        =#
 
-    elseif  haskey(kwargs, :max_jumps)
+    elseif haskey(kwargs, :max_jumps)
         # got maximum number of jumps, applicable to hybrid systems
         tspan = emptyinterval()
 
@@ -305,7 +307,7 @@ function _get_cpost(ivp, args...; kwargs...)
     elseif got_opC
         cpost = kwargs[:opC]
 
-    # check if either args[1] or args[2] are the post
+        # check if either args[1] or args[2] are the post
     elseif !no_args && typeof(args[1]) <: AbstractContinuousPost
         cpost = args[1]
     elseif !no_args && length(args) == 2 && typeof(args[2]) <: AbstractContinuousPost
@@ -313,7 +315,7 @@ function _get_cpost(ivp, args...; kwargs...)
     elseif !no_args && length(args) > 2
         throw(ArgumentError("the number of arguments, $(length(args)), is not valid"))
 
-    # no algorithm found => compute default
+        # no algorithm found => compute default
     else
         cpost = nothing
     end
@@ -344,13 +346,13 @@ function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, tspan; kwargs
             δ = diam(tspan) / DEFAULT_NSTEPS
         end
         if statedim(S) == 1 && !is_second_order(S)
-            opC = INT(δ=δ)
+            opC = INT(; δ=δ)
         else
             static = haskey(kwargs, :static) ? kwargs[:static] : false
             if ishybrid || !(X0 isa AbstractZonotope)
-                opC = GLGM06(δ=δ, static=static, approx_model=Forward())
+                opC = GLGM06(; δ=δ, static=static, approx_model=Forward())
             else
-                opC = GLGM06(δ=δ, static=static)
+                opC = GLGM06(; δ=δ, static=static)
             end
         end
     else
@@ -374,7 +376,7 @@ function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, tspan; kwargs
             abstol = DEFAULT_ABS_TOL_TMJETS
         end
 
-        opC = TMJets(orderQ=orderQ, orderT=orderT, maxsteps=maxsteps, abstol=abstol)
+        opC = TMJets(; orderQ=orderQ, orderT=orderT, maxsteps=maxsteps, abstol=abstol)
     end
     return opC
 end
@@ -401,11 +403,11 @@ If the system is affine, then:
 If the system is not affine, then the algorithm `TMJets` is used.
 """
 function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
-    _default_cpost(system(ivp), initial_state(ivp), false, tspan; kwargs...)
+    return _default_cpost(system(ivp), initial_state(ivp), false, tspan; kwargs...)
 end
 
 # return a default algorithm, assuming that the first mode is representative
 function _default_cpost(ivp::IVP{<:AbstractHybridSystem}, tspan; kwargs...)
     first_mode = mode(system(ivp), 1)
-    _default_cpost(first_mode, initial_state(ivp), true, tspan; kwargs...)
+    return _default_cpost(first_mode, initial_state(ivp), true, tspan; kwargs...)
 end

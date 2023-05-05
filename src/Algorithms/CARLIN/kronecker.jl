@@ -6,7 +6,7 @@ using LinearAlgebra: checksquare
 
 # TODO refactor to CarlemanLinearization.jl
 import CarlemanLinearization: lift_vector
- 
+
 lift_vector(X0::IA.Interval, N) = lift_vector(Interval(X0), N)
 
 """
@@ -112,7 +112,7 @@ function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
 
     low_r = min.(r)
     high_r = max.(r)
-    return Hyperrectangle(low=low_r, high=high_r)
+    return Hyperrectangle(; low=low_r, high=high_r)
 end
 
 """
@@ -176,80 +176,78 @@ end
 # ------------------------------------------------------------
 
 function load_kron_dynamicpolynomials()
-return quote
+    return quote
+        function _kron_pow_symbolic(H::AbstractHyperrectangle{N}, pow::Int) where {N}
+            n = dim(H)
+            @polyvar x[1:n]
+            B = convert(IntervalBox, H)
+            dict = Dict((x[i] => i for i in 1:n)...)
+            y = kron_pow(x, pow)
 
-function _kron_pow_symbolic(H::AbstractHyperrectangle{N}, pow::Int) where {N}
-    n = dim(H)
-    @polyvar x[1:n]
-    B = convert(IntervalBox, H)
-    dict = Dict((x[i] => i for i in 1:n)...)
-    y = kron_pow(x, pow)
-
-    out = Vector{IA.Interval{N}}(undef, length(y))
-    for (i, p) in enumerate(y)
-        aux = interval(1)
-        for (xj, j) in powers(p)
-            aux = aux * B[dict[xj]]^j
+            out = Vector{IA.Interval{N}}(undef, length(y))
+            for (i, p) in enumerate(y)
+                aux = interval(1)
+                for (xj, j) in powers(p)
+                    aux = aux * B[dict[xj]]^j
+                end
+                out[i] = aux
+            end
+            Bpow = IntervalBox(out)
+            Hpow = convert(Hyperrectangle, Bpow)
+            return Hpow
         end
-        out[i] = aux
     end
-    Bpow = IntervalBox(out)
-    Hpow = convert(Hyperrectangle, Bpow)
-    return Hpow
-end
-
-end end  # quote / load_kron_dynamicpolynomials()
+end  # quote / load_kron_dynamicpolynomials()
 
 # ------------------------------------------------------------
 # Functionality that requires MultivariatePolynomials.jl
 # ------------------------------------------------------------
 
 function load_kron_multivariate()
-return quote
+    return quote
+        """
+            kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
 
-"""
-    kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
+        Compute the higher order concrete Kronecker power: `x ⊗ x ⊗ ... ⊗ x`, `pow` times
+        for a vector of symbolic monomials.
 
-Compute the higher order concrete Kronecker power: `x ⊗ x ⊗ ... ⊗ x`, `pow` times
-for a vector of symbolic monomials.
+        ### Input
 
-### Input
+        - `x`   -- polynomial variable
+        - `pow` -- integer
 
-- `x`   -- polynomial variable
-- `pow` -- integer
+        ### Output
 
-### Output
+        Vector of multivariate monomial corresponding to `x^{⊗ pow}`.
 
-Vector of multivariate monomial corresponding to `x^{⊗ pow}`.
+        ### Examples
 
-### Examples
+        ```julia
+        julia> using DynamicPolynomials
 
-```julia
-julia> using DynamicPolynomials
+        julia> @polyvar x[1:2]
+        (PolyVar{true}[x₁, x₂],)
 
-julia> @polyvar x[1:2]
-(PolyVar{true}[x₁, x₂],)
+        julia> x
+        2-element Array{PolyVar{true},1}:
+         x₁
+         x₂
 
-julia> x
-2-element Array{PolyVar{true},1}:
- x₁
- x₂
-
-julia> kron_pow(x, 2)
-4-element Array{Monomial{true},1}:
- x₁²
- x₁x₂
- x₁x₂
- x₂²
-```
-"""
-function kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
-    @assert pow > 0 "expected positive power, got $pow"
-    if pow == 1
-        return x
-    else
-        return kron(x, kron_pow(x, pow-1))
+        julia> kron_pow(x, 2)
+        4-element Array{Monomial{true},1}:
+         x₁²
+         x₁x₂
+         x₁x₂
+         x₂²
+        ```
+        """
+        function kron_pow(x::Vector{<:AbstractVariable}, pow::Int)
+            @assert pow > 0 "expected positive power, got $pow"
+            if pow == 1
+                return x
+            else
+                return kron(x, kron_pow(x, pow - 1))
+            end
+        end
     end
-end
-
-end end  # quote / load_kron_multivariate()
+end  # quote / load_kron_multivariate()

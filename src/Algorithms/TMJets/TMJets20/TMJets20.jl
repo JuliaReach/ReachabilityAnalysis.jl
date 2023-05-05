@@ -29,14 +29,14 @@ This algorithm is an adaptation of the implementation in `TaylorModels.jl`
 `TaylorIntegration.jl` is used for jet-transport of ODEs using the Taylor method,
 and `TaylorSeries.jl` is used to work with truncated Taylor series.
 """
-@with_kw struct TMJets20{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
-    orderQ::Int=DEFAULT_ORDER_Q_TMJETS
-    orderT::Int=DEFAULT_ORDER_T_TMJETS
-    abstol::N=DEFAULT_ABS_TOL_TMJETS
-    maxsteps::Int=DEFAULT_MAX_STEPS_TMJETS
-    adaptive::Bool=true
-    minabstol::N=1e-29
-    disjointness::DM=ZonotopeEnclosure()
+@with_kw struct TMJets20{N,DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
+    orderQ::Int = DEFAULT_ORDER_Q_TMJETS
+    orderT::Int = DEFAULT_ORDER_T_TMJETS
+    abstol::N = DEFAULT_ABS_TOL_TMJETS
+    maxsteps::Int = DEFAULT_MAX_STEPS_TMJETS
+    adaptive::Bool = true
+    minabstol::N = 1e-29
+    disjointness::DM = ZonotopeEnclosure()
 end
 
 const DEFAULT_MAX_STEPS_TMJETS = 2000

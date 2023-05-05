@@ -12,7 +12,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
                               U::LazySet,
                               Δt0::TimeInterval,
                               cache,
-                              threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                              threaded) where {N,VN,TN,SN,RT<:TemplateReachSet{N,VN,TN,SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -46,7 +46,8 @@ function _reach_inhomog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, U, dirs, NSTEPS, cache, 
     end
 end
 
-function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
+                                  NSTEPS, cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
@@ -62,7 +63,8 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ,
     return ρvec_ℓ
 end
 
-function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{false}) where {N}
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
+                                  NSTEPS, cache::Val{false}) where {N}
     rᵢ = copy(ℓ)
     sᵢ = zero(N)
 
@@ -76,7 +78,8 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ,
     return ρvec_ℓ
 end
 
-function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
+                                  NSTEPS, cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
@@ -92,7 +95,8 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U,
     return ρvec_ℓ
 end
 
-function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N}, NSTEPS, cache::Val{false}) where {N}
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
+                                  NSTEPS, cache::Val{false}) where {N}
     rᵢ = copy(ℓ)
     sᵢ = zero(N)
 
@@ -105,7 +109,6 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U,
     end
     return ρvec_ℓ
 end
-
 
 #= ---- version using vector-of-vectors
     ρℓ = [Vector{N}(undef, NSTEPS) for _ in 1:length(dirs)]
@@ -146,7 +149,6 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ, Φᵀ, ℓ, Ω₀, NSTEPS, W, time_
 end
 =#
 
-
 # ===================================
 # Inhomogeneous case with invariant
 # ===================================
@@ -162,7 +164,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
                               U::LazySet,
                               Δt0::TimeInterval,
                               cache,
-                              threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                              threaded) where {N,VN,TN,SN,RT<:TemplateReachSet{N,VN,TN,SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -193,7 +195,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
         k += 1
     end
     if k < NSTEPS
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return ρmat
 end
@@ -309,110 +311,111 @@ end
 # ------------------------------------------------------------
 
 function load_krylov_LGG09_inhomog()
-return quote
+    return quote
 
-# Compute the sequence with constant input sets:
-#
-# ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀ ⊕ V), ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V ⊕ V), ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V ⊕ Φ V ⊕ V), ...
-#
-# Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
-# the direction ℓ.
-#
-# Method (see [1]):
-#
-# out[1] <- ρ(ℓ, Ω₀)
-#
-# out[2] <- ρ(ℓ, Φ Ω₀ ⊕ V) = ρ(ℓ, Φ Ω0) + ρ(ℓ, V) = ρ(Φᵀ ℓ, Ω₀) + ρ(ℓ, V)
-#
-# out[3] <- ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V ⊕ V) = ρ((Φᵀ)^2 ℓ, Ω₀) + ρ(Φᵀ ℓ, V) + ρ(ℓ, V)
-#
-# out[4] <- ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V ⊕ Φ V ⊕ V) = ρ((Φᵀ)^3 ℓ, Ω₀) + ρ((Φᵀ)^2 ℓ, V) + ρ(Φᵀ ℓ, V) + ρ(ℓ, V)
-#
-# and so on.
-#
-# [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
-#     High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
-#     Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
-#     Proceedings of the 21st International Conference on Hybrid Systems: Computation
-#     and Control: 41–50.
-#
-function reach_inhomog_krylov_LGG09!(out, Ω₀::LazySet, V::LazySet, Aᵀδ::AbstractMatrix,
-                                     ℓ::AbstractVector, NSTEPS;
-                                     hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
+        # Compute the sequence with constant input sets:
+        #
+        # ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀ ⊕ V), ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V ⊕ V), ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V ⊕ Φ V ⊕ V), ...
+        #
+        # Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
+        # the direction ℓ.
+        #
+        # Method (see [1]):
+        #
+        # out[1] <- ρ(ℓ, Ω₀)
+        #
+        # out[2] <- ρ(ℓ, Φ Ω₀ ⊕ V) = ρ(ℓ, Φ Ω0) + ρ(ℓ, V) = ρ(Φᵀ ℓ, Ω₀) + ρ(ℓ, V)
+        #
+        # out[3] <- ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V ⊕ V) = ρ((Φᵀ)^2 ℓ, Ω₀) + ρ(Φᵀ ℓ, V) + ρ(ℓ, V)
+        #
+        # out[4] <- ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V ⊕ Φ V ⊕ V) = ρ((Φᵀ)^3 ℓ, Ω₀) + ρ((Φᵀ)^2 ℓ, V) + ρ(Φᵀ ℓ, V) + ρ(ℓ, V)
+        #
+        # and so on.
+        #
+        # [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
+        #     High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
+        #     Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
+        #     Proceedings of the 21st International Conference on Hybrid Systems: Computation
+        #     and Control: 41–50.
+        #
+        function reach_inhomog_krylov_LGG09!(out, Ω₀::LazySet, V::LazySet, Aᵀδ::AbstractMatrix,
+                                             ℓ::AbstractVector, NSTEPS;
+                                             hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
 
-    # initialization of the krylov subspace
-    TA, Tb = eltype(Aᵀδ), eltype(ℓ)
-    T = promote_type(TA, Tb)
-    Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
-    arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
+            # initialization of the krylov subspace
+            TA, Tb = eltype(Aᵀδ), eltype(ℓ)
+            T = promote_type(TA, Tb)
+            Ks = KrylovSubspace{T,real(T)}(length(ℓ), m)
+            arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
 
-    # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
-    rᵢ = deepcopy(ℓ)
-    out[1] = ρ(ℓ, Ω₀)
+            # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
+            rᵢ = deepcopy(ℓ)
+            out[1] = ρ(ℓ, Ω₀)
 
-    # accumulated support vector sum due to the inputs
-    s = zero(T)
+            # accumulated support vector sum due to the inputs
+            s = zero(T)
 
-    @inbounds for i in 1:NSTEPS-1
-        s += ρ(rᵢ, V)
-        expv!(rᵢ, i*1.0, Ks)
-        out[i+1] = ρ(rᵢ, Ω₀) + s
-    end
-    return out
-end
-
-# Compute the sequence with time-varying input sets:
-#
-# ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀ ⊕ V₀), ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V₀ ⊕ V₁), ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V₀ ⊕ Φ V₁ ⊕ V₂), ...
-#
-# Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
-# the direction ℓ.
-#
-# Method (see [1]):
-#
-# out[1] <- ρ(ℓ, Ω₀)
-#
-# out[2] <- ρ(ℓ, Φ Ω₀ ⊕ V₀) = ρ(ℓ, Φ Ω0) + ρ(ℓ, V₀) = ρ(Φᵀ ℓ, Ω₀) + ρ(ℓ, V₀)
-#
-# out[3] <- ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V₀ ⊕ V₁) = ρ((Φᵀ)^2 ℓ, Ω₀) + ρ(Φᵀ ℓ, V₀) + ρ(ℓ, V₁)
-#
-# out[4] <- ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V₀ ⊕ Φ V₁ ⊕ V₂) = ρ((Φᵀ)^3 ℓ, Ω₀) + ρ((Φᵀ)^2 ℓ, V₀) + ρ(Φᵀ ℓ, V₁) + ρ(ℓ, V₂)
-#
-# and so on.
-#
-# [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
-#     High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
-#     Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
-#     Proceedings of the 21st International Conference on Hybrid Systems: Computation
-#     and Control: 41–50.
-#
-function reach_inhomog_krylov_LGG09!(out, Ω₀::LazySet, V::Vector{<:LazySet}, Aᵀδ::AbstractMatrix,
-                                     ℓ::AbstractVector, NSTEPS;
-                                     hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
-
-    # initialization of the krylov subspace
-    TA, Tb = eltype(Aᵀδ), eltype(ℓ)
-    T = promote_type(TA, Tb)
-    Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
-    arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
-
-    # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
-    r = [similar(ℓ) for _ in NSTEPS]
-    r[1] = deepcopy(ℓ)
-    out[1] = ρ(ℓ, Ω₀)
-
-    @inbounds for i in 1:NSTEPS-1
-        s = zero(T)
-        for j in 1:i
-            s += ρ(r[i-j+1], V[j])
+            @inbounds for i in 1:(NSTEPS - 1)
+                s += ρ(rᵢ, V)
+                expv!(rᵢ, i * 1.0, Ks)
+                out[i + 1] = ρ(rᵢ, Ω₀) + s
+            end
+            return out
         end
-        expv!(r[i+1], i*1.0, Ks)
-        out[i+1] = ρ(r[i+1], Ω₀) + s
-    end
-    return out
-end
 
-end end  # quote / load_krylov_LGG09_inhomog()
+        # Compute the sequence with time-varying input sets:
+        #
+        # ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀ ⊕ V₀), ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V₀ ⊕ V₁), ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V₀ ⊕ Φ V₁ ⊕ V₂), ...
+        #
+        # Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
+        # the direction ℓ.
+        #
+        # Method (see [1]):
+        #
+        # out[1] <- ρ(ℓ, Ω₀)
+        #
+        # out[2] <- ρ(ℓ, Φ Ω₀ ⊕ V₀) = ρ(ℓ, Φ Ω0) + ρ(ℓ, V₀) = ρ(Φᵀ ℓ, Ω₀) + ρ(ℓ, V₀)
+        #
+        # out[3] <- ρ(ℓ, Φ^2 Ω₀ ⊕ Φ V₀ ⊕ V₁) = ρ((Φᵀ)^2 ℓ, Ω₀) + ρ(Φᵀ ℓ, V₀) + ρ(ℓ, V₁)
+        #
+        # out[4] <- ρ(ℓ, Φ^3 Ω₀ ⊕ Φ^2 V₀ ⊕ Φ V₁ ⊕ V₂) = ρ((Φᵀ)^3 ℓ, Ω₀) + ρ((Φᵀ)^2 ℓ, V₀) + ρ(Φᵀ ℓ, V₁) + ρ(ℓ, V₂)
+        #
+        # and so on.
+        #
+        # [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
+        #     High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
+        #     Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
+        #     Proceedings of the 21st International Conference on Hybrid Systems: Computation
+        #     and Control: 41–50.
+        #
+        function reach_inhomog_krylov_LGG09!(out, Ω₀::LazySet, V::Vector{<:LazySet},
+                                             Aᵀδ::AbstractMatrix,
+                                             ℓ::AbstractVector, NSTEPS;
+                                             hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
+
+            # initialization of the krylov subspace
+            TA, Tb = eltype(Aᵀδ), eltype(ℓ)
+            T = promote_type(TA, Tb)
+            Ks = KrylovSubspace{T,real(T)}(length(ℓ), m)
+            arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
+
+            # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
+            r = [similar(ℓ) for _ in NSTEPS]
+            r[1] = deepcopy(ℓ)
+            out[1] = ρ(ℓ, Ω₀)
+
+            @inbounds for i in 1:(NSTEPS - 1)
+                s = zero(T)
+                for j in 1:i
+                    s += ρ(r[i - j + 1], V[j])
+                end
+                expv!(r[i + 1], i * 1.0, Ks)
+                out[i + 1] = ρ(r[i + 1], Ω₀) + s
+            end
+            return out
+        end
+    end
+end  # quote / load_krylov_LGG09_inhomog()
 
 # ------------------------------------------------------------
 # Methods using eigenvalues of the transition matrix

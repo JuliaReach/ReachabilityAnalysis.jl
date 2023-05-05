@@ -14,13 +14,13 @@
 using ReachabilityAnalysis, Plots
 
 @taylorize function laubloomis!(dx, x, params, t)
-    dx[1] = 1.4*x[3] - 0.9*x[1]
-    dx[2] = 2.5*x[5] - 1.5*x[2]
-    dx[3] = 0.6*x[7] - 0.8*(x[2]*x[3])
-    dx[4] = 2 - 1.3*(x[3]*x[4])
-    dx[5] = 0.7*x[1] - (x[4]*x[5])
-    dx[6] = 0.3*x[1] - 3.1*x[6]
-    dx[7] = 1.8*x[6] - 1.6*(x[2]*x[7])
+    dx[1] = 1.4 * x[3] - 0.9 * x[1]
+    dx[2] = 2.5 * x[5] - 1.5 * x[2]
+    dx[3] = 0.6 * x[7] - 0.8 * (x[2] * x[3])
+    dx[4] = 2 - 1.3 * (x[3] * x[4])
+    dx[5] = 0.7 * x[1] - (x[4] * x[5])
+    dx[6] = 0.3 * x[1] - 3.1 * x[6]
+    dx[7] = 1.8 * x[6] - 1.6 * (x[2] * x[7])
     return dx
 end
 
@@ -43,7 +43,7 @@ function laubloomis(; W=0.01)
     X0 = Hyperrectangle(X0c, fill(W, 7))
 
     ## initial-value problem
-    prob = @ivp(x' = laubloomis!(x), dim: 7, x(0) ∈ X0)
+    prob = @ivp(x' = laubloomis!(x), dim:7, x(0) ∈ X0)
 
     return prob
 end
@@ -70,10 +70,10 @@ end
 
 # In this case we consider thet the width of the initial states is ``W = 0.01``.
 
-prob = laubloomis(W=0.01)
-alg = TMJets(abstol=1e-11, orderT=7, orderQ=1, adaptive=true);
+prob = laubloomis(; W=0.01)
+alg = TMJets(; abstol=1e-11, orderT=7, orderQ=1, adaptive=true);
 
-sol_1 = solve(prob, T=20.0, alg=alg);
+sol_1 = solve(prob; T=20.0, alg=alg);
 
 sol_1z = overapproximate(sol_1, Zonotope);
 
@@ -93,10 +93,10 @@ const e4 = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0];
 
 # In this case we consider the the width of the initial states is ``W = 0.05``.
 
-prob = laubloomis(W=0.05)
-alg = TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
+prob = laubloomis(; W=0.05)
+alg = TMJets(; abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
-sol_2 = solve(prob, T=20.0, alg=alg)
+sol_2 = solve(prob; T=20.0, alg=alg)
 sol_2z = overapproximate(sol_2, Zonotope);
 
 # Verifying that the specification holds:
@@ -112,10 +112,10 @@ sol_2z = overapproximate(sol_2, Zonotope);
 
 # In this case we consider that the width of the initial states is ``W = 0.1``.
 
-prob = laubloomis(W=0.1)
-alg = TMJets(abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
+prob = laubloomis(; W=0.1)
+alg = TMJets(; abstol=1e-12, orderT=7, orderQ=1, adaptive=false);
 
-sol_3 = solve(prob, T=20.0, alg=alg)
+sol_3 = solve(prob; T=20.0, alg=alg)
 sol_3z = overapproximate(sol_3, Zonotope);
 
 # Verifying that the specification holds:
@@ -129,19 +129,19 @@ sol_3z = overapproximate(sol_3, Zonotope);
 using Plots, Plots.PlotMeasures, LaTeXStrings #!jl
 
 fig = plot()
-plot!(fig, sol_3z, vars=(0, 4), linecolor="green", color=:green, alpha=0.8)
-plot!(fig, sol_2z, vars=(0, 4), linecolor="blue",  color=:blue, alpha=0.8)
-plot!(fig, sol_1z, vars=(0, 4), linecolor="yellow", color=:yellow, alpha=0.8,
+plot!(fig, sol_3z; vars=(0, 4), linecolor="green", color=:green, alpha=0.8)
+plot!(fig, sol_2z; vars=(0, 4), linecolor="blue", color=:blue, alpha=0.8)
+plot!(fig, sol_1z; vars=(0, 4), linecolor="yellow", color=:yellow, alpha=0.8,
       tickfont=font(10, "Times"), guidefontsize=15,
       xlab=L"t",
       ylab=L"x_4",
-      xtick=[0., 5., 10., 15., 20.], ytick=[1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5.],
-      xlims=(0., 20.), ylims=(1.5, 5.02),
+      xtick=[0.0, 5.0, 10.0, 15.0, 20.0], ytick=[1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      xlims=(0.0, 20.0), ylims=(1.5, 5.02),
       bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm,
       size=(600, 600))
 
-plot!(fig, x->x, x->4.5, 0., 20., line=2, color="red", linestyle=:dash, legend=nothing)
-plot!(fig, x->x, x->5., 0., 20., line=2, color="red", linestyle=:dash, legend=nothing)
+plot!(fig, x -> x, x -> 4.5, 0.0, 20.0; line=2, color="red", linestyle=:dash, legend=nothing)
+plot!(fig, x -> x, x -> 5.0, 0.0, 20.0; line=2, color="red", linestyle=:dash, legend=nothing)
 
 #!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

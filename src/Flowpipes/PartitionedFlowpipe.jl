@@ -14,7 +14,7 @@ Type that wraps a vector of flowpipes of possibly different types.
 
 ### Notes
 """
-struct PartitionedFlowpipe{T, S<:Tuple} <: AbstractFlowpipe # TODO: ask <:AbstractFlowpipe for each element in the tuple..?
-    Fk::ArrayPartition{T, S}
-    ext::Dict{Symbol, Any}
+struct PartitionedFlowpipe{T,S<:Tuple} <: AbstractFlowpipe # TODO: ask <:AbstractFlowpipe for each element in the tuple..?
+    Fk::ArrayPartition{T,S}
+    ext::Dict{Symbol,Any}
 end

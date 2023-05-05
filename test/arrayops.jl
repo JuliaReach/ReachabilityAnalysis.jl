@@ -14,7 +14,7 @@ using ReachabilityAnalysis: logarithmic_norm
     Aop2 = kron(A, A)
 
     @test logarithmic_norm(A, Inf) == 1
-    @test logarithmic_norm(Aop2, Inf) == 9;
+    @test logarithmic_norm(Aop2, Inf) == 9
 
     @test logarithmic_norm(A, 1) == 1
     @test logarithmic_norm(Aop2, 1) == 9

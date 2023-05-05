@@ -1,15 +1,14 @@
-function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N, ST}
-
+function post(alg::BFFPSV18{N,ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N,ST}
     @unpack δ, approx_model, vars, block_indices,
-            row_blocks, column_blocks = alg
+    row_blocks, column_blocks = alg
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -47,8 +46,8 @@ function post(alg::BFFPSV18{N, ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     vars = reduce(vcat, alg.row_blocks)
 
     # preallocate output flowpipe
-    CP = CartesianProductArray{N, ST}
-    F = Vector{SparseReachSet{N, CP, length(vars)}}(undef, NSTEPS)
+    CP = CartesianProductArray{N,ST}
+    F = Vector{SparseReachSet{N,CP,length(vars)}}(undef, NSTEPS)
 
     # option to use array views
     viewval = Val(alg.view)

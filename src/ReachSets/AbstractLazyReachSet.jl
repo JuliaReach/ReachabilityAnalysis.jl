@@ -38,8 +38,12 @@ abstract type AbstractLazyReachSet{N} <: AbstractReachSet{N} end
 LazySets.dim(R::AbstractLazyReachSet) = dim(set(R))
 
 LazySets.ρ(d::AbstractVector, R::AbstractLazyReachSet) = ρ(d, set(R))
-LazySets.ρ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = map(Ri -> ρ(d, set(Ri)), R) |> maximum
-LazySets.ρ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet}) = map(Ri -> ρ(d, set(Ri)), R) |> maximum
+function LazySets.ρ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet})
+    return maximum(map(Ri -> ρ(d, set(Ri)), R))
+end
+function LazySets.ρ(d::AbstractVector, R::SubArray{<:AbstractLazyReachSet})
+    return maximum(map(Ri -> ρ(d, set(Ri)), R))
+end
 
 LazySets.σ(d::AbstractVector, R::AbstractLazyReachSet) = σ(d, set(R))
 LazySets.σ(d::AbstractVector, R::Vector{<:AbstractLazyReachSet}) = _σ_vec(d, Rvec)
@@ -67,7 +71,7 @@ Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalB
 LazySets.complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 Base.isempty(R::AbstractLazyReachSet) = isempty(set(R))
 
-function LinearMap(M::Union{AbstractMatrix, Number}, R::AbstractLazyReachSet)
+function LinearMap(M::Union{AbstractMatrix,Number}, R::AbstractLazyReachSet)
     return reconstruct(R, LinearMap(M, set(R)))
 end
 
@@ -125,40 +129,42 @@ associated with the given variables `vars`.
 To project onto the time variable, use the index `0`. For instance, `(0, 1)` projects
 onto the time variable and the first variable in `R`.
 """
-function project(R::AbstractLazyReachSet, variables::NTuple{D, M};
-                 check_vars::Bool=true) where {D, M<:Integer}
-     vR = vars(R)
-     vRvec = collect(vR)
+function project(R::AbstractLazyReachSet, variables::NTuple{D,M};
+                 check_vars::Bool=true) where {D,M<:Integer}
+    vR = vars(R)
+    vRvec = collect(vR)
 
-     if check_vars && !(setdiff(variables, 0) ⊆ vR)
-         throw(ArgumentError("the variables $vars do not belong to the variables " *
-                             " of this reach-set, $(vR)"))
-     end
+    if check_vars && !(setdiff(variables, 0) ⊆ vR)
+        throw(ArgumentError("the variables $vars do not belong to the variables " *
+                            " of this reach-set, $(vR)"))
+    end
 
-     if 0 ∈ variables  # the projection involves "time"
-         vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
-         Δt = convert(Interval, tspan(R))
-         proj =  project(Δt × set(R), vars_idx)
-     else
-         vars_idx = _get_vars_idx(variables, vRvec)
-         proj = project(set(R), vars_idx)
-     end
+    if 0 ∈ variables  # the projection involves "time"
+        vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
+        Δt = convert(Interval, tspan(R))
+        proj = project(Δt × set(R), vars_idx)
+    else
+        vars_idx = _get_vars_idx(variables, vRvec)
+        proj = project(set(R), vars_idx)
+    end
 
-     return SparseReachSet(proj, tspan(R), variables)
+    return SparseReachSet(proj, tspan(R), variables)
 end
 
 # assumes that variables is a subset of all_variables
 @inline function _get_vars_idx(variables, all_variables)
-    vars_idx = indexin(variables, all_variables) |> Vector{Int}
+    return vars_idx = Vector{Int}(indexin(variables, all_variables))
 end
 
 # concrete projection onto a single variable
 function project(R::AbstractLazyReachSet, variable::Int; check_vars::Bool=true)
-    return project(R, (variable,), check_vars=check_vars)
+    return project(R, (variable,); check_vars=check_vars)
 end
 
 # concrete projection overloads
-project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer} = project(R, Tuple(vars))
+function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
+    return project(R, Tuple(vars))
+end
 project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
 
 # projection of an array of reach-sets
@@ -172,9 +178,8 @@ project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
 # Lazy projection of a reach-set
 # -------------------------------
 
-function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
-                    check_vars::Bool=true) where {D, M<:Integer}
-
+function Projection(R::AbstractLazyReachSet, variables::NTuple{D,M},
+                    check_vars::Bool=true) where {D,M<:Integer}
     vR = vars(R)
     vRvec = collect(vR)
 
@@ -187,7 +192,7 @@ function Projection(R::AbstractLazyReachSet, variables::NTuple{D, M},
     if 0 ∈ variables  # the projection involves "time"
         vars_idx = _get_vars_idx(variables, vcat(0, vRvec))
         Δt = convert(Interval, tspan(R))
-        proj =  Projection(Δt × set(R), vars_idx)
+        proj = Projection(Δt × set(R), vars_idx)
     else
         vars_idx = _get_vars_idx(variables, vRvec)
         proj = Projection(set(R), vars_idx)
@@ -219,5 +224,5 @@ end
 # a vector of integers
 function LazySets.split(R::AbstractLazyReachSet, partition)
     Y = split(set(R), partition)
-    [reconstruct(R, y) for y in Y]
+    return [reconstruct(R, y) for y in Y]
 end

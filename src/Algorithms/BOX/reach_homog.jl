@@ -3,14 +3,14 @@
 # ================
 
 # homogeneous case without invariant, non-recursive implementation
-function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
-                          Ω0::Hyperrectangle{N, VNC, VNR},
+function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
+                          Ω0::Hyperrectangle{N,VNC,VNR},
                           Φ::AbstractMatrix,
                           NSTEPS::Integer,
                           δ::N,
                           X::Universe,
                           recursive::Val{false},
-                          Δt0::TN) where {N, TN, VNC, VNR}
+                          Δt0::TN) where {N,TN,VNC,VNR}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -36,7 +36,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
         mul!(c[k], Φ_power_k, c[1])
         Φ_power_k_abs .= abs.(Φ_power_k)
         mul!(r[k], Φ_power_k_abs, r[1])
-        Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
+        Hₖ = Hyperrectangle(c[k], r[k]; check_bounds=false)
 
         Δt += δ
         F[k] = ReachSet(Hₖ, Δt)
@@ -50,14 +50,14 @@ end
 
 # homogeneous case without invariant, recursive implementation
 # note that this implementation suffers from wrapping
-function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
-                          Ω0::Hyperrectangle{N, VNC, VNR},
+function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
+                          Ω0::Hyperrectangle{N,VNC,VNR},
                           Φ::AbstractMatrix,
                           NSTEPS::Integer,
                           δ::Float64,
                           X::Universe,
                           recursive::Val{true},
-                          Δt0::TN) where {N, TN, VNC, VNR}
+                          Δt0::TN) where {N,TN,VNC,VNR}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -65,7 +65,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = overapproximate(Φ * set(F[k-1]), Hyperrectangle)
+        Rₖ = overapproximate(Φ * set(F[k - 1]), Hyperrectangle)
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -74,14 +74,14 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 end
 
 # homogeneous case with an invariant, non-recursive implementation
-function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
-                          Ω0::Hyperrectangle{N, VNC, VNR},
+function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
+                          Ω0::Hyperrectangle{N,VNC,VNR},
                           Φ::AbstractMatrix,
                           NSTEPS::Integer,
                           δ::N,
                           X::LazySet,
                           recursive::Val{false},
-                          Δt0::TN) where {N, TN, VNC, VNR}
+                          Δt0::TN) where {N,TN,VNC,VNR}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -103,22 +103,22 @@ function reach_homog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-      # compute the overapproximation of Φ^k * Ω0 with a hyperrectangle
-      mul!(c[k], Φ_power_k, c[1])
-      Φ_power_k_abs .= abs.(Φ_power_k)
-      mul!(r[k], Φ_power_k_abs, r[1])
-      Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
+        # compute the overapproximation of Φ^k * Ω0 with a hyperrectangle
+        mul!(c[k], Φ_power_k, c[1])
+        Φ_power_k_abs .= abs.(Φ_power_k)
+        mul!(r[k], Φ_power_k_abs, r[1])
+        Hₖ = Hyperrectangle(c[k], r[k]; check_bounds=false)
 
-      _is_intersection_empty(X, Hₖ) && break
-      Δt += δ
-      F[k] = ReachSet(Hₖ, Δt)
+        _is_intersection_empty(X, Hₖ) && break
+        Δt += δ
+        F[k] = ReachSet(Hₖ, Δt)
 
-      mul!(Φ_power_k_cache, Φ_power_k, Φ)
-      copyto!(Φ_power_k, Φ_power_k_cache)
-      k += 1
+        mul!(Φ_power_k_cache, Φ_power_k, Φ)
+        copyto!(Φ_power_k, Φ_power_k_cache)
+        k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end

@@ -57,7 +57,7 @@ end
 LazyExpAlg() = LazyExpAlg(30, 1e-10)
 
 const LazyExp = LazyExpAlg()
-_alias(alg::Union{Val{:lazy}, Val{:krylov}}) = LazyExp
+_alias(alg::Union{Val{:lazy},Val{:krylov}}) = LazyExp
 
 """
     IntervalExpAlg <: AbstractExpAlg
@@ -187,25 +187,25 @@ function _exp(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp)
 end
 
 @inline function _P_2n(A::AbstractMatrix{N}, δ, n) where {N}
-    return [Matrix(A*δ) Matrix(δ*I, n, n);
-            zeros(n, 2*n)]::Matrix{N}
+    return [Matrix(A * δ) Matrix(δ * I, n, n);
+            zeros(n, 2 * n)]::Matrix{N}
 end
 
-@inline function _P_2n(A::SparseMatrixCSC{N, M}, δ, n) where {N, M}
-    return [sparse(A*δ) sparse(δ*I, n, n);
-            spzeros(n, 2*n)]::SparseMatrixCSC{N, M}
+@inline function _P_2n(A::SparseMatrixCSC{N,M}, δ, n) where {N,M}
+    return [sparse(A * δ) sparse(δ * I, n, n);
+            spzeros(n, 2 * n)]::SparseMatrixCSC{N,M}
 end
 
 @inline function _P_3n(A::AbstractMatrix{N}, δ, n) where {N}
-    return [Matrix(A*δ)     Matrix(δ*I, n, n)  zeros(n, n)    ;
-            zeros(n, 2*n          )  Matrix(δ*I, n, n)        ;
-            zeros(n, 3*n          )                           ]::Matrix{N}
+    return [Matrix(A * δ) Matrix(δ * I, n, n) zeros(n, n);
+            zeros(n, 2 * n) Matrix(δ * I, n, n);
+            zeros(n, 3 * n)]::Matrix{N}
 end
 
-@inline function _P_3n(A::SparseMatrixCSC{N, M}, δ, n) where {N, M}
-    return [sparse(A*δ)     sparse(δ*I, n, n)  spzeros(n, n) ;
-            spzeros(n, 2*n          )  sparse(δ*I, n, n)     ;
-            spzeros(n, 3*n          )                        ]::SparseMatrixCSC{N, M}
+@inline function _P_3n(A::SparseMatrixCSC{N,M}, δ, n) where {N,M}
+    return [sparse(A * δ) sparse(δ * I, n, n) spzeros(n, n);
+            spzeros(n, 2 * n) sparse(δ * I, n, n);
+            spzeros(n, 3 * n)]::SparseMatrixCSC{N,M}
 end
 
 """
@@ -278,8 +278,8 @@ function _Φ₁_blk(A, δ, alg)
     return _P₁_blk(Q, n, alg)
 end
 
-@inline _P₁_blk(P, n::Int, ::AbstractExpAlg) = P[1:n, (n+1):2*n]
-@inline _P₁_blk(P, n::Int, ::LazyExpAlg) = sparse(get_columns(P, (n+1):2*n)[1:n, :])
+@inline _P₁_blk(P, n::Int, ::AbstractExpAlg) = P[1:n, (n + 1):(2 * n)]
+@inline _P₁_blk(P, n::Int, ::LazyExpAlg) = sparse(get_columns(P, (n + 1):(2 * n))[1:n, :])
 
 # compute the matrix Φ₁(A, δ) = A^{-1}(exp(Aδ) - I), assuming that A is invertible
 # and explicitly computing inv(A); this function optionally receives the matrix Φ = exp(Aδ)
@@ -289,7 +289,7 @@ function _Φ₁_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     end
     n = size(A, 1)
     N = eltype(A)
-    In = Matrix(one(N)*I, n, n)
+    In = Matrix(one(N) * I, n, n)
     Ainv = inv(A)
     return Ainv * (Φ - In)
 end
@@ -298,7 +298,7 @@ end
 function _Φ₁_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
     λ = A.M.λ
     @assert !iszero(λ) "the given identity multiple is not invertible"
-    α = (1/λ) * (exp(δ*λ) - 1)
+    α = (1 / λ) * (exp(δ * λ) - 1)
     return IdentityMultiple(α, size(A, 1))
 end
 
@@ -324,17 +324,17 @@ function _Φ₁_u(A, δ, alg, u::AbstractVector, Φ=nothing)
 end
 
 function load_Φ₁_krylov()
-return quote
+    return quote
 
-# compute Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u without explicitly computing exp(Aδ)
-# and assuming that A is invertible
-function _Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
-    w = expv(1.0 * δ, A, u, m=alg.m, tol=alg.tol)
-    x = w - u
-    return A \ x
-end
-
-end end  # quote / load_Φ₁_krylov()
+        # compute Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u without explicitly computing exp(Aδ)
+        # and assuming that A is invertible
+        function _Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
+            w = expv(1.0 * δ, A, u; m=alg.m, tol=alg.tol)
+            x = w - u
+            return A \ x
+        end
+    end
+end  # quote / load_Φ₁_krylov()
 
 """
     Φ₂(A::AbstractMatrix, δ, [alg]::AbstractExpAlg=BaseExp, [isinv]::Bool=false, [Φ]=nothing)
@@ -398,8 +398,8 @@ end
 _Φ₂(A, δ, alg, isinv::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
 _Φ₂(A, δ, alg, isinv::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
 
-@inline _P₂_blk(P, n, ::AbstractExpAlg) = P[1:n, (2*n+1):3*n]
-@inline _P₂_blk(P, n, ::LazyExpAlg) = sparse(get_columns(P, (2*n+1):3*n)[1:n, :])
+@inline _P₂_blk(P, n, ::AbstractExpAlg) = P[1:n, (2 * n + 1):(3 * n)]
+@inline _P₂_blk(P, n, ::LazyExpAlg) = sparse(get_columns(P, (2 * n + 1):(3 * n))[1:n, :])
 
 # evaluate the series Φ₂(A, δ) = ∑_{i=0}^∞ \\dfrac{δ^{i+2}}{(i+2)!}A^i
 # without assuming invertibility of A, by taking the exponential of a 3n x 3n matrix
@@ -421,7 +421,7 @@ function _Φ₂_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     end
     n = size(A, 1)
     N = eltype(A)
-    In = Matrix(one(N)*I, n, n)
+    In = Matrix(one(N) * I, n, n)
     B = Φ - In - Aδ
     Ainv = inv(Matrix(A))
     Ainvsqr = Ainv^2
@@ -433,20 +433,21 @@ function _Φ₂_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
     λ = A.M.λ
     @assert !iszero(λ) "the given identity multiple is not invertible"
     δλ = δ * λ
-    α = (1/λ)^2 * (exp(δλ) - 1 - δλ)
+    α = (1 / λ)^2 * (exp(δλ) - 1 - δλ)
     return IdentityMultiple(α, size(A, 1))
 end
 
-function _Eplus(A::SparseMatrixCSC{N, D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)), tol=1e-7) where {N, D}
+function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)),
+                tol=1e-7) where {N,D}
     n = dim(X0)
-    A2 = A * A; # fast if A sparse
+    A2 = A * A # fast if A sparse
     V = symmetric_interval_hull(A2 * X0)
     v = V.radius
     Aabs = copy(abs.(A))
 
     @requires ExponentialUtilities
     Pv = _phiv(Aabs, v, 1, δt; m, tol)
-    E⁺ = Hyperrectangle(zeros(n), Pv)
+    return E⁺ = Hyperrectangle(zeros(n), Pv)
 end
 
 # ================
@@ -454,7 +455,9 @@ end
 # ================
 
 @inline _elementwise_abs(A::AbstractMatrix) = abs.(A)
-@inline _elementwise_abs(A::SparseMatrixCSC) = SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
+@inline function _elementwise_abs(A::SparseMatrixCSC)
+    return SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
+end
 @inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
 
 # ====================================
@@ -473,7 +476,7 @@ function _Cδ(A, δ, order)
         Iδ = Matrix(δ * I, n, n)
     end
 
-    IδW = Iδ + 1/2 * δ^2 * A + 1/6 * δ^3 * A²
+    IδW = Iδ + 1 / 2 * δ^2 * A + 1 / 6 * δ^3 * A²
     M = IδW
 
     if order > 2
@@ -482,10 +485,10 @@ function _Cδ(A, δ, order)
         Aⁱ = A²
         δⁱ⁺¹ = δ^3
         @inbounds for i in 3:order
-            αᵢ₊₁ *= i+1
+            αᵢ₊₁ *= i + 1
             δⁱ⁺¹ *= δ
             Aⁱ *= A
-            M += (δⁱ⁺¹/αᵢ₊₁) * Aⁱ
+            M += (δⁱ⁺¹ / αᵢ₊₁) * Aⁱ
         end
     end
     E = IntervalMatrices._exp_remainder(A, δ, order; n=n)

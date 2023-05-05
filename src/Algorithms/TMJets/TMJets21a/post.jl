@@ -1,7 +1,6 @@
 function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
               Δt0::TimeInterval=zeroI,
               kwargs...) where {N}
-
     @unpack orderQ, orderT, abstol, maxsteps, adaptive, minabstol, absorb, disjointness = alg
 
     # initial time and final time
@@ -26,7 +25,7 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     # fix the working variables and maximum order in the global
     # parameters struct (_params_TaylorN_)
-    set_variables("x", numvars=n, order=2*orderQ)
+    set_variables("x"; numvars=n, order=2 * orderQ)
 
     # initial set
     X0 = initial_state(ivp_norm)
@@ -42,13 +41,13 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     # call external solver
     TMSol = TaylorModels.validated_integ(f!, X0tm, t0, T, orderQ, orderT,
-                                                 abstol, params;
-                                                 maxsteps=maxsteps,
-                                                 parse_eqs=parse_eqs,
-                                                 adaptive=adaptive,
-                                                 minabstol=minabstol,
-                                                 absorb=absorb,
-                                                 check_property=check_property)
+                                         abstol, params;
+                                         maxsteps=maxsteps,
+                                         parse_eqs=parse_eqs,
+                                         adaptive=adaptive,
+                                         minabstol=minabstol,
+                                         absorb=absorb,
+                                         check_property=check_property)
     tv = TMSol.time
     xv = TMSol.fp
     xTM1v = TMSol.xTM
@@ -70,6 +69,6 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
         push!(F, Ri)
     end
 
-    ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
+    ext = Dict{Symbol,Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
     return Flowpipe(F, ext)
 end

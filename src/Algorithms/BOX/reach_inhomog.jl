@@ -5,15 +5,15 @@
 #using LinearAlgebra.BLAS
 
 # inhomogeneous case without invariant, non-recursive implementation
-function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
-                            Ω0::Hyperrectangle{N, VNC, VNR},
+function reach_inhomog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
+                            Ω0::Hyperrectangle{N,VNC,VNR},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
                             X::Universe,
                             U::Hyperrectangle,
                             recursive::Val{false},
-                            Δt0::TN) where {N, TN, VNC, VNR}
+                            Δt0::TN) where {N,TN,VNC,VNR}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -40,7 +40,7 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
         abs_Φ_power_k = abs.(Φ_power_k)
         c[k] = Φ_power_k * c[1] + Wk₊.center
         r[k] = abs_Φ_power_k * r[1] + Wk₊.radius
-        Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
+        Hₖ = Hyperrectangle(c[k], r[k]; check_bounds=false)
 
         Δt += δ
         F[k] = ReachSet(Hₖ, Δt)
@@ -60,15 +60,15 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 end
 
 # homogeneous case with an invariant, non-recursive implementation
-function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
-                            Ω0::Hyperrectangle{N, VNC, VNR},
+function reach_inhomog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
+                            Ω0::Hyperrectangle{N,VNC,VNR},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
                             X::LazySet,
                             U::Hyperrectangle,
                             recursive::Val{false},
-                            Δt0::TN) where {N, TN, VNC, VNR}
+                            Δt0::TN) where {N,TN,VNC,VNR}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -91,28 +91,28 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N, Hyperrectangle{N, VNC, VNR}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-      # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
-      abs_Φ_power_k = abs.(Φ_power_k)
-      c[k] = Φ_power_k * c[1] + Wk₊.center
-      r[k] = abs.(Φ_power_k) * r[1] + Wk₊.radius
-      Hₖ = Hyperrectangle(c[k], r[k], check_bounds=false)
+        # Hₖ = overapproximate(Φ_power_k * Ω0, Hyperrectangle)
+        abs_Φ_power_k = abs.(Φ_power_k)
+        c[k] = Φ_power_k * c[1] + Wk₊.center
+        r[k] = abs.(Φ_power_k) * r[1] + Wk₊.radius
+        Hₖ = Hyperrectangle(c[k], r[k]; check_bounds=false)
 
-      _is_intersection_empty(X, Hₖ) && break
+        _is_intersection_empty(X, Hₖ) && break
 
-      Δt += δ
-      F[k] = ReachSet(Hₖ, Δt)
+        Δt += δ
+        F[k] = ReachSet(Hₖ, Δt)
 
-      # in-place computation of Wk₊ <- Wk₊ + Φ_power_k * U,
-      # by overapproximating the second term with a hyperrectangle
-      Wk₊.center .+= Φ_power_k * U.center
-      Wk₊.radius .+= abs_Φ_power_k * U.radius
+        # in-place computation of Wk₊ <- Wk₊ + Φ_power_k * U,
+        # by overapproximating the second term with a hyperrectangle
+        Wk₊.center .+= Φ_power_k * U.center
+        Wk₊.radius .+= abs_Φ_power_k * U.radius
 
-      mul!(Φ_power_k_cache, Φ_power_k, Φ)
-      copyto!(Φ_power_k, Φ_power_k_cache)
-      k += 1
+        mul!(Φ_power_k_cache, Φ_power_k, Φ)
+        copyto!(Φ_power_k, Φ_power_k_cache)
+        k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end

@@ -18,35 +18,37 @@ contiguous in time.
 The evaluation functions (in time) for this type do not assume that the flowpipes are contiguous in time.
 That is, the final time of the `i`-th flowpipe does not match the start time of the `i+1`-th flowpipe.
 """
-struct HybridFlowpipe{N, RT<:AbstractReachSet{N}, FT<:AbstractFlowpipe} <: AbstractFlowpipe
-    Fk::VectorOfArray{RT, 2, Vector{FT}}
-    ext::Dict{Symbol, Any}
+struct HybridFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: AbstractFlowpipe
+    Fk::VectorOfArray{RT,2,Vector{FT}}
+    ext::Dict{Symbol,Any}
 end
 
-function HybridFlowpipe(Fk::Vector{FT}) where {N, RT<:AbstractReachSet{N}, FT<:Flowpipe{N, RT}}
-    voa = VectorOfArray{RT, 2, Vector{FT}}(Fk)
-    ext = Dict{Symbol, Any}()
-    return HybridFlowpipe{N, RT, FT}(voa, ext)
+function HybridFlowpipe(Fk::Vector{FT}) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
+    voa = VectorOfArray{RT,2,Vector{FT}}(Fk)
+    ext = Dict{Symbol,Any}()
+    return HybridFlowpipe{N,RT,FT}(voa, ext)
 end
 
-function HybridFlowpipe(Fk::Vector{FT}, ext::Dict{Symbol, Any}) where {N, RT<:AbstractReachSet{N}, FT<:Flowpipe{N, RT}}
-    voa = VectorOfArray{RT, 2, Vector{FT}}(Fk)
-    return HybridFlowpipe{N, RT, FT}(voa, ext)
+function HybridFlowpipe(Fk::Vector{FT},
+                        ext::Dict{Symbol,Any}) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
+    voa = VectorOfArray{RT,2,Vector{FT}}(Fk)
+    return HybridFlowpipe{N,RT,FT}(voa, ext)
 end
 
-function HybridFlowpipe(Fk::Vector{SFT}) where {N, RT, FT<:Flowpipe{N, RT}, NT<:Number, SFT<:ShiftedFlowpipe{FT, NT}}
-    voa = VectorOfArray{RT, 2, Vector{SFT}}(Fk)
-    ext = Dict{Symbol, Any}()
-    return HybridFlowpipe{N, RT, SFT}(voa, ext)
+function HybridFlowpipe(Fk::Vector{SFT}) where {N,RT,FT<:Flowpipe{N,RT},NT<:Number,
+                                                SFT<:ShiftedFlowpipe{FT,NT}}
+    voa = VectorOfArray{RT,2,Vector{SFT}}(Fk)
+    ext = Dict{Symbol,Any}()
+    return HybridFlowpipe{N,RT,SFT}(voa, ext)
 end
 
 # interface functions
 array(fp::HybridFlowpipe) = fp.Fk
 flowpipe(fp::HybridFlowpipe) = fp
 numtype(::HybridFlowpipe{N}) where {N} = N
-setrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = setrep(RT)
-setrep(::HybridFlowpipe{N, RT, FT}) where {N, RT, FT} = setrep(RT)
-rsetrep(::Type{HybridFlowpipe{N, RT, FT}}) where {N, RT, FT} = RT
+setrep(::Type{HybridFlowpipe{N,RT,FT}}) where {N,RT,FT} = setrep(RT)
+setrep(::HybridFlowpipe{N,RT,FT}) where {N,RT,FT} = setrep(RT)
+rsetrep(::Type{HybridFlowpipe{N,RT,FT}}) where {N,RT,FT} = RT
 numrsets(fp::HybridFlowpipe) = mapreduce(length, +, fp)
 
 # indexing: fp[j, i] returning the j-th reach-set of the i-th flowpipe
@@ -58,7 +60,7 @@ function tspan(fp::HybridFlowpipe)
     return TimeInterval(ti, tf)
 end
 
-function Base.similar(fp::HybridFlowpipe{N, RT, FT}) where {N, RT, FT}
+function Base.similar(fp::HybridFlowpipe{N,RT,FT}) where {N,RT,FT}
     return HybridFlowpipe(Vector{FT}())
 end
 
@@ -83,7 +85,7 @@ Base.:⊆(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
 Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
 
 # evaluation for scalars
-function (fp::HybridFlowpipe{N, RT})(t::Number) where {N, RT<:AbstractReachSet{N}}
+function (fp::HybridFlowpipe{N,RT})(t::Number) where {N,RT<:AbstractReachSet{N}}
     if t ∉ tspan(fp)
         throw(ArgumentError("time $t does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
@@ -102,7 +104,7 @@ function (fp::HybridFlowpipe{N, RT})(t::Number) where {N, RT<:AbstractReachSet{N
 end
 
 # evaluation for time intervals
-function (fp::HybridFlowpipe{N, RT})(dt::TimeInterval) where {N, RT<:AbstractReachSet{N}}
+function (fp::HybridFlowpipe{N,RT})(dt::TimeInterval) where {N,RT<:AbstractReachSet{N}}
     if !(dt ⊆ tspan(fp)) # ⊊ doesn't work see, IntervalArithmetic#409
         throw(ArgumentError("time interval $dt does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))

@@ -3,8 +3,8 @@
 # ===================
 
 # inhomogeneous case; no invariant; recursive implementation
-function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
-                            Ω0::Interval{N, IA.Interval{N}},
+function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N,IA.Interval{N}}}},
+                            Ω0::Interval{N,IA.Interval{N}},
                             Φ::N,
                             NSTEPS::Integer,
                             δ::Float64,
@@ -18,7 +18,7 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Iₖ = Interval(Φ * set(F[k-1]).dat + U.dat)
+        Iₖ = Interval(Φ * set(F[k - 1]).dat + U.dat)
         Δt += δ
         F[k] = ReachSet(Iₖ, Δt)
         k += 1
@@ -27,8 +27,8 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
 end
 
 # inhomogeneous case; with invariant; recursive implementation
-function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
-                            Ω0::Interval{N, IA.Interval{N}},
+function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N,IA.Interval{N}}}},
+                            Ω0::Interval{N,IA.Interval{N}},
                             Φ::N,
                             NSTEPS::Integer,
                             δ::Float64,
@@ -42,14 +42,14 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N, Interval{N, IA.Interval{N}}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Iₖ = Interval(Φ * set(F[k-1]).dat + U.dat)
+        Iₖ = Interval(Φ * set(F[k - 1]).dat + U.dat)
         _is_intersection_empty(X, Iₖ) && break
         Δt += δ
         F[k] = ReachSet(Iₖ, Δt)
         k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end

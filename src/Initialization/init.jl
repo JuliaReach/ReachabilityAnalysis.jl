@@ -32,7 +32,7 @@ using LazySets: linear_map!
 
 # LazySets internal functions frequently used
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
-    isinvertible, vector_type
+                               isinvertible, vector_type
 using LazySets.Approximations: AbstractDirections
 using LazySets: @commutative, AbstractReductionMethod
 
@@ -51,7 +51,7 @@ import TaylorModels: domain, remainder, polynomial, get_order, evaluate
 const CPA = CartesianProductArray
 
 # convenience union for dispatch on structs that are admissible as initial sets or inputs
-const AdmissibleSet = Union{LazySet, UnionSet, UnionSetArray, IA.Interval, IA.IntervalBox}
+const AdmissibleSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.IntervalBox}
 
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
@@ -95,15 +95,15 @@ const SOLCS = SecondOrderLinearContinuousSystem
 const SOACS = SecondOrderAffineContinuousSystem
 const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
 const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
-const SecondOrderSystem = Union{SOLCS, SOACS, SOCLCCS, SOCACCS}
-const NonlinearSystem = Union{BBCS, CBBCS, CBBCCS}
+const SecondOrderSystem = Union{SOLCS,SOACS,SOCLCCS,SOCACCS}
+const NonlinearSystem = Union{BBCS,CBBCS,CBBCCS}
 
 @inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
     return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
 end
 
-const VecOrTuple = Union{<:AbstractVector{Int}, NTuple{D, Int}} where {D}
-const VecOrTupleOrInt = Union{<:AbstractVector{Int}, NTuple{D, Int}, Int} where {D}
+const VecOrTuple = Union{<:AbstractVector{Int},NTuple{D,Int}} where {D}
+const VecOrTupleOrInt = Union{<:AbstractVector{Int},NTuple{D,Int},Int} where {D}
 
 # ======================
 # Optional dependencies
@@ -173,5 +173,5 @@ end
 macro requires(module_name)
     m = Meta.quot(Symbol(module_name))
     return esc(:(@assert isdefined(@__MODULE__, $m) "package `$($m)` is required " *
-                    "for this function; do `using $($m)` and try again"))
+                                                    "for this function; do `using $($m)` and try again"))
 end

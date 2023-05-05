@@ -125,7 +125,7 @@ In the following, suppose that the continuous post-operator has fixed step-size
 
 Similarly we compute tstart and tend for the supremum part Ts-ζ⁺
 """
-struct HACLD1{T<:AbstractSystem, MT, N, J, S<:AbstractSwitching} <: AHACLD
+struct HACLD1{T<:AbstractSystem,MT,N,J,S<:AbstractSwitching} <: AHACLD
     sys::T
     rmap::MT
     Tsample::N
@@ -139,20 +139,20 @@ reset_map(hs::HACLD1) = hs.rmap
 sampling_time(hs::HACLD1) = hs.Tsample
 statedim(hs::HACLD1) = statedim(hs.sys)
 initial_state(hs::HACLD1) = initial_state(hs.sys)
-jitter(hs::HACLD1{T, MT, N, Missing}) where {T, MT, N} = TimeInterval(zero(N), zero(N))
-jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J}  = hs.ζ
+jitter(hs::HACLD1{T,MT,N,Missing}) where {T,MT,N} = TimeInterval(zero(N), zero(N))
+jitter(hs::HACLD1{T,MT,N,J}) where {T,MT,N,J} = hs.ζ
 # TODO cleanup
 #jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J<:Real} = TimeInterval(-ζ, ζ)
 #jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J}  = _promote_tspan(hs.ζ)
-switching(::HACLD1{T, MT, N, J, S}) where {T, MT, N, J, S} = S
+switching(::HACLD1{T,MT,N,J,S}) where {T,MT,N,J,S} = S
 
 # default constructor without jitter
-function HACLD1(sys::T, rmap::MT, Tsample::N) where {T, MT, N}
+function HACLD1(sys::T, rmap::MT, Tsample::N) where {T,MT,N}
     return HACLD1(sys, rmap, Tsample, missing, DeterministicSwitching())
 end
 
 # constructor when jitter is a real number
-function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J<:Real}
+function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T,MT,N,J<:Real}
     if iszero(ζ)
         switching = DeterministicSwitching()
         ζint = TimeInterval(ζ, ζ)
@@ -164,13 +164,13 @@ function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J<:Real}
 end
 
 # should be treated separately because IA.Interval <: Number
-function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J<:IA.Interval}
+function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T,MT,N,J<:IA.Interval}
     return HACLD1(sys, rmap, Tsample, ζ, NonDeterministicSwitching())
 end
 
 # constructor when jitter is an interval: check whether its diameter is zero or not
 # we promote ζ to accept tspan-like inputs (tuples, vectors, etc.)
-function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T, MT, N, J}
+function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T,MT,N,J}
     ζint = _promote_tspan(ζ)
     switching = diam(ζint) > zero(N) ? NonDeterministicSwitching() : DeterministicSwitching()
     return HACLD1(sys, rmap, Tsample, ζint, switching)
@@ -179,5 +179,5 @@ end
 function _check_dim(ivp::InitialValueProblem{<:HACLD1}; throw_error::Bool=true)
     S = system(ivp)
     X0 = initial_state(ivp)
-    _check_dim(S, X0, throw_error=throw_error)
+    return _check_dim(S, X0; throw_error=throw_error)
 end

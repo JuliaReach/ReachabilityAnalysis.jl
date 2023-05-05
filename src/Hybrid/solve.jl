@@ -29,7 +29,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     H = system(ivp_distributed)
 
     # dimensional checks
-    _check_dim(ivp_distributed, first_mode_representative=first_mode_representative)
+    _check_dim(ivp_distributed; first_mode_representative=first_mode_representative)
 
     # get time span (or the emptyset if NSTEPS was specified)
     time_span = _get_tspan(args...; kwargs...)
@@ -43,8 +43,8 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     # preallocate output flowpipe
     N = numtype(cpost)
     RT = rsetrep(cpost)
-    out = Vector{Flowpipe{N, RT, Vector{RT}}}()
-    sizehint!(out, max_jumps+1)
+    out = Vector{Flowpipe{N,RT,Vector{RT}}}()
+    sizehint!(out, max_jumps + 1)
 
     # list of (set, loc) tuples which have already been processed
     explored_list = typeof(waiting_list)()
@@ -52,9 +52,9 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     # preallocate output flowpipe strictly contained in each source invariant
     if intersect_source_invariant
         STwl = setrep(waiting_list)
-        RTwl = ReachSet{N, STwl}
-        out_in_inv = Vector{Flowpipe{N, RTwl, Vector{RTwl}}}()
-        sizehint!(out_in_inv, max_jumps+1)
+        RTwl = ReachSet{N,STwl}
+        out_in_inv = Vector{Flowpipe{N,RTwl,Vector{RTwl}}}()
+        sizehint!(out_in_inv, max_jumps + 1)
     end
 
     # elapsed time accumulators
@@ -77,7 +77,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         X0 = state(elem)
         S = mode(H, q)
         ivp_current = IVP(S, X0)
-        time_span = TimeInterval(t0, T-tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
+        time_span = TimeInterval(t0, T - tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
         F = post(cpost, ivp_current, time_span; Δt0=Δt0, kwargs...)
 
         # assign location q to this flowpipe
@@ -170,7 +170,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
     if got_ensemble
         @requires DifferentialEquations
         ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
-        dict = Dict{Symbol,Any}(:ensemble=>ensemble_sol)
+        dict = Dict{Symbol,Any}(:ensemble => ensemble_sol)
         sol = ReachSolution(HFout, cpost, dict)
     else
         sol = ReachSolution(HFout, cpost)
@@ -183,21 +183,20 @@ end
 
 # use the first_mode_representative flag to only check dimension of the first
 # element in the waiting list
-function _check_dim(ivp::InitialValueProblem{<:HybridSystem, <:AbstractWaitingList};
+function _check_dim(ivp::InitialValueProblem{<:HybridSystem,<:AbstractWaitingList};
                     throw_error::Bool=true,
                     first_mode_representative=false)
-
     H = system(ivp)
     if first_mode_representative
         X0_1 = state(first(initial_state(ivp)))
         S1 = mode(H, 1)
-        success = _check_dim(S1, X0_1, throw_error=throw_error)
+        success = _check_dim(S1, X0_1; throw_error=throw_error)
     else
         success = true
         for elem in initial_state(ivp)
             X0_i = state(elem)
             Si = mode(H, location(elem))
-            if !_check_dim(Si, X0_i, throw_error=throw_error)
+            if !_check_dim(Si, X0_i; throw_error=throw_error)
                 success = false
                 break
             end
@@ -207,7 +206,9 @@ function _check_dim(ivp::InitialValueProblem{<:HybridSystem, <:AbstractWaitingLi
 end
 
 _distribute(ivp::IVP, WLtype::Type{<:WaitingList}; kwargs...) = _distribute(ivp; kwargs...)
-_distribute(ivp::IVP, WLtype::Type{<:MixedWaitingList}; kwargs...) = _distribute_mixed(ivp; kwargs...)
+function _distribute(ivp::IVP, WLtype::Type{<:MixedWaitingList}; kwargs...)
+    return _distribute_mixed(ivp; kwargs...)
+end
 
 """
     _distribute(ivp::InitialValueProblem{HS, ST};
@@ -233,11 +234,10 @@ Distribute the set of initial states to each mode of a hybrid system.
 A new initial value problem with the same hybrid system but where the set of initial
 states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 """
-function _distribute(ivp::InitialValueProblem{HS, ST};
+function _distribute(ivp::InitialValueProblem{HS,ST};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false
-                     ) where {HS<:HybridSystem, ST<:AdmissibleSet}
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
     H = system(ivp)
     X0 = initial_state(ivp)
     N = eltype(X0)
@@ -255,7 +255,7 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
         STwl = ST
     end
 
-    waiting_list = WaitingList{TimeInterval, STwl, Int}()
+    waiting_list = WaitingList{TimeInterval,STwl,Int}()
 
     if !check_invariant
         for loc in states(H)
@@ -286,16 +286,15 @@ function _distribute(ivp::InitialValueProblem{HS, ST};
 end
 
 # in this implementation we use mixed waiting lists
-function _distribute_mixed(ivp::InitialValueProblem{HS, ST};
-                     intersection_method=nothing, # not used
-                     check_invariant=false,
-                     intersect_invariant=false
-                     ) where {HS<:HybridSystem, ST<:AdmissibleSet}
+function _distribute_mixed(ivp::InitialValueProblem{HS,ST};
+                           intersection_method=nothing, # not used
+                           check_invariant=false,
+                           intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
     H = system(ivp)
     X0 = initial_state(ivp)
     N = eltype(X0)
 
-    waiting_list = MixedWaitingList{TimeInterval, Vector{<:AdmissibleSet}}()
+    waiting_list = MixedWaitingList{TimeInterval,Vector{<:AdmissibleSet}}()
 
     if !check_invariant
         for loc in states(H)
@@ -326,12 +325,11 @@ end
 
 # the initial states are passed as a vector-of-tuples, each tuple being of the form
 # (loc, X) where loc is an integer that corresponds to the mode and X is a set
-function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{M, ST}}};
+function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{M,ST}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false
-                    ) where {HS<:HybridSystem, M<:Integer, ST<:AdmissibleSet}
-
+                     intersect_invariant=false) where {HS<:HybridSystem,M<:Integer,
+                                                       ST<:AdmissibleSet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
@@ -343,7 +341,7 @@ function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{M, ST}}};
     end
 
     N = eltype(ST)
-    WL = WaitingList{TimeInterval, STwl, Int, StateInLocation{STwl, Int}}
+    WL = WaitingList{TimeInterval,STwl,Int,StateInLocation{STwl,Int}}
 
     if !check_invariant && !intersect_invariant
         waiting_list = convert(WL, X0vec)
@@ -356,12 +354,11 @@ end
 
 # "duck-typing" the initial states passed as a vector-of-tuples, each tuple being
 # of the form (X, loc) where loc is an integer that corresponds to the mode and X is a set
-function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{ST, M}}};
+function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{ST,M}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false
-                    ) where {HS<:HybridSystem, ST<:AdmissibleSet, M<:Integer}
-
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet,
+                                                       M<:Integer}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
@@ -373,7 +370,7 @@ function _distribute(ivp::InitialValueProblem{HS, Vector{Tuple{ST, M}}};
     end
 
     N = eltype(ST)
-    WL = WaitingList{TimeInterval, STwl, Int, StateInLocation{STwl, Int}}
+    WL = WaitingList{TimeInterval,STwl,Int,StateInLocation{STwl,Int}}
 
     if !check_invariant && !intersect_invariant
         waiting_list = convert(WL, X0vec)

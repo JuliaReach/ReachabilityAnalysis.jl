@@ -45,22 +45,22 @@ end
 # The initial values considered are ``X_0 \in [0.9, 1.1] \times [0, 0] \times [0, 0]``,
 # for a time span of `10`.
 
-X0 = Hyperrectangle(low=[0.9, 0.0, 0.0], high=[1.1, 0.0, 0.0])
-prob = @ivp(x' = lorenz!(x), dim=3, x(0) ∈ X0);
+X0 = Hyperrectangle(; low=[0.9, 0.0, 0.0], high=[1.1, 0.0, 0.0])
+prob = @ivp(x' = lorenz!(x), dim = 3, x(0) ∈ X0);
 
 # ## Results
 
 # We compute the flowpipe using the TMJets algorithm with ``n_T=10`` and ``n_Q=2``.
 
-alg = TMJets(abstol=1e-15, orderT=10, orderQ=2, maxsteps=50_000);
+alg = TMJets(; abstol=1e-15, orderT=10, orderQ=2, maxsteps=50_000);
 
-sol = solve(prob, T=10.0, alg=alg);
+sol = solve(prob; T=10.0, alg=alg);
 
 solz = overapproximate(sol, Zonotope);
 
 #-
 
-fig = plot(solz, vars=(0, 1), xlab="t", ylab="x")
+fig = plot(solz; vars=(0, 1), xlab="t", ylab="x")
 
 #!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
@@ -68,8 +68,8 @@ fig = plot(solz, vars=(0, 1), xlab="t", ylab="x")
 # It is apparent by inspection that variable $x(t)$ does not exceed 20.0 in the computed
 # time span:
 
-fig = plot(solz(0.0 .. 1.5), vars=(0, 1), xlab="t", ylab="x", lw=0.0)
-plot!(x -> 20.0, c=:red, xlims=(0.0, 1.5), lab="")
+fig = plot(solz(0.0 .. 1.5); vars=(0, 1), xlab="t", ylab="x", lw=0.0)
+plot!(x -> 20.0; c=:red, xlims=(0.0, 1.5), lab="")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -80,7 +80,7 @@ plot!(x -> 20.0, c=:red, xlims=(0.0, 1.5), lab="")
 
 # In a similar fashion, we can compute extremal values of variable $y(t)$:
 
-fig = plot(solz, vars=(0, 2), xlab="t", ylab="y")
+fig = plot(solz; vars=(0, 2), xlab="t", ylab="y")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -94,15 +94,14 @@ fig = plot(solz, vars=(0, 2), xlab="t", ylab="y")
 
 #-
 
-fig = plot(solz, vars=(0, 3), xlab="t", ylab="z")
+fig = plot(solz; vars=(0, 3), xlab="t", ylab="z")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-
 # Below we plot the flowpipe projected on the `(1, 3)` plane.
 
-fig = plot(solz, vars=(1, 3))
+fig = plot(solz; vars=(1, 3))
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

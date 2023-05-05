@@ -43,7 +43,7 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
 
     # formulate ensemble ODE problem
     ensemble_prob = ODEProblem(field, first(initial_states), tspan)
-    _prob_func(prob, i, repeat) = remake(prob, u0 = initial_states[i])
+    _prob_func(prob, i, repeat) = remake(prob; u0=initial_states[i])
 
     # choose tolerances
     reltol = get(kwargs, :reltol, 1e-3)
@@ -52,7 +52,7 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     callback = get(kwargs, :callback, nothing)
     dtmax = get(kwargs, :dtmax, Inf)
 
-    ensemble_prob = EnsembleProblem(ensemble_prob, prob_func = _prob_func)
+    ensemble_prob = EnsembleProblem(ensemble_prob; prob_func=_prob_func)
 
     if isnothing(callback)
         result = DE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
@@ -191,7 +191,7 @@ function _solve_ensemble(ivp::InitialValueProblem{<:AbstractHybridSystem},
                 else
                     # choose a random successor
                     idx, t, y = rand(successors)
-                    indices_to_remove = idx+1:length(trajectory.u)
+                    indices_to_remove = (idx + 1):length(trajectory.u)
                     deleteat!(trajectory.u, indices_to_remove)
                     deleteat!(trajectory.t, indices_to_remove)
                     deleteat!(trajectory.k, indices_to_remove)
@@ -226,7 +226,7 @@ end
 
 # sample initial states of hybrid system given a list of pairs (loc, X0)
 function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
-                                  <:Vector{<:Tuple{Integer, AdmissibleSet}}};
+                                  <:Vector{<:Tuple{Integer,AdmissibleSet}}};
                          kwargs...)
     H = system(ivp)
     X0 = initial_state(ivp)
@@ -259,7 +259,7 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
 end
 
 # sample initial states of hybrid system given a set X0
-function _sample_initial(ivp::IVP{<:AbstractHybridSystem, <:AdmissibleSet};
+function _sample_initial(ivp::IVP{<:AbstractHybridSystem,<:AdmissibleSet};
                          kwargs...)
     H = system(ivp)
     X0 = initial_state(ivp)

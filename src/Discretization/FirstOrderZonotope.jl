@@ -38,7 +38,7 @@ end
 
 function Base.show(io::IO, alg::FirstOrderZonotope)
     print(io, "`FirstOrderZonotope` approximation model with:\n")
-    print(io, "    - exponentiation method: $(alg.exp)\n")
+    return print(io, "    - exponentiation method: $(alg.exp)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderZonotope) = print(io, alg)
@@ -47,7 +47,7 @@ Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderZonotope) = print(io, alg)
 # FirstOrderZonotope approximation: Homogeneous case
 # -----------------------------------------------
 
-function discretize(ivp::IVP{<:CLCS, <:AbstractZonotope}, δ, alg::FirstOrderZonotope)
+function discretize(ivp::IVP{<:CLCS,<:AbstractZonotope}, δ, alg::FirstOrderZonotope)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     n = dim(X0)
@@ -72,7 +72,7 @@ end
 # FirstOrderZonotope approximation: Inhomogeneous case
 # -------------------------------------------------
 
-function discretize(ivp::IVP{<:CLCCS, <:AbstractZonotope}, δ, alg::FirstOrderZonotope)
+function discretize(ivp::IVP{<:CLCCS,<:AbstractZonotope}, δ, alg::FirstOrderZonotope)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     n = dim(X0)

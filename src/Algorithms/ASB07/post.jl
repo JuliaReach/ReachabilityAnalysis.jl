@@ -1,6 +1,5 @@
 function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-
     @unpack δ, approx_model, max_order, reduction_method, static, recursive, dim, ngens = alg
 
     if haskey(kwargs, :NSTEPS)
@@ -8,7 +7,7 @@ function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -38,7 +37,7 @@ function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # preallocate output flowpipe
     #N = eltype(Ω0)
     ZT = typeof(Ω0)
-    F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
+    F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
     if got_homogeneous
         reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, recursive, reduction_method, Δt0)

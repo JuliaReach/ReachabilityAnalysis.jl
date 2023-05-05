@@ -29,7 +29,8 @@ the following methods are available:
 - `support_functions(R)`    -- return the vector of support function evaluations
 - `support_functions(R, i)` -- return the `i`-th coordinate of the vector of support function evaluatons
 """
-struct TemplateReachSet{N, VN, TN<:AbstractDirections{N, VN}, SN<:AbstractVector{N}} <: AbstractLazyReachSet{N}
+struct TemplateReachSet{N,VN,TN<:AbstractDirections{N,VN},SN<:AbstractVector{N}} <:
+       AbstractLazyReachSet{N}
     dirs::TN
     sf::SN
     Δt::TimeInterval
@@ -58,14 +59,14 @@ function set(R::TemplateReachSet)
 end
 
 # FIXME requires adding boundedness property as a type parameter
-setrep(::Type{<:TemplateReachSet{N, VN}}) where {N, VN} = HPolyhedron{N, VN}
-setrep(::TemplateReachSet{N, VN}) where {N, VN} = HPolyhedron{N, VN}
+setrep(::Type{<:TemplateReachSet{N,VN}}) where {N,VN} = HPolyhedron{N,VN}
+setrep(::TemplateReachSet{N,VN}) where {N,VN} = HPolyhedron{N,VN}
 
 tspan(R::TemplateReachSet) = R.Δt
 tstart(R::TemplateReachSet) = inf(R.Δt)
 tend(R::TemplateReachSet) = sup(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
-vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)),)
+vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)))
 
 directions(R::TemplateReachSet) = R.dirs
 support_functions(R::TemplateReachSet) = R.sf
@@ -73,7 +74,7 @@ support_functions(R::TemplateReachSet, i::Int) = R.sf[i]
 
 # get the matrix of support function evaluations, assuming that the vector
 # of support function evaluations for the reach-set is a view
-function support_function_matrix(R::TemplateReachSet{N, VN, TN, SN}) where {N, VN, TN, SN<:SubArray}
+function support_function_matrix(R::TemplateReachSet{N,VN,TN,SN}) where {N,VN,TN,SN<:SubArray}
     return R.sf.parent
 end
 
