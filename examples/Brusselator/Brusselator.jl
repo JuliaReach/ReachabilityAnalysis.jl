@@ -66,7 +66,7 @@ sol = solve(prob; T=18.0, alg=TMJets20(; orderT=6, orderQ=2)); #!jl
 
 using Plots #!jl
 
-fig = plot(sol; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe",
+fig = plot(sol; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe", #!jl
            legend=:bottomright) #!jl
 plot!(U₀; color=:orange, lab="Uo") #!jl
 
@@ -101,7 +101,7 @@ sol_01 = solve(bruss(0.01); T=30.0, alg=TMJets20(; orderT=6, orderQ=2))  #!jl
 
 LazySets.set_ztol(Float64, 1e-15)  #!jl
 
-fig = plot(sol_01; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)",
+fig = plot(sol_01; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)",  #!jl
            legend=:bottomright)  #!jl
 
 plot!(U0(0.01); color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
