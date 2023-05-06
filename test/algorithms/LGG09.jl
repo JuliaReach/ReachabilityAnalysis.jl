@@ -36,7 +36,7 @@ end
     # one-dimensional
     prob, dt = exponential_1d()
     box1d = CustomDirections([[1.0], [-1.0]])
-    sol = solve(prob; tspan=dt, LGG09(; δ=0.01, template=box1d))
+    sol = solve(prob; tspan=dt, alg=LGG09(; δ=0.01, template=box1d))
     @test isa(sol.alg, LGG09)
     @test setrep(sol) <: HPolyhedron
     @test setrep(sol) == HPolyhedron{Float64,Vector{Float64}}
@@ -47,7 +47,7 @@ end
     # higher-dimensional
     prob, dt = linear5D()
     box5d = BoxDirections{Float64,Vector{Float64}}(5)
-    sol = solve(prob; tspan=dt, LGG09(; δ=0.01, template=box5d))
+    sol = solve(prob; tspan=dt, alg=LGG09(; δ=0.01, template=box5d))
     @test setrep(sol) == HPolyhedron{Float64,Vector{Float64}}
     @test dim(sol) == 5
 

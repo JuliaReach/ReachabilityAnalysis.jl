@@ -6,7 +6,7 @@
     @test sol.alg isa TMJets
 
     # pass the algorithm explicitly
-    sol = solve(prob; tspan=tspan, TMJets())
+    sol = solve(prob; tspan=tspan, alg=TMJets())
     @test sol.alg isa TMJets
 
     # pass options outside algorithm
@@ -35,7 +35,7 @@ end
 
 @testset "TMJets algorithm (TMJets21b): linear IVPs" begin
     prob, dt = exponential_1d()
-    sol = solve(prob; tspan=dt, TMJets())
+    sol = solve(prob; tspan=dt, alg=TMJets())
     @test sol.alg isa TMJets
 
     # getter functions for a taylor model reach-set
@@ -48,7 +48,7 @@ end
 
     # test intersection with invariant
     prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
-    sol_inv = solve(prob; tspan=dt, TMJets())
+    sol_inv = solve(prob; tspan=dt, alg=TMJets())
     @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
     m = length(sol_inv)
     # check that the following reach-set escapes the invariant
@@ -56,18 +56,18 @@ end
 
     # TODO test higher order system
     #    prob, tspan = linear5D_homog()
-    #    sol = solve(prob, tspan=tspan, TMJets())
+    #    sol = solve(prob, tspan=tspan, alg=TMJets())
     #    @test sol.alg isa TMJets
 
     # TODO test linear system with input
     #    prob, tspan = linear5D()
-    #    sol = solve(prob, tspan=tspan, TMJets())
+    #    sol = solve(prob, tspan=tspan, alg=TMJets())
     #    @test sol.alg isa TMJets
 end
 
 @testset "TMJets algorithm (TMJets20): linear IVPs" begin
     prob, dt = exponential_1d()
-    sol = solve(prob; tspan=dt, TMJets20())
+    sol = solve(prob; tspan=dt, alg=TMJets20())
     @test sol.alg isa TMJets20
 
     # getter functions for a taylor model reach-set
@@ -80,7 +80,7 @@ end
 
     # test intersection with invariant
     prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
-    sol_inv = solve(prob; tspan=dt, TMJets20())
+    sol_inv = solve(prob; tspan=dt, alg=TMJets20())
     @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
     m = length(sol_inv)
     # check that the following reach-set escapes the invariant
@@ -103,6 +103,6 @@ end
 alg = TMJets(abstol=1e-10, orderT=10, orderQ=2)
 
 # reach mode
-sol = solve(P, T=7.0, alg)
+sol = solve(P, T=7.0, alg=alg)
 @test set(sol[1]) isa Hyperrectangle # check default set representation
 =#

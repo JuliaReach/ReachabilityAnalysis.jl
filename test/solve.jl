@@ -20,7 +20,7 @@ end
 @testset "Flowpipe interface" begin
     p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
     δ = 0.1
-    sol = solve(p; tspan=(0.0, 1.0), GLGM06(; δ=δ))
+    sol = solve(p; tspan=(0.0, 1.0), alg=GLGM06(; δ=δ))
     F = flowpipe(sol)
 
     # iteration
@@ -132,7 +132,7 @@ end
 
 @testset "Concrete projection" begin
     prob, tspan = motor_homog()
-    sol = solve(prob; tspan=tspan, GLGM06(; δ=0.01), static=false)
+    sol = solve(prob; tspan=tspan, alg=GLGM06(; δ=0.01), static=false)
 
     project(sol, (1, 3))
     project(sol, [1, 3])
