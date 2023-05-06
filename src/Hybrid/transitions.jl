@@ -30,8 +30,6 @@ struct DiscreteTransition{RT, WT, GT, IT⁻, IT⁺} <: AbstractTransition
     I⁺::IT⁺
 end
 
-reset_map(tr::DiscreteTransition{<:AbstractMatrix})  = ConstrainedAffineMap(tr.R, tr.W)
-reset_map(tr::DiscreteTransition{<:IdentityMap}) = ConstrainedIdentityMap(dim(tr.W), tr.W)
 HybridSystems.guard(tr::DiscreteTransition) = tr.G
 source_invariant(tr::DiscreteTransition) = tr.I⁻
 target_invariant(tr::DiscreteTransition) = tr.I⁺
