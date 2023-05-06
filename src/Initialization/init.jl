@@ -22,7 +22,7 @@ using ExprTools: splitdef, combinedef
                 TaylorIntegration
 
 # required to avoid conflicts with MathematicalSystems
-using LazySets: LinearMap, AffineMap, ResetMap
+using LazySets: AffineMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!

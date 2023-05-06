@@ -1,5 +1,3 @@
-using LazySets.Approximations: AbstractDirections
-
 """
     LGG09{N, AM, TN<:AbstractDirections} <: AbstractContinuousPost
 
