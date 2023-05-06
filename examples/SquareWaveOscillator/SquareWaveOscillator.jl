@@ -14,10 +14,10 @@ using ReachabilityAnalysis, Symbolics, Plots
 
 LazySets.set_ztol(Float64, 1e-15)
 
-function multistable_oscillator(; X0 = Interval(0.0, 0.05),
-                                V₊ = +13.5, V₋ = -13.5,
-                                R  = 20.E3, C  = 5.5556E-8,
-                                R1 = 20.E3, R2 = 20.E3)
+function multistable_oscillator(; X0=Interval(0.0, 0.05),
+                                V₊=+13.5, V₋=-13.5,
+                                R=20.E3, C=5.5556E-8,
+                                R1=20.E3, R2=20.E3)
     @variables x
     τ = 1 / (R * C)
     α = R2 / (R1 + R2)

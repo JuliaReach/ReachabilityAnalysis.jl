@@ -35,9 +35,9 @@ fig
 
 using Symbolics
 
-function opamp_with_saturation(; X0 = BallInf(zeros(2), 0.0),
-                               R₁ = 2.0, R₂ = 6.0, C  = 1.e-3,
-                               γ  = 100.0, δ  = 100.0, Es = 2.0)
+function opamp_with_saturation(; X0=BallInf(zeros(2), 0.0),
+                               R₁=2.0, R₂=6.0, C=1.e-3,
+                               γ=100.0, δ=100.0, Es=2.0)
     var = @variables eₒ ein
     α = hcat(-1 / (R₂ * C))
     β = hcat(-1 / (R₁ * C))
