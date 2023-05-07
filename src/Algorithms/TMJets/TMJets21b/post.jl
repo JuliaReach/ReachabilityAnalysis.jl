@@ -1,9 +1,8 @@
 function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
               Δt0::TimeInterval=zeroI,
               kwargs...) where {N}
-
     @unpack orderQ, orderT, abstol, maxsteps, absorb, adaptive, minabstol,
-            validatesteps, ε, δ, absorb_steps, disjointness = alg
+    validatesteps, ε, δ, absorb_steps, disjointness = alg
 
     # initial time and final time
     t0 = tstart(timespan)
@@ -26,7 +25,7 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     # fix the working variables and maximum order in the global
     # parameters struct (_params_TaylorN_)
-    set_variables("x", numvars=n, order=2*orderQ)
+    set_variables("x"; numvars=n, order=2 * orderQ)
 
     # initial set
     X0 = initial_state(ivp_norm)
@@ -42,14 +41,14 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     # call external solver
     TMSol = TaylorModels.validated_integ2(f!, X0tm, t0, T, orderQ, orderT,
-                                                  abstol, params;
-                                                  parse_eqs=parse_eqs,
-                                                  maxsteps=maxsteps,
-                                                  absorb=absorb,
-                                                  adaptive=adaptive,
-                                                  minabstol=minabstol,
-                                                  validatesteps=validatesteps,
-                                                  ε=ε, δ=ε, absorb_steps=absorb_steps)
+                                          abstol, params;
+                                          parse_eqs=parse_eqs,
+                                          maxsteps=maxsteps,
+                                          absorb=absorb,
+                                          adaptive=adaptive,
+                                          minabstol=minabstol,
+                                          validatesteps=validatesteps,
+                                          ε=ε, δ=ε, absorb_steps=absorb_steps)
     tv = TMSol.time
     xv = TMSol.fp
     xTM1v = TMSol.xTM
@@ -70,6 +69,6 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
         push!(F, Ri)
     end
-    ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
+    ext = Dict{Symbol,Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
     return Flowpipe(F, ext)
 end

@@ -27,7 +27,7 @@ We allow ``U`` to be a sequence of time varying non-deterministic input sets.
 
 See also Eqs.(14) in [[BFFPSV18]](@ref).
 """
-struct NoBloating{EM, SO, IT} <: AbstractApproximationModel
+struct NoBloating{EM,SO,IT} <: AbstractApproximationModel
     exp::EM
     setops::SO
     inv::IT
@@ -42,13 +42,13 @@ function Base.show(io::IO, alg::NoBloating)
     print(io, "`NoBloating` approximation model with:\n")
     print(io, "    - exponentiation method: $(alg.exp)\n")
     print(io, "    - set operations method: $(alg.setops)\n")
-    print(io, "    - invertibility assumption: $(alg.inv)\n")
+    return print(io, "    - invertibility assumption: $(alg.inv)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::NoBloating) = print(io, alg)
 
 # homogeneous case
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
+function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::NoBloating)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
@@ -61,7 +61,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::NoBloating)
 end
 
 # inhomogeneous case
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
+function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::NoBloating)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     U = next_set(inputset(ivp), 1)
@@ -84,5 +84,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::NoBloating)
 end
 
 # extension for no bloating case and singleton initial states
-_initial_state(X0::CartesianProduct{N, <:Singleton{N}, <:Singleton{N}}) where {N} = convert(Singleton, X0)
+function _initial_state(X0::CartesianProduct{N,<:Singleton{N},<:Singleton{N}}) where {N}
+    return convert(Singleton, X0)
+end
 _initial_state(X0) = X0

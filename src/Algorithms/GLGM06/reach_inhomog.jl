@@ -3,8 +3,8 @@
 # ==================
 
 # no invariant
-function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                               Ω0::Zonotope{N, VN, MN},
+function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                               Ω0::Zonotope{N,VN,MN},
                                Φ::AbstractMatrix,
                                NSTEPS::Integer,
                                δ::Float64,
@@ -13,7 +13,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                U::LazySet,
                                reduction_method::AbstractReductionMethod,
                                Δt0::TimeInterval,
-                               disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
+                               disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -43,8 +43,8 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 end
 
 # with invariant
-function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                               Ω0::Zonotope{N, VN, MN},
+function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                               Ω0::Zonotope{N,VN,MN},
                                Φ::AbstractMatrix,
                                NSTEPS::Integer,
                                δ::Float64,
@@ -53,7 +53,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                                U::LazySet,
                                reduction_method::AbstractReductionMethod,
                                Δt0::TimeInterval,
-                               disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
+                               disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -80,7 +80,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end

@@ -10,19 +10,18 @@ using ReachabilityAnalysis, Plots
     f = γ * cos(ω * t)
 
     du[1] = u[2]
-    du[2] = - α*x - δ*v - β*x^3 + f
+    return du[2] = -α * x - δ * v - β * x^3 + f
 end
 
 ω = 1.2
-T = 2*pi / ω
+T = 2 * pi / ω
 X0 = Singleton([1.0, 0.0]) ⊕ BallInf(zeros(2), 0.1)
-prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim=2);
+prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim = 2);
 
-sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets21a());
+sol = solve(prob; tspan=(0.0, 20 * T), alg=TMJets21a());
 
-fig = plot(sol, vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
+fig = plot(sol; vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
 
-fig = plot(sol, vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)
+fig = plot(sol; vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)
 
-fig = plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
-
+fig = plot(sol; vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)

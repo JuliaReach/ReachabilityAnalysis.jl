@@ -1,6 +1,6 @@
 @testset "Abstract flowpipe interface" begin
     prob, dt = harmonic_oscillator()
-    sol = solve(prob, tspan=dt)
+    sol = solve(prob; tspan=dt)
     fp = flowpipe(sol)
 
     # base, numeric, set and reach-set types
@@ -8,9 +8,9 @@
     @test basetype(FT) == basetype(fp) == Flowpipe
     N = ReachabilityAnalysis.numtype(fp)
     @test N == Float64
-    ZT = Zonotope{N, Vector{N}, Matrix{N}}
+    ZT = Zonotope{N,Vector{N},Matrix{N}}
     @test setrep(FT) == ZT
-    @test rsetrep(fp) == ReachSet{N, ZT}
+    @test rsetrep(fp) == ReachSet{N,ZT}
 
     # ambient dimension
     @test dim(fp) == 2
@@ -33,7 +33,7 @@ end
 
 @testset "Flowpipe set operations interface" begin
     prob, dt = harmonic_oscillator()
-    sol = solve(prob, tspan=dt)
+    sol = solve(prob; tspan=dt)
     fp = flowpipe(sol)
 
     # support function and support vector
@@ -51,15 +51,16 @@ end
 
 end
 
-@testset begin "Flowpipe inclusion"
+@testset begin
+    "Flowpipe inclusion"
     # Projectile problem 
-    A = [0. 0.5 0. 0. ; 0. 0. 0. 0. ; 0. 0. 0. 0.7 ; 0. 0. 0. 0.]
-    X0 = Singleton([0.,5.,100.,0])
-    U = Singleton([0.,0.,0.,-9.81])
-    prob = @ivp(x' = A * x + Matrix(1.0I, 4, 4) * u,  x(0) ∈ X0, u ∈ U, x ∈ Universe(4))
-    cons = LinearConstraint([24., 0., 1, 0], 375.)
-    alg = GLGM06(δ=1e-2, approx_model=Forward())
-    sol = solve(prob, T=20.0, alg=alg)
+    A = [0.0 0.5 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.7; 0.0 0.0 0.0 0.0]
+    X0 = Singleton([0.0, 5.0, 100.0, 0])
+    U = Singleton([0.0, 0.0, 0.0, -9.81])
+    prob = @ivp(x' = A * x + Matrix(1.0I, 4, 4) * u, x(0) ∈ X0, u ∈ U, x ∈ Universe(4))
+    cons = LinearConstraint([24.0, 0.0, 1, 0], 375.0)
+    alg = GLGM06(; δ=1e-2, approx_model=Forward())
+    sol = solve(prob; T=20.0, alg=alg)
 
     # equivalent ways
     @test all(set(R) ⊆ cons for R in sol)
@@ -70,31 +71,31 @@ end
 @testset "Flowpipe constructors" begin
     # uninitialized array constructor
     # if the set type is passed, then a ReachSet is used by default
-    fp = Flowpipe(undef, Singleton{Float64, Vector{Float64}}, 3)
+    fp = Flowpipe(undef, Singleton{Float64,Vector{Float64}}, 3)
     @test length(fp) == 3
     @test_throws UndefRefError dim(fp) # fp is not empty but its dimension is not defined
-    @test setrep(fp) == Singleton{Float64, Vector{Float64}}
+    @test setrep(fp) == Singleton{Float64,Vector{Float64}}
 
     # the reach-set type can be passed directly
-    fpr = Flowpipe(undef, ReachSet{Float64, Singleton{Float64, Vector{Float64}}}, 3)
+    fpr = Flowpipe(undef, ReachSet{Float64,Singleton{Float64,Vector{Float64}}}, 3)
     @test length(fpr) == 3
     @test typeof(fpr) == typeof(fp)
-    @test setrep(fpr) == Singleton{Float64, Vector{Float64}}
+    @test setrep(fpr) == Singleton{Float64,Vector{Float64}}
 
     # try another reach-set type
-    RSP = SparseReachSet{Float64, Singleton{Float64, Vector{Float64}}, 2}
+    RSP = SparseReachSet{Float64,Singleton{Float64,Vector{Float64}},2}
     fp = Flowpipe(undef, RSP, 3)
     @test length(fp) == 3
     @test dim(fp) == 2 # in this set type, the dimension is known
-    @test setrep(fp) == Singleton{Float64, Vector{Float64}}
+    @test setrep(fp) == Singleton{Float64,Vector{Float64}}
 end
 
 @testset "Hybrid flowpipe time evaluation" begin
     X = Interval(0 .. 1)
     δ = 0.1
-    F1 = Flowpipe([ReachSet(X, (0 .. δ) + k*δ) for k in 0:10])
-    F2 = Flowpipe([ReachSet(X, (0 .. δ) + k*δ) for k in 9:20])
-    F2′ = Flowpipe([ReachSet(X, (0 .. δ) + k*δ*0.9) for k in 9:20])
+    F1 = Flowpipe([ReachSet(X, (0 .. δ) + k * δ) for k in 0:10])
+    F2 = Flowpipe([ReachSet(X, (0 .. δ) + k * δ) for k in 9:20])
+    F2′ = Flowpipe([ReachSet(X, (0 .. δ) + k * δ * 0.9) for k in 9:20])
     H = HybridFlowpipe([F1, F2])
     H′ = HybridFlowpipe([F1, F2′])
 
@@ -107,7 +108,7 @@ end
 @testset "Flowpipe clustering" begin
     X = Interval(0 .. 1)
     δ = 0.1
-    F1 = Flowpipe([ReachSet(X, (0 .. δ) + k*δ) for k in 0:10])
+    F1 = Flowpipe([ReachSet(X, (0 .. δ) + k * δ) for k in 0:10])
 
     #= FIXME requires LazySets#2157
     N = eltype(X)

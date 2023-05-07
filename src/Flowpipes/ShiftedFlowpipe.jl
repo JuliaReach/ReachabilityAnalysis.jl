@@ -20,7 +20,7 @@ by the amount `t0` (which should be a subtype of `Number`).
 
 A convenience constructor alias `Shift` is given.
 """
-struct ShiftedFlowpipe{FT<:AbstractFlowpipe, NT<:Number} <: AbstractFlowpipe
+struct ShiftedFlowpipe{FT<:AbstractFlowpipe,NT<:Number} <: AbstractFlowpipe
     F::FT
     t0::NT
 end
@@ -47,7 +47,7 @@ end
 project(fp::ShiftedFlowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
 project(fp::ShiftedFlowpipe; vars) = project(fp, Tuple(vars))
 
-function project(fp::ShiftedFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+function project(fp::ShiftedFlowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
     Xk = array(fp)
     # TODO: use projection of the reachsets
     if 0 ∈ vars # projection includes "time"
@@ -62,7 +62,7 @@ end
 
 # this method is analogue to project(::AbstractLazyReachSet, vars; check_vars=true)
 # TODO add check_vars ?
-function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:Integer}
+function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D,M}) where {D,M<:Integer}
     t0 = time_shift(fp)
     R = fp[i]
     if 0 ∈ vars
@@ -71,7 +71,7 @@ function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D, M}) where {D, M<:I
         aux = vars .+ 1
 
         Δt = convert(Interval, tspan(R) + t0)
-        proj =  project(Δt × set(R), aux)
+        proj = project(Δt × set(R), aux)
     else
         proj = project(set(R), vars)
     end

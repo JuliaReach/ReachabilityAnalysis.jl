@@ -13,7 +13,7 @@ field(f::Function) = f
 
 # function-like evaluation
 @inline function (V::VectorField)(args...)
-    evaluate(V, args...)
+    return evaluate(V, args...)
 end
 
 @inline function evaluate(V::VectorField, args...)
@@ -58,8 +58,8 @@ function outofplace_field(ivp::InitialValueProblem)
 
     # function closure over the inital-value problem
     f = function f_outofplace(x, p, t)
-             vf(x)
-         end
+        return vf(x)
+    end
     return f
 end
 
@@ -69,8 +69,8 @@ function inplace_field!(ivp::InitialValueProblem)
 
     # function closure over the inital-value problem
     f! = function f_inplace!(dx, x, p, t)
-             dx .= vf(x)
-         end
+        return dx .= vf(x)
+    end
     return f!
 end
 

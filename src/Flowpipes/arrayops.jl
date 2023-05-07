@@ -71,7 +71,8 @@ end
 # it may return either a SEV or a regular Vector depending on the indices
 # but it is much faster than the fallback if the indices match
 function minus(e1::SingleEntryVector{N}, e2::SingleEntryVector{N}) where {N}
-    e1.n == e2.n || throw(DimensionMismatch("dimensions must match, but they are $(length(e1)) and $(length(e2)) respectively"))
+    e1.n == e2.n ||
+        throw(DimensionMismatch("dimensions must match, but they are $(length(e1)) and $(length(e2)) respectively"))
 
     if e1.i == e2.i
         return SingleEntryVector(e1.i, e1.n, e1.v - e2.v)
@@ -89,7 +90,8 @@ end
 # it may return either a SEV or a regular Vector depending on the indices
 # but it is much faster than the fallback if the indices match
 function plus(e1::SingleEntryVector{N}, e2::SingleEntryVector{N}) where {N}
-    e1.n == e2.n || throw(DimensionMismatch("dimensions must match, but they are $(length(e1)) and $(length(e2)) respectively"))
+    e1.n == e2.n ||
+        throw(DimensionMismatch("dimensions must match, but they are $(length(e1)) and $(length(e2)) respectively"))
 
     if e1.i == e2.i
         return SingleEntryVector(e1.i, e1.n, e1.v + e2.v)
@@ -105,7 +107,8 @@ end
 
 # norm of the difference of two SEV ||x - y|| in the (vector p norm)
 function normdiff(e1::SingleEntryVector{N}, e2::SingleEntryVector{N}, p::Real=2) where {N}
-    e1.n == e2.n || throw(DimensionMismatch("dimensions must match, but they are $(length(e1)) and $(length(e2)) respectively"))
+    e1.n == e2.n ||
+        throw(DimensionMismatch("dimensions must match, but they are $(length(e1)) and $(length(e2)) respectively"))
 
     if e1.i == e2.i
         δ = e1.v - e2.v
@@ -118,12 +121,12 @@ function normdiff(e1::SingleEntryVector{N}, e2::SingleEntryVector{N}, p::Real=2)
             return max(a, b)
         else
             s = a^p + b^p
-            return s^(1/p)
+            return s^(1 / p)
         end
     end
 end
 
 # fallback
 function normdiff(x::AbstractVector{N}, y::AbstractVector{N}, p::Real=2) where {N}
-    norm(x - y, p)
+    return norm(x - y, p)
 end

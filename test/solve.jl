@@ -1,25 +1,26 @@
 @testset "Default continuous post-operator" begin
     prob, dt = motor_homog()
-    sol = solve(prob, tspan=dt);
+    sol = solve(prob; tspan=dt)
     @test sol.alg isa GLGM06
     @test sol.alg.static == Val{false}()
     @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
 
     # static case
-    sol = solve(prob, tspan=dt, static=true);
+    sol = solve(prob; tspan=dt, static=true)
     @test sol.alg isa GLGM06
     @test sol.alg.static == Val{true}()
-    @test setrep(sol) == Zonotope{Float64,SArray{Tuple{8},Float64,1,8},SArray{Tuple{8,13},Float64,2,104}}
+    @test setrep(sol) ==
+          Zonotope{Float64,SArray{Tuple{8},Float64,1,8},SArray{Tuple{8,13},Float64,2,104}}
 
     # if the static kwarg is passed outside the algorithm => it is ignored
-    sol = solve(prob, tspan=dt, alg=GLGM06(δ=1e-2), static=true);
+    sol = solve(prob; tspan=dt, alg=GLGM06(; δ=1e-2), static=true)
     @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
 end
 
 @testset "Flowpipe interface" begin
-    p = @ivp(x' = -x, x(0) ∈ 0..1)
+    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
     δ = 0.1
-    sol = solve(p, tspan=(0.0, 1.0), GLGM06(δ=δ))
+    sol = solve(p; tspan=(0.0, 1.0), alg=GLGM06(; δ=δ))
     F = flowpipe(sol)
 
     # iteration
@@ -51,12 +52,12 @@ end
     # set representation
     @test setrep(F) <: Zonotope
     N = Float64
-    ZT = Zonotope{N, Vector{N}, Matrix{N}}
+    ZT = Zonotope{N,Vector{N},Matrix{N}}
     @test setrep(F) == ZT
-    @test rsetrep(F) == ReachSet{N, ZT}
+    @test rsetrep(F) == ReachSet{N,ZT}
 
     # callable behavior
-    @test F(0..1) == F[1:end]
+    @test F(0 .. 1) == F[1:end]
     @test F(0.05) == F[1]
     @test F(1.0) == F[end]
     @test F(0.05 .. 0.15) == F[1:2]
@@ -75,80 +76,80 @@ end
     @test dim(F) == 1
 
     # different ways to input the time span or the time horizon
-    sol = solve(p, tspan=(0.0, 1.0))
+    sol = solve(p; tspan=(0.0, 1.0))
     sol = solve(p, (0.0, 1.0))
-    sol = solve(p, tspan=[0.0, 1.0])
+    sol = solve(p; tspan=[0.0, 1.0])
     sol = solve(p, [0.0, 1.0])
-    sol = solve(p, T=1.0)
+    sol = solve(p; T=1.0)
     sol = solve(p, 1.0)
 end
 
 @testset "Solution interface: initial states" begin
     # interval initial condition
-    p = @ivp(x' = -x, x(0) ∈ 0..1)
-    solve(p, T=1.0)
+    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
+    solve(p; T=1.0)
 
     # interval initial condition
     p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
-    solve(p, T=1.0)
+    solve(p; T=1.0)
 
     # deterministic initial condition, scalar for one-dimensional matrix (TODO)
     p = InitialValueProblem(@system(x' = -x), 0.5)
-    solve(p, T=1.0)
+    solve(p; T=1.0)
 
     # deterministic initial condition, vector
     p = InitialValueProblem(@system(x' = -x), [0.5])
-    solve(p, T=1.0)
+    solve(p; T=1.0)
 end
 
 @testset "Solution interface: time span" begin
-    p = @ivp(x' = -x, x(0) ∈ 0..1)
+    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
     Δt = 0.0 .. 2.0
 
     # only time horizon given
-    sol = solve(p, T=2.0)
+    sol = solve(p; T=2.0)
     @test _isapprox(tspan(sol), Δt)
 
     # both time horizon and time span given => error
     @test_throws ArgumentError solve(p, T=1.0, tspan=(0.0, 2.0))
 
     # time span given as a tuple
-    sol = solve(p, tspan=(0.0, 2.0))
+    sol = solve(p; tspan=(0.0, 2.0))
     @test _isapprox(tspan(sol), Δt)
 
     # time span given as an interval
-    sol = solve(p, tspan=0.0 .. 2.0)
+    sol = solve(p; tspan=0.0 .. 2.0)
     @test _isapprox(tspan(sol), Δt)
 
     # time span given as a LazySets interval
-    sol = solve(p, tspan=Interval(0.0, 2.0))
+    sol = solve(p; tspan=Interval(0.0, 2.0))
     @test _isapprox(tspan(sol), Δt)
 
     # time span given as a vector
-    sol = solve(p, tspan=[0.0, 2.0])
+    sol = solve(p; tspan=[0.0, 2.0])
     @test _isapprox(tspan(sol), Δt)
 end
 
 @testset "Concrete projection" begin
     prob, tspan = motor_homog()
-    sol = solve(prob, tspan=tspan, GLGM06(δ=0.01), static=false)
+    sol = solve(prob; tspan=tspan, alg=GLGM06(; δ=0.01), static=false)
 
     project(sol, (1, 3))
     project(sol, [1, 3])
-    project(sol, vars=[1, 3])
-    project(sol, vars=(1, 3))
+    project(sol; vars=[1, 3])
+    project(sol; vars=(1, 3))
 
     F = flowpipe(sol)
     project(F, (1, 3))
     project(F, [1, 3])
-    project(F, vars=[1, 3])
-    project(F, vars=(1, 3))
+    project(F; vars=[1, 3])
+    project(F; vars=(1, 3))
 
     R = sol[end]
     project(R, (1, 3))
     project(R, [1, 3])
-    project(R, vars=(1, 3))
-    project(R, vars=[1, 3])
+    project(R; vars=(1, 3))
+    project(R; vars=[1, 3])
 
     # TODO concrete projection of sets with static array fields
 end

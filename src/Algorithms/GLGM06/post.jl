@@ -1,9 +1,8 @@
 # continuous post for GLGM06 using Zonotope set representation
 function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-
     @unpack δ, approx_model, max_order, static, dim, ngens,
-            preallocate, reduction_method, disjointness_method = alg
+    preallocate, reduction_method, disjointness_method = alg
 
     # TODO move up to main solve function
     if haskey(kwargs, :NSTEPS)
@@ -11,7 +10,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -45,7 +44,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # preallocate output flowpipe
     @assert N == eltype(Ω0)
     ZT = typeof(Ω0)
-    F = Vector{ReachSet{N, ZT}}(undef, NSTEPS)
+    F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
     if got_homogeneous
 
@@ -59,14 +58,16 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         end
         =#
 
-        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate, Δt0, disjointness_method)
+        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate, Δt0,
+                            disjointness_method)
     else
         # TODO: implement preallocate option for this scenario
         U = inputset(ivp_discr)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
         U = _reconvert(U, static, dim, ngens)
-        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0, disjointness_method)
+        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0,
+                              disjointness_method)
     end
 
     return Flowpipe(F)

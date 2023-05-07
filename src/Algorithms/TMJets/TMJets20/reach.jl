@@ -4,7 +4,6 @@
 #==============================================================================
 The TaylorModels.jl package is licensed under the MIT "Expat" License:
 
-
 > Copyright (c) 2018-2020: David Sanders and Luis Benet.
 >
 >
@@ -53,15 +52,16 @@ Returns a remainder for the integration step for the dependent variables (`x`)
 checking that the solution satisfies the criteria for existence and uniqueness.
 """
 function remainder_taylorstep!(f!::Function, t::Taylor1{T},
-        x::Vector{Taylor1{TaylorN{T}}}, dx::Vector{Taylor1{TaylorN{T}}},
-        xI::Vector{Taylor1{IA.Interval{T}}}, dxI::Vector{Taylor1{IA.Interval{T}}},
-        δI::IntervalBox{N,T}, δt::IA.Interval{T}, params, adaptive::Bool) where {N,T}
-
+                               x::Vector{Taylor1{TaylorN{T}}}, dx::Vector{Taylor1{TaylorN{T}}},
+                               xI::Vector{Taylor1{IA.Interval{T}}},
+                               dxI::Vector{Taylor1{IA.Interval{T}}},
+                               δI::IntervalBox{N,T}, δt::IA.Interval{T}, params,
+                               adaptive::Bool) where {N,T}
     orderT = get_order(dx[1])
-    aux = δt^(orderT+1)
-    Δx  = IntervalBox([xI[i][orderT+1] for i in eachindex(xI)]) * aux
-    Δdx = IntervalBox([dxI[i][orderT+1] for i in eachindex(xI)]) * aux
-    Δ0  = IntervalBox([dx[i][orderT](δI) for i in eachindex(x)]) * aux / (orderT+1)
+    aux = δt^(orderT + 1)
+    Δx = IntervalBox([xI[i][orderT + 1] for i in eachindex(xI)]) * aux
+    Δdx = IntervalBox([dxI[i][orderT + 1] for i in eachindex(xI)]) * aux
+    Δ0 = IntervalBox([dx[i][orderT](δI) for i in eachindex(x)]) * aux / (orderT + 1)
     Δ = Δ0 + Δdx * δt
     Δxold = Δx
 
@@ -72,8 +72,8 @@ function remainder_taylorstep!(f!::Function, t::Taylor1{T},
     # and the corresponding Δdx is computed
     xxI  = Array{Taylor1{TaylorN{IA.Interval{T}}}}(undef, N)
     dxxI = Array{Taylor1{TaylorN{IA.Interval{T}}}}(undef, N)
-    vv = Array{IA.Interval{T}}(undef, N)
-    for its = 1:50
+    vv   = Array{IA.Interval{T}}(undef, N)
+    for its in 1:50
         # Remainder of Picard iteration
         Δ = picard_remainder!(f!, t, x, dx, xxI, dxxI, δI, δt, Δx, Δ0, params)
 
@@ -119,7 +119,7 @@ end
 Checks if `Δ .⊂ Δx` is satisfied. If ``Δ ⊆ Δx` is satisfied, it returns
 `true` if all cases where `==` holds corresponds to the zero `IA.Interval`.
 """
-function iscontractive(Δ::IntervalBox{N,T}, Δx::IntervalBox{N,T}) where{N,T}
+function iscontractive(Δ::IntervalBox{N,T}, Δx::IntervalBox{N,T}) where {N,T}
     zi = IA.Interval{T}(0, 0)
     @inbounds for ind in 1:N
         Δ[ind] ⊂ Δx[ind] && continue
@@ -135,11 +135,11 @@ end
 Return the remainder of Picard operator
 """
 function picard_remainder!(f!::Function, t::Taylor1{T},
-    x::Vector{Taylor1{TaylorN{T}}}, dx::Vector{Taylor1{TaylorN{T}}},
-    xxI::Vector{Taylor1{TaylorN{IA.Interval{T}}}},
-    dxxI::Vector{Taylor1{TaylorN{IA.Interval{T}}}},
-    δI::IntervalBox{N,T}, δt::IA.Interval{T},
-    Δx::IntervalBox{N,T}, Δ0::IntervalBox{N,T}, params) where {N,T}
+                           x::Vector{Taylor1{TaylorN{T}}}, dx::Vector{Taylor1{TaylorN{T}}},
+                           xxI::Vector{Taylor1{TaylorN{IA.Interval{T}}}},
+                           dxxI::Vector{Taylor1{TaylorN{IA.Interval{T}}}},
+                           δI::IntervalBox{N,T}, δt::IA.Interval{T},
+                           Δx::IntervalBox{N,T}, Δ0::IntervalBox{N,T}, params) where {N,T}
 
     # Extend `x` and `dx` to have IA.Interval coefficients
     zI = zero(IA.Interval{T})
@@ -152,7 +152,7 @@ function picard_remainder!(f!::Function, t::Taylor1{T},
     f!(dxxI, xxI, params, t)
 
     # Picard iteration, considering only the bound of `f` and the last coeff of f
-    Δdx = IntervalBox(TM.evaluate.( (dxxI - dx)(δt), (δI,) ) )
+    Δdx = IntervalBox(TM.evaluate.((dxxI - dx)(δt), (δI,)))
     Δ = Δ0 + Δdx * δt
     return Δ
 end
@@ -172,12 +172,12 @@ IEEE Press.
 function absorb_remainder(a::TaylorModelN{N,T,T}) where {N,T}
     Δ = remainder(a)
     orderQ = get_order(a)
-    δ = IntervalBox(IA.Interval{T}(-1,1), Val(N))
-    aux = diam(Δ)/(2N)
+    δ = IntervalBox(IA.Interval{T}(-1, 1), Val(N))
+    aux = diam(Δ) / (2N)
     rem = IA.Interval{T}(0, 0)
 
     # Linear shift
-    lin_shift = mid(Δ) + sum((aux*TaylorN(i, order=orderQ) for i in 1:N))
+    lin_shift = mid(Δ) + sum((aux * TaylorN(i; order=orderQ) for i in 1:N))
     bpol = a.pol + lin_shift
 
     # Compute the new remainder
@@ -185,16 +185,16 @@ function absorb_remainder(a::TaylorModelN{N,T,T}) where {N,T}
     bI = bpol(δ)
 
     if bI ⊆ aI
-        rem = IA.Interval(aI.lo-bI.lo, aI.hi-bI.hi)
+        rem = IA.Interval(aI.lo - bI.lo, aI.hi - bI.hi)
     elseif aI ⊆ bI
-        rem = IA.Interval(bI.lo-aI.lo, bI.hi-aI.hi)
+        rem = IA.Interval(bI.lo - aI.lo, bI.hi - aI.hi)
     else
-        r_lo = aI.lo-bI.lo
-        r_hi = aI.hi-bI.hi
+        r_lo = aI.lo - bI.lo
+        r_hi = aI.hi - bI.hi
         if r_lo > 0
             rem = IA.Interval(-r_lo, r_hi)
         else
-            rem = IA.Interval( r_lo, -r_hi)
+            rem = IA.Interval(r_lo, -r_hi)
         end
     end
 
@@ -205,30 +205,34 @@ end
     validated-step!
 """
 function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
-        dx::Vector{Taylor1{TaylorN{T}}}, xaux::Vector{Taylor1{TaylorN{T}}},
-        tI::Taylor1{T}, xI::Vector{Taylor1{IA.Interval{T}}},
-        dxI::Vector{Taylor1{IA.Interval{T}}}, xauxI::Vector{Taylor1{IA.Interval{T}}},
-        t0::T, tmax::T, sign_tstep::Int,
-        xTMN::Vector{TaylorModelN{N,T,T}}, xv::Vector{IntervalBox{N,T}},
-        rem::Vector{IA.Interval{T}}, zbox::IntervalBox{N,T}, symIbox::IntervalBox{N,T},
-        nsteps::Int, orderT::Int, abstol::T, params, tmpTaylor, arrTaylor,
-        tmpTaylorI, arrTaylorI, parse_eqs::Bool,
-        check_property::Function=(t, x)->true, adaptive::Bool=true) where {N,T}
+                         dx::Vector{Taylor1{TaylorN{T}}}, xaux::Vector{Taylor1{TaylorN{T}}},
+                         tI::Taylor1{T}, xI::Vector{Taylor1{IA.Interval{T}}},
+                         dxI::Vector{Taylor1{IA.Interval{T}}},
+                         xauxI::Vector{Taylor1{IA.Interval{T}}},
+                         t0::T, tmax::T, sign_tstep::Int,
+                         xTMN::Vector{TaylorModelN{N,T,T}}, xv::Vector{IntervalBox{N,T}},
+                         rem::Vector{IA.Interval{T}}, zbox::IntervalBox{N,T},
+                         symIbox::IntervalBox{N,T},
+                         nsteps::Int, orderT::Int, abstol::T, params, tmpTaylor, arrTaylor,
+                         tmpTaylorI, arrTaylorI, parse_eqs::Bool,
+                         check_property::Function=(t, x) -> true, adaptive::Bool=true) where {N,T}
 
     # One step integration (non-validated)
     # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, t, x, dx, xaux, params)
     # δt = TaylorIntegration.stepsize(x, abstol)
-    δt = TaylorIntegration.taylorstep!(f!, t, x, dx, xaux, abstol, params, tmpTaylor, arrTaylor, parse_eqs)
+    δt = TaylorIntegration.taylorstep!(f!, t, x, dx, xaux, abstol, params, tmpTaylor, arrTaylor,
+                                       parse_eqs)
     f!(dx, x, params, t)  # Update `dx[:][orderT]`
 
     # One step integration for the initial box
     # TaylorIntegration.__jetcoeffs!(Val(parse_eqs), f!, tI, xI, dxI, xauxI, params)
     # δtI = TaylorIntegration.stepsize(xI, abstol)
-    δtI = TaylorIntegration.taylorstep!(f!, tI, xI, dxI, xauxI, abstol, params, tmpTaylorI, arrTaylorI, parse_eqs)
+    δtI = TaylorIntegration.taylorstep!(f!, tI, xI, dxI, xauxI, abstol, params, tmpTaylorI,
+                                        arrTaylorI, parse_eqs)
     f!(dxI, xI, params, tI)  # Update `dxI[:][orderT+1]`
 
     # Step size
-    δt = min(δt, sign_tstep*(tmax-t0))
+    δt = min(δt, sign_tstep * (tmax - t0))
     δt = sign_tstep * δt
 
     # Test if `check_property` is satisfied; if not, half the integration time.
@@ -238,10 +242,11 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     rem_old = copy(rem)
     local success, _t0
 
-    for nchecks = 1:25
+    for nchecks in 1:25
         # Validate the solution: remainder consistent with Schauder thm
-        δtI = sign_tstep * IA.Interval(0, sign_tstep*δt)
-        (success, Δ, _t0) = remainder_taylorstep!(f!, t, x, dx, xI, dxI, symIbox, δtI, params, adaptive)
+        δtI = sign_tstep * IA.Interval(0, sign_tstep * δt)
+        (success, Δ, _t0) = remainder_taylorstep!(f!, t, x, dx, xI, dxI, symIbox, δtI, params,
+                                                  adaptive)
         if adaptive && !success
             break
         end
@@ -251,7 +256,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
         # Create TaylorModelN to store remainders and evaluation
         @inbounds begin
             for i in eachindex(x)
-                xTMN[i] = fp_rpa( TaylorModelN(x[i](δtI), rem[i], zbox, symIbox) )
+                xTMN[i] = fp_rpa(TaylorModelN(x[i](δtI), rem[i], zbox, symIbox))
 
                 # If remainder is still too big, do it again
                 # TODO: check if this can be avoided.
@@ -264,8 +269,8 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
             end
             xv[nsteps] = TM.evaluate(xTMN, symIbox) # IntervalBox
 
-            if !check_property(t0+δt, xv[nsteps])
-                δt = δt/2
+            if !check_property(t0 + δt, xv[nsteps])
+                δt = δt / 2
                 continue
             end
         end # @inbounds
@@ -288,7 +293,8 @@ end
 function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
                           abstol::T, max_steps::Int, X::LazySet, disjointness, Δt0,
                           adaptive::Bool=true, params=nothing;
-                          parse_eqs::Bool=true, check_property::Function=(t, x)->true) where {T<:Real}
+                          parse_eqs::Bool=true,
+                          check_property::Function=(t, x) -> true) where {T<:Real}
 
     # Set proper parameters for jet transport
     N = get_numvars()
@@ -298,22 +304,22 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
     zI = zero(IA.Interval{T})
     zbox = IntervalBox(zI, Val(N))
     symIbox = IntervalBox(IA.Interval{T}(-1, 1), Val(N))
-    t   = t0 + Taylor1(orderT)
-    tI  = t0 + Taylor1(orderT+1)
+    t = t0 + Taylor1(orderT)
+    tI = t0 + Taylor1(orderT + 1)
 
     # Allocation of vectors
 
     # Output
-    tv    = Vector{T}(undef, max_steps+1)
-    xv    = Vector{IntervalBox{N,T}}(undef, max_steps+1)
-    xTM1v = Matrix{TaylorModel1{TaylorN{T},T}}(undef, dof, max_steps+1)
-    rem = Vector{IA.Interval{T}}(undef, dof)
+    tv    = Vector{T}(undef, max_steps + 1)
+    xv    = Vector{IntervalBox{N,T}}(undef, max_steps + 1)
+    xTM1v = Matrix{TaylorModel1{TaylorN{T},T}}(undef, dof, max_steps + 1)
+    rem   = Vector{IA.Interval{T}}(undef, dof)
 
     # Internals: jet transport integration
-    x     = Vector{Taylor1{TaylorN{T}}}(undef, dof)
-    dx    = Vector{Taylor1{TaylorN{T}}}(undef, dof)
-    xaux  = Vector{Taylor1{TaylorN{T}}}(undef, dof)
-    xTMN  = Vector{TaylorModelN{N,T,T}}(undef, dof)
+    x    = Vector{Taylor1{TaylorN{T}}}(undef, dof)
+    dx   = Vector{Taylor1{TaylorN{T}}}(undef, dof)
+    xaux = Vector{Taylor1{TaylorN{T}}}(undef, dof)
+    xTMN = Vector{TaylorModelN{N,T,T}}(undef, dof)
 
     # Internals: Taylor1{IA.Interval{T}} integration
     xI    = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
@@ -322,15 +328,17 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
 
     # Set initial conditions
     TaylorModels.initialize!(X0, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
-    sign_tstep = copysign(1, tmax-t0)
+    sign_tstep = copysign(1, tmax - t0)
 
     # Output vectors
     @inbounds tv[1] = t0
     @inbounds xv[1] = TM.evaluate(xTMN, symIbox)
 
     # Determine if specialized jetcoeffs! method exists (built by @taylorize)
-    parse_eqs, tmpTaylor, arrTaylor = TaylorIntegration._determine_parsing!(parse_eqs, f!, t, x, dx, params)
-    parse_eqsI, tmpTaylorI, arrTaylorI = TaylorIntegration._determine_parsing!(parse_eqs, f!, tI, xI, dxI, params)
+    parse_eqs, tmpTaylor, arrTaylor = TaylorIntegration._determine_parsing!(parse_eqs, f!, t, x, dx,
+                                                                            params)
+    parse_eqsI, tmpTaylorI, arrTaylorI = TaylorIntegration._determine_parsing!(parse_eqs, f!, tI,
+                                                                               xI, dxI, params)
     @assert parse_eqs == parse_eqsI
 
     local success # if true, the validation step succeeded
@@ -338,7 +346,7 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
 
     # Integration
     nsteps = 1
-    while sign_tstep*t0 < sign_tstep*tmax
+    while sign_tstep * t0 < sign_tstep * tmax
 
         # Validated step of the integration
         (success, δt, _t0) = validated_step!(f!, t, x, dx, xaux, tI, xI, dxI, xauxI,
@@ -359,19 +367,19 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
             tI[0] = t0
             tv[nsteps] = t0
             for i in eachindex(x)
-                δtI = sign_tstep * IA.Interval{T}(0, sign_tstep*δt)
+                δtI = sign_tstep * IA.Interval{T}(0, sign_tstep * δt)
                 xTM1v[i, nsteps] = TaylorModel1(deepcopy(x[i]), rem[i], zI, δtI)
                 aux = x[i](δt)
-                x[i]  = Taylor1( aux, orderT )
-                dx[i] = Taylor1( zero(aux), orderT )
+                x[i] = Taylor1(aux, orderT)
+                dx[i] = Taylor1(zero(aux), orderT)
                 auxI = xTMN[i](symIbox)
-                xI[i] = Taylor1( auxI, orderT+1 )
+                xI[i] = Taylor1(auxI, orderT + 1)
                 dxI[i] = xI[i]
             end
         end
 
         # construct the taylor model reach-set
-        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0-δt, t0) + Δt0)
+        Ri = TaylorModelReachSet(xTM1v[:, nsteps], TimeInterval(t0 - δt, t0) + Δt0)
 
         # check intersection with invariant
         _is_intersection_empty(Ri, X, disjointness) && break
@@ -384,7 +392,6 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
             @warn("Maximum number of integration steps reached; exiting. Try increasing `max_steps`.")
             break
         end
-
     end
 
     return F, view(tv, 1:nsteps), view(xv, 1:nsteps), view(xTM1v, :, 1:nsteps), success, _t0

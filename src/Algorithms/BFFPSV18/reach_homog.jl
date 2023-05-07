@@ -8,7 +8,7 @@
 function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
                                ST::Type{<:Interval{N}}, vars, block_indices,
                                row_blocks, column_blocks, Δt0,
-                               viewval::Val{true}) where {NM, N}
+                               viewval::Val{true}) where {NM,N}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -49,7 +49,7 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj},
                                Δt0,
-                               viewval::Val{true}) where {NM, MT<:AbstractMatrix{NM}, N, RBLKi, CBLKj}
+                               viewval::Val{true}) where {NM,MT<:AbstractMatrix{NM},N,RBLKi,CBLKj}
 
     # initial reach-set
     Δt = (zero(N) .. δ) + Δt0
@@ -60,8 +60,8 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
     Φpowerk_cache = similar(Φ)
 
     # preallocate buffer for each row-block
-    SMT = SubArray{N, 2, MT, Tuple{RBLKi, CBLKj}, false}
-    buffer = Vector{LazySets.LinearMap{N, ST, N, SMT}}(undef, length(column_blocks))
+    SMT = SubArray{N,2,MT,Tuple{RBLKi,CBLKj},false}
+    buffer = Vector{LazySets.LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
@@ -92,7 +92,8 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj},
                                Δt0,
-                               viewval::Val{true}) where {NM, IM, MT<:SparseMatrixCSC{NM, IM}, N, RBLKi, CBLKj}
+                               viewval::Val{true}) where {NM,IM,MT<:SparseMatrixCSC{NM,IM},N,RBLKi,
+                                                          CBLKj}
 
     # store first element
     Δt = (zero(N) .. δ) + Δt0
@@ -103,8 +104,8 @@ function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
     Φpowerk_cache = similar(Φ)
 
     # preallocate buffer for each row-block
-    SMT = SubArray{N, 2, MT, Tuple{RBLKi, CBLKj}, false}
-    buffer = Vector{LazySets.LinearMap{N, ST, N, SMT}}(undef, length(column_blocks))
+    SMT = SubArray{N,2,MT,Tuple{RBLKi,CBLKj},false}
+    buffer = Vector{LazySets.LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))

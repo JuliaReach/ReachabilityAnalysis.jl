@@ -38,8 +38,8 @@ const B1 = B + 1
     x, y = u
     x² = x * x
     aux = x² * y
-    du[1] = A + aux - B1*x
-    du[2] = B*x - aux
+    du[1] = A + aux - B1 * x
+    du[2] = B * x - aux
     return du
 end
 
@@ -53,21 +53,22 @@ end
 # These settings are taken from [^CAS13].
 
 U₀ = (0.8 .. 1.0) × (0.0 .. 0.2); #!jl
-prob = @ivp(u' = brusselator!(U), u(0) ∈ U₀, dim: 2); #!jl
+prob = @ivp(u' = brusselator!(U), u(0) ∈ U₀, dim:2); #!jl
 
 # ## Results
 
 # We use `TMJets` algorithm with sixth-order expansion in time and second order expansion
 # in the spatial variables.
 
-sol = solve(prob, T=18.0, alg=TMJets20(orderT=6, orderQ=2)); #!jl
+sol = solve(prob; T=18.0, alg=TMJets20(; orderT=6, orderQ=2)); #!jl
 
 #-
 
 using Plots #!jl
 
-fig = plot(sol, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe", legend=:bottomright) #!jl
-plot!(U₀, color=:orange, lab="Uo") #!jl
+fig = plot(sol; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe", #!jl
+           legend=:bottomright) #!jl
+plot!(U₀; color=:orange, lab="Uo") #!jl
 
 #!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
@@ -76,8 +77,8 @@ plot!(U₀, color=:orange, lab="Uo") #!jl
 
 # Below we plot the flowpipes projected into the time domain.
 
-fig = plot(sol, vars=(0, 1), xlab="t", lw=0.2, color=:blue, lab="x(t)", legend=:bottomright)  #!jl
-plot!(sol, vars=(0, 2), xlab="t", lw=0.2, color=:red, lab="y(t)")  #!jl
+fig = plot(sol; vars=(0, 1), xlab="t", lw=0.2, color=:blue, lab="x(t)", legend=:bottomright)  #!jl
+plot!(sol; vars=(0, 2), xlab="t", lw=0.2, color=:red, lab="y(t)")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -92,40 +93,41 @@ U0(r) = Singleton([1.0, 1.0]) ⊕ BallInf(zeros(2), r)
 
 # The parametric initial-value problem is defined accordingly.
 
-bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim: 2)
+bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim:2)
 
 # First we solve for ``r = 0.01``:
 
-sol_01 = solve(bruss(0.01), T=30.0, alg=TMJets20(orderT=6, orderQ=2))  #!jl
+sol_01 = solve(bruss(0.01); T=30.0, alg=TMJets20(; orderT=6, orderQ=2))  #!jl
 
 LazySets.set_ztol(Float64, 1e-15)  #!jl
 
-fig = plot(sol_01, vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)", legend=:bottomright)  #!jl
+fig = plot(sol_01; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)",  #!jl
+           legend=:bottomright)  #!jl
 
-plot!(U0(0.01), color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
+plot!(U0(0.01); color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # We observe that the wrapping effect is controlled and the flowpipe doesn't blow up even for the large time horizon ``T = 30.0``.
 # Next we plot the flowpipe zoomed to the last portion and compare ``r = 0.01`` with a set of larger initial states, ``r = 0.1``.
 
-sol_1 = solve(bruss(0.1), T=30.0, alg=TMJets20(orderT=6, orderQ=2)) #!jl
+sol_1 = solve(bruss(0.1); T=30.0, alg=TMJets20(; orderT=6, orderQ=2)) #!jl
 
-fig = plot(xlab="x", ylab="y", xlims=(0.9, 1.05), ylims=(1.43, 1.57), legend=:bottomright)  #!jl
+fig = plot(; xlab="x", ylab="y", xlims=(0.9, 1.05), ylims=(1.43, 1.57), legend=:bottomright)  #!jl
 
-plot!(sol_1, vars=(1, 2), lw=0.2, color=:red, lab="r = 0.1", alpha=.4)  #!jl
+plot!(sol_1; vars=(1, 2), lw=0.2, color=:red, lab="r = 0.1", alpha=0.4)  #!jl
 
-plot!(sol_01, vars=(1, 2), lw=0.2, color=:blue, lab="r = 0.01")  #!jl
+plot!(sol_01; vars=(1, 2), lw=0.2, color=:blue, lab="r = 0.01")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # The volume at time ``T = 9.0`` can be obtained by evaluating the flowpipe and computing the volume of the hyperrectangular overapproximation:
 
-vol_01 = overapproximate(sol_01(9.0), Hyperrectangle) |> set |> volume  #!jl
+vol_01 = volume(set(overapproximate(sol_01(9.0), Hyperrectangle)))  #!jl
 
 #-
 
-vol_1 = overapproximate(sol_1(9.0), Hyperrectangle) |> set |> volume  #!jl
+vol_1 = volume(set(overapproximate(sol_1(9.0), Hyperrectangle)))  #!jl
 
 # ## References
 

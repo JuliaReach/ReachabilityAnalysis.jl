@@ -5,7 +5,8 @@ using IntervalMatrices: infimum, supremum
 
 include("../Continuous/symbolics.jl")
 
-function Base.convert(::Type{Vector{Tuple{String, String}}}, s::BlackBoxContinuousSystem; params=[], t=nothing)
+function Base.convert(::Type{Vector{Tuple{String,String}}}, s::BlackBoxContinuousSystem; params=[],
+                      t=nothing)
     @requires Symbolics
 
     n = statedim(s)
@@ -18,8 +19,8 @@ function Base.convert(::Type{Vector{Tuple{String, String}}}, s::BlackBoxContinuo
     rhs = string.(dx)
 
     # make implicit times operators explicit, eg. 2x into 2*x
-    rhs = rhs .|> Meta.parse .|> string
-    
+    rhs = string.(Meta.parse.(rhs))
+
     # remove square brackets, eg. turning x[1] into x1 
     pat = ["x[$i]" => "x$i" for i in 1:n]
     rhs = [Symbolics.replace(fi, pat...) for fi in rhs]

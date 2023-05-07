@@ -5,7 +5,7 @@
 # See for example [[LG09]](@ref) pp. 79-83.
 #
 
-function bouncing_ball(; X0 = Hyperrectangle(low=[10.0, 0.0], high=[10.2, 0.0]))
+function bouncing_ball(; X0=Hyperrectangle(; low=[10.0, 0.0], high=[10.2, 0.0]))
 
     # "falling" mode with invariant x >= 0
     invariant = HalfSpace([-1.0, 0.0], 0.0)

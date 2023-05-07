@@ -28,8 +28,8 @@ In both cases, if ``A`` is an interval matrix, the exponential is overapproximat
 using methods from `IntervalMatrices.jl`.
 """
 struct CorrectionHull{EM} <: AbstractApproximationModel
-   order::Int
-   exp::EM
+    order::Int
+    exp::EM
 end
 
 # convenience constructor using symbols
@@ -40,7 +40,7 @@ end
 function Base.show(io::IO, alg::CorrectionHull)
     print(io, "`CorrectionHull` approximation model with:\n")
     print(io, "    - exponentiation method: $(alg.exp)\n")
-    print(io, "    - order: $(alg.order)\n")
+    return print(io, "    - order: $(alg.order)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::CorrectionHull) = print(io, alg)
@@ -49,7 +49,7 @@ Base.show(io::IO, m::MIME"text/plain", alg::CorrectionHull) = print(io, alg)
 # Correction hull: homogeneous case x' = Ax, x in X
 # -----------------------------------------------------------------
 
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::CorrectionHull)
+function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::CorrectionHull)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
@@ -80,7 +80,7 @@ end
 
 # F(δ) without the E(δ) correction term
 function _correction_hull_without_E(A, δ, p)
-    timeint(δ, i) = interval((i^(-i / (i-1)) - i^(-1 / (i-1))) * δ^i, 0)
+    timeint(δ, i) = interval((i^(-i / (i - 1)) - i^(-1 / (i - 1))) * δ^i, 0)
     F = sum(map(x -> timeint(δ, i) * x, A^i / factorial(i)) for i in 2:p)
     return IntervalMatrix(F)
 end
@@ -100,7 +100,7 @@ end
 # -----------------------------------------------------------------
 # Correction hull: inhomogeneous case x' = Ax + u, x in X, u ∈ U
 # -----------------------------------------------------------------
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::CorrectionHull)
+function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::CorrectionHull)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)

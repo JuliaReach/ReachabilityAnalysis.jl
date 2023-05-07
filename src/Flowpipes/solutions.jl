@@ -27,7 +27,7 @@ TODO
 This type contains the answer if the property is satisfied, and if not, it
 contains the index at which the property might be violated for the first time.
 """
-struct CheckSolution{PT, ST<:AbstractPost} <: AbstractSolution
+struct CheckSolution{PT,ST<:AbstractPost} <: AbstractSolution
     property::PT
     satisfied::Bool
     vidx::Int
@@ -57,15 +57,15 @@ sets, and a dictionary of options.
 - `alg`      -- algorihm used
 - `options`  -- the dictionary of options
 """
-struct ReachSolution{FT<:AbstractFlowpipe, ST<:AbstractPost} <: AbstractSolution
+struct ReachSolution{FT<:AbstractFlowpipe,ST<:AbstractPost} <: AbstractSolution
     F::FT
     alg::ST
-    ext::Dict{Symbol, Any} # dictionary used by extensions
+    ext::Dict{Symbol,Any} # dictionary used by extensions
 end
 
 # constructor from empty extension dictionary
-function ReachSolution(F::FT, alg::ST) where {FT<:AbstractFlowpipe, ST<:AbstractPost}
-    return ReachSolution(F, alg, Dict{Symbol, Any}())
+function ReachSolution(F::FT, alg::ST) where {FT<:AbstractFlowpipe,ST<:AbstractPost}
+    return ReachSolution(F, alg, Dict{Symbol,Any}())
 end
 
 # getter functions
@@ -82,8 +82,8 @@ ensemble(sol::ReachSolution) = get(sol.ext, :ensemble, nothing)
 # do not change their sol.alg (eg. overapproximate(sol, Zonotope)) where sol is
 # a Taylor model flowpipe keeps sol.alg being TMJets => we have to check
 # for the rep's of the flowpipe
-setrep(sol::ReachSolution{FT, ST}) where {FT, ST} = setrep(FT)
-rsetrep(sol::ReachSolution{FT, ST}) where {FT, ST} = rsetrep(FT)
+setrep(sol::ReachSolution{FT,ST}) where {FT,ST} = setrep(FT)
+rsetrep(sol::ReachSolution{FT,ST}) where {FT,ST} = rsetrep(FT)
 vars(sol::ReachSolution) = vars(sol.F)
 numrsets(sol::ReachSolution) = numrsets(sol.F)
 
@@ -145,8 +145,14 @@ LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.
 # ------------------------------
 
 # interface
-isdisjoint(sol1::ReachSolution, sol2::ReachSolution, method::AbstractDisjointnessMethod=FallbackDisjointness()) = isdisjoint(sol1.F, sol2.F, method)
-@commutative isdisjoint(sol::ReachSolution, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = isdisjoint(sol.F, Y, method)
+function isdisjoint(sol1::ReachSolution, sol2::ReachSolution,
+                    method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return isdisjoint(sol1.F, sol2.F, method)
+end
+@commutative function isdisjoint(sol::ReachSolution, Y::SetOrReachSet,
+                                 method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return isdisjoint(sol.F, Y, method)
+end
 
 # ------------------------------
 # Methods to check inclusion
@@ -166,10 +172,10 @@ linear_map(M::AbstractMatrix, sol::ReachSolution) = linear_map(M, sol.F)
 # Specialized methods for template solutions
 # -------------------------------------------
 
-function support_function_matrix(sol::ReachSolution{<:Flowpipe{N, <:TemplateReachSet}}) where {N}
+function support_function_matrix(sol::ReachSolution{<:Flowpipe{N,<:TemplateReachSet}}) where {N}
     return support_function_matrix(flowpipe(sol))
 end
 
-function flatten(sol::ReachSolution{<:Flowpipe{N, <:TemplateReachSet}}, rows=(1, 2)) where {N}
+function flatten(sol::ReachSolution{<:Flowpipe{N,<:TemplateReachSet}}, rows=(1, 2)) where {N}
     return flatten(flowpipe(sol), rows)
 end

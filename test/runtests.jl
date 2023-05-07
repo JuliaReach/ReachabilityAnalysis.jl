@@ -1,8 +1,8 @@
 using Test, ReachabilityAnalysis
 
 using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
-                           DeterministicSwitching, NonDeterministicSwitching,
-                           BoxEnclosure, ZonotopeEnclosure
+                            DeterministicSwitching, NonDeterministicSwitching,
+                            BoxEnclosure, ZonotopeEnclosure
 using LinearAlgebra
 
 # optional dependencies

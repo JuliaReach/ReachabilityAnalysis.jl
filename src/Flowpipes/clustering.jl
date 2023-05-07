@@ -42,7 +42,10 @@ abstract type AbstractClusteringMethod{P} end
 
 _partition(method::AbstractClusteringMethod{Missing}, idx) = nfolds(idx, 1)
 _partition(method::AbstractClusteringMethod{<:Integer}, idx) = nfolds(idx, partition(method))
-_partition(method::AbstractClusteringMethod{VT}, idx) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = [idx[vi] for vi in partition(method)]
+function _partition(method::AbstractClusteringMethod{VT},
+                    idx) where {D<:Integer,VTi<:AbstractVector{D},VT<:AbstractVector{VTi}}
+    return [idx[vi] for vi in partition(method)]
+end
 
 # partition an array x into n parts of equal size (if possible); if n is too large
 # we split into length(x) parts
@@ -50,7 +53,7 @@ function nfolds(x::AbstractVector, n::Int)
     p = length(x)
     m = min(n, p)
     s = p / m
-    [x[round(Int64, (i-1)*s)+1:min(p,round(Int64, i*s))] for i in 1:m]
+    return [x[(round(Int64, (i - 1) * s) + 1):min(p, round(Int64, i * s))] for i in 1:m]
 end
 
 # =====================================
@@ -63,7 +66,7 @@ end
 No-op clustering method.
 """
 struct NoClustering{P} <: AbstractClusteringMethod{P}
-#
+    #
 end
 
 partition(::NoClustering{Missing}) = missing
@@ -84,7 +87,7 @@ end
 Cluster according to the given partition by applying a lazy representation of the
 convex hull.
 """
-struct LazyClustering{P, T} <: AbstractClusteringMethod{P}
+struct LazyClustering{P,T} <: AbstractClusteringMethod{P}
     partition::P
     convex::T
 end
@@ -92,36 +95,43 @@ end
 partition(method::LazyClustering) = method.partition
 
 LazyClustering(; convex::Bool=true) = LazyClustering(missing, Val(convex))
-LazyClustering(nchunks::D; convex::Bool=true) where {D<:Integer} = LazyClustering{D, typeof(Val(convex))}(nchunks, Val(convex))
-LazyClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = LazyClustering{VT, typeof(Val(convex))}(partition, Val(convex))
+function LazyClustering(nchunks::D; convex::Bool=true) where {D<:Integer}
+    return LazyClustering{D,typeof(Val(convex))}(nchunks, Val(convex))
+end
+function LazyClustering(partition::VT) where {D<:Integer,VTi<:AbstractVector{D},
+                                              VT<:AbstractVector{VTi}}
+    return LazyClustering{VT,typeof(Val(convex))}(partition, Val(convex))
+end
 
-function cluster(F, idx, ::LazyClustering{Missing, Val{true}})
+function cluster(F, idx, ::LazyClustering{Missing,Val{true}})
     return [convexify(view(F, idx))]
 end
 
 # FIXME return a UnionSetArray of reach-sets
-function cluster(F, idx, ::LazyClustering{Missing, Val{false}})
+function cluster(F, idx, ::LazyClustering{Missing,Val{false}})
     return [view(F, idx)]
 end
 
-function cluster(F, idx, method::LazyClustering{P, Val{true}}) where {P}
+function cluster(F, idx, method::LazyClustering{P,Val{true}}) where {P}
     p = _partition(method, idx)
-    convF = [convexify(view(F, cj)) for cj in p]
+    return convF = [convexify(view(F, cj)) for cj in p]
 end
 
-function cluster(F, idx, method::LazyClustering{P, Val{false}}) where {P}
+function cluster(F, idx, method::LazyClustering{P,Val{false}}) where {P}
     p = _partition(method, idx)
-    convF = [view(F, cj) for cj in p]
+    return convF = [view(F, cj) for cj in p]
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyClustering{P, Val{true}}) where {N, P}
+function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx,
+                 method::LazyClustering{P,Val{true}}) where {N,P}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
     return cluster(Fz, 1:length(idx), method) # Fx is now indexed from 1 ... length(idx)
 end
 
 # ambiguity fix
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::LazyClustering{P, Val{false}}) where {N, P}
+function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx,
+                 method::LazyClustering{P,Val{false}}) where {N,P}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
     return cluster(Fz, 1:length(idx), method)
 end
@@ -138,7 +148,7 @@ end
 This method first takes a lazy convex hull for the given partition, then computes
 a tight hyperrectangular approximation for each element in the partition.
 """
-struct BoxClustering{PI, PO} <: AbstractClusteringMethod{PI}
+struct BoxClustering{PI,PO} <: AbstractClusteringMethod{PI}
     inpartition::PI
     outpartition::PO
 end
@@ -146,21 +156,31 @@ end
 partition(method::BoxClustering) = method.inpartition
 
 BoxClustering() = BoxClustering(missing, missing)
-BoxClustering(nchunks::D) where {D<:Integer} = BoxClustering{D, Missing}(nchunks, missing)
-BoxClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = BoxClustering{VT, Missing}(partition, missing)
+BoxClustering(nchunks::D) where {D<:Integer} = BoxClustering{D,Missing}(nchunks, missing)
+function BoxClustering(partition::VT) where {D<:Integer,VTi<:AbstractVector{D},
+                                             VT<:AbstractVector{VTi}}
+    return BoxClustering{VT,Missing}(partition, missing)
+end
 
-_out_partition(method::BoxClustering{PI, Missing}, idx, n) where {PI} = fill(1, n)
-_out_partition(method::BoxClustering{PI, <:Integer}, idx, n) where {PI} = fill(method.outpartition, n)
-_out_partition(method::BoxClustering{PI, VT}, idx, n) where {PI, D<:Integer, VT<:AbstractVector{D}} = method.outpartition
+_out_partition(method::BoxClustering{PI,Missing}, idx, n) where {PI} = fill(1, n)
+function _out_partition(method::BoxClustering{PI,<:Integer}, idx, n) where {PI}
+    return fill(method.outpartition, n)
+end
+function _out_partition(method::BoxClustering{PI,VT}, idx,
+                        n) where {PI,D<:Integer,VT<:AbstractVector{D}}
+    return method.outpartition
+end
 
 # do not partition neither the input nor the output
-function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, ::BoxClustering{Missing, Missing}) where {N}
+function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx,
+                 ::BoxClustering{Missing,Missing}) where {N}
     convF = convexify(view(F, idx))
     return [overapproximate(convF, Hyperrectangle)]
 end
 
 # do not partition neither the input but split the output
-function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{Missing, PO}) where {N, PO}
+function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx,
+                 method::BoxClustering{Missing,PO}) where {N,PO}
     convF = convexify(view(F, idx))
     Y = overapproximate(convF, Hyperrectangle)
     p = _out_partition(method, idx, dim(F))
@@ -169,14 +189,16 @@ end
 
 # partition the input array and do not partition the output
 #function cluster(F::Flowpipe{N, Union{<:ReachSet, <:SparseReachSet}}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
-function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{PI, Missing}) where {N, PI}
+function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx,
+                 method::BoxClustering{PI,Missing}) where {N,PI}
     p = _partition(method, idx)
     convF = [convexify(view(F, cj)) for cj in p]
     return [overapproximate(Xc, Hyperrectangle) for Xc in convF]
 end
 
 # partition the input array and do not partition the output
-function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxClustering{PI, PO}) where {N, PI, PO}
+function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx,
+                 method::BoxClustering{PI,PO}) where {N,PI,PO}
     p = _partition(method, idx)
     convF = [convexify(view(F, cj)) for cj in p]
     Y = [overapproximate(Xc, Hyperrectangle) for Xc in convF]
@@ -186,7 +208,7 @@ function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::BoxCluster
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
-function cluster(F::Flowpipe{N, TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N}
+function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx, method::BoxClustering) where {N}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
 
     # Fx is now indexed from 1 ... length(idx)
@@ -228,7 +250,9 @@ ZonotopeClustering() = ZonotopeClustering(missing)
 
 # for the generalization to > 2 ses, we iteratively apply the overapprox of the
 # CH of two zonotopes, cf LazySets #2154
-function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering{Missing}) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}, VRT<:AbstractVector{RT}}
+function cluster(F::Flowpipe{N,RT,VRT}, idx,
+                 ::ZonotopeClustering{Missing}) where {N,ZT<:Zonotope,RT<:ReachSet{N,ZT},
+                                                       VRT<:AbstractVector{RT}}
     if length(idx) == 1
         return F[idx]
     elseif length(idx) == 2
@@ -244,7 +268,6 @@ function cluster(F::Flowpipe{N, RT, VRT}, idx, ::ZonotopeClustering{Missing}) wh
     end
 end
 
-
 # convexify and convert to vrep
 #C = ReachabilityAnalysis.convexify(sol[end-aux+1:end])
 #Cvertex = convex_hull(vcat([vertices_list(Z) for Z in LazySets.array(set(C))]...)) |> VPolygon
@@ -257,27 +280,27 @@ function _cartesian_product_standard(Z, blocks)
 
     # add extra column of zeros
     Mst = hcat(M[:, 1:4], zeros(5), M[:, 5:9])
-    Zst = Zonotope(Z.center, Mst)
+    return Zst = Zonotope(Z.center, Mst)
 end
 
 # TODO wrap into clustering strategy and pass outer partition
 function _cluster_decompose_zono(fp::AbstractVector{<:TaylorModelReachSet}, blocks, dirs)
     # zonotopic enclosure
     fpz = [overapproximate(R, Zonotope) for R in fp]
-    _cluster_decompose_zono(fpz, blocks, dirs)
+    return _cluster_decompose_zono(fpz, blocks, dirs)
 end
 
-function _cluster_decompose_zono(fpz::AbstractVector{RT}, blocks, dirs) where {N, ZT<:Zonotope, RT<:ReachSet{N, ZT}}
+function _cluster_decompose_zono(fpz::AbstractVector{RT}, blocks,
+                                 dirs) where {N,ZT<:Zonotope,RT<:ReachSet{N,ZT}}
 
     # concrete projection onto each block
     πfpz = [[project(set(R), bi) for R in fpz] for bi in blocks]
 
     # reconstruct zonotope enclosure
-    ZTD = Zonotope{Float64, Vector{Float64}, Matrix{Float64}}
+    ZTD = Zonotope{Float64,Vector{Float64},Matrix{Float64}}
     zono_blk = Vector{ZTD}(undef, length(blocks))
 
     for (i, V) in enumerate(πfpz)
-
         Vch = ConvexHullArray(V)
         dim_blk = dim(Vch)
         @assert dim_blk == 1 || dim_blk == 2
@@ -295,7 +318,6 @@ function _cluster_decompose_zono(fpz::AbstractVector{RT}, blocks, dirs) where {N
         elseif dim_blk == 1
             Yi = overapproximate(Vch, LazySets.Interval)
             Yi = convert(Zonotope, Yi)
-
         end
 
         Yi = Zonotope(Vector(Yi.center), Matrix(Yi.generators))
@@ -329,9 +351,13 @@ partition(method::UnionClustering) = method.partition
 
 UnionClustering() = UnionClustering(missing)
 UnionClustering(nchunks::D) where {D<:Integer} = UnionClustering{D}(nchunks)
-UnionClustering(partition::VT) where {D<:Integer, VTi<:AbstractVector{D}, VT<:AbstractVector{VTi}} = UnionClustering{VT}(partition)
+function UnionClustering(partition::VT) where {D<:Integer,VTi<:AbstractVector{D},
+                                               VT<:AbstractVector{VTi}}
+    return UnionClustering{VT}(partition)
+end
 
-function cluster(F::Flowpipe{N, <:AbstractLazyReachSet}, idx, method::UnionClustering{Missing}) where {N}
+function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx,
+                 method::UnionClustering{Missing}) where {N}
     Fidx = view(F, idx)
     Δt = tspan(Fidx)
     Uidx = UnionSetArray([set(R) for R in Fidx])
@@ -344,7 +370,8 @@ function cluster(F::Flowpipe, idx, method::UnionClustering{P}) where {P}
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
-function cluster(F::Flowpipe{N, <:TaylorModelReachSet{N}}, idx, method::UnionClustering{P}) where {N, P}
+function cluster(F::Flowpipe{N,<:TaylorModelReachSet{N}}, idx,
+                 method::UnionClustering{P}) where {N,P}
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
 
     # Fx is now indexed from 1 ... length(idx)

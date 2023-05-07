@@ -37,18 +37,18 @@ function _project_reachset(::Type{<:Zonotope}, R, vars)
     # TODO review/lift the condition on max number of generators after LazySets#2288
     if (ngens(set(R)) <= 15) || (0 ∈ vars)
         # concrete projection is efficient
-        πR = project(R, vars) |> set
+        πR = set(project(R, vars))
 
         # zonotopes usually contain lots of redundant generators
         πR = remove_redundant_generators(πR)
     else
         # avoid expensive vertex enumeration
-        πR = Projection(R, vars) |> set
+        πR = set(Projection(R, vars))
     end
     return πR
 end
 
-function _project_reachset(::Union{Type{<:AbstractZonotope}, VPOLY}, R, vars)
+function _project_reachset(::Union{Type{<:AbstractZonotope},VPOLY}, R, vars)
     # concrete projection is efficient
     πR = project(R, vars)
     return set(πR)
@@ -61,14 +61,14 @@ function _project_reachset(::Type{<:AbstractPolyhedron}, R, vars)
     if (dim(R) == 2) && vars[1] == 1 && vars[2] == 2
         πR = set(R) # no-op
     else
-        πR = Projection(R, vars) |> set # lazy projection
+        πR = set(Projection(R, vars)) # lazy projection
     end
     return πR
 end
 
 function _project_reachset(::Type{<:LazySet}, R, vars)
     πR = Projection(R, vars) # lazy projection
-    X = set(πR)
+    return X = set(πR)
 end
 
 # ---------------------------------------
@@ -94,7 +94,7 @@ function _project_reachset(R::TemplateReachSet, vars)
     if _is_compatible_projection(R, vars)
         πR = project(R, vars)
     else
-       πR = Projection(R, vars)
+        πR = Projection(R, vars)
     end
     X = set(πR)
     if dim(X) == 2 && isbounded(X)
@@ -109,14 +109,14 @@ end
 
 function _project_reachset(T::TaylorModelReachSet, vars)
     R = overapproximate(T, Zonotope)
-    _project_reachset(R, vars)
+    return _project_reachset(R, vars)
 end
 
 function _check_vars(vars)
     if isnothing(vars)
         throw(ArgumentError("default plotting variables not implemented yet; you need " *
-              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+                            "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                            "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
     end
     D = length(vars)
     @assert (D == 1) || (D == 2) "can only plot in one or two dimensions, " *
@@ -177,7 +177,8 @@ end
 
 # TODO use LazySets._plot_singleton_list_1D if the reach-sets are stored as a struct
 # array. Otherwise, we could use pass the list through x -> set(x)
-function _plot_singleton_list_1D(list::Union{Flowpipe{N}, AbstractVector{RN}}) where {N, RN<:AbstractReachSet{N}}
+function _plot_singleton_list_1D(list::Union{Flowpipe{N},AbstractVector{RN}}) where {N,
+                                                                                     RN<:AbstractReachSet{N}}
     m = length(list)
 
     x = Vector{N}(undef, m)
@@ -187,10 +188,11 @@ function _plot_singleton_list_1D(list::Union{Flowpipe{N}, AbstractVector{RN}}) w
         p = element(set(Xi))
         x[i] = p[1]
     end
-    x, y
+    return x, y
 end
 
-function _plot_singleton_list_2D(list::Union{Flowpipe{N}, AbstractVector{RN}}) where {N, RN<:AbstractReachSet{N}}
+function _plot_singleton_list_2D(list::Union{Flowpipe{N},AbstractVector{RN}}) where {N,
+                                                                                     RN<:AbstractReachSet{N}}
     m = length(list)
     x = Vector{N}(undef, m)
     y = Vector{N}(undef, m)
@@ -200,11 +202,10 @@ function _plot_singleton_list_2D(list::Union{Flowpipe{N}, AbstractVector{RN}}) w
         x[i] = p[1]
         y[i] = p[2]
     end
-    x, y
+    return x, y
 end
 
 function _plot_reachset_list(list, N, vars, ε, Nφ)
-
     first = true
     x = Vector{N}()
     y = Vector{N}()
@@ -248,17 +249,17 @@ function _plot_reachset_list(list, N, vars, ε, Nφ)
         append!(x, x_new)
         append!(y, y_new)
     end
-    x, y
+    return x, y
 end
 
 # ========================
 # Flowpipe plot recipes
 # ========================
 
-@recipe function plot_list(list::Union{Flowpipe{N}, AbstractVector{RN}};
+@recipe function plot_list(list::Union{Flowpipe{N},AbstractVector{RN}};
                            vars=nothing,
                            ε=N(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N, RN<:AbstractReachSet{N}}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,RN<:AbstractReachSet{N}}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -279,12 +280,11 @@ end
 end
 
 # composite flowpipes
-@recipe function plot_list(fp::Union{HF, MF};
+@recipe function plot_list(fp::Union{HF,MF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS
-                          ) where {N, HF<:HybridFlowpipe{N}, MF<:MixedFlowpipe{N}}
-
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,HF<:HybridFlowpipe{N},
+                                                            MF<:MixedFlowpipe{N}}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -306,9 +306,8 @@ end
         push!(x, N(NaN))
         push!(y, N(NaN))
     end
-    x, y
+    return x, y
 end
-
 
 # ========================
 # Solution plot recipes
@@ -317,9 +316,7 @@ end
 @recipe function plot_list(sol::ReachSolution{FT};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS
-                          ) where {N, FT<:Flowpipe{N}}
-
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,FT<:Flowpipe{N}}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -341,12 +338,13 @@ end
 end
 
 # compound solution flowpipes
-@recipe function plot_list(sol::Union{SMF, SHF};
+@recipe function plot_list(sol::Union{SMF,SHF};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS
-                          ) where {N, MF<:MixedFlowpipe{N}, HF<:HybridFlowpipe{N},
-                                   SMF<:ReachSolution{MF}, SHF<:ReachSolution{HF}}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,MF<:MixedFlowpipe{N},
+                                                            HF<:HybridFlowpipe{N},
+                                                            SMF<:ReachSolution{MF},
+                                                            SHF<:ReachSolution{HF}}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -369,7 +367,7 @@ end
         push!(x, N(NaN))
         push!(y, N(NaN))
     end
-    x, y
+    return x, y
 end
 
 # TODO new plot recipe to dispatch on ShiftedFlowpipe
@@ -377,11 +375,10 @@ end
 
 # TODO: refactor with Flowpipe
 # TODO extend projection of shifted flowpipes to use lazy projection if needed
-@recipe function plot_list(fp::ShiftedFlowpipe{FT, N};
+@recipe function plot_list(fp::ShiftedFlowpipe{FT,N};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS
-                          ) where {FT, N}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {FT,N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -430,7 +427,7 @@ end
         append!(x, x_new)
         append!(y, y_new)
     end
-    x, y
+    return x, y
 end
 
 #=
@@ -453,30 +450,30 @@ end
 
 # solution from computation without bloating and singleton initial condition
 # (eg. with ORBIT) is presened as a scatter plot
-@recipe function plot_list(sol::ReachSolution{FT, <:ORBIT};
-                           vars=nothing) where {N, RT<:ReachSet{N, <:Singleton{N}}, FT<:Flowpipe{N, RT}}
-   label --> DEFAULT_LABEL
-   grid --> DEFAULT_GRID
-   if DEFAULT_ASPECT_RATIO != :none
-       aspect_ratio --> DEFAULT_ASPECT_RATIO
-   end
-   seriesalpha --> DEFAULT_ALPHA
-   seriescolor --> DEFAULT_COLOR
-   seriestype --> :scatter
-   markershape --> :circle
+@recipe function plot_list(sol::ReachSolution{FT,<:ORBIT};
+                           vars=nothing) where {N,RT<:ReachSet{N,<:Singleton{N}},FT<:Flowpipe{N,RT}}
+    label --> DEFAULT_LABEL
+    grid --> DEFAULT_GRID
+    if DEFAULT_ASPECT_RATIO != :none
+        aspect_ratio --> DEFAULT_ASPECT_RATIO
+    end
+    seriesalpha --> DEFAULT_ALPHA
+    seriescolor --> DEFAULT_COLOR
+    seriestype --> :scatter
+    markershape --> :circle
 
-   _check_vars(vars)
-   vx, vy = vars[1], vars[2]
-   X(k) = (vx == 0) ? tstart(sol[k]) : element(set(sol[k]))[vx]
-   Y(k) = (vy == 0) ? tstart(sol[k]) : element(set(sol[k]))[vy]
+    _check_vars(vars)
+    vx, vy = vars[1], vars[2]
+    X(k) = (vx == 0) ? tstart(sol[k]) : element(set(sol[k]))[vx]
+    Y(k) = (vy == 0) ? tstart(sol[k]) : element(set(sol[k]))[vy]
 
-   x = Vector{N}()
-   y = Vector{N}()
-   for k in 1:length(sol)
-       x_new = X(k)
-       y_new = Y(k)
-       append!(x, x_new)
-       append!(y, y_new)
-   end
-   x, y
+    x = Vector{N}()
+    y = Vector{N}()
+    for k in 1:length(sol)
+        x_new = X(k)
+        y_new = Y(k)
+        append!(x, x_new)
+        append!(y, y_new)
+    end
+    return x, y
 end
