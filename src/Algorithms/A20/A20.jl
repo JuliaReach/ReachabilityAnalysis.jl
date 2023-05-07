@@ -29,7 +29,7 @@ numtype(::A20{N}) where {N} = N
 function rsetrep(::A20{N}) where {N}
     VT = Vector{N}
     MT = Matrix{N}
-    RT = ReachSet{N, Zonotope{N, VT, MT}}
+    return RT = ReachSet{N,Zonotope{N,VT,MT}}
 end
 
 include("post.jl")

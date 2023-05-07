@@ -19,9 +19,9 @@ The dimension of the flowpipe corresponds to the dimension of the underlying
 reach-sets; in this type, it is is assumed that the dimension is the same for
 the different reach-sets.
 """
-struct Flowpipe{N, RT<:AbstractReachSet{N}, VRT<:AbstractVector{RT}} <: AbstractFlowpipe
+struct Flowpipe{N,RT<:AbstractReachSet{N},VRT<:AbstractVector{RT}} <: AbstractFlowpipe
     Xk::VRT
-    ext::Dict{Symbol, Any}
+    ext::Dict{Symbol,Any}
 end
 
 # getter functions
@@ -29,46 +29,46 @@ end
 @inline flowpipe(fp::Flowpipe) = fp
 
 # constructor from empty extension dictionary
-function Flowpipe(Xk::AbstractVector{RT}) where {N, RT<:AbstractReachSet{N}}
-    return Flowpipe(Xk, Dict{Symbol, Any}())
+function Flowpipe(Xk::AbstractVector{RT}) where {N,RT<:AbstractReachSet{N}}
+    return Flowpipe(Xk, Dict{Symbol,Any}())
 end
 
 # undef initializer given a set type
 function Flowpipe(::UndefInitializer, ST::Type{<:LazySet{N}}, k::Int) where {N}
-    return Flowpipe(Vector{ReachSet{N, ST}}(undef, k), Dict{Symbol, Any}())
+    return Flowpipe(Vector{ReachSet{N,ST}}(undef, k), Dict{Symbol,Any}())
 end
 
 # undef initializer given a reach-set type
 function Flowpipe(::UndefInitializer, RT::Type{<:AbstractReachSet}, k::Int)
-    return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
+    return Flowpipe(Vector{RT}(undef, k), Dict{Symbol,Any}())
 end
 
 # undef initializer given a continuous post-operator
 function Flowpipe(::UndefInitializer, cpost::AbstractContinuousPost, k::Int)
     RT = rsetrep(cpost)
-    return Flowpipe(Vector{RT}(undef, k), Dict{Symbol, Any}())
+    return Flowpipe(Vector{RT}(undef, k), Dict{Symbol,Any}())
 end
 
 # constructor from a single reach-set
 Flowpipe(R::AbstractReachSet) = Flowpipe([R])
 
-function Base.similar(fp::Flowpipe{N, RT, VRT}) where {N, RT, VRT}
-   return Flowpipe(VRT())
+function Base.similar(fp::Flowpipe{N,RT,VRT}) where {N,RT,VRT}
+    return Flowpipe(VRT())
 end
 
 Base.IndexStyle(::Type{<:Flowpipe}) = IndexLinear()
-Base.eltype(::Flowpipe{N, RT}) where {N, RT} = RT
+Base.eltype(::Flowpipe{N,RT}) where {N,RT} = RT
 Base.size(fp::Flowpipe) = (length(fp.Xk),)
 Base.view(fp::Flowpipe, args...) = view(fp.Xk, args...)
 Base.push!(fp::Flowpipe, args...) = push!(fp.Xk, args...)
 Base.keys(fp::Flowpipe) = keys(fp.Xk)
-Base.append!(fp::Flowpipe{N, RT, VT}, v::VT) where {N, RT, VT} = append!(fp.Xk, v)
+Base.append!(fp::Flowpipe{N,RT,VT}, v::VT) where {N,RT,VT} = append!(fp.Xk, v)
 
 numtype(::Flowpipe{N}) where {N} = N
-setrep(fp::Flowpipe{N, RT}) where {N, RT} = setrep(RT)
-setrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = setrep(RT)
-rsetrep(fp::Flowpipe{N, RT}) where {N, RT} = RT
-rsetrep(::Type{<:Flowpipe{N, RT}}) where {N, RT} = RT
+setrep(fp::Flowpipe{N,RT}) where {N,RT} = setrep(RT)
+setrep(::Type{<:Flowpipe{N,RT}}) where {N,RT} = setrep(RT)
+rsetrep(fp::Flowpipe{N,RT}) where {N,RT} = RT
+rsetrep(::Type{<:Flowpipe{N,RT}}) where {N,RT} = RT
 numrsets(fp::Flowpipe) = length(fp)
 
 # getter functions for hybrid systems
@@ -98,8 +98,8 @@ function (fp::Flowpipe)(t::Number)
     Xk = array(fp)
     @inbounds for (i, X) in enumerate(Xk)
         if t ∈ tspan(X) # exit on the first occurrence
-            if i < length(Xk) && t ∈ tspan(Xk[i+1])
-                return view(Xk, i:i+1)
+            if i < length(Xk) && t ∈ tspan(Xk[i + 1])
+                return view(Xk, i:(i + 1))
             else
                 return X
             end
@@ -130,7 +130,7 @@ function (fp::Flowpipe)(dt::TimeInterval)
 end
 
 # concrete projection of a flowpipe along variables `vars`
-function project(fp::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+function project(fp::Flowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
     Xk = array(fp)
     πfp = map(X -> project(X, vars), Xk)
     return Flowpipe(πfp, fp.ext)
@@ -167,7 +167,7 @@ shifted by `t0`.
 
 See also `Shift` for the lazy counterpart.
 """
-function shift(fp::Flowpipe{N, <:AbstractReachSet}, t0::Number) where {N}
+function shift(fp::Flowpipe{N,<:AbstractReachSet}, t0::Number) where {N}
     return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)
 end
 
@@ -191,7 +191,7 @@ The time span of this reach-set is the same as the time-span of the flowpipe.
 
 This function allocates an array to store the sets of the flowpipe.
 """
-function convexify(fp::Flowpipe{N, <:AbstractLazyReachSet}) where {N}
+function convexify(fp::Flowpipe{N,<:AbstractLazyReachSet}) where {N}
     Y = ConvexHullArray([set(X) for X in array(fp)])
     return ReachSet(Y, tspan(fp))
 end
@@ -228,24 +228,26 @@ function convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
 end
 
 # the dimension of sparse flowpipes is known in the type
-function LazySets.dim(::Flowpipe{N, SparseReachSet{N, ST, D}}) where {N, ST, D}
+function LazySets.dim(::Flowpipe{N,SparseReachSet{N,ST,D}}) where {N,ST,D}
     return D
 end
 
-tstart(F::Flowpipe, arr::UnitRange) = tstart(view(array(F), arr), contiguous=true)
+tstart(F::Flowpipe, arr::UnitRange) = tstart(view(array(F), arr); contiguous=true)
 tstart(F::Flowpipe, arr::AbstractVector) = tstart(view(array(F), arr))
-tend(F::Flowpipe, arr::UnitRange) = tend(view(array(F), arr), contiguous=true)
+tend(F::Flowpipe, arr::UnitRange) = tend(view(array(F), arr); contiguous=true)
 tend(F::Flowpipe, arr::AbstractVector) = tend(view(array(F), arr))
-tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr), contiguous=true)
+tspan(F::Flowpipe, arr::UnitRange) = tspan(view(array(F), arr); contiguous=true)
 tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
 
 # further setops
-LazySets.isdisjoint(F::Flowpipe{N, <:AbstractLazyReachSet}, Y::LazySet) where {N} = all(X -> _is_intersection_empty(X, Y), array(F))
+function LazySets.isdisjoint(F::Flowpipe{N,<:AbstractLazyReachSet}, Y::LazySet) where {N}
+    return all(X -> _is_intersection_empty(X, Y), array(F))
+end
 Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
 Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 
 # lazy projection of a flowpipe
-function Projection(F::Flowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+function Projection(F::Flowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
     Xk = array(F)
     out = map(X -> Projection(X, vars), Xk)
     return Flowpipe(out)
@@ -254,11 +256,12 @@ Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
 Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
 
 # membership test
-function ∈(x::AbstractVector{N}, fp::Flowpipe{N, <:AbstractLazyReachSet{N}}) where {N}
+function ∈(x::AbstractVector{N}, fp::Flowpipe{N,<:AbstractLazyReachSet{N}}) where {N}
     return any(R -> x ∈ set(R), array(fp))
 end
 
-function ∈(x::AbstractVector{N}, fp::VT) where {N, RT<:AbstractLazyReachSet{N}, VT<:AbstractVector{RT}}
+function ∈(x::AbstractVector{N},
+           fp::VT) where {N,RT<:AbstractLazyReachSet{N},VT<:AbstractVector{RT}}
     return any(R -> x ∈ set(R), fp)
 end
 
@@ -306,23 +309,25 @@ end
 # --------------------------------------------
 
 # assumes that the first reach-set is representative
-function support_function_matrix(fp::Flowpipe{N, <:TemplateReachSet}) where {N}
+function support_function_matrix(fp::Flowpipe{N,<:TemplateReachSet}) where {N}
     return support_function_matrix(first(fp))
 end
 
 # it is assumed that rows = (idx_pos_dir, idx_neg_dir) is such that each integer
 # idx_pos_dir and idx_neg_dir refers to the row of the support function matrix
 # correponding to a positive (resp. negative) direction
-function flatten(fp::Flowpipe{N, <:TemplateReachSet}, rows=(1, 2)) where {N}
+function flatten(fp::Flowpipe{N,<:TemplateReachSet}, rows=(1, 2)) where {N}
     # get the matrix of support function evaluations
     mat = support_function_matrix(fp)
 
-    @assert size(mat, 1) ≥ 2 || throw(ArgumentError("the number of rows of the support function matrix should be at least 2, got $(size(mat, 1))"))
-    @assert length(rows) == 2 || throw(ArgumentError("expected the number of rows of the support function matrix to be 2, got $(length(rows))"))
+    @assert size(mat, 1) ≥ 2 ||
+            throw(ArgumentError("the number of rows of the support function matrix should be at least 2, got $(size(mat, 1))"))
+    @assert length(rows) == 2 ||
+            throw(ArgumentError("expected the number of rows of the support function matrix to be 2, got $(length(rows))"))
     idx_pos_dir = rows[1]
     idx_neg_dir = rows[2]
 
-    RT = ReachSet{N, Interval{N, IA.Interval{N}}}
+    RT = ReachSet{N,Interval{N,IA.Interval{N}}}
     out = Vector{RT}(undef, length(fp))
 
     @inbounds for (k, Rk) in enumerate(fp)

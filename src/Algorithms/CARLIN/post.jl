@@ -15,13 +15,13 @@ end
 
 # TODO check if it can be removed
 function _project(sol, vars)
-    πsol_1n = Flowpipe([ReachSet(set(project(R, vars)), tspan(R)) for R in sol])
+    return πsol_1n = Flowpipe([ReachSet(set(project(R, vars)), tspan(R)) for R in sol])
 end
 
 # TODO refactor to MathematicalSystems
 import MathematicalSystems: statedim
 
-struct CanonicalQuadraticForm{T, MT<:AbstractMatrix{T}} <: AbstractContinuousSystem
+struct CanonicalQuadraticForm{T,MT<:AbstractMatrix{T}} <: AbstractContinuousSystem
     F1::MT
     F2::MT
 end
@@ -33,7 +33,7 @@ export CanonicalQuadraticForm
 # TODO generalize to AbstractContinuousSystem using vector_field
 function canonical_form(s::BlackBoxContinuousSystem)
     @requires Symbolics
-    f = s.f
+    return f = s.f
     # differentiate
 end
 
@@ -46,7 +46,7 @@ function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=int
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -55,8 +55,8 @@ function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=int
     # compute canonical quadratic form from the given system
     F1, F2 = canonical_form(system(ivp))
     n = statedim(ivp)
-    dirs = _template(n=n, N=N)
-    alg = LGG09(δ=δ, template=dirs, approx_model=Forward())
+    dirs = _template(; n=n, N=N)
+    alg = LGG09(; δ=δ, template=dirs, approx_model=Forward())
 
     return reach_CARLIN_alg(X0, F1, F2; alg, resets, N, T, Δt0, bloat, compress)
 end

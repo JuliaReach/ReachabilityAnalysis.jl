@@ -6,8 +6,8 @@
 # in this case order reduction only has to be applied to the
 # initial set because the loop does not create new generators
 # it is assumed that order(Ω0) <= max_order
-function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                             Ω0::Zonotope{N, VN, MN},
+function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                             Ω0::Zonotope{N,VN,MN},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
@@ -15,7 +15,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              X::Universe,
                              preallocate::Val{false},
                              Δt0::TimeInterval,
-                             disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
+                             disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
 
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
@@ -23,7 +23,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = linear_map(Φ, set(F[k-1]))
+        Rₖ = linear_map(Φ, set(F[k - 1]))
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
@@ -32,8 +32,8 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 end
 
 # version that preallocates the output zonotopes
-function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}},
-                             Ω0::Zonotope{N, Vector{N}, Matrix{N}},
+function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}}}},
+                             Ω0::Zonotope{N,Vector{N},Matrix{N}},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
@@ -50,7 +50,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
     n, p = size(Ω0.generators)
 
     # preallocate output
-    Zout = Vector{Zonotope{N, Vector{N}, Matrix{N}}}(undef, NSTEPS)
+    Zout = Vector{Zonotope{N,Vector{N},Matrix{N}}}(undef, NSTEPS)
 
     if p == 0
         Zout[1] = Zonotope(Ω0.center, zeros(N, n, 1))
@@ -67,7 +67,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
 
     k = 2
     @inbounds while k <= NSTEPS
-        linear_map!(Zout[k], Φ, Zout[k-1])
+        linear_map!(Zout[k], Φ, Zout[k - 1])
         Δt += δ
         F[k] = ReachSet(Zout[k], Δt)
         k += 1
@@ -76,8 +76,8 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
 end
 
 # check interection with invariant on the loop
-function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                             Ω0::Zonotope{N, VN, MN},
+function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                             Ω0::Zonotope{N,VN,MN},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
@@ -85,28 +85,28 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              X::LazySet,
                              preallocate::Val{false},
                              Δt0::TimeInterval,
-                             disjointness_method::AbstractDisjointnessMethod) where {N, VN, MN}
+                             disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
     while k <= NSTEPS
-        Rₖ = linear_map(Φ, set(F[k-1]))
+        Rₖ = linear_map(Φ, set(F[k - 1]))
         _is_intersection_empty(X, Rₖ, disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
         k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end
 
 # check interection with invariant on the loop, implementation with zonotope preallocation
-function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}},
-                             Ω0::Zonotope{N, Vector{N}, Matrix{N}},
+function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}}}},
+                             Ω0::Zonotope{N,Vector{N},Matrix{N}},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
@@ -122,7 +122,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
     n, p = size(Ω0.generators)
 
     # preallocate output
-    Zout = Vector{Zonotope{N, Vector{N}, Matrix{N}}}(undef, NSTEPS)
+    Zout = Vector{Zonotope{N,Vector{N},Matrix{N}}}(undef, NSTEPS)
 
     if p == 0
         Zout[1] = Zonotope(Ω0.center, zeros(N, n, 1))
@@ -139,18 +139,17 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, Vector{N}, Matrix
 
     k = 2
     while k <= NSTEPS
-        linear_map!(Zout[k], Φ, Zout[k-1])
+        linear_map!(Zout[k], Φ, Zout[k - 1])
         _is_intersection_empty(X, Zout[k], disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Zout[k], Δt)
         k += 1
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end
-
 
 #= O L D
 # homogeneous case using StaticArrays

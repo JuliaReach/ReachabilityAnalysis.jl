@@ -6,11 +6,11 @@ end
 
 function _get_numsteps(Tsample, δ, ζ, ::NonDeterministicSwitching)
     ζ⁻ = inf(ζ)
-    αlow = (Tsample + ζ⁻)/δ
+    αlow = (Tsample + ζ⁻) / δ
     NLOW = ceil(Int, αlow)
 
     ζ⁺ = sup(ζ)
-    αhigh = (Tsample + ζ⁺)/δ
+    αhigh = (Tsample + ζ⁺) / δ
     NHIGH = ceil(Int, αhigh)
 
     return NLOW, NHIGH
@@ -29,7 +29,7 @@ end
 
 function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
     ζ⁻ = inf(ζ)
-    αlow = (Tsample + ζ⁻)/δ
+    αlow = (Tsample + ζ⁻) / δ
     NLOW = ceil(Int, αlow)
     T = tend(tspan)
     aux = (T - (NLOW - 1) * δ) / (NLOW * δ)
@@ -66,8 +66,9 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     if haskey(kwargs, :max_jumps)
         max_jumps = kwargs[:max_jumps]
     else
-        tsp ≠ emptyinterval() || throw(ArgumentError("either the time span `tspan` or the maximum number " *
-                                                       "of jumps `max_jumps` should be specified"))
+        tsp ≠ emptyinterval() ||
+            throw(ArgumentError("either the time span `tspan` or the maximum number " *
+                                "of jumps `max_jumps` should be specified"))
         max_jumps = _get_max_jumps(tsp, Tsample, δ, ζ, switching)
     end
 
@@ -83,16 +84,16 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     sol = post(alg, prob, no_tspan; NSTEPS=NHIGH)
 
     if max_jumps == 0
-        return ReachSolution(Flowpipe(sol[1:NLOW-1]), alg)
+        return ReachSolution(Flowpipe(sol[1:(NLOW - 1)]), alg)
     end
 
     # preallocate output vector of flowpipes
     N = numtype(alg)
     RT = rsetrep(alg)
-    SRT = SubArray{RT, 1, Vector{RT}, Tuple{UnitRange{Int}}, true}
-    FT = Flowpipe{N, RT, SRT}
-    out = Vector{ShiftedFlowpipe{FT, N}}()
-    sizehint!(out, max_jumps+1)
+    SRT = SubArray{RT,1,Vector{RT},Tuple{UnitRange{Int}},true}
+    FT = Flowpipe{N,RT,SRT}
+    out = Vector{ShiftedFlowpipe{FT,N}}()
+    sizehint!(out, max_jumps + 1)
 
     push!(out, ShiftedFlowpipe(Flowpipe(view(array(sol), 1:NHIGH)), t0))
 
@@ -103,7 +104,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     # adjust integer bounds for subsequent jumps
     NHIGH += ceil(Int, abs(ζ⁻) / δ)
 
-    @inbounds for k in 2:max_jumps+1
+    @inbounds for k in 2:(max_jumps + 1)
 
         # apply reset map and instantiate new initial-value problem
         prob = IVP(sys, rmap(Xend))
@@ -133,13 +134,13 @@ end
     # however, it may happen that NHIGH = NLOW + 1 if Tsample is a multiple of δ
     if NLOW == NHIGH
         # TODO: can we use dispach and remove this branch?
-        sol[NLOW] |> set
+        set(sol[NLOW])
     else
-        view(array(sol), NLOW:NHIGH) |> Flowpipe |> convexify |> set
+        set(convexify(Flowpipe(view(array(sol), NLOW:NHIGH))))
     end
 end
 
 # non-deterministic switching
 @inline function _transition_successors(sol, NLOW, NHIGH, ::NonDeterministicSwitching)
-    view(array(sol), NLOW:NHIGH) |> Flowpipe |> convexify |> set
+    return set(convexify(Flowpipe(view(array(sol), NLOW:NHIGH))))
 end

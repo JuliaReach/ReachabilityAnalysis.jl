@@ -1,4 +1,4 @@
-struct FLOWSTAR{ST, OT, PT, IT} <: AbstractContinuousPost
+struct FLOWSTAR{ST,OT,PT,IT} <: AbstractContinuousPost
     step_size::ST
     order::OT
     remainder_estimation::Float64
@@ -10,4 +10,4 @@ struct FLOWSTAR{ST, OT, PT, IT} <: AbstractContinuousPost
 end
 
 numtype(::FLOWSTAR) = Float64
-rsetrep(::FLOWSTAR) = TaylorModelReachSet{Float64, IA.Interval{Float64}}
+rsetrep(::FLOWSTAR) = TaylorModelReachSet{Float64,IA.Interval{Float64}}

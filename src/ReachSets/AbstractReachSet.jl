@@ -34,7 +34,8 @@ following methods:
 abstract type AbstractReachSet{N} end
 
 # convenience union for dispatch on structs that behave like a set
-const SetOrReachSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.IntervalBox,AbstractReachSet}
+const SetOrReachSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.IntervalBox,
+                            AbstractReachSet}
 
 """
     basetype(T::Type{<:AbstractReachSet})
@@ -220,20 +221,36 @@ function shift(R::AbstractReachSet, t0::Number) end
 
 # fallback uses  internal function _is_intersection_empty, which admit a pre-processing
 # step for the reach-set / algorithm choice
-@commutative isdisjoint(R::AbstractReachSet, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = _is_intersection_empty(R, Y, method)
+@commutative function isdisjoint(R::AbstractReachSet, Y::SetOrReachSet,
+                                 method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return _is_intersection_empty(R, Y, method)
+end
 
 # disambiguations
-isdisjoint(R1::AbstractReachSet, R2::AbstractReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = _is_intersection_empty(R1, R2, method)
+function isdisjoint(R1::AbstractReachSet, R2::AbstractReachSet,
+                    method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return _is_intersection_empty(R1, R2, method)
+end
 
 # vector of reach-sets
-@commutative isdisjoint(R::AbstractVector{<:AbstractReachSet}, Y::SetOrReachSet, method::AbstractDisjointnessMethod=FallbackDisjointness()) = all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+@commutative function isdisjoint(R::AbstractVector{<:AbstractReachSet}, Y::SetOrReachSet,
+                                 method::AbstractDisjointnessMethod=FallbackDisjointness())
+    return all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+end
 
 # internal implementation
-_is_intersection_empty(R::AbstractReachSet, Y::AbstractReachSet, method::FallbackDisjointness) = isdisjoint(set(R), set(Y))
+function _is_intersection_empty(R::AbstractReachSet, Y::AbstractReachSet,
+                                method::FallbackDisjointness)
+    return isdisjoint(set(R), set(Y))
+end
 
-@commutative _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::FallbackDisjointness) = isdisjoint(set(R), Y)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet,
+                                             method::FallbackDisjointness)
+    return isdisjoint(set(R), Y)
+end
 
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::ZonotopeEnclosure)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet,
+                                             method::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end
@@ -253,18 +270,30 @@ end
     return false
 end
 
-@commutative _is_intersection_empty(R::AbstractReachSet, Y::UnionSet{N,<:Interval{N},<:Interval{N}}, method::FallbackDisjointness) where {N} = isdisjoint(set(R), Y)
+@commutative function _is_intersection_empty(R::AbstractReachSet,
+                                             Y::UnionSet{N,<:Interval{N},<:Interval{N}},
+                                             method::FallbackDisjointness) where {N}
+    return isdisjoint(set(R), Y)
+end
 
-@commutative _is_intersection_empty(R::AbstractReachSet, Y::UnionSetArray{N,<:Interval{N}}, method::FallbackDisjointness) where {N} = isdisjoint(set(R), Y)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::UnionSetArray{N,<:Interval{N}},
+                                             method::FallbackDisjointness) where {N}
+    return isdisjoint(set(R), Y)
+end
 
 # ------------------------------
 # Concrete intersection methods
 # ------------------------------
 
-intersection(R::AbstractReachSet, S::AbstractReachSet) = _intersection(set(R), set(S), FallbackIntersection())
-_intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod) = _intersection(set(R), set(S), method)
+function intersection(R::AbstractReachSet, S::AbstractReachSet)
+    return _intersection(set(R), set(S), FallbackIntersection())
+end
+function _intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod)
+    return _intersection(set(R), set(S), method)
+end
 
 # fallback methods for reach-sets
-@commutative function _intersection(R::AbstractReachSet, X::LazySet, method::AbstractIntersectionMethod)
+@commutative function _intersection(R::AbstractReachSet, X::LazySet,
+                                    method::AbstractIntersectionMethod)
     return _intersection(set(R), X, method)
 end

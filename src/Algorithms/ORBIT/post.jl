@@ -1,6 +1,5 @@
-function post(alg::ORBIT{N, VT, AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N, VT, AM}
-
+function post(alg::ORBIT{N,VT,AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N,VT,AM}
     @unpack δ, approx_model = alg
 
     if haskey(kwargs, :NSTEPS)
@@ -8,7 +7,7 @@ function post(alg::ORBIT{N, VT, AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -18,19 +17,19 @@ function post(alg::ORBIT{N, VT, AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan
     ivp_norm = _normalize(ivp)
 
     # preallocate output flowpipe
-    ST = Singleton{N, VT}
-    F = Vector{ReachSet{N, ST}}(undef, NSTEPS+1)
+    ST = Singleton{N,VT}
+    F = Vector{ReachSet{N,ST}}(undef, NSTEPS + 1)
 
     return _post!(U, alg, F, ivp_norm, NSTEPS, Δt0; kwargs...)
 end
 
 function _post!(U::AbstractInput, alg::ORBIT, F, ivp, NSTEPS, Δt0; kwargs...)
     U = next_set(U, 1)  # unpack inputs to dispatch on the set type
-    _post!(U, alg, F, ivp, NSTEPS, Δt0; kwargs...)
+    return _post!(U, alg, F, ivp, NSTEPS, Δt0; kwargs...)
 end
 
 # method for deterministic inputs
-function _post!(U::Union{Nothing, AbstractSingleton}, alg::ORBIT, F, ivp,
+function _post!(U::Union{Nothing,AbstractSingleton}, alg::ORBIT, F, ivp,
                 NSTEPS, Δt0; kwargs...)
     @unpack δ, approx_model = alg
 
@@ -47,21 +46,21 @@ function _post!(U::Union{Nothing, AbstractSingleton}, alg::ORBIT, F, ivp,
     X = stateset(ivp_discr)
     V = inputset(ivp_discr)
 
-    _orbit!(F, Φ, Ω0, V, NSTEPS+1, δ, X, Δt0)
+    _orbit!(F, Φ, Ω0, V, NSTEPS + 1, δ, X, Δt0)
 
     return Flowpipe(F)
 end
 
 # method for nondeterministic inputs
-function _post!(U::LazySet, alg::ORBIT{N, VT}, F, ivp, NSTEPS, Δt0;
-               kwargs...) where {N, VT}
+function _post!(U::LazySet, alg::ORBIT{N,VT}, F, ivp, NSTEPS, Δt0;
+                kwargs...) where {N,VT}
     X = stateset(ivp)
     !isa(X, Universe) && error("this algorithm does not " *
-        "support state constraints (also called invariants)")
+                               "support state constraints (also called invariants)")
 
     @unpack δ, approx_model = alg
     !isa(approx_model, NoBloating) && error("this algorithm does not support " *
-        "continuous-time analysis")
+                                            "continuous-time analysis")
 
     A = state_matrix(ivp)
     n = size(A, 1)
@@ -80,7 +79,7 @@ function _post!(U::LazySet, alg::ORBIT{N, VT}, F, ivp, NSTEPS, Δt0;
     Δt += δ
 
     # iterate
-    @inbounds for k in 2:NSTEPS+1
+    @inbounds for k in 2:(NSTEPS + 1)
         # obtain random input signal and discretize it
         u = sample(U)
         Mu = _Φ₁_u(A, δ, approx_model.exp, approx_model.inv, u, Φ)
@@ -132,19 +131,20 @@ function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::ZeroSet, V::Singleton, NSTEPS)
     v = element(V)
     out[1] = zeros(N, n)
     copy!(out[2], v)
-    @inbounds for i in 2:NSTEPS-1
-        mul!(out[i+1], Φ, out[i])
-        out[i+1] .+= v
+    @inbounds for i in 2:(NSTEPS - 1)
+        mul!(out[i + 1], Φ, out[i])
+        out[i + 1] .+= v
     end
     return out
 end
 
 # case without input V = 0
-function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::Singleton, V::Union{ZeroSet, Nothing}, NSTEPS) where {N}
+function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::Singleton, V::Union{ZeroSet,Nothing},
+                 NSTEPS) where {N}
     x = element(Ω0)
     copy!(out[1], x)
-    @inbounds for i in 1:NSTEPS-1
-        mul!(out[i+1], Φ, out[i])
+    @inbounds for i in 1:(NSTEPS - 1)
+        mul!(out[i + 1], Φ, out[i])
     end
     return out
 end
@@ -154,38 +154,38 @@ function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::Singleton, V::Singleton, NSTEP
     v = element(V)
     x = element(Ω0)
     copy!(out[1], x)
-    @inbounds for i in 1:NSTEPS-1
-        mul!(out[i+1], Φ, out[i])
-        out[i+1] .+= v
+    @inbounds for i in 1:(NSTEPS - 1)
+        mul!(out[i + 1], Φ, out[i])
+        out[i + 1] .+= v
     end
     return out
 end
 
 function load_krylov_ORBIT()
-return quote
+    return quote
 
-    # case Ω0 = 0 and vector V
-    function _orbit_krylov!(A::AbstractMatrix, V::AbstractVector, NSTEPS;
-                            hermitian=false, m=min(30, size(A, 1)), tol=1e-7)
+        # case Ω0 = 0 and vector V
+        function _orbit_krylov!(A::AbstractMatrix, V::AbstractVector, NSTEPS;
+                                hermitian=false, m=min(30, size(A, 1)), tol=1e-7)
+            T = eltype(A)
+            Ks = KrylovSubspace{T,real(T)}(length(V), m)
+            arnoldi!(Ks, A, V; m=m, ishermitian=hermitian, tol=tol)
 
-        T = eltype(A)
-        Ks = KrylovSubspace{T, real(T)}(length(V), m)
-        arnoldi!(Ks, A, V; m=m, ishermitian=hermitian, tol=tol)
+            out = Vector{typeof(V)}(undef, NSTEPS)
+            @inbounds for i in 1:NSTEPS
+                out[i] = similar(V)
+            end
+            out[1] = copy(V)
 
-        out = Vector{typeof(V)}(undef, NSTEPS)
-        @inbounds for i in 1:NSTEPS
-            out[i] = similar(V)
+            @inbounds for i in 1:(NSTEPS - 1)
+                expv!(out[i + 1], i * 1.0, Ks)
+                out[i + 1] += out[i]
+            end
+            return out
         end
-        out[1] = copy(V)
 
-        @inbounds for i in 1:NSTEPS-1
-            expv!(out[i+1], i*1.0, Ks)
-            out[i+1] += out[i]
-        end
-        return out
+        # TODO : general case for vectors Ω0 and V
+        # ...
+
     end
-
-    # TODO : general case for vectors Ω0 and V
-    # ...
-
-end end  # quote / load_krylov_ORBIT()
+end  # quote / load_krylov_ORBIT()

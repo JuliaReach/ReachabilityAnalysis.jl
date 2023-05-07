@@ -53,10 +53,10 @@ end
 #md #     the right-hand side of `dx[2]` with the use of auxiliary variables.
 
 #jl function vanderpol()
-#jl    X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45])
-#jl    ivp = @ivp(x' = vanderpol!(x), dim: 2, x(0) ∈ X0)
-#jl    tspan = (0.0, 5.0)
-#jl    return ivp, tspan
+#jl     X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45])
+#jl     ivp = @ivp(x' = vanderpol!(x), dim: 2, x(0) ∈ X0)
+#jl     tspan = (0.0, 5.0)
+#jl     return ivp, tspan
 #jl end
 
 # ## Safety verification
@@ -72,9 +72,9 @@ end
 # to the problem's specifications. Then we build the initial-value problem and pass
 # it to the `solve` function. We specify using `TMJets` algorithm with default options.
 
-X0 = Hyperrectangle(low=[1.25, 2.35], high=[1.55, 2.45]) #!jl
-prob = @ivp(x' = vanderpol!(x), dim=2, x(0) ∈ X0) #!jl
-sol = solve(prob, T=7.0, alg=TMJets(abstol=1e-12)); #!jl
+X0 = Hyperrectangle(; low=[1.25, 2.35], high=[1.55, 2.45]) #!jl
+prob = @ivp(x' = vanderpol!(x), dim = 2, x(0) ∈ X0) #!jl
+sol = solve(prob; T=7.0, alg=TMJets(; abstol=1e-12)); #!jl
 
 # For further computations, it is convenient to work with a [zonotopic](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/man/basics/#Zonotopes-1)
 # overapproximation of the flowpipe.
@@ -89,8 +89,8 @@ solz = overapproximate(sol, Zonotope); #!jl
 # That shows that the property is satisfied. Below we plot the flowpipe in the
 # x-y plane, together with the horizontal line ``y = 2.75``.
 
-fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
-plot!(x -> 2.75, color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #!jl
+fig = plot(solz; vars=(1, 2), lw=0.2, xlims=(-2.5, 2.5), xlab="x", ylab="y") #!jl
+plot!(x -> 2.75; color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #!jl
 
 #!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
@@ -98,13 +98,13 @@ plot!(x -> 2.75, color=:red, lab="y = 2.75", style=:dash, legend=:bottomright) #
 # We can also plot the state variables ``x(t)`` and ``y(t)`` as a function of time
 # (recall that `0` in `vars` is used to denote the time variable):
 
-fig = plot(solz, vars=(0, 1), lw=0.2, xlab="t", ylab="x") #!jl
+fig = plot(solz; vars=(0, 1), lw=0.2, xlab="t", ylab="x") #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
+fig = plot(solz; vars=(0, 2), lw=0.2, xlab="t", ylab="y") #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -114,10 +114,10 @@ fig = plot(solz, vars=(0, 2), lw=0.2,  xlab="t", ylab="y") #!jl
 # other words, we can algorithmically prove that the flowpipe re-enters from where
 # it started after giving one loop, using inclusion checks.
 
-fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
-plot!(X0, color=:orange, lab="X0") #!jl
-plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
-plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
+fig = plot(solz; vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
+plot!(X0; color=:orange, lab="X0") #!jl
+plot!(solz[1:13]; vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
+plot!(solz[388]; vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -137,12 +137,12 @@ tspan(solz[388])  #!jl
 # that after one cycle the intersection segment actually shrinks. This approach
 # is similar to the method of [Poincaré sections](https://en.wikipedia.org/wiki/Poincar%C3%A9_map).
 
-line = LineSegment([1, 2.], [2., 2.5]) #!jl
-fig = plot(solz, vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
-plot!(X0, color=:orange, lab="X0") #!jl
-plot!(solz[1:13], vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
-plot!(solz[388], vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
-plot!(line, lw=2.0) #!jl
+line = LineSegment([1, 2.0], [2.0, 2.5]) #!jl
+fig = plot(solz; vars=(1, 2), lw=0.2, xlims=(0.0, 2.5), ylims=(1.6, 2.8), xlab="x", ylab="y") #!jl
+plot!(X0; color=:orange, lab="X0") #!jl
+plot!(solz[1:13]; vars=(1, 2), color=:green, lw=1.0, alpha=0.5, lab="F[1:13]") #!jl
+plot!(solz[388]; vars=(1, 2), color=:red, lw=1.0, alpha=0.6, lab="F[388]") #!jl
+plot!(line; lw=2.0) #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -178,8 +178,8 @@ llast = norm(ilast.q - ilast.p); #!jl
 
 #-
 
-fig = plot(ifirst, lw=3.0, alpha=1.0, label="First subsets", legend=:bottomright) #!jl
-plot!(ilast, lw=5.0, alpha=1.0, label="Last subset") #!jl
+fig = plot(ifirst; lw=3.0, alpha=1.0, label="First subsets", legend=:bottomright) #!jl
+plot!(ilast; lw=5.0, alpha=1.0, label="Last subset") #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

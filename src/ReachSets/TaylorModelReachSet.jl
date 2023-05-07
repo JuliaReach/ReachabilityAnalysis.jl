@@ -26,14 +26,16 @@ end
 # interface functions
 set(R::TaylorModelReachSet) = R.X
 setrep(::TaylorModelReachSet{N}) where {N} = Vector{TaylorModel1{TaylorN{N},N}}
-setrep(::Type{TaylorModelReachSet{N, N}}) where {N} = TaylorModelReachSet{N, N}
-setrep(::Type{TaylorModelReachSet{N, IA.Interval{N}}}) where {N} = TaylorModelReachSet{N, IA.Interval{N}}
+setrep(::Type{TaylorModelReachSet{N,N}}) where {N} = TaylorModelReachSet{N,N}
+function setrep(::Type{TaylorModelReachSet{N,IA.Interval{N}}}) where {N}
+    return TaylorModelReachSet{N,IA.Interval{N}}
+end
 setrep(::Type{TaylorModelReachSet{N}}) where {N} = Vector{TaylorModel1{TaylorN{N},N}}
 tstart(R::TaylorModelReachSet) = tstart(R.Δt) # t0 - δt + Δt0.lo
 tend(R::TaylorModelReachSet) = tend(R.Δt) # t0 + Δt0.hi
 tspan(R::TaylorModelReachSet) = R.Δt # # Interval(tstart(R), tend(R))
 dim(R::TaylorModelReachSet) = get_numvars()
-vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)),)
+vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)))
 
 # overload getter functions for the taylor model
 # we assume that the first element is representative
@@ -68,12 +70,12 @@ end
 
 # for TMs, we overapproximate with a zonotope
 function _intersection(R::TaylorModelReachSet, Y::LazySet)
-    _intersection(R, Y, FallbackIntersection())
+    return _intersection(R, Y, FallbackIntersection())
 end
 
 function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersection)
     X = set(overapproximate(R, Zonotope))
-    intersection(X, Y)
+    return intersection(X, Y)
 end
 
 # TODO overapprox Y with a box if it's bounded?
@@ -84,7 +86,8 @@ function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
 end
 
 # TODO refactor? See LazySets#2158
-function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N,HT}, ::BoxIntersection) where {N,HT<:HalfSpace{N}}
+function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N,HT},
+                       ::BoxIntersection) where {N,HT<:HalfSpace{N}}
     X = set(overapproximate(R, Hyperrectangle))
 
     # find first non-empty intersection
@@ -102,7 +105,7 @@ function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N,HT}, ::BoxInte
 
     # add all other non-empty intersections
     out = [W]
-    @inbounds for j in i+1:m
+    @inbounds for j in (i + 1):m
         W = intersection(X, Y.array[j])
         !isempty(W) && push!(out, W)
     end
@@ -122,31 +125,52 @@ end
 # Disjointness checks
 # ======================
 
-_is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness) = isdisjoint(set(overapproximate(R, Zonotope)), Y)
+function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness)
+    return isdisjoint(set(overapproximate(R, Zonotope)), Y)
+end
 
 # FIXME when UnionSet, UnionSetArray <: LazySet
-_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray}, method::FallbackDisjointness) = isdisjoint(set(overapproximate(R, Zonotope)), Y)
-_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray}, method::ZonotopeEnclosure) = isdisjoint(set(overapproximate(R, Zonotope)), Y)
-_is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray}, method::BoxEnclosure) = isdisjoint(set(overapproximate(R, Hyperrectangle)), Y)
+function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
+                                method::FallbackDisjointness)
+    return isdisjoint(set(overapproximate(R, Zonotope)), Y)
+end
+function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
+                                method::ZonotopeEnclosure)
+    return isdisjoint(set(overapproximate(R, Zonotope)), Y)
+end
+function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
+                                method::BoxEnclosure)
+    return isdisjoint(set(overapproximate(R, Hyperrectangle)), Y)
+end
 
-_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::FallbackDisjointness) = isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
-_is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet, method::ZonotopeEnclosure) = isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+function _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
+                                method::FallbackDisjointness)
+    return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+end
+function _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
+                                method::ZonotopeEnclosure)
+    return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
+end
 
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{LazySet,UnionSet,UnionSetArray}, method::ZonotopeEnclosure)
+@commutative function _is_intersection_empty(R::TaylorModelReachSet,
+                                             Y::Union{LazySet,UnionSet,UnionSetArray},
+                                             method::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end
 
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::AbstractDisjointnessMethod)
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe,
+                                             method::AbstractDisjointnessMethod)
     return false
 end
 
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::ZonotopeEnclosure)
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe,
+                                             method::ZonotopeEnclosure)
     return false
 end
 
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe, method::BoxEnclosure)
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe,
+                                             method::BoxEnclosure)
     return false
 end
 
@@ -209,7 +233,7 @@ function evaluate(R::TaylorModelReachSet, Δt::TimeInterval)
     n = dim(R)
     X = set(R)
     Δtn = (Δt - tstart(R)) ∩ domain(R)
-    [fp_rpa(TaylorModelN(evaluate(X[i], Δtn), zeroI, zeroBox(n), symBox(n))) for i in 1:n]
+    return [fp_rpa(TaylorModelN(evaluate(X[i], Δtn), zeroI, zeroBox(n), symBox(n))) for i in 1:n]
 end
 
 evaluate(R::TaylorModelReachSet, t::Real) = evaluate(R, interval(t))
@@ -237,14 +261,15 @@ end
 
 # overapproximate taylor model reachset with one hyperrectangle
 function _overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
-    Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
+                          Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
 
     # dimension of the reachset
     n = dim(R)
 
     # consistency checks
-    n == dim(dom) || throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
-                                         "but they are $(dim(R)) and $(dim(dom)) respectively"))
+    n == dim(dom) ||
+        throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
+                            "but they are $(dim(R)) and $(dim(dom)) respectively"))
     dom ⊆ symBox(dim(R)) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
     Δt ⊆ tspan(R) || throw(ArgumentError("the given time range $Δt does not belong to the " *
                                          "reach-set's time span, $(tspan(R))"))
@@ -284,8 +309,8 @@ LazySets.box_approximation(R::TaylorModelReachSet) = _overapproximate(R, Hyperre
 # e.g. if the partition is uniform for each dimension, the number of returned sets
 # is nsdiv^D * ntdiv
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
-    partition=nothing, nsdiv=nothing, ntdiv=1,
-    Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
+                         partition=nothing, nsdiv=nothing, ntdiv=1,
+                         Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
     if !isnothing(partition) && !isnothing(nsdiv)
         throw(ArgumentError("either `partition` or `nsdiv` should be specified, not both"))
     end
@@ -355,11 +380,12 @@ end
 
 # overapproximate taylor model reachset with one zonotope
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
-    Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
+                         Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
 
     # consistency checks
-    dim(R) == dim(dom) || throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
-                                              "but they are $(dim(R)) and $(dim(dom)) respectively"))
+    dim(R) == dim(dom) ||
+        throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
+                            "but they are $(dim(R)) and $(dim(dom)) respectively"))
     dom ⊆ symBox(dim(R)) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
     Δt ⊆ tspan(R) || throw(ArgumentError("the given time range $Δt does not belong to the " *
                                          "reach-set's time span, $(tspan(R))"))
@@ -395,7 +421,8 @@ end
 #
 # - if `partition` is an integer, makes as uniform partition for each coordinate
 # - if `partition` is a vector of integers, split the domain according to each element in partition
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, partition::Union{Int,Vector{Int}}) where {N}
+function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope},
+                         partition::Union{Int,Vector{Int}}) where {N}
     # dimension of the reachsets
     D = dim(R)
 
@@ -423,7 +450,7 @@ end
 
 # evaluate at a given time and overapproximate the resulting set with a zonotope
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat;
-    remove_zero_generators=true) where {N}
+                         remove_zero_generators=true) where {N}
     @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
 
     X = set(R)
@@ -433,17 +460,16 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::Abstr
     n = dim(R)
     X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
     fX̂ = fp_rpa.(X̂)
-    Zi = overapproximate(fX̂, Zonotope, remove_zero_generators=remove_zero_generators)
+    Zi = overapproximate(fX̂, Zonotope; remove_zero_generators=remove_zero_generators)
     Δt = TimeInterval(t, t)
     return ReachSet(Zi, Δt)
 end
 
 # convert a hyperrectangular set to a taylor model reachset
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
-    orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
-
+                 orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
     n = dim(H)
-    x = set_variables("x", numvars=n, order=orderQ)
+    x = set_variables("x"; numvars=n, order=orderQ)
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
@@ -465,18 +491,17 @@ end
 
 # overapproximate a hyperrectangular set with a taylor model reachset, fallback to convert
 function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReachSet};
-    orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
-    convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+    return convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
 end
 
 # overapproximate a zonotopic set with a taylor model reachset
 # FIXME pass algorithm option to choose between using parallelotope oa or  order reduction
 function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
-    orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
-    indices=1:dim(Z), box_reduction=false) where {N}
-
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
+                         indices=1:dim(Z), box_reduction=false) where {N}
     n = dim(Z)
-    x = set_variables("x", numvars=n, order=orderQ)
+    x = set_variables("x"; numvars=n, order=orderQ)
 
     if order(Z) > 1
         if box_reduction
@@ -528,19 +553,22 @@ end
 
 # zonotope of order 2 with generators matrix G = [M; D] where M is n x n and D is n x n and diagonal
 function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
-    orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+                                     orderQ::Integer=2, orderT::Integer=8,
+                                     Δt::TimeInterval=zeroI) where {N}
     n = dim(Z)
-    x = set_variables("x", numvars=n, order=orderQ)
+    x = set_variables("x"; numvars=n, order=orderQ)
 
     # check structure
-    order(Z) == 2 || throw(ArgumentError("this function requires that the order of the zonotope is 2, got $(order(Z))"))
+    order(Z) == 2 ||
+        throw(ArgumentError("this function requires that the order of the zonotope is 2, got $(order(Z))"))
 
     c = LazySets.center(Z)
     G = genmat(Z)
 
     M = view(G, :, 1:n)
-    D = view(G, :, n+1:2n)
-    isdiag(D) || throw(ArgumentError("the columns $(n+1) to $(2n) of the generators matrix do not form a diagonal matrix"))
+    D = view(G, :, (n + 1):(2n))
+    isdiag(D) ||
+        throw(ArgumentError("the columns $(n+1) to $(2n) of the generators matrix do not form a diagonal matrix"))
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
@@ -560,10 +588,12 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
     return TaylorModelReachSet(vTM, Δt)
 end
 
-function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interval}, ::Type{<:TaylorModelReachSet};
-    orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interval},
+                                     ::Type{<:TaylorModelReachSet};
+                                     orderQ::Integer=2, orderT::Integer=8,
+                                     Δt::TimeInterval=zeroI) where {N}
     n = dim(Zcp)
-    x = set_variables("x", numvars=n, order=orderQ)
+    x = set_variables("x"; numvars=n, order=orderQ)
 
     # check structure
     Z = Zcp.X
@@ -571,7 +601,8 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     if order(Z) > 1
         Z = remove_redundant_generators(Z)
     end
-    order(Z) == 1 || throw(ArgumentError("this function requires that the order of the (lower) zonotope is 1, got $(order(Z))"))
+    order(Z) == 1 ||
+        throw(ArgumentError("this function requires that the order of the (lower) zonotope is 1, got $(order(Z))"))
 
     c = LazySets.center(Z)
     G = genmat(Z)
@@ -582,15 +613,15 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     # normalized time domain
     Δtn = TimeInterval(zero(N), diam(Δt))
 
-    xstate = x[1:n-1]
-    @inbounds for i in 1:n-1
-        pi = c[i] + sum(view(G, i, :) .* xstate) + zero(TaylorN(n, order=orderQ))
+    xstate = x[1:(n - 1)]
+    @inbounds for i in 1:(n - 1)
+        pi = c[i] + sum(view(G, i, :) .* xstate) + zero(TaylorN(n; order=orderQ))
         rem = interval(0)
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
     # diagonal part
     @inbounds begin
-        pi = mid(Y.dat) + zero(TaylorN(1, order=orderQ))
+        pi = mid(Y.dat) + zero(TaylorN(1; order=orderQ))
         d = diam(Y.dat) / 2
         rem = interval(-d, d)
         vTM[n] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
@@ -600,10 +631,12 @@ end
 
 # we assume that if n = size(G, 1), then:
 # (size(G) == (n, 2n + 1)) && isdiag(view(G, :, (n+2):(2n+1)))
-function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:Interval}, ::Type{<:TaylorModelReachSet};
-    orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:Interval},
+                                          ::Type{<:TaylorModelReachSet};
+                                          orderQ::Integer=2, orderT::Integer=8,
+                                          Δt::TimeInterval=zeroI) where {N}
     n = dim(Zcp) - 1
-    x = set_variables("x", numvars=n + 1, order=orderQ)
+    x = set_variables("x"; numvars=n + 1, order=orderQ)
 
     # check structure
     # not checking structure
@@ -619,18 +652,18 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
 
     # fill rows corresponding to the "zonotope" variables: 1 to nth-variables
     @inbounds for i in 1:n
-        pi = c[i] + sum(view(G, i, 1:(n+1)) .* x) + zero(TaylorN(n + 1, order=orderQ))
-        d = abs(G[i, n+1+i])
+        pi = c[i] + sum(view(G, i, 1:(n + 1)) .* x) + zero(TaylorN(n + 1; order=orderQ))
+        d = abs(G[i, n + 1 + i])
         rem = interval(-d, d)
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
 
     # fill the final row, which correspponds to the "interval" variable: (n+1)-th
     I = Zcp.Y.dat
-    pi = mid(I) + zero(TaylorN(n + 1, order=orderQ))
+    pi = mid(I) + zero(TaylorN(n + 1; order=orderQ))
     d = diam(I) / 2
     rem = interval(-d, d)
-    @inbounds vTM[n+1] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
+    @inbounds vTM[n + 1] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
 
     return TaylorModelReachSet(vTM, Δt)
 end

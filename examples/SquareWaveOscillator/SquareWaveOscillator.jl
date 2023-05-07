@@ -14,31 +14,30 @@ using ReachabilityAnalysis, Symbolics, Plots
 
 LazySets.set_ztol(Float64, 1e-15)
 
-function multistable_oscillator(; X0 = Interval(0.0, 0.05),
-                                  V₊ = +13.5, V₋ = -13.5,
-                                  R = 20.E3, C = 5.5556E-8,
-                                  R1 = 20.E3, R2 = 20.E3)
-
+function multistable_oscillator(; X0=Interval(0.0, 0.05),
+                                V₊=+13.5, V₋=-13.5,
+                                R=20.E3, C=5.5556E-8,
+                                R1=20.E3, R2=20.E3)
     @variables x
-    τ = 1/(R*C)
-    α = R2/(R1+R2)
+    τ = 1 / (R * C)
+    α = R2 / (R1 + R2)
 
     A = -τ
-    b = (τ/α) * V₊
-    I₊ = HalfSpace(x <= α*V₊)
+    b = (τ / α) * V₊
+    I₊ = HalfSpace(x <= α * V₊)
     m1 = @system(x' = Ax + b, x ∈ I₊)
 
-    b = (τ/α) * V₋
-    I₋ = HalfSpace(x >= α*V₋)
+    b = (τ / α) * V₋
+    I₋ = HalfSpace(x >= α * V₋)
     m2 = @system(x' = Ax + b, x ∈ I₋)
 
     automaton = GraphAutomaton(2)
     add_transition!(automaton, 1, 2, 1)
-    g1 = Hyperplane(x == α*V₊)
+    g1 = Hyperplane(x == α * V₊)
     r1 = ConstrainedIdentityMap(1, g1)
 
     add_transition!(automaton, 2, 1, 2)
-    g2 = Hyperplane(x == α*V₋)
+    g2 = Hyperplane(x == α * V₋)
     r2 = ConstrainedIdentityMap(1, g2)
 
     modes = [m1, m2]
@@ -54,9 +53,9 @@ end
 
 prob = multistable_oscillator()
 
-sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=false);
+sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=false);
 
-fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
 
 #!jl import DisplayAs  #hide
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
@@ -73,8 +72,8 @@ location.(sol)
 # If we plot the last 10 reach-sets of the first flowpipe, we observe that only the
 # last 3 actually intersect the guard:
 
-fig = plot(sol[1][end-10:end], vars=(0, 1), xlab="t", ylab="v-")
-plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+fig = plot(sol[1][(end - 10):end]; vars=(0, 1), xlab="t", ylab="v-")
+plot!(x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -84,10 +83,10 @@ Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
 
 # Plotting `Xc` matches with the flowpipe after the jump:
 
-fig = plot(sol[1][end-10:end], vars=(0, 1))
-plot!(sol[2][1:10], vars=(0, 1))
-plot!(x -> 6.75, xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
-plot!(Xc[1], vars=(0, 1), c=:grey)
+fig = plot(sol[1][(end - 10):end]; vars=(0, 1))
+plot!(sol[2][1:10]; vars=(0, 1))
+plot!(x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+plot!(Xc[1]; vars=(0, 1), c=:grey)
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -95,11 +94,11 @@ plot!(Xc[1], vars=(0, 1), c=:grey)
 # period. To activate such check pass the `fixpoint_check=true` flag to the hybrid
 # solve API.
 
-sol = solve(prob, T=100e-4, alg=INT(δ=1.E-6), fixpoint_check=true);
+sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=true);
 
 #-
 
-fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
+fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -107,7 +106,6 @@ fig = plot(sol, vars=(0, 1), xlab="t", ylab="v-")
 # last reach-set is contained in a previously explored initial state.
 
 tspan(sol)
-
 
 # ## References
 

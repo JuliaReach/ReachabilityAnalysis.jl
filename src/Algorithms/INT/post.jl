@@ -1,10 +1,9 @@
 # this algorithms assumes that the initial-value problem is one-dimensional
 function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-
     n = statedim(ivp)
     n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
-                    "systems, but this initial-value problem is $n-dimensional"))
+                                  "systems, but this initial-value problem is $n-dimensional"))
 
     @unpack δ, approx_model = alg
 
@@ -13,7 +12,7 @@ function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -40,7 +39,7 @@ function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # preallocate output flowpipe
     IT = typeof(Ω0)
     #N = eltype(Ω0)
-    F = Vector{ReachSet{N, IT}}(undef, NSTEPS)
+    F = Vector{ReachSet{N,IT}}(undef, NSTEPS)
 
     if got_homogeneous
         reach_homog_INT!(F, Ω0, Φ, NSTEPS, δ, X, Δt0)

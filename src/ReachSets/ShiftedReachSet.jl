@@ -2,7 +2,7 @@
 # Time-shifted reach-set
 # ================================================================
 
-struct ShiftedReachSet{N, RT<:AbstractLazyReachSet{N}} <: AbstractLazyReachSet{N}
+struct ShiftedReachSet{N,RT<:AbstractLazyReachSet{N}} <: AbstractLazyReachSet{N}
     R::RT
     t0::N
 end

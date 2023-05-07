@@ -1,8 +1,8 @@
 # computes overapproximation of Φ * set(F[k-1]) with a zonotope
 # this operations adds n generators, hence we use an order reduction
 # function
-function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                            Ω0::Zonotope{N, VN, MN},
+function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                            Ω0::Zonotope{N,VN,MN},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
@@ -10,7 +10,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             X::Universe,
                             recursive::Val{true},
                             reduction_method::AbstractReductionMethod,
-                            Δt0::TN) where {N, TN, VN, MN}
+                            Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -36,8 +36,8 @@ end
 
 # non-recursive implementation; to get more accurate interval matrix powers Φ^k
 # we use the IntervalMatrices.IntervalMatrixPower interface
-function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                            Ω0::Zonotope{N, VN, MN},
+function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                            Ω0::Zonotope{N,VN,MN},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
@@ -45,7 +45,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             X::Universe,
                             recursive::Val{false},
                             reduction_method::AbstractReductionMethod,
-                            Δt0::TN) where {N, TN, VN, MN}
+                            Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -72,8 +72,8 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 end
 
 # case with an invariant
-function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                            Ω0::Zonotope{N, VN, MN},
+function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                            Ω0::Zonotope{N,VN,MN},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
@@ -81,7 +81,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                             X::LazySet,
                             recursive::Val{true},
                             reduction_method::AbstractReductionMethod,
-                            Δt0::TN) where {N, TN, VN, MN}
+                            Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -91,7 +91,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Zₖ₋₁ = set(F[k-1])
+        Zₖ₋₁ = set(F[k - 1])
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -104,7 +104,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         F[k] = ReachSet(Zₖʳ, Δt)
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end

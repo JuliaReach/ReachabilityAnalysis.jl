@@ -94,7 +94,7 @@ function prod_dest_verif(sol; T=100.0, target=10.0)
     solz = overapproximate(sol, Zonotope)
 
     ## project the final reach-set onto the space variables x, y, z
-    X = project(solz(T), vars=(1, 2, 3))
+    X = project(solz(T); vars=(1, 2, 3))
 
     ## check that all variables are nonnegative
     nonnegative = X ⊆ positive_orthant
@@ -119,7 +119,7 @@ end
     local a = 0.3
     x, y, z = u[1], u[2], u[3]
 
-    du[1] = - (x * y) / (1 + x)
+    du[1] = -(x * y) / (1 + x)
     du[2] = (x * y) / (1 + x) - a * y
     du[3] = a * y
     return du
@@ -128,16 +128,16 @@ end
 # We define the initial states as the cartesian product of intervals.
 
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01)
-prob = @ivp(x'= prod_dest_I!(x), dim:3, x(0) ∈ X0)
+prob = @ivp(x' = prod_dest_I!(x), dim:3, x(0) ∈ X0)
 
-solI = solve(prob, T=100.0, alg=TMJets(abstol=1e-11, orderT=7, orderQ=1));
+solI = solve(prob; T=100.0, alg=TMJets(; abstol=1e-11, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solI)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-fig = plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
+fig = plot(solI; vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
 
 #!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
@@ -150,7 +150,7 @@ fig = plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="
 @taylorize function prod_dest_IP!(du, u, params, t)
     x, y, z, a = u[1], u[2], u[3], u[4]
 
-    du[1] = - (x * y) / (1 + x)
+    du[1] = -(x * y) / (1 + x)
     du[2] = (x * y) / (1 + x) - a * y
     du[3] = a * y
     du[4] = zero(x)
@@ -158,16 +158,16 @@ fig = plot(solI, vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="
 end
 
 X0 = (9.98 .. 9.98) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
-prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
+prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solP = solve(prob, T=100.0, alg=TMJets(abstol=1e-12, orderT=7, orderQ=1));
+solP = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-fig = plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
+fig = plot(solP; vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -179,16 +179,16 @@ fig = plot(solP, vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 # Recall that we are interested in ``x(0) \in [9.5, 10.0]`` and ``a \in [0.296, 0.304]``.
 
 X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
-prob = @ivp(x'= prod_dest_IP!(x), dim:4, x(0) ∈ X0)
+prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0)
 
-solIP = solve(prob, T=100.0, alg=TMJets(abstol=1e-11, orderT=7, orderQ=1));
+solIP = solve(prob; T=100.0, alg=TMJets(; abstol=1e-11, orderT=7, orderQ=1));
 
 # Verifying that the specification holds:
 property, vol = prod_dest_verif(solIP)
 
 # Now we plot ``z`` (in the ``[0, 11]`` range) w.r.t. time (in the ``[0, 100]`` range).
 
-fig = plot(solIP, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
+fig = plot(solIP; vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -208,7 +208,7 @@ fig = plot(solIP, vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P
 
     num = x * y
     den = 1 + x
-    aux = num/den
+    aux = num / den
     aux2 = a * y
     du[1] = -aux
     du[2] = aux - aux2
@@ -221,7 +221,7 @@ end
 
     num = x * y
     den = 1 + x
-    aux = num/den
+    aux = num / den
     aux2 = a * y
     du[1] = -aux
     du[2] = aux - aux2

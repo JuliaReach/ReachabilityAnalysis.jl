@@ -39,7 +39,6 @@ struct XFZ18 <: ContinuousPost
 
         # merge!(𝑂, :relaxation_degree)
 
-
         return new(𝑂)
     end
 end
@@ -76,14 +75,14 @@ function build_sos(𝒮, opt)
     LΦ = ∂t(Φ) + ∂xf(Φ)
 
     # Φ(x, t) at time 0
-    Φ₀ = subs(Φ, t => 0.)
+    Φ₀ = subs(Φ, t => 0.0)
 
     # scalar variable
     @variable(model, ϵ)
 
-    dom1 = @set t*(T-t) >= 0 && g >= 0
+    dom1 = @set t * (T - t) >= 0 && g >= 0
     dom2 = @set g >= 0
-    @constraint(model, ϵ >= 0.)
+    @constraint(model, ϵ >= 0.0)
     @constraint(model, LΦ ∈ SOSCone(), domain = dom1)
     @constraint(model, ϵ - LΦ ∈ SOSCone(), domain = dom1)
     @constraint(model, Φ₀ - V₀ ∈ SOSCone(), domain = dom2)
@@ -121,7 +120,7 @@ function extract_approximations(model, 𝑂)
     Punder = subs(JuMP.value(model[:Φ]), t => T)
 
     # Pover <= 0   TODO: @set Pover <= 0 ?
-    Pover = subs(JuMP.value(model[:Φ]), t => T) - ϵopt * (T+1)
+    Pover = subs(JuMP.value(model[:Φ]), t => T) - ϵopt * (T + 1)
 
     return (ϵopt, Punder, Pover)
 end

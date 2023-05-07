@@ -1,18 +1,17 @@
-function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N, AM, VN, TN}
-
+function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N,AM,VN,TN}
     @unpack δ, approx_model, template, static, threaded, vars = alg
 
     # dimension check
     @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *
-        "doesn't match the dimension of the template directions, $(dim(template))"
+                                           "doesn't match the dimension of the template directions, $(dim(template))"
 
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -42,8 +41,8 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
     # NOTE: option :static currently ignored!
 
     # preallocate output flowpipe
-    SN = SubArray{N, 1, Matrix{N}, Tuple{Base.Slice{Base.OneTo{Int}}, Int}, true}
-    RT = TemplateReachSet{N, VN, TN, SN}
+    SN = SubArray{N,1,Matrix{N},Tuple{Base.Slice{Base.OneTo{Int}},Int},true}
+    RT = TemplateReachSet{N,VN,TN,SN}
     F = Vector{RT}(undef, NSTEPS)
 
     if got_homogeneous
@@ -51,8 +50,9 @@ function post(alg::LGG09{N, AM, VN, TN}, ivp::IVP{<:AbstractContinuousSystem}, t
     else
         U = inputset(ivp_discr)
         @assert isa(U, LazySet)
-        ρℓ = reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, Δt0, cacheval, Val(alg.threaded))
+        ρℓ = reach_inhomog_LGG09!(F, template, Ω₀, Φ, NSTEPS, δ, X, U, Δt0, cacheval,
+                                  Val(alg.threaded))
     end
 
-    return Flowpipe(F, Dict{Symbol, Any}(:sfmat => ρℓ, :alg_vars => vars))
+    return Flowpipe(F, Dict{Symbol,Any}(:sfmat => ρℓ, :alg_vars => vars))
 end

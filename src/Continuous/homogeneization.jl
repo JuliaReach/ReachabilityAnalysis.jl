@@ -3,8 +3,8 @@
 # ====================================================
 
 # no-op
-homogenize(ivp::IVP{LCS{N, MT}, ST}) where {N, MT<:AbstractMatrix{N}, ST} = ivp
-homogenize(sys::LCS{N, MT}) where {N, MT<:AbstractMatrix{N}} = sys
+homogenize(ivp::IVP{LCS{N,MT},ST}) where {N,MT<:AbstractMatrix{N},ST} = ivp
+homogenize(sys::LCS{N,MT}) where {N,MT<:AbstractMatrix{N}} = sys
 
 """
     homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
@@ -26,9 +26,13 @@ This function transforms the canonical initial-value problem ``x' = Ax + u``,
 ``x ∈ X`` with ``u(0) ∈ U = {u}`` (a singleton) into an homogeneous problem
 without inputs ``y' = Â * y``, ``y ∈ Y``.
 """
-function homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
+function homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N,
+                                                                                              MT<:AbstractMatrix{N},
+                                                                                              XT<:LazySet{N},
+                                                                                              SI<:Singleton{N},
+                                                                                              ST<:LazySet{N}}
     # homogenized state matrix
-    U = inputset(ivp) |> ReachabilityAnalysis.next_set
+    U = ReachabilityAnalysis.next_set(inputset(ivp))
     A = state_matrix(ivp)
     Â = _homogenize_state_matrix(A, U)
 
@@ -70,24 +74,24 @@ function homogenize(sys::SOACS)
     Zn = spzeros(n, n)
     In = Matrix(1.0I, n, n)
 
-    A = [Zn           In     ;
-        -invM*K       -invM*C]
+    A = [Zn In;
+         -invM*K -invM*C]
     b0 = vcat(zeros(n), invM * b)
 
     m = 2n
-    Aext = spzeros(m+1, m+1)
+    Aext = spzeros(m + 1, m + 1)
     Aext[1:m, 1:m] .= A
-    Aext[1:m, m+1] .= b0
+    Aext[1:m, m + 1] .= b0
 
-    return @system(x' = Aext*x)
+    return @system(x' = Aext * x)
 end
 
 function _homogenize_state_matrix(A::AbstractMatrix, U::Singleton)
     u = element(U)
     n = size(A, 1)
-    Â = zeros(n+1, n+1)
+    Â = zeros(n + 1, n + 1)
     Â[1:n, 1:n] .= A
-    Â[1:n, n+1] .= u
+    Â[1:n, n + 1] .= u
     return Â
 end
 

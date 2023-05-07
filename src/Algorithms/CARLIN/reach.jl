@@ -9,12 +9,12 @@ end
 
 function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
     error_bound_func = error_bound_specabs
-    
+
     # lift initial states
     if compress
         ŷ0 = lift_vector(X0, N) # see CarlemanLinearization/linearization.jl
     else
-        ŷ0 = kron_pow_stack(X0, N) |> box_approximation
+        ŷ0 = box_approximation(kron_pow_stack(X0, N))
     end
 
     # solve continuous ODE
@@ -22,7 +22,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
         A = build_matrix(F1, F2, N; compress)
     end
     prob = @ivp(ŷ' = Aŷ, ŷ(0) ∈ ŷ0)
-    sol = solve(prob, T=T, alg=alg, Δt0=Δt)
+    sol = solve(prob; T=T, alg=alg, Δt0=Δt)
 
     # projection onto the first n variables
     n = dim(X0)
@@ -33,7 +33,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
     end
 
     # compute errors
-    errfunc = error_bound_func(X0, Matrix(F1), Matrix(F2), N=N)
+    errfunc = error_bound_func(X0, Matrix(F1), Matrix(F2); N=N)
 
     # evaluate error bounds for each reach-set in the solution
     E = [errfunc.(tspan(R)) for R in sol]
@@ -45,19 +45,19 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
     E_ball = [BallInf(zeros(n), high(ei, 1)) for ei in E_rad]
 
     # sum the solution with the error
-    fp_bloated = [ReachSet(set(Ri) ⊕ Ei, tspan(Ri)) for (Ri, Ei) in zip(πsol_1n, E_ball)] |> Flowpipe
+    fp_bloated = Flowpipe([ReachSet(set(Ri) ⊕ Ei, tspan(Ri)) for (Ri, Ei) in zip(πsol_1n, E_ball)])
 
     return fp_bloated
 end
 
 function _compute_resets(resets::Int, T)
-    return mince(0 .. T, resets+1)
+    return mince(0 .. T, resets + 1)
 end
 
 function _compute_resets(resets::Vector{Float64}, T)
     # assumes initial time is 0
     aux = vcat(0.0, resets, T)
-    return [interval(aux[i], aux[i+1]) for i in 1:length(aux)-1]
+    return [interval(aux[i], aux[i + 1]) for i in 1:(length(aux) - 1)]
 end
 
 function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress)
@@ -70,7 +70,7 @@ function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress
 
     # compute until first chunk
     T1 = sup(first(time_intervals))
-    sol_1 = reach_CARLIN(X0, F1, F2; alg, N, T=T1, Δt=interval(0)+Δt, bloat, compress, A=A)
+    sol_1 = reach_CARLIN(X0, F1, F2; alg, N, T=T1, Δt=interval(0) + Δt, bloat, compress, A=A)
 
     # preallocate output flowpipe
     fp_1 = flowpipe(sol_1)
@@ -85,7 +85,8 @@ function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress
     for i in 2:length(time_intervals)
         T0 = T1
         Ti = sup(time_intervals[i])
-        sol_i = reach_CARLIN(X0, F1, F2; alg, N, T=Ti-T0, Δt=interval(T0)+Δt, bloat, compress, A=A)
+        sol_i = reach_CARLIN(X0, F1, F2; alg, N, T=Ti - T0, Δt=interval(T0) + Δt, bloat, compress,
+                             A=A)
         push!(out, flowpipe(sol_i))
         X0 = box_approximation(set(sol_i[end]))
         T1 = Ti
