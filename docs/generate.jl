@@ -34,9 +34,9 @@ MODELS = ["Brusselator/Brusselator.jl",
 
 for file in MODELS
     source_path = abspath(joinpath(source_dir, file))
-    text = script(source_path, target_dir_jl, credit=false)
+    text = script(source_path, target_dir_jl; credit=false)
     code = strip(read(text, String))
     mdpost(str) = replace(str, "@__CODE__" => code)
-    markdown(source_path, target_dir_md, postprocess=mdpost, credit=false)
-    notebook(source_path, target_dir_md, execute=true, credit=false)
+    markdown(source_path, target_dir_md; postprocess=mdpost, credit=false)
+    notebook(source_path, target_dir_md; execute=true, credit=false)
 end

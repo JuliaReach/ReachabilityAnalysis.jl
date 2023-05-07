@@ -40,21 +40,21 @@ Interval arithmetic operations are performed using the `IntervalArithmetic.jl`
 package. Hence, the results are guaranteed to comply to the IEE754 standard with
 respect to the floating-point operations using intervals.
 """
-struct INT{N, AM} <: AbstractContinuousPost
+struct INT{N,AM} <: AbstractContinuousPost
     δ::N
     approx_model::AM
 end
 
 # convenience constructor using symbols
 function INT(; δ::N,
-               approx_model::AM=Forward(sih=:concrete, exp=:base)) where {N, AM}
+             approx_model::AM=Forward(; sih=:concrete, exp=:base)) where {N,AM}
     return INT(δ, approx_model)
 end
 
 step_size(alg::INT) = alg.δ
 numtype(::INT{N}) where {N} = N
-setrep(::INT{N}) where {N} = Interval{N, IA.Interval{N}}
-rsetrep(::INT{N}) where {N} = ReachSet{N, Interval{N, IA.Interval{N}}}
+setrep(::INT{N}) where {N} = Interval{N,IA.Interval{N}}
+rsetrep(::INT{N}) where {N} = ReachSet{N,Interval{N,IA.Interval{N}}}
 
 include("post.jl")
 include("reach_homog.jl")

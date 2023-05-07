@@ -47,7 +47,7 @@ to the dissertation [[LG09]](@ref).
 Regarding the approximation model, by default we use an adaptation of the method
 presented in [[FRE11]](@ref).
 """
-struct BOX{N, AM, S, D, R} <: AbstractContinuousPost
+struct BOX{N,AM,S,D,R} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     static::S
@@ -57,10 +57,10 @@ end
 
 # convenience constructor using symbols
 function BOX(; δ::N,
-               approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
-               static::Bool=false,
-               dim::Union{Int, Missing}=missing,
-               recursive::Bool=false) where {N, AM}
+             approx_model::AM=Forward(; sih=:concrete, exp=:base, setops=:lazy),
+             static::Bool=false,
+             dim::Union{Int,Missing}=missing,
+             recursive::Bool=false) where {N,AM}
     n = !ismissing(dim) ? Val(dim) : dim
     return BOX(δ, approx_model, Val(static), n, Val(recursive))
 end
@@ -68,19 +68,19 @@ end
 step_size(alg::BOX) = alg.δ
 numtype(::BOX{N}) where {N} = N
 
-function setrep(::BOX{N, AM, Val{false}, D, R}) where {N, AM, D, R}
+function setrep(::BOX{N,AM,Val{false},D,R}) where {N,AM,D,R}
     VT = Vector{N}
-    ST = Hyperrectangle{N, VT, VT}
+    return ST = Hyperrectangle{N,VT,VT}
 end
 
-function rsetrep(::BOX{N, AM, Val{true}, Val{n}, R}) where {N, AM, n, R}
-    VT = SVector{n, N}
-    ST = Hyperrectangle{N, VT, VT}
+function rsetrep(::BOX{N,AM,Val{true},Val{n},R}) where {N,AM,n,R}
+    VT = SVector{n,N}
+    return ST = Hyperrectangle{N,VT,VT}
 end
 
 function rsetrep(alg::BOX{N}) where {N}
     ST = setrep(alg)
-    RT = ReachSet{N, ST}
+    return RT = ReachSet{N,ST}
 end
 
 include("post.jl")

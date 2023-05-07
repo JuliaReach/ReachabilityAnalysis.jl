@@ -1,6 +1,6 @@
 # case with input and without invariant
-function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                              Ω0::Zonotope{N, VN, MN},
+function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                              Ω0::Zonotope{N,VN,MN},
                               Φ::AbstractMatrix,
                               NSTEPS::Integer,
                               δ::N,
@@ -9,7 +9,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                               U::Zonotope,
                               recursive::Val{true},
                               reduction_method::AbstractReductionMethod,
-                              Δt0::TN) where {N, TN, VN, MN}
+                              Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -22,7 +22,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Zₖ₋₁ = set(F[k-1])
+        Zₖ₋₁ = set(F[k - 1])
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -40,8 +40,8 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 end
 
 # case with input and with invariant
-function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
-                              Ω0::Zonotope{N, VN, MN},
+function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
+                              Ω0::Zonotope{N,VN,MN},
                               Φ::AbstractMatrix,
                               NSTEPS::Integer,
                               δ::N,
@@ -50,7 +50,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                               U::Zonotope,
                               recursive::Val{true},
                               reduction_method::AbstractReductionMethod,
-                              Δt0::TN) where {N, TN, VN, MN}
+                              Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -63,7 +63,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Zₖ₋₁ = set(F[k-1])
+        Zₖ₋₁ = set(F[k - 1])
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -80,7 +80,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
     end
     if k < NSTEPS + 1
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return F
 end

@@ -58,7 +58,7 @@ Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 
 Regarding the approximation model, we use an adaptation of a result in [[FRE11]](@ref).
 """
-struct GLGM06{N, AM, S, D, NG, P, RM, DM} <: AbstractContinuousPost
+struct GLGM06{N,AM,S,D,NG,P,RM,DM} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     max_order::Int
@@ -74,15 +74,16 @@ end
 
 # convenience constructor using symbols
 function GLGM06(; δ::N,
-               approx_model::AM=FirstOrderZonotope(),
-               #CorrectionHull(order=10),
-               max_order::Int=5,
-               static::Bool=false,
-               dim::Union{Int, Missing}=missing,
-               ngens::Union{Int, Missing}=missing,
-               preallocate::Bool=true,
-               reduction_method::RM=LazySets.GIR05(),
-               disjointness_method::DM=NoEnclosure()) where {N, AM, RM<:AbstractReductionMethod, DM<:AbstractDisjointnessMethod}
+                approx_model::AM=FirstOrderZonotope(),
+                #CorrectionHull(order=10),
+                max_order::Int=5,
+                static::Bool=false,
+                dim::Union{Int,Missing}=missing,
+                ngens::Union{Int,Missing}=missing,
+                preallocate::Bool=true,
+                reduction_method::RM=LazySets.GIR05(),
+                disjointness_method::DM=NoEnclosure()) where {N,AM,RM<:AbstractReductionMethod,
+                                                              DM<:AbstractDisjointnessMethod}
 
     # algorithm with "preallocation" is only defined for the non-static case
     preallocate = !static
@@ -95,27 +96,27 @@ end
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
 
-@inline function setrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
-    ST = Zonotope{N, Vector{N}, Matrix{N}}
+@inline function setrep(alg::GLGM06{N,AM,Val{false}}) where {N,AM}
+    return ST = Zonotope{N,Vector{N},Matrix{N}}
 end
 
-@inline function rsetrep(alg::GLGM06{N, AM, Val{false}}) where {N, AM}
+@inline function rsetrep(alg::GLGM06{N,AM,Val{false}}) where {N,AM}
     ST = setrep(alg)
-    RT = ReachSet{N, ST}
+    return RT = ReachSet{N,ST}
 end
 
-@inline function setrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n, p}
-    VT = SVector{n, N}
-    MT = SMatrix{n, p, N, n*p}
-    ZT = Zonotope{N, VT, MT}
+@inline function setrep(alg::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
+    VT = SVector{n,N}
+    MT = SMatrix{n,p,N,n * p}
+    return ZT = Zonotope{N,VT,MT}
 end
 
-@inline function rsetrep(alg::GLGM06{N, AM, Val{true}, Val{n}, Val{p}}) where {N, AM, n, p}
+@inline function rsetrep(alg::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
     ZT = setrep(alg)
-    RT = ReachSet{N, ZT}
+    return RT = ReachSet{N,ZT}
 end
 
-@inline function rsetrep(alg::GLGM06{N, AM, Val{true}, Missing, Missing}) where {N, AM}
+@inline function rsetrep(alg::GLGM06{N,AM,Val{true},Missing,Missing}) where {N,AM}
     throw(ArgumentError("the reach-set representation for a statically sized zonotope " *
                         "that the system's dimension argument has been defined; add `dim=...`" *
                         "to the algorithm constructor"))

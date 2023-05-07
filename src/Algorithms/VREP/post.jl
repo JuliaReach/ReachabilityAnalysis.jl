@@ -5,7 +5,6 @@
 # this algorithm uses polygons (two dimensions) or polytopes (any dimension) in vertex representation
 function post(alg::VREP{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-
     @unpack δ, approx_model, static, dim = alg
 
     # TODO move up to main solve function
@@ -14,7 +13,7 @@ function post(alg::VREP{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         T = NSTEPS * δ
     else
         # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan, check_zero=true, check_positive=true)
+        T = _get_T(tspan; check_zero=true, check_positive=true)
         NSTEPS = ceil(Int, T / δ)
     end
 
@@ -50,7 +49,7 @@ function post(alg::VREP{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     # preallocate output flowpipe
     VT = typeof(Ω0)
-    F = Vector{ReachSet{N, VT}}(undef, NSTEPS)
+    F = Vector{ReachSet{N,VT}}(undef, NSTEPS)
 
     if got_homogeneous
         reach_homog_VREP!(F, Ω0, Φ, NSTEPS, δ, X, Δt0)

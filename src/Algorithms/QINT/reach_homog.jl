@@ -1,6 +1,6 @@
 function _expansion_point(a, b, c, X0::Interval, Δ)
     c₀ = mid(X0.dat)
-    f_c₀ = c₀*(a*c₀ + b) + c
+    f_c₀ = c₀ * (a * c₀ + b) + c
     x̃ = c₀ + Δ / 2 * f_c₀
     return x̃
 end
@@ -18,13 +18,12 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
                           Δ::N,    # step size for NL reach
                           δ::N,    # step size for the linear reach
                           θ,       # remainder expansion rate
-                          maxiter  # maximum number of iterations
-                          ) where {N}
+                          maxiter) where {N}
 
     # total flowpipe
-    RT = ReachSet{N,Interval{N, IA.Interval{N}}}
+    RT = ReachSet{N,Interval{N,IA.Interval{N}}}
     VRT = Vector{RT}
-    FT = Flowpipe{N, RT, VRT}
+    FT = Flowpipe{N,RT,VRT}
     Ftot = Vector{FT}()
 
     # initialization
@@ -35,7 +34,6 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
     k = 1
     ksplit = 0
     while !isempty(waiting_list)
-
         (Δti, elem) = pop!(waiting_list)
         X0 = state(elem)
 
@@ -47,7 +45,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
 
         # solve linear reachability
         prob = @ivp(x' = α * x + β, x(0) ∈ X0)
-        sol = post(INT(δ=δ), prob, IA.Interval(0.0, Δ), Δt0=Δti)
+        sol = post(INT(; δ=δ), prob, IA.Interval(0.0, Δ); Δt0=Δti)
 
         # compute admissible linearization error
         kθ = 1 / (exp(α * Δ) - 1) * α * θ * Δ
@@ -56,7 +54,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
         # estimate lagrange remainder TODO: optimize
         R̂lin = ConvexHullArray([set(R) for R in sol]) ⊕ R̄err
         R̂lin_int = overapproximate(R̂lin, Interval)
-        L = a * (R̂lin_int.dat - x̃)^2 |> Interval
+        L = Interval(a * (R̂lin_int.dat - x̃)^2)
 
         # validate Lagrange remainder
         if L ⊆ L̄

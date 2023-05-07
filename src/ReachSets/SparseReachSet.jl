@@ -33,27 +33,27 @@ and `D` denotes the dimension of this sparse reach set. Note that, in contrast
 to `ReachSet`, for `SparseReachSet` the number of dimensions is part of the type
 information.
 """
-struct SparseReachSet{N, ST<:LazySet{N}, D} <: AbstractLazyReachSet{N}
+struct SparseReachSet{N,ST<:LazySet{N},D} <: AbstractLazyReachSet{N}
     X::ST
     Δt::IA.Interval{Float64}
-    vars::NTuple{D, Int}
+    vars::NTuple{D,Int}
     # TODO: inner constructor that the dimension of vars matches that of X ?
 end
 
 # interface functions
 set(R::SparseReachSet) = R.X
-setrep(::SparseReachSet{N, ST}) where {N, ST<:LazySet{N}} = ST
-setrep(::Type{<:SparseReachSet{N, ST}}) where {N, ST<:LazySet{N}} = ST
+setrep(::SparseReachSet{N,ST}) where {N,ST<:LazySet{N}} = ST
+setrep(::Type{<:SparseReachSet{N,ST}}) where {N,ST<:LazySet{N}} = ST
 tstart(R::SparseReachSet) = inf(R.Δt)
 tend(R::SparseReachSet) = sup(R.Δt)
 tspan(R::SparseReachSet) = R.Δt
-dim(R::SparseReachSet{N, ST, D}) where {N, ST<:LazySet{N}, D} = D
+dim(R::SparseReachSet{N,ST,D}) where {N,ST<:LazySet{N},D} = D
 vars(R::SparseReachSet) = R.vars
 
 # constructor from vector of dimensions
 function SparseReachSet(X::ST, Δt::IA.Interval{Float64},
-                        vars::AbstractVector) where {N, ST<:LazySet{N}}
-    SparseReachSet(X, Δt, Tuple(vars))
+                        vars::AbstractVector) where {N,ST<:LazySet{N}}
+    return SparseReachSet(X, Δt, Tuple(vars))
 end
 
 function shift(R::SparseReachSet, t0::Number)
@@ -65,6 +65,6 @@ function reconstruct(R::SparseReachSet, Y::LazySet)
 end
 
 # constructor with a time point
-function SparseReachSet(X::ST, t::Real, vars::AbstractVector) where {N, ST<:LazySet{N}}
+function SparseReachSet(X::ST, t::Real, vars::AbstractVector) where {N,ST<:LazySet{N}}
     return SparseReachSet(X, interval(t), vars)
 end

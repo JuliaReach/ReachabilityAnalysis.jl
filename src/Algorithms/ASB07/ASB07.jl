@@ -47,7 +47,7 @@ These methods are discussed at length in the dissertation [[ALT10]](@ref).
 Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 [[GIR05]](@ref) and the review article [[YS18]](@ref).
 """
-struct ASB07{N, AM, RM, S, R, D, NG} <: AbstractContinuousPost
+struct ASB07{N,AM,RM,S,R,D,NG} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     max_order::Int
@@ -60,14 +60,13 @@ end
 
 # convenience constructor using symbols
 function ASB07(; δ::N,
-               approx_model::AM=CorrectionHull(order=10, exp=:interval),
+               approx_model::AM=CorrectionHull(; order=10, exp=:interval),
                max_order::Int=5,
                reduction_method::RM=LazySets.GIR05(),
                static::Bool=false,
                recursive::Bool=true,
-               dim::Union{Int, Missing}=missing,
-               ngens::Union{Int, Missing}=missing) where {N, AM, RM}
-
+               dim::Union{Int,Missing}=missing,
+               ngens::Union{Int,Missing}=missing) where {N,AM,RM}
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return ASB07(δ, approx_model, max_order, reduction_method, Val(static), Val(recursive), n, p)
@@ -76,15 +75,15 @@ end
 step_size(alg::ASB07) = alg.δ
 numtype(::ASB07{N}) where {N} = N
 
-function rsetrep(alg::ASB07{N, AM, RM, Val{false}}) where {N, AM, RM}
-    RT = ReachSet{N, Zonotope{N, Vector{N}, Matrix{N}}}
+function rsetrep(alg::ASB07{N,AM,RM,Val{false}}) where {N,AM,RM}
+    return RT = ReachSet{N,Zonotope{N,Vector{N},Matrix{N}}}
 end
 
-function rsetrep(alg::ASB07{N, AM, RM, S, R, Val{n}, Val{p}}) where {N, AM, RM, S, R, n, p}
-    VT = SVector{n, N}
-    MT = SMatrix{n, p, N, n*p}
-    ZT = Zonotope{N, VT, MT}
-    RT = ReachSet{N, ZT}
+function rsetrep(alg::ASB07{N,AM,RM,S,R,Val{n},Val{p}}) where {N,AM,RM,S,R,n,p}
+    VT = SVector{n,N}
+    MT = SMatrix{n,p,N,n * p}
+    ZT = Zonotope{N,VT,MT}
+    return RT = ReachSet{N,ZT}
 end
 
 include("post.jl")

@@ -61,7 +61,7 @@ For a general introduction we refer to the dissertation [[SCHI18]](@ref).
 Regarding the approximation model, by default we use an adaptation of the method
 presented in [[FRE11]](@ref).
 """
-struct BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK} <: AbstractContinuousPost
+struct BFFPSV18{N,ST,AM,IDX,BLK,RBLK,CBLK} <: AbstractContinuousPost
     δ::N
     approx_model::AM
     vars::IDX
@@ -75,17 +75,15 @@ struct BFFPSV18{N, ST, AM, IDX, BLK, RBLK, CBLK} <: AbstractContinuousPost
 end
 
 function BFFPSV18(; δ::N,
-                    setrep::ST=missing,
-                    vars=missing,
-                    partition::PT=missing,
-                    dim::Union{Int, Missing}=missing,
-                    approx_model::AM=Forward(sih=:concrete, exp=:base, setops=:lazy),
-                    lazy_initial_set::Bool=false,
-                    lazy_input::Bool=false,
-                    sparse::Bool=false,
-                    view::Bool=true
-                 ) where {N, ST, PT, AM}
-
+                  setrep::ST=missing,
+                  vars=missing,
+                  partition::PT=missing,
+                  dim::Union{Int,Missing}=missing,
+                  approx_model::AM=Forward(; sih=:concrete, exp=:base, setops=:lazy),
+                  lazy_initial_set::Bool=false,
+                  lazy_input::Bool=false,
+                  sparse::Bool=false,
+                  view::Bool=true) where {N,ST,PT,AM}
     if !ismissing(dim)
         dimension = dim
     elseif !ismissing(partition)
@@ -100,9 +98,11 @@ function BFFPSV18(; δ::N,
     end
 
     if dimension == 1
-        block_indices, row_blocks, column_blocks, setrep_tmp = _parse_opts_1D(vars, dimension, partition)
+        block_indices, row_blocks, column_blocks, setrep_tmp = _parse_opts_1D(vars, dimension,
+                                                                              partition)
     else
-        block_indices, row_blocks, column_blocks, setrep_tmp = _parse_opts_ND(vars, dimension, partition)
+        block_indices, row_blocks, column_blocks, setrep_tmp = _parse_opts_ND(vars, dimension,
+                                                                              partition)
     end
 
     if ismissing(setrep)
@@ -111,15 +111,14 @@ function BFFPSV18(; δ::N,
 
     setrep = _concretize_setrep(setrep, N)
 
-    return BFFPSV18{N, setrep, AM, typeof(vars), typeof(block_indices), typeof(row_blocks),
+    return BFFPSV18{N,setrep,AM,typeof(vars),typeof(block_indices),typeof(row_blocks),
                     typeof(column_blocks)}(δ, approx_model,
-                    vars, block_indices, row_blocks, column_blocks,
-                    lazy_initial_set, lazy_input, sparse, view)
-
+                                           vars, block_indices, row_blocks, column_blocks,
+                                           lazy_initial_set, lazy_input, sparse, view)
 end
 
-_concretize_setrep(setrep::Type{Interval}, N) = Interval{N, IntervalArithmetic.Interval{N}}
-_concretize_setrep(setrep::Type{Hyperrectangle}, N) = Hyperrectangle{N, Vector{N}, Vector{N}}
+_concretize_setrep(setrep::Type{Interval}, N) = Interval{N,IntervalArithmetic.Interval{N}}
+_concretize_setrep(setrep::Type{Hyperrectangle}, N) = Hyperrectangle{N,Vector{N},Vector{N}}
 
 # blocks of size 1
 function _parse_opts_1D(vars, dim::Integer, partition)
@@ -158,10 +157,12 @@ end
 # getter functions
 step_size(alg::BFFPSV18) = alg.δ
 numtype(::BFFPSV18{N}) where {N} = N
-setrep(::BFFPSV18{N, ST}) where {N, ST} = ST
+setrep(::BFFPSV18{N,ST}) where {N,ST} = ST
 
 # the reduction is necessary to have the number of variables that are actually computed
-rsetrep(alg::BFFPSV18{N, ST}) where {N, ST} = SparseReachSet{N, CartesianProductArray{N, ST}, length(reduce(vcat, alg.row_blocks))}
+function rsetrep(alg::BFFPSV18{N,ST}) where {N,ST}
+    return SparseReachSet{N,CartesianProductArray{N,ST},length(reduce(vcat, alg.row_blocks))}
+end
 
 include("post.jl")
 include("reach_homog.jl")

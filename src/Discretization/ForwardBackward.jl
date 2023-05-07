@@ -1,5 +1,5 @@
 # obs: S should normally be <:JuMP.MOI.AbstractOptimizer
-struct ForwardBackward{EM, SO, SI, IT, BT, S} <: AbstractApproximationModel
+struct ForwardBackward{EM,SO,SI,IT,BT,S} <: AbstractApproximationModel
     exp::EM
     setops::SO
     sih::SI
@@ -13,8 +13,10 @@ hasbackend(alg::ForwardBackward) = !isnothing(alg.backend)
 get_solver(alg::ForwardBackward) = alg.solver
 
 # convenience constructor using symbols
-function ForwardBackward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend=nothing, solver=nothing)
-    isnothing(solver) && throw(ArgumentError("please specify an optimization solver, e.g. `solver=Ipopt.Optimizer()`"))
+function ForwardBackward(; exp=BaseExp, setops=:lazy, sih=:concrete, inv=false, backend=nothing,
+                         solver=nothing)
+    isnothing(solver) &&
+        throw(ArgumentError("please specify an optimization solver, e.g. `solver=Ipopt.Optimizer()`"))
     return ForwardBackward(_alias(exp), _alias(setops), Val(sih), Val(inv), backend, solver)
 end
 
@@ -24,7 +26,7 @@ function Base.show(io::IO, alg::ForwardBackward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::ForwardBackward) = print(io, alg)
@@ -33,7 +35,7 @@ Base.show(io::IO, m::MIME"text/plain", alg::ForwardBackward) = print(io, alg)
 # ForwardBackward Approximation: Homogeneous case
 # ------------------------------------------------------------
 
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::ForwardBackward)
+function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::ForwardBackward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     Φ = _exp(A, δ, alg.exp)
@@ -64,7 +66,7 @@ end
 # Forward Approximation: Inhomogeneous case
 # ------------------------------------------------------------
 
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::ForwardBackward)
+function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::ForwardBackward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     Φ = _exp(A, δ, alg.exp)
@@ -79,7 +81,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::ForwardBackward)
     E₋ = sih(P2A_abs * sih((A² * Φ) * X0, alg.sih), alg.sih)
     Eψ = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
 
-    Ud = δ*U ⊕ Eψ
+    Ud = δ * U ⊕ Eψ
     Φᵀ = transpose(Φ)
     Ω0 = ContCH(δ, Φᵀ, X0, U, E₊, E₋, Eψ, get_solver(alg))
 
@@ -94,7 +96,7 @@ end
 
 # struct to hold the set obtained with ForwardBackward discretization
 # obs: OT is normally a MOI.AbstractOptimizer
-mutable struct ContCH{N, MT, ST, UT, EPT, EMT, EST, OT} <: LazySet{N}
+mutable struct ContCH{N,MT,ST,UT,EPT,EMT,EST,OT} <: LazySet{N}
     δ::N
     Φᵀ::MT
     X0::ST
@@ -126,50 +128,49 @@ function _get_e(d, E)
     ee = σ(d, E)
 
     # revert sign whenever the direction is negative
-    ee[d .< 0] .*= -1.
+    ee[d .< 0] .*= -1.0
     return ee
 end
 
 # homogeneous case
 function ω(λ, d, Φᵀ, X0, U::ZeroSet, Eψ, δ, e⁺, e⁻)
-    aux1h = (1 - λ) * ρ(d, X0) + λ * ρ(Φᵀ*d, X0)
-    aux2 = sum(min(λ * e⁺[i], (1 - λ)*e⁻[i]) * abs(d[i]) for i in eachindex(d))
+    aux1h = (1 - λ) * ρ(d, X0) + λ * ρ(Φᵀ * d, X0)
+    aux2 = sum(min(λ * e⁺[i], (1 - λ) * e⁻[i]) * abs(d[i]) for i in eachindex(d))
     return aux1h + aux2
 end
 
 # inhomogeneous case
 function ω(λ, d, Φᵀ, X0, U, Eψ, δ, e⁺, e⁻)
-    aux1h = (1 - λ) * ρ(d, X0) + λ * ρ(Φᵀ*d, X0)
+    aux1h = (1 - λ) * ρ(d, X0) + λ * ρ(Φᵀ * d, X0)
     aux1nh = λ * δ * ρ(d, U) + λ^2 * ρ(d, Eψ)
-    aux2 = sum(min(λ * e⁺[i], (1 - λ)*e⁻[i]) * abs(d[i]) for i in eachindex(d))
+    aux2 = sum(min(λ * e⁺[i], (1 - λ) * e⁻[i]) * abs(d[i]) for i in eachindex(d))
     return aux1h + aux1nh + aux2
 end
 
 function load_forwardbackward_discretization()
-return quote
-    import .JuMP
-    using .JuMP: MOI, Model, set_silent, register, optimize!, objective_value
+    return quote
+        import .JuMP
+        using .JuMP: MOI, Model, set_silent, register, optimize!, objective_value
 
-function LazySets.ρ(d::AbstractVector, X::ContCH)
-    @unpack δ, Φᵀ, X0, U, E₊, E₋, Eψ, solver = X
+        function LazySets.ρ(d::AbstractVector, X::ContCH)
+            @unpack δ, Φᵀ, X0, U, E₊, E₋, Eψ, solver = X
 
-    !has_solver(X) && throw(ArgumentError("the optimization solver should be specified"))
+            !has_solver(X) && throw(ArgumentError("the optimization solver should be specified"))
 
-    model = Model(typeof(get_solver(X)))
-    set_silent(model)
+            model = Model(typeof(get_solver(X)))
+            set_silent(model)
 
-    JuMP.@variable(model, 0 <= λ <= 1)
+            JuMP.@variable(model, 0 <= λ <= 1)
 
-    e₊ = _get_e(d, E₊)
-    e₋ = _get_e(d, E₋)
+            e₊ = _get_e(d, E₊)
+            e₋ = _get_e(d, E₋)
 
-    _ω(λ) = ω(λ, d, Φᵀ, X0, U, Eψ, δ, e₊, e₋)
-    register(model, :_ω, 1, _ω; autodiff = true)
+            _ω(λ) = ω(λ, d, Φᵀ, X0, U, Eψ, δ, e₊, e₋)
+            register(model, :_ω, 1, _ω; autodiff=true)
 
-    JuMP.@NLobjective(model, Max, _ω(λ))
-    optimize!(model)
-    return objective_value(model)
-end
-
-end # end quote
+            JuMP.@NLobjective(model, Max, _ω(λ))
+            optimize!(model)
+            return objective_value(model)
+        end
+    end # end quote
 end # end load_forwardbackward_discretization

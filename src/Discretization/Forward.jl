@@ -30,7 +30,7 @@ Here we allow ``U`` to be a sequence of time varying non-deterministic input set
 For the definition of the sets ``E_ψ`` and ``E^+`` see [[FRE11]](@ref).
 The `Backward` method uses ``E^-``.
 """
-struct Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
+struct Forward{EM,SO,SI,IT,BT} <: AbstractApproximationModel
     exp::EM
     setops::SO
     sih::SI
@@ -51,7 +51,7 @@ function Base.show(io::IO, alg::Forward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::Forward) = print(io, alg)
@@ -61,7 +61,7 @@ Base.show(io::IO, m::MIME"text/plain", alg::Forward) = print(io, alg)
 # ------------------------------------------------------------
 
 # if A == |A|, then Φ can be reused in the computation of Φ₂(|A|, δ)
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
+function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
@@ -77,7 +77,7 @@ function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::Forward)
     return InitialValueProblem(Sdis, Ω0)
 end
 
-function discretize(ivp::IVP{<:CLCS, Interval{N, IA.Interval{N}}}, δ, alg::Forward) where {N}
+function discretize(ivp::IVP{<:CLCS,Interval{N,IA.Interval{N}}}, δ, alg::Forward) where {N}
     A = state_matrix(ivp)
     @assert size(A, 1) == 1
     X0 = initial_state(ivp)
@@ -109,7 +109,7 @@ end
 # ------------------------------------------------------------
 
 # TODO : specialize, add option to compute the concrete linear map
-function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
+function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
 
@@ -123,7 +123,7 @@ function discretize(ivp::IVP{<:CLCCS, <:LazySet}, δ, alg::Forward)
     U = next_set(inputset(ivp), 1)
     Eψ0 = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
 
-    Ud = δ*U ⊕ Eψ0
+    Ud = δ * U ⊕ Eψ0
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
 
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)

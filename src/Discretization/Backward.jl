@@ -30,7 +30,7 @@ Here we allow ``U`` to be a sequence of time varying non-deterministic input set
 For the definition of the sets ``E_ψ`` and ``E^-`` see [[FRE11]](@ref).
 The `Forward` method uses ``E^+``.
 """
-struct Backward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
+struct Backward{EM,SO,SI,IT,BT} <: AbstractApproximationModel
     exp::EM
     setops::SO
     sih::SI
@@ -49,7 +49,7 @@ function Base.show(io::IO, alg::Backward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::Backward) = print(io, alg)

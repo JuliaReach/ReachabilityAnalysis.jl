@@ -13,10 +13,10 @@ function projectile(; X=Universe(4))
     A = [0 0 1 0;
          0 0 0 1;
          0 0 0 0;
-         0 0 0 0.]
-    X0 = Singleton([0., 1000.0, 10., 40.0])
-    b = [0., 0., 0., -g]
-    @ivp(x'= A*x + b, x(0) ∈ X0, x ∈ X)
+         0 0 0 0.0]
+    X0 = Singleton([0.0, 1000.0, 10.0, 40.0])
+    b = [0.0, 0.0, 0.0, -g]
+    @ivp(x' = A * x + b, x(0) ∈ X0, x ∈ X)
     tspan = (0.0, 20.0)
     return prob, tspan
 end
@@ -34,8 +34,8 @@ end
 end
 
 function projectile_taylor(; X=Universe(4))
-    X0 = Singleton([0., 1000.0, 10., 40.0])
-    prob = @ivp(x'= _projectile!(x), dim:4, x(0) ∈ X0, x ∈ X)
+    X0 = Singleton([0.0, 1000.0, 10.0, 40.0])
+    prob = @ivp(x' = _projectile!(x), dim:4, x(0) ∈ X0, x ∈ X)
     tspan = (0.0, 20.0)
     return prob, tspan
 end

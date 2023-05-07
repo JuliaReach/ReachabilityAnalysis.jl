@@ -19,7 +19,7 @@ sih(X, ::Val{:concrete}) = _symmetric_interval_hull(X)
 
 # interval matrix functions
 isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
-isinterval(A::IntervalMatrix{N, IT}) where {N, IT<:IA.Interval{N}} = true
+isinterval(A::IntervalMatrix{N,IT}) where {N,IT<:IA.Interval{N}} = true
 isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
 
 # options for a-posteriori transformation of a discretized set
@@ -81,7 +81,7 @@ For references to the original papers introducing each algorithm, see the docstr
 e.g. `?Forward`.
 """
 function discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
-    error("discretization not implemented for the given arguments: $ivp, $alg")
+    return error("discretization not implemented for the given arguments: $ivp, $alg")
 end
 
 # =========================================
@@ -137,10 +137,11 @@ _apply_setops(M::AbstractMatrix, X::LazySet, ::Val{:concrete}) = linear_map(M, X
 
 # evantually we should use concretize, but requires fast fallback operations in 2D
 # such as Minkowski sum not yet available
-function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) where {N,
-                            AT<:AbstractPolytope{N},
-                            LM<:LinearMap{N, AT, N},
-                            MS<:MinkowskiSum{N, LM}}
+function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:vrep},
+                       backend=nothing) where {N,
+                                               AT<:AbstractPolytope{N},
+                                               LM<:LinearMap{N,AT,N},
+                                               MS<:MinkowskiSum{N,LM}}
     n = dim(X)
     VT = n == 2 ? VPolygon : VPolytope
 
@@ -155,20 +156,21 @@ function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:vrep}, backend=nothing) 
         out = convex_hull(X₀, minkowski_sum(ΦX₀, E₊))
     else
         # generic conversion to VPolytope is missing, see LazySets#2467
-        ΦX₀ = VPolytope(vertices_list(B.X, prune=false))
+        ΦX₀ = VPolytope(vertices_list(B.X; prune=false))
         E₊ = convert(VT, B.Y)
-        aux = minkowski_sum(ΦX₀, E₊, apply_convex_hull=false)
-        out = convex_hull(X₀, aux, backend=backend)
+        aux = minkowski_sum(ΦX₀, E₊; apply_convex_hull=false)
+        out = convex_hull(X₀, aux; backend=backend)
     end
 
     return out
 end
 
 # give X = CH(X₀, ΦX₀ ⊕ E₊), return a zonotope overapproximation
-function _apply_setops(X::ConvexHull{N, AT, MS}, ::Val{:zono}, backend=nothing) where {N,
-                            AT<:AbstractZonotope{N},
-                            LM<:LinearMap{N, AT, N},
-                            MS<:MinkowskiSum{N, LM}}
+function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:zono},
+                       backend=nothing) where {N,
+                                               AT<:AbstractZonotope{N},
+                                               LM<:LinearMap{N,AT,N},
+                                               MS<:MinkowskiSum{N,LM}}
     # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
     A = X.X
     B = X.Y

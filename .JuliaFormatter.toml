@@ -14,5 +14,5 @@ whitespace_ops_in_indices = true
 align_assignment = true
 align_conditional = true
 align_pair_arrow = true
-align_matrix = true
+align_matrix = false
 import_to_using = false

@@ -12,7 +12,7 @@ function reach_homog_LGG09!(F::Vector{RT},
                             X::Universe, # no invariant
                             Δt0::TimeInterval,
                             cache,
-                            threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
+                            threaded) where {N,VN,TN,SN,RT<:TemplateReachSet{N,VN,TN,SN}}
 
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
@@ -46,7 +46,8 @@ function _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threa
     end
 end
 
-function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{true}) where {N}
+function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS,
+                                cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
 
@@ -60,7 +61,8 @@ function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, �
     return ρvec_ℓ
 end
 
-function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{false}) where {N}
+function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS,
+                                cache::Val{false}) where {N}
     rᵢ = copy(ℓ)
 
     @inbounds for i in 1:NSTEPS
@@ -75,7 +77,8 @@ end
 # TODO: needs specialization for static vector / static matrix ?
 # compute NSTEPS iterations support function along direction ℓ
 # ``ρ(ℓ, Ω₀), ρ(ℓ, Φ * Ω₀), ρ(ℓ, Φ^2 * Ω₀), ..., ρ(ℓ, Φ^NSTEPS * Ω₀)``
-function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{true}) where {N}
+function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS,
+                                cache::Val{true}) where {N}
     rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
 
@@ -90,7 +93,8 @@ function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ,
 end
 
 # ``ρ(ℓ, Ω₀), ρ(ℓ, Φ * Ω₀), ρ(ℓ, Φ^2 * Ω₀), ..., ρ(ℓ, Φ^NSTEPS * Ω₀)``
-function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS, cache::Val{false}) where {N}
+function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS,
+                                cache::Val{false}) where {N}
     rᵢ = copy(ℓ)
     @inbounds for i in 1:NSTEPS
         ρvec_ℓ[i] = ρ(rᵢ, Ω₀)
@@ -128,73 +132,73 @@ end
 # ------------------------------------------------------------
 
 function load_krylov_LGG09_homog()
-return quote
+    return quote
+        """
+            reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
+                                      ℓ::AbstractVector, NSTEPS;
+                                      hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
 
-"""
-    reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
-                              ℓ::AbstractVector, NSTEPS;
-                              hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
+        ### Algorithm
 
-### Algorithm
+        We compute the sequence:
 
-We compute the sequence:
+        ```math
+            ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀), ρ(ℓ, Φ^2 Ω₀), ρ(ℓ, Φ^3 Ω₀), ...
+        ```
 
-```math
-    ρ(ℓ, Ω₀), ρ(ℓ, Φ Ω₀), ρ(ℓ, Φ^2 Ω₀), ρ(ℓ, Φ^3 Ω₀), ...
-```
+        Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
+        the direction ℓ.
 
-Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
-the direction ℓ.
+        The method is (see [1]):
 
-The method is (see [1]):
+        ```julia
+        out[1] <- ρ(ℓ, Ω₀)
 
-```julia
-out[1] <- ρ(ℓ, Ω₀)
+        out[2] <- ρ(ℓ, Φ Ω₀) = ρ(Φᵀ ℓ, Ω₀)
 
-out[2] <- ρ(ℓ, Φ Ω₀) = ρ(Φᵀ ℓ, Ω₀)
+        out[3] <- ρ(ℓ, Φ^2 Ω₀) = ρ((Φᵀ)^2 ℓ, Ω₀)
 
-out[3] <- ρ(ℓ, Φ^2 Ω₀) = ρ((Φᵀ)^2 ℓ, Ω₀)
+        out[4] <- ρ(ℓ, Φ^3 Ω₀) = ρ((Φᵀ)^3 ℓ, Ω₀)
+        ```
+         and so on.
 
-out[4] <- ρ(ℓ, Φ^3 Ω₀) = ρ((Φᵀ)^3 ℓ, Ω₀)
-```
- and so on.
+        ### References
 
-### References
+        [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
+            High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
+            Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
+            Proceedings of the 21st International Conference on Hybrid Systems: Computation
+            and Control: 41–50.
+        """
+        function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
+                                           ℓ::AbstractVector, NSTEPS;
+                                           hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
 
-[1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
-    High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
-    Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
-    Proceedings of the 21st International Conference on Hybrid Systems: Computation
-    and Control: 41–50.
-"""
-function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
-                                   ℓ::AbstractVector, NSTEPS;
-                                   hermitian=false, m=min(30, size(Aᵀδ, 1)), tol=1e-7)
+            # initialization of the krylov subspace
+            TA, Tb = eltype(Aᵀδ), eltype(ℓ)
+            T = promote_type(TA, Tb)
+            Ks = KrylovSubspace{T,real(T)}(length(ℓ), m)
+            arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
 
-    # initialization of the krylov subspace
-    TA, Tb = eltype(Aᵀδ), eltype(ℓ)
-    T = promote_type(TA, Tb)
-    Ks = KrylovSubspace{T, real(T)}(length(ℓ), m)
-    arnoldi!(Ks, Aᵀδ, ℓ; m=m, ishermitian=hermitian, tol=tol)
+            # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
+            rᵢ = deepcopy(ℓ)
 
-    # rᵢ stores is the cache for each vector: (Φᵀ)^i ℓ
-    rᵢ = deepcopy(ℓ)
-
-    @inbounds for i in 1:NSTEPS
-        out[i] = ρ(rᵢ, Ω₀)
-        expv!(rᵢ, i*1.0, Ks)
+            @inbounds for i in 1:NSTEPS
+                out[i] = ρ(rᵢ, Ω₀)
+                expv!(rᵢ, i * 1.0, Ks)
+            end
+            return out
+        end
     end
-    return out
-end
-
-end end  # quote / load_krylov_LGG09_homog()
+end  # quote / load_krylov_LGG09_homog()
 
 # ------------------------------------------------------------
 # Methods using eigenvalues of the transition matrix
 # ------------------------------------------------------------
 
 # it is assumed that (λ, d) is an eigenvalue-eigenvector pair of the matrix Φᵀ
-function reach_homog_dir_eig_LGG09!(out::AbstractVector{N}, X₀, d::AbstractVector{N}, λ::N, NSTEPS) where {N}
+function reach_homog_dir_eig_LGG09!(out::AbstractVector{N}, X₀, d::AbstractVector{N}, λ::N,
+                                    NSTEPS) where {N}
     if iszero(λ)
         _reach_homog_dir_eig_LGG09_zero!(out, X₀, d, NSTEPS)
     elseif λ > zero(N)
@@ -254,27 +258,25 @@ end
 # where dᵢ = vᵢ and vᵢ is the i-th eigenvector of Φ^T if 1 ≤ i ≤ n and for i > n
 # dᵢ = -vᵢ is the negative of the i-th eigenvector of Φ^T.
 function reach_homog_eig_LGG09_posneg(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
-
     n = length(Λ)
     @assert n == size(Q, 1) == size(Q, 2)
 
-    ρmat = Matrix{N}(undef, 2*n, NSTEPS)
+    ρmat = Matrix{N}(undef, 2 * n, NSTEPS)
     Q₋ = -Q
     for j in 1:n
         λj = exp(Λ[j])
 
         Qj₊ = view(Q, :, j)
-        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀,  Qj₊, λj, NSTEPS)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀, Qj₊, λj, NSTEPS)
 
         Qj₋ = view(Q₋, :, j)
-        reach_homog_dir_eig_LGG09!(view(ρmat, j+n, :), Ω₀, Qj₋, λj, NSTEPS)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j + n, :), Ω₀, Qj₋, λj, NSTEPS)
     end
     return ρmat
 end
 
 # same as reach_homog_eig_LGG09_posneg, but only computes along Q
 function reach_homog_eig_LGG09(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
-
     n = length(Λ)
     @assert n == size(Q, 1) == size(Q, 2)
 
@@ -282,7 +284,7 @@ function reach_homog_eig_LGG09(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
     for j in 1:n
         λj = exp(Λ[j])
         Qj = view(Q, :, j)
-        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀,  Qj, λj, NSTEPS)
+        reach_homog_dir_eig_LGG09!(view(ρmat, j, :), Ω₀, Qj, λj, NSTEPS)
     end
     return ρmat
 end
@@ -368,10 +370,10 @@ function reach_homog_eig_LGG09_box(Λ::Vector{N}, Q, Ω₀, NSTEPS) where {N}
     M₋ = reach_homog_eig_LGG09(Λ, -Q, Ω₀, NSTEPS)
 
     # center
-    C = Q * (M₊ - M₋)/2
+    C = Q * (M₊ - M₋) / 2
 
     # radius
-    R = abs.(Q) * (M₊ + M₋)/2
+    R = abs.(Q) * (M₊ + M₋) / 2
 
     # support function of the hyperrectangular approximations
     B₊ = R + C
@@ -393,8 +395,8 @@ function reach_homog_LGG09!(F::Vector{RT},
                             X::LazySet,
                             Δt0::TimeInterval,
                             cache,
-                            threaded) where {N, VN, TN, SN, RT<:TemplateReachSet{N, VN, TN, SN}}
-    
+                            threaded) where {N,VN,TN,SN,RT<:TemplateReachSet{N,VN,TN,SN}}
+
     # transpose coefficients matrix
     Φᵀ = copy(transpose(Φ))
 
@@ -423,7 +425,7 @@ function reach_homog_LGG09!(F::Vector{RT},
         k += 1
     end
     if k < NSTEPS
-        resize!(F, k-1)
+        resize!(F, k - 1)
     end
     return ρmat
 end

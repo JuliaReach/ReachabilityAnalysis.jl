@@ -33,10 +33,12 @@ function _initialize(X0::TaylorModelReachSet, orderQ, orderT)
     return set(X0)
 end
 
-_initialize(X0::Vector{TaylorModel1{TaylorN{T}, T}}, orderQ, orderT) where {T} = X0
+_initialize(X0::Vector{TaylorModel1{TaylorN{T},T}}, orderQ, orderT) where {T} = X0
 
 # hyperrectangular sets
-_initialize(X0::AbstractHyperrectangle, orderQ, orderT) = convert(IntervalBox, box_approximation(X0))
+function _initialize(X0::AbstractHyperrectangle, orderQ, orderT)
+    return convert(IntervalBox, box_approximation(X0))
+end
 _initialize(X0::IntervalBox, orderQ, orderT) = X0
 _initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
 
@@ -44,18 +46,20 @@ _initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
 function _initialize(X0::AbstractZonotope, orderQ, orderT)
     X0z = convert(Zonotope, X0)
     if order(X0z) == 1
-        X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+        X = overapproximate(X0z, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
     else
-        X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
+        X = overapproximate(X0z, TaylorModelReachSet; orderQ=orderQ, orderT=orderT,
+                            box_reduction=true)
     end
     return set(X)
 end
 
-function _initialize(X0::CartesianProduct{N, <:AbstractHyperrectangle, <:AbstractHyperrectangle}, orderQ, orderT) where {N}
+function _initialize(X0::CartesianProduct{N,<:AbstractHyperrectangle,<:AbstractHyperrectangle},
+                     orderQ, orderT) where {N}
     return convert(IntervalBox, convert(Hyperrectangle, X0))
 end
 
-function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, orderT) where {N}
+function _initialize(X0::CartesianProduct{N,<:Zonotope,<:Interval}, orderQ, orderT) where {N}
     Z = X0.X
     G = Z.generators
     ord = order(Z)
@@ -63,19 +67,21 @@ function _initialize(X0::CartesianProduct{N, <:Zonotope, <:Interval}, orderQ, or
 
     if ord == 1
         # "exact"
-        X = _overapproximate_structured(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+        X = _overapproximate_structured(X0, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
 
-    elseif (size(G) == (n, 2n + 1)) && isdiag(view(G, :, (n+2):(2n+1)))
-        X = _overapproximate_structured_full(X0, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+    elseif (size(G) == (n, 2n + 1)) && isdiag(view(G, :, (n + 2):(2n + 1)))
+        X = _overapproximate_structured_full(X0, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
 
-    elseif (size(G) == (n, 2(n + 1))) && isdiag(view(G, :, (n+2):(2n+1))) && iszero(view(G, :, 2n+2))
-        aux = Zonotope(Z.center, view(G, :, 1:(2n+1)))
+    elseif (size(G) == (n, 2(n + 1))) && isdiag(view(G, :, (n + 2):(2n + 1))) &&
+           iszero(view(G, :, 2n + 2))
+        aux = Zonotope(Z.center, view(G, :, 1:(2n + 1)))
         X0z = convert(Zonotope, aux × X0.Y)
-        X = _overapproximate_structured(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT)
+        X = _overapproximate_structured(X0z, TaylorModelReachSet; orderQ=orderQ, orderT=orderT)
 
     else # otherwise, resort to a box overapproximation
         X0z = convert(Zonotope, X0)
-        X = overapproximate(X0z, TaylorModelReachSet, orderQ=orderQ, orderT=orderT, box_reduction=true)
+        X = overapproximate(X0z, TaylorModelReachSet; orderQ=orderQ, orderT=orderT,
+                            box_reduction=true)
     end
 
     return set(X)
@@ -94,10 +100,11 @@ function _solve_external(f!, X0, t0, T, orderQ, orderT, abstol, maxsteps, Δt0; 
     # extract solver name and options
     parse_eqs = get(kwargs, :parse_eqs, false)
     solver_name = get(kwargs, :solver_name, TM.validated_integ)
-    solver_kwargs = get(kwargs, :solver_kwargs, Dict(:maxsteps=>maxsteps))
+    solver_kwargs = get(kwargs, :solver_kwargs, Dict(:maxsteps => maxsteps))
 
     # call external solver
-    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abstol; parse_eqs, solver_kwargs...)
+    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abstol; parse_eqs,
+                                solver_kwargs...)
 
     # build flowpipe
     F = Vector{TaylorModelReachSet{N}}()
@@ -107,6 +114,6 @@ function _solve_external(f!, X0, t0, T, orderQ, orderT, abstol, maxsteps, Δt0; 
         Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
         push!(F, Ri)
     end
-    ext = Dict{Symbol, Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
+    ext = Dict{Symbol,Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
     return Flowpipe(F, ext)
 end

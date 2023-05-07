@@ -31,7 +31,7 @@ Let ``x' = Ax`` with ``x(0) ∈ X₀``. This methods consists of:
 - Intersect ``Ω₀₋`` and ``Ω₀₊`` and return such set. The intersection is done either
   lazily or concretely depending on the specified `setops` field.
 """
-struct StepIntersect{DM<:AbstractApproximationModel, SO} <: AbstractApproximationModel
+struct StepIntersect{DM<:AbstractApproximationModel,SO} <: AbstractApproximationModel
     model::DM
     setops::SO
 end
@@ -46,7 +46,7 @@ end
 function Base.show(io::IO, alg::StepIntersect)
     print(io, "`StepIntersect` approximation model with:\n")
     print(io, "    - model: $(alg.model)\n")
-    print(io, "    - set operations method: $(alg.setops)\n")
+    return print(io, "    - set operations method: $(alg.setops)\n")
 end
 
 Base.show(io::IO, m::MIME"text/plain", alg::StepIntersect) = print(io, alg)
@@ -56,7 +56,7 @@ Base.show(io::IO, m::MIME"text/plain", alg::StepIntersect) = print(io, alg)
 # ------------------------------------------------------------
 
 # x' = Ax, x(0) ∈ X₀, x ∈ X
-function discretize(ivp::IVP{<:CLCS, <:LazySet}, δ, alg::StepIntersect)
+function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::StepIntersect)
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
