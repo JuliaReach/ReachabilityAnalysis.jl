@@ -107,6 +107,7 @@ makedocs(;
                                 collapselevel=1,
                                 assets=["assets/aligned.css"]),
          sitename="ReachabilityAnalysis.jl",
+         modules = [ReachabilityAnalysis],
          doctest=false,
          strict=false,
          pages=["Overview" => "index.md",
