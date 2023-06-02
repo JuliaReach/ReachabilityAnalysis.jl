@@ -1,4 +1,5 @@
 using LinearAlgebra: checksquare
+using ReachabilityBase.Expm: expm
 
 # ==========================
 # Exponentiation functions
@@ -100,8 +101,7 @@ const PadeExp = PadeExpAlg()
 _alias(alg::Val{:pade}) = PadeExp
 
 # general case: convert to Matrix
-@inline _exp(A::AbstractMatrix, ::BaseExpAlg) = exp(Matrix(A))
-@inline _exp(A::Matrix, ::BaseExpAlg) = exp(A)
+@inline _exp(A::AbstractMatrix, ::BaseExpAlg) = expm(A)
 
 # static arrays have their own exp method
 @inline _exp(A::StaticArray, ::BaseExpAlg) = exp(A)
