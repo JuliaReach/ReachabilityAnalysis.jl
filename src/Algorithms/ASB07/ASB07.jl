@@ -7,7 +7,8 @@ linear systems with uncertain parameters and inputs using zonotopes.
 ## Fields
 
 - `δ`                -- step-size of the discretization
-- `approx_model`     -- (optional, default: `Forward`) approximation model;
+- `approx_model`     -- (optional, default: `CorrectionHull(; order=10, exp=:interval)`)
+                        approximation model;
                         see `Notes` below for possible options
 - `max_order`        -- (optional, default: `5`) maximum zonotope order
 - `reduction_method` -- (optional, default: `GIR05()`) zonotope order reduction method used
