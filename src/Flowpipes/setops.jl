@@ -347,6 +347,10 @@ function _split(A::IntervalMatrix{T,IT,MT}) where {T,IT,MT<:AbstractMatrix{IT}}
     return C, S
 end
 
+function _split(A::AbstractMatrix)
+    return A, zeros(size(A))
+end
+
 function _split(A::IntervalMatrix{T,IT,MT}) where {T,IT,ST,MT<:StaticArray{ST,IT}}
     m, n = size(A)
     # TODO: use MMatrix and convert to SMatrix afterwards?
