@@ -69,31 +69,31 @@ The following types of systems are supported (click on the left arrow to display
 
 <details>
   <summary> Continuous ODEs with linear dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/">Operational amplifier</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/OpAmp/">Operational amplifier</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/heat/">Heat</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/ISS/">ISS</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/ISS/">ISS</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/motor">Motor</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Building/">Building</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Building/">Building</a> </p>
 </details>
 
 
 <details>
   <summary> Continuous ODEs with non-linear dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Brusselator/">Brusselator</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/SEIR/">SEIR model</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Quadrotor/">Quadrotor</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Brusselator/">Brusselator</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/SEIR/">SEIR model</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm">Robot arm</a> </p>
 </details>
 
 <details>
   <summary> Continuous ODEs with parametric uncertainty :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/TransmissionLine/">Transmission line</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/LotkaVolterra/">Lotka-Volterra</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with piecewise-affine dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/">Platooning</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Platoon/">Platooning</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball">Bouncing ball</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/navigation_system">Navigation system</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/thermostat">Thermostat</a> </p>
@@ -101,7 +101,7 @@ The following types of systems are supported (click on the left arrow to display
 
 <details>
   <summary> Hybrid systems with non-linear dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/">Spacecraft</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Spacecraft/">Spacecraft</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/cardiac_cell">Cardiatic cell</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/powertrain_control">Powetrain control</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/spiking_neuron">Spiking neuron</a> </p>
@@ -159,9 +159,9 @@ plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
 
 |         |      |
 |:--------:|:-----:|
-| ![quadrotor](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-Quadrotor.png?raw=true) [Quadrotor altitude control](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/) |  ![LVHybrid](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-LotkaVolterra.png?raw=true) [Lotka-Volterra with tangential guard crossing](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/LotkaVolterra/lotka_volterra.jl)|
+| ![quadrotor](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-Quadrotor.png?raw=true) [Quadrotor altitude control](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Quadrotor/) |  ![LVHybrid](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-LotkaVolterra.png?raw=true) [Lotka-Volterra with tangential guard crossing](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/LotkaVolterra/lotka_volterra.jl)|
 |         |      |
-| ![LaubLoomis](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-LaubLoomis.png?raw=true) [Laub-Loomis model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LaubLoomis/)    | ![PD](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-ProductionDestruction.png?raw=true)<br> [Production-Destruction model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/ProductionDestruction/)|
+| ![LaubLoomis](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-LaubLoomis.png?raw=true) [Laub-Loomis model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/LaubLoomis/)    | ![PD](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-ProductionDestruction.png?raw=true)<br> [Production-Destruction model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/ProductionDestruction/)|
 |         |      |
 |![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) [Coupled van der pol oscillator model](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/VanDerPol/vanderpol.jl) | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendez-vous model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Spacecraft/) |
 
@@ -186,7 +186,7 @@ We list them in reverse chronological order.
 [8] **ARCH-COMP20 Category Report: Continuous and Hybrid Systems with Nonlinear Dynamics.** Luca Geretti, Julien Alexandre dit Sandretto, Matthias Althoff, Luis Benet, Alexandre Chapoutot, Xin Chen, Pieter Collins, Marcelo Forets, Daniel Freire, Fabian Immler, Niklas Kochdumper, David P. Sanders and Christian
 Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Verification of Continuous and Hybrid Systems. 7th International Workshop on Applied Verification of Continuous and Hybrid Systems (ARCH20), vol 74, pages 49--75. [10.29007/zkf6](https://easychair.org/publications/paper/nrdD).
 
-[7] **Case Study: Reachability Analysis of a unified Combat-Command-and-Control Model.** Sergiy Bogomolov, Marcelo Forets, Kostiantyn Potomkin. *International Conference on Reachability Problems (2020). Lecture Notes in Computer Science, vol 12448.* (2020) doi: [10.1007/978-3-030-61739-4_4](https://dx.doi.org/10.1007/978-3-030-61739-4_4). Presented in the [14th International Conference on Reachability Problems 2020](https://www.irif.fr/~rp2020/). [article](https://link.springer.com/chapter/10.1007/978-3-030-61739-4_4)
+[7] **Case Study: Reachability Analysis of a unified Combat-Command-and-Control Model.** Sergiy Bogomolov, Marcelo Forets, Kostiantyn Potomkin. *International Conference on Reachability Problems (2020). Lecture Notes in Computer Science, vol 12448.* (2020) doi: [10.1007/978-3-030-61739-4_4](https://dx.doi.org/10.1007/978-3-030-61739-4_4). Presented in the [14th International Conference on Reachability Problems 2020](https://www.irif.fr/~rp2020/). [article](https://doi.org/10.1007/978-3-030-61739-4_4)
 
 [6] **Reachability analysis of linear hybrid systems via block decomposition.** Sergiy Bogomolov, Marcelo Forets, Goran Frehse, Kostiantyn Potomkin, Christian Schilling. *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 39:11 (2020).* doi: [10.1109/TCAD.2020.3012859](https://dx.doi.org/10.1109/TCAD.2020.3012859). Presented in [Embedded Systems Week 2020](http://esweek.hosting2.acm.org/). [Get pdf from arXiv: 1905.02458](https://arxiv.org/abs/1905.02458).
 
