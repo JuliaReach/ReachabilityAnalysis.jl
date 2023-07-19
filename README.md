@@ -69,31 +69,31 @@ The following types of systems are supported (click on the left arrow to display
 
 <details>
   <summary> Continuous ODEs with linear dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/OpAmp/">Operational amplifier</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/OpAmp/">Operational amplifier</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/heat/">Heat</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/ISS/">ISS</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/ISS/">ISS</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/motor">Motor</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Building/">Building</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Building/">Building</a> </p>
 </details>
 
 
 <details>
   <summary> Continuous ODEs with non-linear dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Quadrotor/">Quadrotor</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Brusselator/">Brusselator</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/SEIR/">SEIR model</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Quadrotor/">Quadrotor</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Brusselator/">Brusselator</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/SEIR/">SEIR model</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/robot_arm">Robot arm</a> </p>
 </details>
 
 <details>
   <summary> Continuous ODEs with parametric uncertainty :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/TransmissionLine/">Transmission line</a> </p>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/LotkaVolterra/">Lotka-Volterra</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/TransmissionLine/">Transmission line</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/LotkaVolterra/">Lotka-Volterra</a> </p>
 </details>
 
 <details>
   <summary> Hybrid systems with piecewise-affine dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Platoon/">Platooning</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Platoon/">Platooning</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/bouncing_ball">Bouncing ball</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/navigation_system">Navigation system</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/thermostat">Thermostat</a> </p>
@@ -101,7 +101,7 @@ The following types of systems are supported (click on the left arrow to display
 
 <details>
   <summary> Hybrid systems with non-linear dynamics :heavy_check_mark: </summary>
-  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/models/Spacecraft/">Spacecraft</a> </p>
+  <p> <a href="https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Spacecraft/">Spacecraft</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/cardiac_cell">Cardiatic cell</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/powertrain_control">Powetrain control</a> </p>
   <p> <a href="https://juliareach.github.io/ReachabilityModels.jl/dev/models/spiking_neuron">Spiking neuron</a> </p>
