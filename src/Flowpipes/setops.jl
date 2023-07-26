@@ -108,11 +108,15 @@ end
 function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
     if applicable(convert, T, X)
         return convert(T, X)
-    elseif applicable(overapproximate, X, T)
-        return overapproximate(X, T)
-    else
-        return convert(T, overapproximate(X, Hyperrectangle))
     end
+    try
+        return overapproximate(X, T)
+    catch e
+        if !(e isa MethodError)
+            rethrow()
+        end
+    end
+    return convert(T, overapproximate(X, Hyperrectangle))
 end
 
 function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})

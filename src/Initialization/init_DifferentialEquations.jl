@@ -1,6 +1,9 @@
 using .DifferentialEquations
-using MathematicalSystems: islinear  # resolve namespace conflict
 const DE = DifferentialEquations
+
+# resolve namespace conflicts
+using MathematicalSystems: islinear
+using LazySets: concretize
 
 using HybridSystems: states
 
