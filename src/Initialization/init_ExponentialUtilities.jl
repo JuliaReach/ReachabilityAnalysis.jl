@@ -1,5 +1,5 @@
 eval(quote
-         using .ExponentialUtilities: expv, expv!, phiv!, arnoldi!, KrylovSubspace
+         using .ExponentialUtilities: expv!, phiv!, arnoldi!, KrylovSubspace
 
          # Compute out <- exp(A * NSTEPS * dt) * b
          function _expv(A, b, NSTEPS, dt; hermitian=false, m=min(30, size(A, 1)), tol=1e-7)
@@ -29,6 +29,5 @@ eval(quote
          end
      end)
 
-eval(load_Φ₁_krylov())
 eval(load_krylov_LGG09_homog())
 eval(load_krylov_LGG09_inhomog())
