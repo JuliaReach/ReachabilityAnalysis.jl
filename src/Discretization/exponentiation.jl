@@ -1,4 +1,5 @@
 using LinearAlgebra: checksquare
+using ReachabilityBase.Expm: expm
 
 # ==========================
 # Exponentiation functions
@@ -100,8 +101,7 @@ const PadeExp = PadeExpAlg()
 _alias(alg::Val{:pade}) = PadeExp
 
 # general case: convert to Matrix
-@inline _exp(A::AbstractMatrix, ::BaseExpAlg) = exp(Matrix(A))
-@inline _exp(A::Matrix, ::BaseExpAlg) = exp(A)
+@inline _exp(A::AbstractMatrix, ::BaseExpAlg) = expm(A)
 
 # static arrays have their own exp method
 @inline _exp(A::StaticArray, ::BaseExpAlg) = exp(A)
@@ -182,7 +182,7 @@ evaluated with an external library such as `ExponentialUtilities.jl` or
 `Expokit.jl`.
 """
 function _exp(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp)
-    n = checksquare(A)
+    checksquare(A)
     return _exp(A * δ, alg)
 end
 
@@ -287,7 +287,7 @@ function _Φ₁_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     if isnothing(Φ)
         Φ = _exp(A, δ, alg)
     end
-    n = size(A, 1)
+    n = checksquare(A)
     N = eltype(A)
     In = Matrix(one(N) * I, n, n)
     Ainv = inv(A)
@@ -414,7 +414,7 @@ function _Φ₂_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     if isnothing(Φ)
         Φ = _exp(Aδ, alg)
     end
-    n = size(A, 1)
+    n = checksquare(A)
     N = eltype(A)
     In = Matrix(one(N) * I, n, n)
     B = Φ - In - Aδ
@@ -432,7 +432,7 @@ function _Φ₂_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
     return IdentityMultiple(α, size(A, 1))
 end
 
-function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)),
+function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, checksquare(A)),
                 tol=1e-7) where {N,D}
     n = dim(X0)
     A2 = A * A # fast if A sparse
@@ -453,7 +453,7 @@ end
 @inline function _elementwise_abs(A::SparseMatrixCSC)
     return SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
 end
-@inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
+@inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), checksquare(A))
 
 # ====================================
 # Exponentiation of interval matrices
@@ -463,7 +463,7 @@ end
 
 # compute Iδ + 1/2 * δ^2 * A + 1/6 * δ^3 * A² + ... + 1/(η+1)! * δ^(η+1) * A^η + E(δ) * δ
 function _Cδ(A, δ, order)
-    n = size(A, 1)
+    n = checksquare(A)
     A² = A * A
     if isa(A, IntervalMatrix)
         Iδ = IntervalMatrix(Diagonal(fill(IA.Interval(δ), n)))
