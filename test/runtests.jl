@@ -41,7 +41,6 @@ include("reachsets.jl")
 include("flowpipes.jl")
 include("traces.jl")
 include("setops.jl")
-include("arrayops.jl")
 include("symbolics.jl")
 
 include("algorithms/INT.jl")
