@@ -273,7 +273,7 @@ in the array `B`.
 
 ```@example parallel
 prob = @ivp(x' = Ax, x(0) ∈ ConvexHullArray(B))
-sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
+sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02, approx_model=Forward()));
 plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
 
 import DisplayAs  # hide
@@ -307,6 +307,6 @@ choice that intervals should belong to the `LazySets` type hierarchy.
 
 ## References
 
-- [^v1] Version 1.0 of the lanuage was released in August 2018, see https://julialang.org/blog/2018/08/one-point-zero/
+[^v1]: Version 1.0 of the language was released in August 2018; see [this blog post](https://julialang.org/blog/2018/08/one-point-zero/).
 
-- [^BEKS17] Bezanson, J., Edelman, A., Karpinski, S., & Shah, V. B. (2017). Julia: A fresh approach to numerical computing. SIAM review, 59(1), 65-98.
+[^BEKS17]: Bezanson, J., Edelman, A., Karpinski, S., & Shah, V. B. (2017). Julia: A fresh approach to numerical computing. SIAM review, 59(1), 65-98.

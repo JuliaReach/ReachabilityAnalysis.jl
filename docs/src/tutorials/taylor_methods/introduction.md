@@ -98,7 +98,7 @@ fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 [`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) defines several methods to analyze the solution.
-For example, the number of reach-sets can be obtained using `length` (more generally, use [`numrsets`](@ref) for hybrid systems):
+For example, the number of reach-sets can be obtained using `length` (more generally, use `numrsets` for hybrid systems):
 
 ```@example nonlinear_univariate
 # number of computed reach-sets
@@ -142,7 +142,7 @@ Filtering by the time span also works with time intervals; in the following exam
 length(sol(1.0 .. 3.0))
 ```
 
-On the other hand, evaluating over a given time point or time interval can be achieved using the [`evaluate`](@ref) function:
+On the other hand, evaluating over a given time point or time interval can be achieved using the `evaluate` function:
 
 ```@example nonlinear_univariate
 # evaluate over the full time interval ≈ [0, 0.100777]
@@ -164,7 +164,7 @@ about the algorithm that was used to obtain it:
 sol.alg
 ```
 
-The type of reach-set representation as well as the set representation can be obtained using [`rsetrep`](@ref) and [`setrep`](@ref) respectively.
+The type of reach-set representation as well as the set representation can be obtained using `rsetrep` and [`setrep`](@ref) respectively.
 ```@example nonlinear_univariate
 # type of the reach-set representation
 rsetrep(sol)

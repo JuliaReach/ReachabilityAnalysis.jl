@@ -12,6 +12,36 @@ a reference, do not hesitate to contact us by email, or open an issue. Sorting i
 
 ---
 
+#### [A20]
+
+Althoff, Matthias. [*Reachability Analysis of Large Linear Systems With Uncertain
+Inputs in the Krylov Subspace*](https://doi.org/10.1109/TAC.2019.2906432). IEEE
+Transactions on Automatic Control 2 (2020).
+
+```@raw html
+<li style="list-style: none"><details>
+<summary>BibTex entry</summary>
+```
+```
+@article{Althoff20,
+  author       = {Matthias Althoff},
+  title        = {Reachability Analysis of Large Linear Systems With Uncertain Inputs
+                  in the {K}rylov Subspace},
+  journal      = {{IEEE} Trans. Autom. Control.},
+  volume       = {65},
+  number       = {2},
+  pages        = {477--492},
+  year         = {2020},
+  url          = {https://doi.org/10.1109/TAC.2019.2906432},
+  doi          = {10.1109/TAC.2019.2906432}
+}
+```
+```@raw html
+</details></li></ul>
+```
+
+---
+
 #### [AFG20]
 
 Althoff, Matthias, Goran Frehse, and Antoine Girard. [*Set Propagation Techniques for

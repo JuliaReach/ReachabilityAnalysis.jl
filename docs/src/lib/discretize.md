@@ -20,10 +20,14 @@ discretize
 ## Approximation models
 
 ```@docs
+NoBloating
 Forward
 Backward
+FirstOrder
+FirstOrderZonotope
+SecondOrderddt
 CorrectionHull
-NoBloating
+StepIntersect
 ```
 
 ## Exponentiation
@@ -43,6 +47,11 @@ well-suited if `A` is vert sparse. Use the option `exp=:krylov` (or `exp=:lazy`)
 ReachabilityAnalysis._exp
 ReachabilityAnalysis.Φ₁
 ReachabilityAnalysis.Φ₂
+ReachabilityAnalysis.AbstractExpAlg
+ReachabilityAnalysis.BaseExpAlg
+ReachabilityAnalysis.LazyExpAlg
+ReachabilityAnalysis.IntervalExpAlg
+ReachabilityAnalysis.PadeExpAlg
 ```
 
 ## References

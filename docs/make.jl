@@ -1,5 +1,8 @@
 using Documenter, ReachabilityAnalysis
 
+# load optional packages for complete documentation
+import ExponentialUtilities
+
 DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                     :(using ReachabilityAnalysis); recursive=true)
 
@@ -72,7 +75,8 @@ LINEAR_PDE = ["Linear PDEs" => ["Introduction"               => "tutorials/linea
 #   "Heat transfer"                    => "examples/Heat1D.md",
 #   "Concrete heat of hydration"       => "examples/Concrete.md"
 
-LINEAR_SOLVERS = ["ASB07"    => "man/algorithms/ASB07.md",
+LINEAR_SOLVERS = ["A20"      => "man/algorithms/A20.md",
+                  "ASB07"    => "man/algorithms/ASB07.md",
                   "BFFPSV18" => "man/algorithms/BFFPSV18.md",
                   "BOX"      => "man/algorithms/BOX.md",
                   "GLGM06"   => "man/algorithms/GLGM06.md",
@@ -81,7 +85,8 @@ LINEAR_SOLVERS = ["ASB07"    => "man/algorithms/ASB07.md",
                   "ORBIT"    => "man/algorithms/ORBIT.md",
                   "VREP"     => "man/algorithms/VREP.md"]
 
-LINEAR_SOLVERS_API = ["ASB07"    => "lib/algorithms/ASB07.md",
+LINEAR_SOLVERS_API = ["A20"      => "lib/algorithms/A20.md",
+                      "ASB07"    => "lib/algorithms/ASB07.md",
                       "BFFPSV18" => "lib/algorithms/BFFPSV18.md",
                       "BOX"      => "lib/algorithms/BOX.md",
                       "GLGM06"   => "lib/algorithms/GLGM06.md",

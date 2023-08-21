@@ -31,6 +31,7 @@ vars(::AbstractFlowpipe)
 
 ```@docs
 Flowpipe
+location(::Flowpipe)
 ```
 
 The following methods are available.
@@ -58,9 +59,14 @@ MixedFlowpipe
 ShiftedFlowpipe
 ```
 
-
 ## Partitioned flowpipe
 
 ```@docs
 PartitionedFlowpipe
+```
+
+## Mapped flowpipe
+
+```@docs
+MappedFlowpipe
 ```
