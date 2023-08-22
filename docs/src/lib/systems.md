@@ -21,10 +21,19 @@ define a system and an initial-value problem respectively.
 ```@docs
 normalize(::AbstractSystem)
 normalize(::InitialValueProblem)
+ReachabilityAnalysis.add_dimension
 ```
 
 ## Homogeneization
 
 ```@docs
 homogenize
+```
+
+## Hybrid systems
+
+```@docs
+HACLD1
+DiscreteTransition
+constrained_dimensions(::HybridSystem)
 ```

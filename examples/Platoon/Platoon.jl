@@ -260,7 +260,7 @@ length(octdirs)
 #md # we want to oveapproximate the initial set of the set-based recurrence, that we call `Ω0`,
 #md # with an octagonal template. It turns out in this example that the option gives a
 #md # gain in runtime of ``~30\%``, without a noticeable loss in precision.
-
+#
 alg = LGG09(; δ=0.03, template=octdirs, approx_model=Forward(; setops=octdirs));
 sol_PLAD01_BND30 = solve(prob_PLAD01;
                          alg=alg,

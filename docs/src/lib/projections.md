@@ -12,3 +12,7 @@ TODO: document `project`
 ## Lazy projection
 
 TODO: document `Projection`
+
+```@docs
+LazySets.Projection
+```

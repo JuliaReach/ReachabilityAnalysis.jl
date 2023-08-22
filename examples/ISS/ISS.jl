@@ -135,7 +135,7 @@ dim(πsol_ISSF01)
 #md #      However, the method `flatten(sol_ISSF01, rows=(1, 2))` is more efficient since it uses
 #md #      the matrix of support function evaluations obtained by `LGG09` along directions
 #md #      ``C_3`` and ``-C_3``.
-
+#
 using Plots, Plots.PlotMeasures, LaTeXStrings
 
 fig = Plots.plot();

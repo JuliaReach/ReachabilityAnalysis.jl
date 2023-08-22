@@ -3,7 +3,7 @@ DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
-# Hybrid systems
+# [Hybrid systems](@id hybrid_systems)
 
 ## Introduction
 

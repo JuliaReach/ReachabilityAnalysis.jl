@@ -29,6 +29,10 @@ applied such feature at different levels in the library:
    and run `solve` on each of these regions in parallel. See [Parallel solve](@ref) below
    for details.
 
+```@docs
+ReachabilityAnalysis._distribute
+```
+
 [Julia's documentation on multi-threading](https://docs.julialang.org/en/v1/manual/multi-threading/)
 describes how to check the number of threads available in the current session, `Threads.nthreads()`,
 and how to control the number of threads e.g. by starting Julia with `$ julia --threads 4` to

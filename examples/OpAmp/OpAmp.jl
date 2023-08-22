@@ -94,7 +94,7 @@ sol_nondet = solve(opamp_nondet(); T=0.1, alg=INT(; δ=1e-4));
 
 #md # !!! tip "Performance tip"
 #md #     We have chosen the algorithm `INT` as it is the best choice in terms of efficiency for one-dimensional ODEs.
-
+#
 fig = plot()
 plot!(fig, sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",
       title="Solution for non-deterministic input", lw=0.2)

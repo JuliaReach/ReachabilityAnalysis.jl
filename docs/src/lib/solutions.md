@@ -17,4 +17,27 @@ ReachabilityAnalysis.AbstractSolution
 ReachabilityAnalysis.ReachSolution
 ```
 
+## Solution of a verification problem
+
+```@docs
+ReachabilityAnalysis.CheckSolution
+```
+
+## Solving a reachability problem
+
+```@docs
+solve
+AbstractPost
+AbstractContinuousPost
+AbstractDiscretePost
+```
+
+## Solving a hybrid reachability problem
+
+```@docs
+AbstractWaitingList
+WaitingList
+StateInLocation
+```
+
 TODO: document other methods in `solutions.jl`.

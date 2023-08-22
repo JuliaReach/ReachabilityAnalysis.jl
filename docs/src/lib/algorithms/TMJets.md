@@ -3,4 +3,9 @@ TMJets
 TMJets20
 TMJets21a
 TMJets21b
+ReachabilityAnalysis.iscontractive
+ReachabilityAnalysis.validated_step!
+ReachabilityAnalysis.absorb_remainder
+ReachabilityAnalysis.picard_remainder!
+ReachabilityAnalysis.remainder_taylorstep!
 ```

@@ -27,6 +27,7 @@ shift(::AbstractReachSet)
 
 ```@docs
 AbstractLazyReachSet
+project(::AbstractLazyReachSet, ::NTuple{D,M}; check_vars::Bool=true) where {D,M<:Integer}
 ```
 
 ## Reachable set

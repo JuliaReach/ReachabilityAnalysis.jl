@@ -125,7 +125,7 @@ sol_3z = overapproximate(sol_3, Zonotope);
 
 ## width of final box
 @show ρ(e4, sol_3z[end]) + ρ(-e4, sol_3z[end])
-
+#
 using Plots, Plots.PlotMeasures, LaTeXStrings #!jl
 
 fig = plot()
