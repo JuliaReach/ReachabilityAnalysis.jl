@@ -387,12 +387,12 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N}
 end
 
 # TEMP
-function LazySets.Approximations.box_approximation(x::IntervalArithmetic.Interval)
+function LazySets.Approximations.box_approximation(x::IA.Interval)
     return convert(Hyperrectangle, Interval(x))
 end
 
 # TEMP
-function LazySets.Approximations.box_approximation(x::IntervalArithmetic.IntervalBox)
+function LazySets.Approximations.box_approximation(x::IA.IntervalBox)
     return convert(Hyperrectangle, x)
 end
 
@@ -467,7 +467,7 @@ function relative_error(x, x_ref)
     denom = x_ref_high - x_ref_low
     rel_low = -(x_low - x_ref_low) / denom
     rel_high = (x_high - x_ref_high) / denom
-    return 100 * IntervalArithmetic.Interval(rel_low, rel_high)
+    return 100 * IA.interval(rel_low, rel_high)
 end
 
 # ==================================

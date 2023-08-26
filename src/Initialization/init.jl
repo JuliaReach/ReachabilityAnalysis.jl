@@ -69,11 +69,11 @@ import CommonSolve: solve # common solve name
 # ======================
 
 @inline zeroBox(m) = IntervalBox(zeroI, m)
-@inline unitBox(m) = IntervalBox(IA.Interval(0.0, 1.0), m)
+@inline unitBox(m) = IntervalBox(IA.interval(0.0, 1.0), m)
 @inline symBox(n::Integer) = IntervalBox(symI, n)
-const zeroI = IA.Interval(0.0) # TODO use number type
-const oneI = IA.Interval(1.0)
-const symI = IA.Interval(-1.0, 1.0)
+const zeroI = IA.interval(0.0) # TODO use number type
+const oneI = IA.interval(1.0)
+const symI = IA.interval(-1.0, 1.0)
 
 # common aliases for system's names
 const LCS = LinearContinuousSystem

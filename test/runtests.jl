@@ -17,10 +17,9 @@ import Expokit # for Padé approximation
 
 # fix namespace conflicts with Polyhedra
 using LazySets: dim, HalfSpace, Interval, Line2D, translate, project
-const RA = ReachabilityAnalysis
 
-import IntervalArithmetic
-const IA = IntervalArithmetic
+const RA = ReachabilityAnalysis
+import IntervalArithmetic as IA
 
 # load test models
 include("models/harmonic_oscillator.jl")

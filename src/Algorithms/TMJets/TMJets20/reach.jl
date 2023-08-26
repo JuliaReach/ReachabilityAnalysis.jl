@@ -185,16 +185,16 @@ function absorb_remainder(a::TaylorModelN{N,T,T}) where {N,T}
     bI = bpol(δ)
 
     if bI ⊆ aI
-        rem = IA.Interval(aI.lo - bI.lo, aI.hi - bI.hi)
+        rem = IA.interval(aI.lo - bI.lo, aI.hi - bI.hi)
     elseif aI ⊆ bI
-        rem = IA.Interval(bI.lo - aI.lo, bI.hi - aI.hi)
+        rem = IA.interval(bI.lo - aI.lo, bI.hi - aI.hi)
     else
         r_lo = aI.lo - bI.lo
         r_hi = aI.hi - bI.hi
         if r_lo > 0
-            rem = IA.Interval(-r_lo, r_hi)
+            rem = IA.interval(-r_lo, r_hi)
         else
-            rem = IA.Interval(r_lo, -r_hi)
+            rem = IA.interval(r_lo, -r_hi)
         end
     end
 
@@ -244,7 +244,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
 
     for nchecks in 1:25
         # Validate the solution: remainder consistent with Schauder thm
-        δtI = sign_tstep * IA.Interval(0, sign_tstep * δt)
+        δtI = sign_tstep * IA.interval(0, sign_tstep * δt)
         (success, Δ, _t0) = remainder_taylorstep!(f!, t, x, dx, xI, dxI, symIbox, δtI, params,
                                                   adaptive)
         if adaptive && !success

@@ -466,7 +466,7 @@ function _Cδ(A, δ, order)
     n = size(A, 1)
     A² = A * A
     if isa(A, IntervalMatrix)
-        Iδ = IntervalMatrix(Diagonal(fill(IA.Interval(δ), n)))
+        Iδ = IntervalMatrix(Diagonal(fill(IA.interval(δ), n)))
     else
         Iδ = Matrix(δ * I, n, n)
     end

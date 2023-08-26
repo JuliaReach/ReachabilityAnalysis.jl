@@ -45,7 +45,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
 
         # solve linear reachability
         prob = @ivp(x' = α * x + β, x(0) ∈ X0)
-        sol = post(INT(; δ=δ), prob, IA.Interval(0.0, Δ); Δt0=Δti)
+        sol = post(INT(; δ=δ), prob, IA.interval(0.0, Δ); Δt0=Δti)
 
         # compute admissible linearization error
         kθ = 1 / (exp(α * Δ) - 1) * α * θ * Δ
