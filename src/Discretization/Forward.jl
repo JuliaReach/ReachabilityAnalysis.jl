@@ -77,7 +77,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::Forward)
     return InitialValueProblem(Sdis, Ω0)
 end
 
-function discretize(ivp::IVP{<:CLCS,Interval{N,IA.Interval{N}}}, δ, alg::Forward) where {N}
+function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, alg::Forward) where {N}
     A = state_matrix(ivp)
     @assert size(A, 1) == 1
     X0 = initial_state(ivp)

@@ -21,7 +21,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
                           maxiter) where {N}
 
     # total flowpipe
-    RT = ReachSet{N,Interval{N,IA.Interval{N}}}
+    RT = ReachSet{N,Interval{N}}
     VRT = Vector{RT}
     FT = Flowpipe{N,RT,VRT}
     Ftot = Vector{FT}()

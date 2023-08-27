@@ -117,7 +117,7 @@ function BFFPSV18(; δ::N,
                                            lazy_initial_set, lazy_input, sparse, view)
 end
 
-_concretize_setrep(setrep::Type{Interval}, N) = Interval{N,IntervalArithmetic.Interval{N}}
+_concretize_setrep(setrep::Type{Interval}, N) = Interval{N}
 _concretize_setrep(setrep::Type{Hyperrectangle}, N) = Hyperrectangle{N,Vector{N},Vector{N}}
 
 # blocks of size 1

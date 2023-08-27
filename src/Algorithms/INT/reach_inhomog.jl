@@ -3,8 +3,8 @@
 # ===================
 
 # inhomogeneous case; no invariant; recursive implementation
-function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N,IA.Interval{N}}}},
-                            Ω0::Interval{N,IA.Interval{N}},
+function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N}}},
+                            Ω0::Interval{N},
                             Φ::N,
                             NSTEPS::Integer,
                             δ::Float64,
@@ -27,8 +27,8 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N,IA.Interval{N}}}},
 end
 
 # inhomogeneous case; with invariant; recursive implementation
-function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N,IA.Interval{N}}}},
-                            Ω0::Interval{N,IA.Interval{N}},
+function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N}}},
+                            Ω0::Interval{N},
                             Φ::N,
                             NSTEPS::Integer,
                             δ::Float64,

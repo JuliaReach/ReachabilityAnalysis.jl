@@ -53,8 +53,8 @@ end
 
 step_size(alg::INT) = alg.δ
 numtype(::INT{N}) where {N} = N
-setrep(::INT{N}) where {N} = Interval{N,IA.Interval{N}}
-rsetrep(::INT{N}) where {N} = ReachSet{N,Interval{N,IA.Interval{N}}}
+setrep(::INT{N}) where {N} = Interval{N}
+rsetrep(::INT{N}) where {N} = ReachSet{N,Interval{N}}
 
 include("post.jl")
 include("reach_homog.jl")

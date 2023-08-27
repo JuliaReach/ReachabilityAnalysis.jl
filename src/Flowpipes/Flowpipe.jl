@@ -327,7 +327,7 @@ function flatten(fp::Flowpipe{N,<:TemplateReachSet}, rows=(1, 2)) where {N}
     idx_pos_dir = rows[1]
     idx_neg_dir = rows[2]
 
-    RT = ReachSet{N,Interval{N,IA.Interval{N}}}
+    RT = ReachSet{N,Interval{N}}
     out = Vector{RT}(undef, length(fp))
 
     @inbounds for (k, Rk) in enumerate(fp)
