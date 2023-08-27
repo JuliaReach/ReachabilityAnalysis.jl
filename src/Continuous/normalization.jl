@@ -395,7 +395,7 @@ for (CAC_S, CLC_S) in ((:CACCS, :CLCCS), (:CACDS, :CLCDS))
 end
 
 # fix type inference
-function _normalize(ivp::IVP{LCS{N,IdentityMultiple{N}},Interval{N,IA.Interval{N}}}) where {N}
+function _normalize(ivp::IVP{LCS{N,IdentityMultiple{N}},Interval{N}}) where {N}
     return IVP(CLCS(ivp.s.A, Universe(1)), ivp.x0)
 end
 
