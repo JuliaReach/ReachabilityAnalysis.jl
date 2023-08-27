@@ -34,8 +34,8 @@ Comments about some fields:
 
 - `N`    -- number type of the step-size, e.g. `Float64`
 - `ST`   -- set representation used; this is either a concrete LazySet subtype,
-            eg. `Interval{Float64, IntervalArithmetic.Interval{Float64}}`, or a tuple
-            of concrete LazySet subtypes that is commensurate with the partition
+            eg. `Interval{Float64}`, or a tuple of concrete LazySet subtypes
+            that is commensurate with the partition
 
 The default approximation model is:
 

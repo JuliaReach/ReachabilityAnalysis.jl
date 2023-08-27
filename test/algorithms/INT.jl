@@ -5,7 +5,7 @@
     @test dim(sol) == 1
     @test length(sol) == 100
     @test setrep(sol) <: Interval
-    @test setrep(sol) == Interval{Float64,IntervalArithmetic.Interval{Float64}}
+    @test setrep(sol) == Interval{Float64,IA.Interval{Float64}}
 
     prob, tspan = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
     sol_inv = solve(prob; tspan=tspan, alg=INT(; δ=0.01))

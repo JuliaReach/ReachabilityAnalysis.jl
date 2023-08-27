@@ -213,7 +213,7 @@ end
 # `[-1, 1]^n`, and a (sub)-domain `dom ⊆ D`, with low/high bounds
 # `a, b ∈ R^n` respectively, apply the transformation
 # `x[i] <- (a[i] + b[i]) / 2 + (b[i] - a[i]) / 2 * x[i]` for each `i = 1, .., n`,
-# which amounts to rescaling and shifting the polynomials according to `dom`. 
+# which amounts to rescaling and shifting the polynomials according to `dom`.
 function _taylor_shift(X::Vector{TaylorN{S}}, dom) where {S}
     x = get_variables()
     n = length(x) # number of variables
@@ -331,9 +331,9 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     X = set(R)
 
     # time domain splittig
-    tspdiv = IntervalArithmetic.mince(tspan(R), ntdiv)
+    tspdiv = IA.mince(tspan(R), ntdiv)
     tdom = domain(R)
-    Δtdiv = IntervalArithmetic.mince(tdom, ntdiv)
+    Δtdiv = IA.mince(tdom, ntdiv)
 
     # evaluate the Taylor model in (normalized) time
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
@@ -344,7 +344,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
         if nsdiv == 1
             partition = [S]
         else
-            # FIXME (also below) may use IntervalArithmetic.mince directly
+            # FIXME (also below) may use IA.mince directly
             partition = fill(nsdiv, D)
             Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
             partition = convert.(IntervalBox, Sdiv)

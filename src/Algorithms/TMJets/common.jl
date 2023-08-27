@@ -40,7 +40,7 @@ function _initialize(X0::AbstractHyperrectangle, orderQ, orderT)
     return convert(IntervalBox, box_approximation(X0))
 end
 _initialize(X0::IntervalBox, orderQ, orderT) = X0
-_initialize(X0::IntervalArithmetic.Interval, orderQ, orderT) = IntervalBox(X0)
+_initialize(X0::IA.Interval, orderQ, orderT) = IntervalBox(X0)
 
 # zonotopic sets
 function _initialize(X0::AbstractZonotope, orderQ, orderT)

@@ -256,7 +256,7 @@ function _get_tspan(args...; kwargs...)
                 (args[1] isa Tuple{Float64, Float64} || # time span given as tuple
                                       args[1] isa Vector{Float64}         || # time span given as vector
                                       args[1] isa Interval ||  # time span given as LazySets.Interval
-                                      args[1] isa IntervalArithmetic.Interval || # time span given as IA.Interval
+                                      args[1] isa IA.Interval || # time span given as IA.Interval
                                       args[1] isa Real) # got time horizon as first argument
         =#
 
