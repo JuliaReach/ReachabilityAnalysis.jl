@@ -44,7 +44,7 @@ end
     @test diam(remainder(R)[1]) < 1e-9
     @test get_order(R) == [8]
     @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
-    @test expansion_point(R) ≈ [IA.interval(0.0)]
+    @test expansion_point(R) ≈ [IntervalArithmetic.interval(0.0)]
 
     # test intersection with invariant
     prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
@@ -76,7 +76,7 @@ end
     @test diam(remainder(R)[1]) < 1e-13
     @test get_order(R) == [8]
     @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
-    @test expansion_point(R) ≈ [IA.interval(0.0)]
+    @test expansion_point(R) ≈ [IntervalArithmetic.interval(0.0)]
 
     # test intersection with invariant
     prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3

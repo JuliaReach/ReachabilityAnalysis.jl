@@ -1,3 +1,6 @@
+using LinearAlgebra
+using ReachabilityAnalysis: _isapprox
+
 @testset "Abstract flowpipe interface" begin
     prob, dt = harmonic_oscillator()
     sol = solve(prob; tspan=dt)
@@ -27,7 +30,7 @@
     # time domain interface
     @test tstart(fp) ≈ 0.0 && dt[1] ≈ 0.0
     @test tend(fp) ≈ 20.0 && dt[2] ≈ 20.0
-    @test RA._isapprox(tspan(fp), 0 .. 20)
+    @test _isapprox(tspan(fp), 0 .. 20)
     @test vars(fp) == (1, 2)
 end
 
@@ -113,7 +116,7 @@ end
     #= FIXME requires LazySets#2157
     N = eltype(X)
     U1 = cluster(F1, 8:10, UnionClustering())
-    @test U1 isa Vector{ReachSet{N, UnionSetArray{N,Interval{N, IA.Interval{N}}}}}
+    @test U1 isa Vector{ReachSet{N, UnionSetArray{N,Interval{N, IntervalArithmetic.Interval{N}}}}}
     @test set(first(U1)) == UnionSetArray([set(Fi) for Fi in F1[8:10]])
 
     # Test ReachabilityAnalysis#347

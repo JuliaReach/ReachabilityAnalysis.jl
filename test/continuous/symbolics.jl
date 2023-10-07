@@ -1,7 +1,9 @@
+using Symbolics
 using ReachabilityAnalysis: _jacobian_function,
                             _jacobian_expression,
                             _hessian_function,
                             _hessian_expression
+using StaticArrays: SVector, SMatrix, SA, StaticArray
 
 @testset "Symbolic-Numeric utils: Jacobian" begin
     # Brusselator model as a vector of symbolic expressions
