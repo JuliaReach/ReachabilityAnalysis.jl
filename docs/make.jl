@@ -120,7 +120,7 @@ makedocs(;
          sitename="ReachabilityAnalysis.jl",
          modules=[ReachabilityAnalysis],
          doctest=false,
-         strict=true,
+         pagesonly=true,
          pages=["Overview" => "index.md",
                 "Tutorials" => vcat(SET_REPRESENTATIONS,
                                     LINEAR_METHODS,

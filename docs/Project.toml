@@ -15,5 +15,15 @@ PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
-Documenter = "0.27"
+BenchmarkTools = "1"
+DifferentialEquations = "7"
+DisplayAs = "0.1"
+Documenter = "1"
+ExponentialUtilities = "1"
+IntervalArithmetic = "=0.20"  # new versions require updates and are incompatible with dependencies
 JLD2 = "0.4"
+LaTeXStrings = "1"
+LazySets = "2"
+Literate = "2"
+Plots = "1"
+Symbolics = "5"
