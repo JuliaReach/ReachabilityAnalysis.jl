@@ -1,5 +1,4 @@
 using ReachabilityAnalysis: zeroI
-
 using TaylorModels: set_variables,
                     Taylor1,
                     TaylorModel1
@@ -117,7 +116,7 @@ end
 
 @testset "Taylor model reach-sets with non-float coefficients" begin
     Δt, orderT, orderQ = 0 .. 1, 4, 3
-    x = set_variables(IA.Interval{Float64}, "x"; order=orderQ, numvars=2)
+    x = set_variables(IntervalArithmetic.Interval{Float64}, "x"; order=orderQ, numvars=2)
     p1 = Taylor1([0, (0 .. 0.1) + (0 .. 0.01) * x[2]], orderT)
     p2 = Taylor1([0, (0 .. 0.5) + (0 .. 0.02) * x[1] + (0 .. 0.03) * x[2]], orderT)
     vec = [TaylorModel1(p1, zeroI, zeroI, Δt), TaylorModel1(p2, zeroI, zeroI, Δt)]

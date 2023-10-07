@@ -1,3 +1,6 @@
+using StaticArrays: SArray
+using ReachabilityAnalysis: _isapprox
+
 @testset "Default continuous post-operator" begin
     prob, dt = motor_homog()
     sol = solve(prob; tspan=dt)

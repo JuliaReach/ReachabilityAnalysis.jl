@@ -1,3 +1,7 @@
+using Polyhedra
+using CDDLib
+using ReachabilityAnalysis: _reconvert
+
 @testset "VREP constructor" begin
     N = Float64
 
@@ -24,12 +28,12 @@ end
     V3 = convert(VPolytope, BallInf(zeros(3), 1.0))
 
     # no-op
-    @test RA._reconvert(V2, Val(false), Missing) == V2
-    @test RA._reconvert(V3, Val(false), Missing) == V3
+    @test _reconvert(V2, Val(false), Missing) == V2
+    @test _reconvert(V3, Val(false), Missing) == V3
 
     # convert to static arrays
-    @test RA._reconvert(V2, Val(true), Val(2)) isa VPolygon{Float64,SVector{2,N}}
-    @test RA._reconvert(V3, Val(true), Val(3)) isa VPolytope{Float64,SVector{3,N}}
+    @test _reconvert(V2, Val(true), Val(2)) isa VPolygon{Float64,SVector{2,N}}
+    @test _reconvert(V3, Val(true), Val(3)) isa VPolytope{Float64,SVector{3,N}}
 end
 
 @testset "VREP for 2D system" begin

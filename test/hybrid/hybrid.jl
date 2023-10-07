@@ -1,4 +1,5 @@
-using ReachabilityAnalysis: _distribute, WaitingList, StateInLocation, state, location, TimeInterval
+using ReachabilityAnalysis: _distribute, WaitingList, StateInLocation, state, location,
+                            TimeInterval, DeterministicSwitching, NonDeterministicSwitching
 
 @testset "Hybrid utility functions" begin
     prob, _ = bouncing_ball()

@@ -1,59 +1,41 @@
-using Test, ReachabilityAnalysis
+using Test
+using ReachabilityAnalysis
 
-using ReachabilityAnalysis: _isapprox, setrep, rsetrep,
-                            DeterministicSwitching, NonDeterministicSwitching,
-                            BoxEnclosure, ZonotopeEnclosure
-using LinearAlgebra
+TEST_MODELS = ["models/harmonic_oscillator.jl",
+               "models/harmonic_oscillator.jl",
+               "models/forced_oscillator.jl",
+               "models/exponential1D.jl",
+               "models/motor.jl",
+               "models/linear5D.jl",
+               "models/generated/VanDerPol.jl",
+               "models/EMBrake.jl",
+               "models/bouncing_ball.jl",
+               "models/burgers.jl",
+               "models/generated/Brusselator.jl",
+               "models/hybrid/thermostat.jl"]
 
-# optional dependencies
-using Symbolics
-import DifferentialEquations
-import JuMP
-using StaticArrays
-using Polyhedra, CDDLib # for VREP algorithm
-import TaylorModels # for TMJets algorithm
-import Flowstar # for FLOWSTAR algorithm
-import Expokit # for Padé approximation
+TEST_FILES = ["continuous/solve.jl",
+              "continuous/symbolics.jl",
+              "continuous/traces.jl",
+              "discretization/discretization.jl",
+              "flowpipes/flowpipes.jl",
+              "flowpipes/setops.jl",
+              "reachsets/reachsets.jl",
+              "hybrid/hybrid.jl"]
 
-# fix namespace conflicts with Polyhedra
-using LazySets: dim, HalfSpace, Interval, Line2D, translate, project
+TEST_ALGORITHMS = ["algorithms/INT.jl",
+                   "algorithms/BOX.jl",
+                   "algorithms/CARLIN.jl",
+                   "algorithms/GLGM06.jl",
+                   "algorithms/LGG09.jl",
+                   "algorithms/ASB07.jl",
+                   "algorithms/BFFPSV18.jl",
+                   "algorithms/TMJets.jl",
+                   "algorithms/ORBIT.jl",
+                   "algorithms/QINT.jl",
+                   "algorithms/VREP.jl",
+                   "algorithms/FLOWSTAR.jl"]
 
-const RA = ReachabilityAnalysis
-import IntervalArithmetic as IA
-
-# load test models
-include("models/harmonic_oscillator.jl")
-include("models/forced_oscillator.jl")
-include("models/exponential1D.jl")
-include("models/motor.jl")
-include("models/linear5D.jl")
-include("models/generated/VanDerPol.jl")
-include("models/EMBrake.jl")
-include("models/bouncing_ball.jl")
-include("models/burgers.jl")
-include("models/generated/Brusselator.jl")
-include("models/hybrid/thermostat.jl")
-
-include("solve.jl")
-include("discretization.jl")
-include("reachsets.jl")
-include("flowpipes.jl")
-include("traces.jl")
-include("setops.jl")
-include("symbolics.jl")
-
-include("algorithms/INT.jl")
-include("algorithms/BOX.jl")
-include("algorithms/CARLIN.jl")
-include("algorithms/GLGM06.jl")
-include("algorithms/LGG09.jl")
-include("algorithms/ASB07.jl")
-include("algorithms/BFFPSV18.jl")
-include("algorithms/TMJets.jl")
-include("algorithms/ORBIT.jl")
-include("algorithms/QINT.jl")
-include("algorithms/VREP.jl")
-include("algorithms/FLOWSTAR.jl")
-
-# hybrid systems
-include("hybrid.jl")
+foreach(include, TEST_MODELS)
+foreach(include, TEST_FILES)
+foreach(include, TEST_ALGORITHMS)
