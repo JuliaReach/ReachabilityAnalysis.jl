@@ -23,7 +23,7 @@
 # ``C ∈ \mathbb{R}^{3\times 270}``.
 
 # The matrices A, B, and C are available in MATLAB format
-# ![](slicot.org/objects/software/shared/bench-data/iss.zip) (`iss.mat`). For convenience
+# [`iss.mat`](https://slicot.org/objects/software/shared/bench-data/iss.zip). For convenience
 # such `.mat` file has been converted to the [JLD2 format](https://github.com/JuliaIO/JLD2.jl)
 # and stored in the file `iss.jld2`.
 
