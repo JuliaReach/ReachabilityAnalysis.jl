@@ -2,7 +2,7 @@
 
 | **Documentation** | **Status** | **Community** | **License** |
 |:-----------------:|:----------:|:-------------:|:-----------:|
-| [![docs-dev][dev-img]][dev-url] | [![CI][ci-img]][ci-url] [![codecov][cov-img]][cov-url] | [![gitter][chat-img]][chat-url] | [![license][lic-img]][lic-url] |
+| [![docs-dev][dev-img]][dev-url] | [![CI][ci-img]][ci-url] [![codecov][cov-img]][cov-url] | [![zulip][chat-img]][chat-url] | [![license][lic-img]][lic-url] |
 
 [dev-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [dev-url]: https://juliareach.github.io/ReachabilityAnalysis.jl/dev/
@@ -57,10 +57,10 @@ pkg> add ReachabilityAnalysis
 
 ## 📙  Documentation
 
-See the [Reference Manual](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/) for introductory material, examples and API reference.
+See the [Reference Manual](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/) for introductory material, examples and API references.
 
 📌 **Need help?** Have any question, or wish to suggest or ask for a missing feature?
-Do not hesitate to open a [**issue**](https://github.com/JuliaReach/ReachabilityAnalysis.jl/issues) or join the JuliaReach gitter chat: [![join the chat at https://gitter.im/JuliaReach/Lobby](https://badges.gitter.im/JuliaReach/Lobby.svg)](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge), or send an [email](mailto:mforets@gmail.com) to the developers.
+Do not hesitate to open an [**issue**](https://github.com/JuliaReach/ReachabilityAnalysis.jl/issues) or join the JuliaReach Zulip chat: [![join the chat at https://julialang.zulipchat.com](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/278609-juliareach). You can also send an [email](mailto:mforets@gmail.com) to the developers.
 
 
 ## 🎨  Features

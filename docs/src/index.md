@@ -40,7 +40,7 @@ Please note that the manual contains a [Frequently Asked Questions (FAQ)](https:
 with working code so that you can also experiment with the answers.
 
 !!! note
-    If you have questions, want to chat about how to apply this package, or if you found a bug or have trouble running an example, feel free to open an issue or make a pull request on the [project's GitHub page](https://github.com/mforets/ReachabilityAnalysis.jl). You can also find us at the [JuliaReach gitter channel](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge), and at the `#reachability-analysis` stream on [JuliaLang's zulip](https://julialang.zulipchat.com) channel.
+    If you have questions, want to chat about how to apply this package, or if you found a bug or have trouble running an example, feel free to open an issue or make a pull request on the [project's GitHub page](https://github.com/JuliaReach/ReachabilityAnalysis.jl). You can also find us at the `#reachability-analysis` stream on [JuliaLang's Zulip](https://julialang.zulipchat.com) channel, and at the [JuliaReach Gitter channel](https://gitter.im/JuliaReach/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 
 ## Features
 
