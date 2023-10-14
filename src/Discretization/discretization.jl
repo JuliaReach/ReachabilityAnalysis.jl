@@ -1,4 +1,7 @@
 using IntervalMatrices: correction_hull, input_correction
+using Reexport
+
+@reexport import ..ExponentiationModule: _alias
 
 # ==================================
 # Abstract interface

@@ -1,7 +1,28 @@
+"""
+Interface to matrix exponential backends of different kinds.
+
+Includes common integral computations arising in the discretization of linear differential equations
+using matrix methods. For applications see e.g. [1] and references therein.
+
+[1] Conservative Time Discretization: A Comparative Study.
+    Marcelo Forets and Christian Schilling (2022).
+    Proceedings of the 17th International Conference on integrated Formal Methods (iFM),
+    LNCS, vol. 13274, pp. 149-167. doi: 10.1007/978-3-031-07727-2_9, arXiv: 2111.01454.
+"""
+module ExponentiationModule
+
+using StaticArrays
+using MathematicalSystems
+using ReachabilityBase.Require
 using LinearAlgebra: checksquare
+using SparseArrays: SparseMatrixCSC
+using IntervalMatrices: AbstractIntervalMatrix
+using LazySets
+
+export BaseExp, _exp, _alias, _elementwise_abs, _Φ₂
 
 # ==========================
-# Exponentiation functions
+# Exponentiation interface
 # ==========================
 
 """
@@ -118,7 +139,7 @@ _alias(alg::Val{:pade}) = PadeExp
 end
 
 @inline function _exp(::SparseMatrixCSC, ::PadeExpAlg)
-    @requires Expokit
+    return require(@__MODULE__, Expokit)
 end
 
 function load_expokit_pade()
@@ -440,7 +461,7 @@ function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=m
     v = V.radius
     Aabs = copy(abs.(A))
 
-    @requires ExponentialUtilities
+    require(@__MODULE__, ExponentialUtilities)
     Pv = _phiv(Aabs, v, 1, δt; m, tol)
     return E⁺ = Hyperrectangle(zeros(n), Pv)
 end
@@ -489,3 +510,5 @@ function _Cδ(A, δ, order)
     E = IntervalMatrices._exp_remainder(A, δ, order; n=n)
     return M + E * δ
 end
+
+end # module
