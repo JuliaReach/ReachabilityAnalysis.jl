@@ -14,16 +14,17 @@ module ExponentiationModule
 using StaticArrays
 using MathematicalSystems
 using ReachabilityBase.Require
-using LinearAlgebra: checksquare
-using SparseArrays: SparseMatrixCSC
-using IntervalMatrices: AbstractIntervalMatrix
+using LinearAlgebra: checksquare, I, Diagonal
+using SparseArrays
+using IntervalArithmetic
+using IntervalMatrices
 using LazySets
 
-export BaseExp, _exp, _alias, _elementwise_abs, _Φ₂
+export BaseExp, BaseExpAlg, IntervalExpAlg, LazyExpAlg, PadeExpAlg, _exp, _alias, _elementwise_abs,
+       _Φ₂, _Φ₁, _Φ₁_u, load_expokit_pade, _interval_matrix, _Cδ
 
-# ==========================
+# -------------------------
 # Exponentiation interface
-# ==========================
 
 """
     AbstractExpAlg
@@ -144,7 +145,7 @@ end
 
 function load_expokit_pade()
     return quote
-        @inline _exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
+        @inline ExponentiationModule._exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
     end
 end  # quote / load_expokit_pade
 
@@ -466,9 +467,8 @@ function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=m
     return E⁺ = Hyperrectangle(zeros(n), Pv)
 end
 
-# ================
+# ---------------
 # Absolute values
-# ================
 
 @inline _elementwise_abs(A::AbstractMatrix) = abs.(A)
 @inline function _elementwise_abs(A::SparseMatrixCSC)
@@ -476,9 +476,8 @@ end
 end
 @inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
 
-# ====================================
+# ------------------------------------
 # Exponentiation of interval matrices
-# ====================================
 
 # TODO: outsource to IntervalMatrices.jl
 
@@ -487,7 +486,7 @@ function _Cδ(A, δ, order)
     n = size(A, 1)
     A² = A * A
     if isa(A, IntervalMatrix)
-        Iδ = IntervalMatrix(Diagonal(fill(IA.interval(δ), n)))
+        Iδ = IntervalMatrix(Diagonal(fill(IntervalArithmetic.interval(δ), n)))
     else
         Iδ = Matrix(δ * I, n, n)
     end
