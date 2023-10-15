@@ -16,7 +16,7 @@ DifferentialEquations = "7"
 DisplayAs = "0.1"
 Documenter = "1"
 ExponentialUtilities = "1"
-IntervalArithmetic = "=0.20"  # new versions require updates and are incompatible with dependencies
+IntervalArithmetic = "=0.20.9"  # new versions require updates and are incompatible with dependencies
 JLD2 = "0.4"
 LaTeXStrings = "1"
 LazySets = "2"
