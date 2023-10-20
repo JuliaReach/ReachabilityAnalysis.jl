@@ -44,15 +44,15 @@ over vectors when needed, that is, $e^{δA} v$ for each $v$. This method is part
 well-suited if `A` is vert sparse. Use the option `exp=:krylov` (or `exp=:lazy`) for this purpose.
 
 ```@docs
-ReachabilityAnalysis.ExponentiationModule
-ReachabilityAnalysis.ExponentiationModule._exp
-ReachabilityAnalysis.ExponentiationModule.Φ₁
-ReachabilityAnalysis.ExponentiationModule.Φ₂
-ReachabilityAnalysis.ExponentiationModule.AbstractExpAlg
-ReachabilityAnalysis.ExponentiationModule.BaseExpAlg
-ReachabilityAnalysis.ExponentiationModule.LazyExpAlg
-ReachabilityAnalysis.ExponentiationModule.IntervalExpAlg
-ReachabilityAnalysis.ExponentiationModule.PadeExpAlg
+ReachabilityAnalysis.Exponentiation
+ReachabilityAnalysis.Exponentiation._exp
+ReachabilityAnalysis.Exponentiation.Φ₁
+ReachabilityAnalysis.Exponentiation.Φ₂
+ReachabilityAnalysis.Exponentiation.AbstractExpAlg
+ReachabilityAnalysis.Exponentiation.BaseExpAlg
+ReachabilityAnalysis.Exponentiation.LazyExpAlg
+ReachabilityAnalysis.Exponentiation.IntervalExpAlg
+ReachabilityAnalysis.Exponentiation.PadeExpAlg
 ```
 
 ## References
