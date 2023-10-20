@@ -2,6 +2,8 @@
 # Second-order approximation from d/dt
 # ===================================
 
+using ..ExponentiationModule: _exp, _alias
+
 """
     SecondOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 
