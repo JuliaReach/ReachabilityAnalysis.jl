@@ -2,7 +2,7 @@
 # Backward approximation
 # ==================================
 
-using ..ExponentiationModule: _alias
+using ..Exponentiation: _alias
 
 """
     Backward{EM, SO, SI, IT, BT} <: AbstractApproximationModel

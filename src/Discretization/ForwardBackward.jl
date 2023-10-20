@@ -1,4 +1,4 @@
-using ..ExponentiationModule: _exp, _alias
+using ..Exponentiation: _exp, _alias
 
 # obs: S should normally be <:JuMP.MOI.AbstractOptimizer
 struct ForwardBackward{EM,SO,SI,IT,BT,S} <: AbstractApproximationModel

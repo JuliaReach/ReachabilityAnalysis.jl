@@ -2,7 +2,7 @@
 # Discretize using the correction hull of the matrix exponential
 # ===============================================================
 
-using ..ExponentiationModule: _exp, _alias
+using ..Exponentiation: _exp, _alias
 
 """
     CorrectionHull{EM} <: AbstractApproximationModel

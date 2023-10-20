@@ -2,7 +2,7 @@
 # Forward approximation
 # ==================================
 
-using ..ExponentiationModule: _exp, _alias
+using ..Exponentiation: _exp, _alias
 
 """
     Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel

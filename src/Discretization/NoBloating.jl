@@ -2,7 +2,7 @@
 # Approximation model in discrete time, i.e. without bloating
 # ============================================================
 
-using ..ExponentiationModule: _exp, _alias
+using ..Exponentiation: _exp, _alias
 
 """
     NoBloating{EM, SO, IT} <: AbstractApproximationModel

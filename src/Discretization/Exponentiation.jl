@@ -9,7 +9,7 @@ using matrix methods. For applications see e.g. [1] and references therein.
     Proceedings of the 17th International Conference on integrated Formal Methods (iFM),
     LNCS, vol. 13274, pp. 149-167. doi: 10.1007/978-3-031-07727-2_9, arXiv: 2111.01454.
 """
-module ExponentiationModule
+module Exponentiation
 
 using StaticArrays
 using MathematicalSystems
@@ -140,7 +140,7 @@ _exp(::SparseMatrixCSC, ::PadeExpAlg) = require(@__MODULE__, Expokit)
 
 function load_expokit_pade()
     return quote
-        @inline ExponentiationModule._exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
+        @inline Exponentiation._exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
     end
 end  # quote / load_expokit_pade
 
@@ -283,8 +283,8 @@ function Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv=f
 end
 
 # dispatch for discretization methods
-Φ₁(A, δ, alg, isinv::Val{:false}, Φ) = _Φ₁_blk(A, δ, alg)
-Φ₁(A, δ, alg, isinv::Val{:true}, Φ) = _Φ₁_inv(A, δ, alg, Φ)
+Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:false}, Φ) = _Φ₁_blk(A, δ, alg)
+Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:true}, Φ) = _Φ₁_inv(A, δ, alg, Φ)
 
 # evaluate the series Φ₁(A, δ) = ∑_{i=0}^∞ \\dfrac{δ^{i+1}}{(i+1)!}A^i
 # without assuming invertibility of A, by taking the exponential of a 2n x 2n matrix
@@ -402,13 +402,13 @@ It can be shown that
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₂ = P_{3n}[1:n, (2*n+1):3*n]`.
 This method can be found in [[FRE11]](@ref).
 """
-function Φ₂(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
+function Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
     return Φ₂(A, δ, alg, Val(isinv), Φ)
 end
 
 # dispatch for discretization methods
-Φ₂(A, δ, alg, isinv::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
-Φ₂(A, δ, alg, isinv::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
+Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
+Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
 
 @inline _P₂_blk(P, n, ::AbstractExpAlg) = P[1:n, (2 * n + 1):(3 * n)]
 @inline _P₂_blk(P, n, ::LazyExpAlg) = sparse(get_columns(P, (2 * n + 1):(3 * n))[1:n, :])
