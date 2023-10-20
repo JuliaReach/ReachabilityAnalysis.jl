@@ -1,3 +1,5 @@
+using ..Exponentiation: _exp, _alias
+
 # obs: S should normally be <:JuMP.MOI.AbstractOptimizer
 struct ForwardBackward{EM,SO,SI,IT,BT,S} <: AbstractApproximationModel
     exp::EM
@@ -40,9 +42,9 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::ForwardBackward)
     X0 = initial_state(ivp)
     Φ = _exp(A, δ, alg.exp)
 
-    A_abs = _elementwise_abs(A)
+    A_abs = elementwise_abs(A)
     Φcache = A == A_abs ? Φ : nothing
-    P2A_abs = _Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
+    P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     A² = A * A
     E₊ = sih(P2A_abs * sih(A² * X0, alg.sih), alg.sih)
@@ -72,9 +74,9 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::ForwardBackward)
     Φ = _exp(A, δ, alg.exp)
     U = next_set(inputset(ivp), 1)
 
-    A_abs = _elementwise_abs(A)
+    A_abs = elementwise_abs(A)
     Φcache = A == A_abs ? Φ : nothing
-    P2A_abs = _Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
+    P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     A² = A * A
     E₊ = sih(P2A_abs * sih(A² * X0, alg.sih), alg.sih)

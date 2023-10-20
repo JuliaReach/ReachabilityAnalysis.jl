@@ -2,6 +2,8 @@
 # First-order approximation model
 # ===============================
 
+using ..Exponentiation: _exp
+
 """
     FirstOrder{EM} <: AbstractApproximationModel
 

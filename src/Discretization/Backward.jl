@@ -2,6 +2,8 @@
 # Backward approximation
 # ==================================
 
+using ..Exponentiation: _alias
+
 """
     Backward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 

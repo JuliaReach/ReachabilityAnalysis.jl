@@ -24,7 +24,7 @@ include("Continuous/fields.jl")
 include("Continuous/normalization.jl")
 include("Continuous/homogeneization.jl")
 include("Continuous/linearization.jl")
-include("Discretization/exponentiation.jl")
+include("Discretization/Exponentiation.jl")
 include("Discretization/discretization.jl")
 
 # ===========================================================

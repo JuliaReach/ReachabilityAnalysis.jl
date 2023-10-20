@@ -3,6 +3,8 @@
 # backward of the same model
 # ============================================================================
 
+using ..Exponentiation: _exp, _alias
+
 """
     StepIntersect{DM<:AbstractApproximationModel} <: AbstractApproximationModel
 

@@ -2,6 +2,8 @@
 # Approximation model in discrete time, i.e. without bloating
 # ============================================================
 
+using ..Exponentiation: _exp, _alias
+
 """
     NoBloating{EM, SO, IT} <: AbstractApproximationModel
 
@@ -68,10 +70,10 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::NoBloating)
 
     Φ = _exp(A, δ, alg.exp)
     if isa(U, AbstractSingleton)
-        Mu = _Φ₁_u(A, δ, alg.exp, alg.inv, element(U), Φ)
+        Mu = Φ₁_u(A, δ, alg.exp, alg.inv, element(U), Φ)
         V = Singleton(Mu)
     else
-        M = _Φ₁(A, δ, alg.exp, alg.inv, Φ)
+        M = Φ₁(A, δ, alg.exp, alg.inv, Φ)
         V = _apply_setops(M * U, alg.setops)
     end
 

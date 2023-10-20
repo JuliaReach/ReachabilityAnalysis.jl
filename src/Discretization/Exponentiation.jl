@@ -1,8 +1,30 @@
-using LinearAlgebra: checksquare
+"""
+Interface to matrix exponential backends of different kinds.
 
-# ==========================
-# Exponentiation functions
-# ==========================
+Includes common integral computations arising in the discretization of linear differential equations
+using matrix methods. For applications see e.g. [1] and references therein.
+
+[1] Conservative Time Discretization: A Comparative Study.
+    Marcelo Forets and Christian Schilling (2022).
+    Proceedings of the 17th International Conference on integrated Formal Methods (iFM),
+    LNCS, vol. 13274, pp. 149-167. doi: 10.1007/978-3-031-07727-2_9, arXiv: 2111.01454.
+"""
+module Exponentiation
+
+using StaticArrays
+using MathematicalSystems
+using ReachabilityBase.Require
+using LinearAlgebra: checksquare, I, Diagonal
+using SparseArrays
+using IntervalArithmetic
+using IntervalMatrices
+using LazySets
+
+export BaseExp, BaseExpAlg, IntervalExpAlg, LazyExpAlg, PadeExpAlg, elementwise_abs, Φ₂, Φ₁, Φ₁_u,
+       interval_matrix
+
+# -------------------------
+# Exponentiation interface
 
 """
     AbstractExpAlg
@@ -100,46 +122,41 @@ const PadeExp = PadeExpAlg()
 _alias(alg::Val{:pade}) = PadeExp
 
 # general case: convert to Matrix
-@inline _exp(A::AbstractMatrix, ::BaseExpAlg) = exp(Matrix(A))
-@inline _exp(A::Matrix, ::BaseExpAlg) = exp(A)
+_exp(A::AbstractMatrix, ::BaseExpAlg) = exp(Matrix(A))
+_exp(A::Matrix, ::BaseExpAlg) = exp(A)
 
 # static arrays have their own exp method
-@inline _exp(A::StaticArray, ::BaseExpAlg) = exp(A)
+_exp(A::StaticArray, ::BaseExpAlg) = exp(A)
 
 # exponential of an identity multiple, defined in MathematicalSystems.jl
-@inline _exp(A::IdentityMultiple, ::BaseExpAlg) = exp(A)
+_exp(A::IdentityMultiple, ::BaseExpAlg) = exp(A)
 
 # lazy wrapper of the matrix exponential
-@inline _exp(A::AbstractMatrix, ::LazyExpAlg) = SparseMatrixExp(A)
+_exp(A::AbstractMatrix, ::LazyExpAlg) = SparseMatrixExp(A)
 
 # pade approximants (requires Expokit.jl)
-@inline function _exp(::AbstractMatrix, ::PadeExpAlg)
-    throw(ArgumentError("algorithm requires a sparse matrix"))
-end
-
-@inline function _exp(::SparseMatrixCSC, ::PadeExpAlg)
-    @requires Expokit
-end
+_exp(::AbstractMatrix, ::PadeExpAlg) = throw(ArgumentError("algorithm requires a sparse matrix"))
+_exp(::SparseMatrixCSC, ::PadeExpAlg) = require(@__MODULE__, Expokit)
 
 function load_expokit_pade()
     return quote
-        @inline _exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
+        @inline Exponentiation._exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
     end
 end  # quote / load_expokit_pade
 
 function _exp(A::AbstractMatrix, alg::IntervalExpAlg)
-    return exp_overapproximation(_interval_matrix(A), one(eltype(A)), alg.order)
+    return exp_overapproximation(interval_matrix(A), one(eltype(A)), alg.order)
 end
 
 function _exp(A::AbstractMatrix, δ, alg::IntervalExpAlg)
-    return exp_overapproximation(_interval_matrix(A), δ, alg.order)
+    return exp_overapproximation(interval_matrix(A), δ, alg.order)
 end
 
-function _interval_matrix(A::AbstractIntervalMatrix)
+# TODO Refactor to IntervalMatrices.jl?
+function interval_matrix(A::AbstractIntervalMatrix)
     return A
 end
-
-function _interval_matrix(A::AbstractMatrix)
+function interval_matrix(A::AbstractMatrix)
     return IntervalMatrix(A)
 end
 
@@ -261,13 +278,13 @@ It can be shown that
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₁(A, δ) = P[1:n, (n+1):2*n]`.
 This method can be found in [[FRE11]](@ref).
 """
-function Φ₁(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
-    return _Φ₁(A, δ, alg, Val(isinv), Φ)
+function Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
+    return Φ₁(A, δ, alg, Val(isinv), Φ)
 end
 
 # dispatch for discretization methods
-_Φ₁(A, δ, alg, isinv::Val{:false}, Φ) = _Φ₁_blk(A, δ, alg)
-_Φ₁(A, δ, alg, isinv::Val{:true}, Φ) = _Φ₁_inv(A, δ, alg, Φ)
+Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:false}, Φ) = _Φ₁_blk(A, δ, alg)
+Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:true}, Φ) = _Φ₁_inv(A, δ, alg, Φ)
 
 # evaluate the series Φ₁(A, δ) = ∑_{i=0}^∞ \\dfrac{δ^{i+1}}{(i+1)!}A^i
 # without assuming invertibility of A, by taking the exponential of a 2n x 2n matrix
@@ -303,11 +320,11 @@ function _Φ₁_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
 end
 
 # method to compute Φ₁ * u, where u is a vector
-function _Φ₁_u(A, δ, alg, isinv::Val{:true}, u::AbstractVector, Φ=nothing)
-    return _Φ₁_u(A, δ, alg, Φ, u)
+function Φ₁_u(A, δ, alg, isinv::Val{:true}, u::AbstractVector, Φ=nothing)
+    return Φ₁_u(A, δ, alg, Φ, u)
 end
 
-function _Φ₁_u(A, δ, alg, isinv::Val{:false}, u::AbstractVector, Φ=nothing)
+function Φ₁_u(A, δ, alg, isinv::Val{:false}, u::AbstractVector, Φ=nothing)
     M = _Φ₁_blk(A, δ, alg)
     return M * u
 end
@@ -315,7 +332,7 @@ end
 # compute the vector Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u
 # assuming that A is invertible and solving the associated linear system
 # (the inverse of A is not explicitly computed)
-function _Φ₁_u(A, δ, alg, u::AbstractVector, Φ=nothing)
+function Φ₁_u(A, δ, alg, u::AbstractVector, Φ=nothing)
     if isnothing(Φ)
         Φ = _exp(A, δ, alg)
     end
@@ -325,7 +342,7 @@ end
 
 # compute Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u without explicitly computing exp(Aδ)
 # and assuming that A is invertible
-function _Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
+function Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
     w = LazySets._expmv(δ, A, u; m=alg.m, tol=alg.tol)
     x = w - u
     return A \ x
@@ -385,13 +402,13 @@ It can be shown that
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₂ = P_{3n}[1:n, (2*n+1):3*n]`.
 This method can be found in [[FRE11]](@ref).
 """
-function Φ₂(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
-    return _Φ₂(A, δ, alg, Val(isinv), Φ)
+function Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
+    return Φ₂(A, δ, alg, Val(isinv), Φ)
 end
 
 # dispatch for discretization methods
-_Φ₂(A, δ, alg, isinv::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
-_Φ₂(A, δ, alg, isinv::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
+Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
+Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
 
 @inline _P₂_blk(P, n, ::AbstractExpAlg) = P[1:n, (2 * n + 1):(3 * n)]
 @inline _P₂_blk(P, n, ::LazyExpAlg) = sparse(get_columns(P, (2 * n + 1):(3 * n))[1:n, :])
@@ -440,52 +457,18 @@ function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=m
     v = V.radius
     Aabs = copy(abs.(A))
 
-    @requires ExponentialUtilities
+    require(@__MODULE__, ExponentialUtilities)
     Pv = _phiv(Aabs, v, 1, δt; m, tol)
     return E⁺ = Hyperrectangle(zeros(n), Pv)
 end
 
-# ================
+# ---------------
 # Absolute values
-# ================
 
-@inline _elementwise_abs(A::AbstractMatrix) = abs.(A)
-@inline function _elementwise_abs(A::SparseMatrixCSC)
+elementwise_abs(A::AbstractMatrix) = abs.(A)
+function elementwise_abs(A::SparseMatrixCSC)
     return SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
 end
-@inline _elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
+elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
 
-# ====================================
-# Exponentiation of interval matrices
-# ====================================
-
-# TODO: outsource to IntervalMatrices.jl
-
-# compute Iδ + 1/2 * δ^2 * A + 1/6 * δ^3 * A² + ... + 1/(η+1)! * δ^(η+1) * A^η + E(δ) * δ
-function _Cδ(A, δ, order)
-    n = size(A, 1)
-    A² = A * A
-    if isa(A, IntervalMatrix)
-        Iδ = IntervalMatrix(Diagonal(fill(IA.interval(δ), n)))
-    else
-        Iδ = Matrix(δ * I, n, n)
-    end
-
-    IδW = Iδ + 1 / 2 * δ^2 * A + 1 / 6 * δ^3 * A²
-    M = IδW
-
-    if order > 2
-        # i = 2
-        αᵢ₊₁ = 6 # factorial of (i+1)
-        Aⁱ = A²
-        δⁱ⁺¹ = δ^3
-        @inbounds for i in 3:order
-            αᵢ₊₁ *= i + 1
-            δⁱ⁺¹ *= δ
-            Aⁱ *= A
-            M += (δⁱ⁺¹ / αᵢ₊₁) * Aⁱ
-        end
-    end
-    E = IntervalMatrices._exp_remainder(A, δ, order; n=n)
-    return M + E * δ
-end
+end # module

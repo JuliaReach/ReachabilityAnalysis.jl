@@ -1,6 +1,7 @@
-using SparseArrays
+# using SparseArrays
 using Expokit
-using ReachabilityAnalysis: _exp, BaseExpAlg, LazyExpAlg, IntervalExpAlg, PadeExpAlg
+using ReachabilityAnalysis.Exponentiation
+using ReachabilityAnalysis.Exponentiation: _exp
 
 @testset "Exponentiation" begin
     A = [10.0 0; 0 20]
