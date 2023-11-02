@@ -1,0 +1,13 @@
+[default.extend-words]
+# do not correct the following strings:
+fpr = "fpr"
+PLAD = "PLAD"
+Childs = "Childs"
+OT = "OT"
+ND = "ND"
+GIR = "GIR"
+AKS = "AKS"
+
+[files]
+# do not check the following files:
+extend-exclude = ["references.md"]
