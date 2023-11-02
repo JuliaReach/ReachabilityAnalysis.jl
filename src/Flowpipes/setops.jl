@@ -11,7 +11,7 @@ end
 _reconvert(Ω0::Zonotope{N,Vector{N},Matrix{N}}, static::Val{false}, dim, ngens) where {N} = Ω0
 _reconvert(Ω0::Zonotope{N,<:SVector,<:SMatrix}, static::Val{true}, dim) where {N} = Ω0
 
-# convert any zonotope to be represented wih regular arrays
+# convert any zonotope to be represented with regular arrays
 function _reconvert(Ω0::Zonotope, static::Val{false}, dim, ngens)
     return Zonotope(Vector(Ω0.center), Matrix(Ω0.generators))
 end
@@ -54,7 +54,7 @@ function _reconvert(Ω0::Hyperrectangle{N,Vector{N},Vector{N}}, static::Val{true
 end
 _reconvert(Ω0::Hyperrectangle{N,<:SVector,<:SVector}, static::Val{true}, dim) where {N} = Ω0
 
-# convert any Hyperrectangle to be represented wih regular arrays
+# convert any Hyperrectangle to be represented with regular arrays
 function _reconvert(Ω0::Hyperrectangle, static::Val{false}, dim::Missing)
     return Ω0 = Hyperrectangle(Vector(Ω0.center), Matrix(Ω0.radius); check_bounds=false)
 end
@@ -203,11 +203,11 @@ end
 # Projection
 # =========================
 
-# extend LazySets concrete projection for other arg fomats
+# extend LazySets concrete projection for other arguments
 LazySets.project(X::LazySet, vars::NTuple{D,<:Integer}) where {D} = project(X, collect(vars))
 LazySets.project(X::LazySet; vars) = project(X, vars)
 
-# extend LazySets lazy projection for other arg fomats
+# extend LazySets lazy projection for other arguments
 LazySets.Projection(X::LazySet, vars::NTuple{D,<:Integer}) where {D} = Projection(X, collect(vars))
 LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 

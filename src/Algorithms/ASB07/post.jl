@@ -43,7 +43,7 @@ function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, recursive, reduction_method, Δt0)
     else
         U = inputset(ivp_discr)
-        @assert isa(U, LazySet) "expcted input of type `<:LazySet`, but got $(typeof(U))"
+        @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
         reach_inhomog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, recursive, reduction_method, Δt0)
     end

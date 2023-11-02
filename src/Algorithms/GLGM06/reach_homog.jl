@@ -75,7 +75,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}
     return F
 end
 
-# check interection with invariant on the loop
+# check intersection with invariant on the loop
 function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                              Ω0::Zonotope{N,VN,MN},
                              Φ::AbstractMatrix,
@@ -104,7 +104,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     return F
 end
 
-# check interection with invariant on the loop, implementation with zonotope preallocation
+# check intersection with invariant on the loop, implementation with zonotope preallocation
 function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}}}},
                              Ω0::Zonotope{N,Vector{N},Matrix{N}},
                              Φ::AbstractMatrix,

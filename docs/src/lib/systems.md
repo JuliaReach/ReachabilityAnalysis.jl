@@ -11,7 +11,7 @@ Depth = 3
 
 ## Types and macros
 
-The API reference for systms types and macros can be found in the
+The API reference for systems types and macros can be found in the
 [MathematicalSystems.jl](https://juliareach.github.io/MathematicalSystems.jl/latest/man/systems/)
 documentation. Two commonly used macros are `@system` and `@ivp`, used to
 define a system and an initial-value problem respectively.

@@ -18,7 +18,7 @@
 #   y(t) & = & C x(t)
 #   \end{array}
 # ```
-# It was proposed as a benchmark in ARCH 2016 [^TLT16]. The matrix dimensiones are
+# It was proposed as a benchmark in ARCH 2016 [^TLT16]. The matrix dimensions are
 # ``A ∈ \mathbb{R}^{270\times 270}``, ``B ∈ \mathbb{R}^{270\times 3}`` and
 # ``C ∈ \mathbb{R}^{3\times 270}``.
 

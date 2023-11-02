@@ -8,7 +8,7 @@ from `AbstractSystem`.
 
 ## Linear systems
 
-Two commonly used types of systems are discrete and continous systems.
+Two commonly used types of systems are discrete and continuous systems.
 
 **Discrete systems.** A discrete system consists of a matrix representing the system dynamics, a set
 of initial states, a set of nondeterministic inputs, and a discretization step

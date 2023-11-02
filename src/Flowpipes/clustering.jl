@@ -11,7 +11,7 @@ set union of the input reach-sets is included in the set union of the output rea
 
 By taking the convex hull of the input reach-sets one can reduce the number of
 outputs sets to a single one, overapproximately. This is the method that corresponds
-to the `LazyClustering` type. However, in some cases it is conveinent to do other
+to the `LazyClustering` type. However, in some cases it is convenient to do other
 types of transformations, such as:
 
 - Return several reach-sets that are obtained by grouping the input in a way
@@ -29,7 +29,7 @@ The following strategies are implemented
 at the interface level:
 
 - If `P` is of type `Missing`: no partition is applied
-- If `P` is of type integer: the partition corresponds to gruping the into the given integer
+- If `P` is of type integer: the partition corresponds to grouping the into the given integer
                              number of sets (or as close as possible)
 - If `P` is of type vector of vectors: the given partition is applied
 

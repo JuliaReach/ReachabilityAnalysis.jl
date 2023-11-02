@@ -17,7 +17,7 @@ end
 # some algorithms require a polyhedral computations backend
 hasbackend(alg::AbstractApproximationModel) = false
 
-# symmetric inteval hull options
+# symmetric interval hull options
 sih(X, ::Val{:lazy}) = SymmetricIntervalHull(X)
 sih(X, ::Val{:concrete}) = _symmetric_interval_hull(X)
 

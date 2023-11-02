@@ -33,7 +33,7 @@ polygons (e.g. convex hull, Minkowski sum) implemented in
 [LazySets.jl](https://github.com/JuliaReach/LazySets.jl/).
 On the other hand, for systems of dimension higher than two, concrete polyhedral
 computations use the [Polyhedra.jl](https://github.com/JuliaPolyhedra/Polyhedra.jl)
-libary which itself relies on specific *backends*, which
+library which itself relies on specific *backends*, which
 can be specified with the `backend` keyword argument in the `VREP` algorithm constructor.
 Such backend is used in the discretization phase. Actually, `Polyhedra.jl` features a default
 solver (hence it doesn't require additional packages apart from `Polyhedra.jl` itself),

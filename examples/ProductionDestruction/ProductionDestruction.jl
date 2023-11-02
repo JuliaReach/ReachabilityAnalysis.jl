@@ -68,7 +68,7 @@ using ReachabilityAnalysis, Symbolics, Plots
 const positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z])
 
 # Given a set $X \subseteq \mathbb{R}^n$, to check whether the positivity constraint
-# holds correspnods to checking wheter ``X`` is included in the positive orthant.
+# holds corresponds to checking whether ``X`` is included in the positive orthant.
 # This computation can be done efficiently using support functions, and it is available
 # in `LazySets.jl`. Multiple dispatch takes care based on the types of the arguments
 # in the call `X ⊆ positive_orthant` depending on the type of ``X``.
@@ -173,7 +173,7 @@ fig = plot(solP; vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
 
 # ## Case I & P
 
-# When uncertainty in both the intial states and the paramters are present, we can
+# When uncertainty in both the initial states and the parameters are present, we can
 # reuse the function `prod_dest_IP!`, but setting an uncertain initial condition
 # and an uncertain parameter.
 # Recall that we are interested in ``x(0) \in [9.5, 10.0]`` and ``a \in [0.296, 0.304]``.

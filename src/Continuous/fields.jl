@@ -56,7 +56,7 @@ end
 function outofplace_field(ivp::InitialValueProblem)
     vf = VectorField(ivp)
 
-    # function closure over the inital-value problem
+    # function closure over the initial-value problem
     f = function f_outofplace(x, p, t)
         return vf(x)
     end
@@ -67,7 +67,7 @@ end
 function inplace_field!(ivp::InitialValueProblem)
     vf = VectorField(ivp)
 
-    # function closure over the inital-value problem
+    # function closure over the initial-value problem
     f! = function f_inplace!(dx, x, p, t)
         return dx .= vf(x)
     end

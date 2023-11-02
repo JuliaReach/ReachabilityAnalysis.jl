@@ -54,7 +54,7 @@ sets, and a dictionary of options.
 ### Fields
 
 - `Xk`       -- the list of [`AbstractReachSet`](@ref)s
-- `alg`      -- algorihm used
+- `alg`      -- algorithm used
 - `options`  -- the dictionary of options
 """
 struct ReachSolution{FT<:AbstractFlowpipe,ST<:AbstractPost} <: AbstractSolution

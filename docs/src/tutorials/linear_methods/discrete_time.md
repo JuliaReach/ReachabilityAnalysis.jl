@@ -202,7 +202,7 @@ fig = plot(F, vars=(1, 2), ratio=1.)
 fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
-Flowpipes implement Julia's array inteface.
+Flowpipes implement Julia's array interface.
 
 ```@example discrete_propagation
 length(F)

@@ -168,13 +168,13 @@ plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
 
 ## :blue_book: Publications
 
-This library has been applied in a number of scientic works. 
+This library has been applied in a number of scientific works.
 
 <details>
 <summary>Click to see the full list of publications that use ReachabilityAnalysis.jl.</summary>
-  
+
 We list them in reverse chronological order.
-  
+
 [11] **Combining Set Propagation with Finite Element Methods for Time Integration in Transient Solid Mechanics Problems.** Forets, Marcelo, Daniel Freire Caporale, and Jorge M. Pérez Zerpa. arXiv preprint [arXiv:2105.05841](https://arxiv.org/abs/2105.05841). Accepted in Computers & Structures (2021).
 
 [10] **Efficient reachability analysis of parametric linear hybrid systems with time-triggered transitions.** Marcelo Forets, Daniel Freire, Christian Schilling, 2020. [arXiv: 2006.12325](https://arxiv.org/abs/2006.12325). Published in
@@ -203,7 +203,7 @@ Schilling (2020) ARCH20. To appear in 7th International Workshop on Applied Veri
 *Note:* Articles [1-7] use the former codebase `Reachability.jl`.
 
 </details>
-  
+
 ## 📜  How to cite
 
 Research credit and full references to the scientific papers presenting the algorithms implemented in this package can be found in the source code for each algorithm and in the [References](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/references/) section of the online documentation.

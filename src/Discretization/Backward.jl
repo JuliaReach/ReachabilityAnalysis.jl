@@ -12,7 +12,7 @@ Backward approximation model.
 ### Fields
 
 - `exp`     -- exponentiation method
-- `setops`  -- set opertaions method
+- `setops`  -- set operations method
 - `sih`     -- symmetric interval hull
 - `inv`     -- (optional, default: `false`) if `true`, assume that the state matrix
                is invertible and use its inverse in the `Φ` functions

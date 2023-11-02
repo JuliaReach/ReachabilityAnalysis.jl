@@ -28,7 +28,7 @@ a finite number of generators $g_1, . . . , g_p ∈ \mathbb{R}^n$ such that
 Z = \left\{ c + \sum_{i=1}^{p} \xi_i g_i | \xi_i ∈ [−1, 1]\right\}.
 ```
 It is common to note $Z = (c, \langle g_1 . . . , g_p \rangle)$ or simply
-$Z = (c, G)$, where $g_i$ is the $i$-th column of $G$. In the examle of above,
+$Z = (c, G)$, where $g_i$ is the $i$-th column of $G$. In the example above,
 
 ```@example zonotope_definition
 @show center(Z)

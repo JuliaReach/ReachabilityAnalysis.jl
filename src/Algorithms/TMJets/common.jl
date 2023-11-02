@@ -4,7 +4,7 @@ using TaylorModels: TaylorModelN
 using TaylorModels: fp_rpa, remainder, initialize!
 
 # =================================
-# Defaut values for the parameters
+# Default values for the parameters
 # =================================
 
 const DEFAULT_MAX_STEPS_TMJETS = 2000
@@ -20,7 +20,7 @@ The algorithm TMJets defaults to `TMJets21b`.
 const TMJets = TMJets21b
 
 # =======================================================================
-# Initialization funtions to prepare the input for validated integration
+# Initialization functions to prepare the input for validated integration
 # =======================================================================
 
 # fallback

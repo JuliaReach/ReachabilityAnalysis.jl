@@ -7,7 +7,7 @@ CurrentModule = ReachabilityAnalysis
 
 ## Hausdorff distance
 
-Tthe notion of Hausdorff distance can be used to *measure* the distance between sets.
+The notion of Hausdorff distance can be used to *measure* the distance between sets.
 It constitutes a practical theoretical tool to quantify the quality of an approximation.
 
 ```math

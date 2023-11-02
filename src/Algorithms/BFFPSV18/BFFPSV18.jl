@@ -18,7 +18,7 @@ Implementation of the reachability method for linear systems using block decompo
                       after discretization
 - `sparse`        -- (optional, default: `false`) if `true`, assume that the state transition
                       matrix is sparse
-- `view`          -- (optional, default: `false`) if `true`, use implementaton that
+- `view`          -- (optional, default: `false`) if `true`, use implementation that
                      uses arrays views
 
 matrix is sparse
@@ -53,7 +53,7 @@ TODO:
 ### References
 
 This algorithm is essentially an extension of the method in [[BFFPSV18]](@ref).
-Blocks can have different dimensions and the set represenation can be different
+Blocks can have different dimensions and the set representation can be different
 for each block.
 
 For a general introduction we refer to the dissertation [[SCHI18]](@ref).

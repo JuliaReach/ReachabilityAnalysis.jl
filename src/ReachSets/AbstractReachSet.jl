@@ -260,7 +260,7 @@ end
     return isdisjoint(set(H), Y)
 end
 
-# used for disjointness check in continuos post-operators
+# used for disjointness check in continuous post-operators
 function _is_intersection_empty(P::HPolyhedron, Z::Zonotope, ::BoxEnclosure)
     return isdisjoint(P, box_approximation(Z))
 end

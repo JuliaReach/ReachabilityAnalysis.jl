@@ -85,7 +85,7 @@ fig = plot(solz; vars=(0, 2), xlab="t", ylab="y")
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # Since we have computed overapproximations of the exact flowipe, the following
-# quantities are a lower bound on the exact minimum (resp. an uppper bound on the
+# quantities are a lower bound on the exact minimum (resp. an upper bound on the
 # exact maximum):
 
 -ρ([0.0, -1.0, 0.0], solz)

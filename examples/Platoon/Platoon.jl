@@ -154,7 +154,7 @@ function platoon(; deterministic_switching::Bool=true,
 
     H = HybridSystem(automaton, modes, resetmaps, [AutonomousSwitching()])
 
-    ## initial condition is at the orgin in mode 1
+    ## initial condition is at the origin in mode 1
     X0 = BallInf(zeros(n), 0.0)
     initial_condition = [(1, X0)]
 
@@ -217,7 +217,7 @@ sol_PLAD01_BND42 = solve(prob_PLAD01;
 dmin_specification(sol_PLAD01_BND42, 42)
 
 # In more detail we can check how is the flowpipe from violating the property.
-# The specification requires that each of the follwing quantities is greater
+# The specification requires that each of the following quantities is greater
 # than `-dmin = -42`.
 
 # Minimum of ``x_1(t)``:

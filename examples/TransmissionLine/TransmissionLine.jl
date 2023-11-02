@@ -111,7 +111,7 @@ function tline(; η=3, R=1.00, Rd=10.0, L=1e-10, C=1e-13 * 4.00)
     return A, B
 end
 
-# We can visualize the structure of the cofficients matrix ``A`` for the case
+# We can visualize the structure of the coefficients matrix ``A`` for the case
 # $\eta = 20$ with `spy` plot:
 
 using Plots

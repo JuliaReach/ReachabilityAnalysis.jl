@@ -1,5 +1,5 @@
 # ===========================
-# Continous post interface
+# Continuous post interface
 # ===========================
 
 # this algorithm uses polygons (two dimensions) or polytopes (any dimension) in vertex representation

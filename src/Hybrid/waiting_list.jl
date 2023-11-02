@@ -159,7 +159,7 @@ end
 # Waiting list allowing storage of sets of different types
 # ===============================================================
 
-# non-strictly typed waiting list, useful for cases in which the set reprsentation
+# non-strictly typed waiting list, useful for cases in which the set representation
 # to be added in the list is not known a priori
 struct MixedWaitingList{TN,QT<:StateInLocation} <: AbstractWaitingList
     times::Vector{TN}
