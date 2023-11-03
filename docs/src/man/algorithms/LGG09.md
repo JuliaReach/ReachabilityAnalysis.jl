@@ -98,7 +98,7 @@ using the methods described above. Once both computations have finished, we can 
 the resulting support functions in the same array. Use the flag `threaded=true` to
 use this method.
 
-Implementation-wise the function `_reach_homog_dir_LGG09!` spawns differen threads
+Implementation-wise the function `_reach_homog_dir_LGG09!` spawns different threads
 which populate the matrix `ρℓ::Matrix{N}(undef, length(dirs), NSTEPS)` with the computed
 values. Hence each thread computes a subset of distinct rows of `ρℓ`.
 
@@ -145,6 +145,6 @@ $\lambda^k$ is positive if $k$ is even, otherwise it is negative. So we can writ
 ```math
 \rho(d, X_k) = (-\lambda)^k \rho((-1)^k d, X_0) + \sum_{i=0}^{k-1} (-\lambda)^{k-i-1} \rho((-1)^{k-i-1} d, V_i).
 ```
-The main difference between this case and the previus one is that now we have to evaluate
+The main difference between this case and the previous one is that now we have to evaluate
 support functions $\rho(\pm d, X_0)$ and $\rho(\pm d, V_i)$. Again, simplification takes place
 if the $V_i$'s are constant and such special case is considered in the implementation.

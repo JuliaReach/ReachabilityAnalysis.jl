@@ -9,7 +9,7 @@ We organize the models by the type of nonlinearities (if there are some), and
 whether they are purely continuous or present discrete transitions, i.e. hybrid systems.
 We have added a column with the associated scientific domain, and another column with
 the number of state variables. Roughly speaking, a higher number of state variables
-usually correspnds to problems which are harder to solve, altough strictly speaking,
+usually corresponds to problems which are harder to solve, although strictly speaking,
 this usually depends on the property to be verified.
 
 Column `P.V.` refers to the cases

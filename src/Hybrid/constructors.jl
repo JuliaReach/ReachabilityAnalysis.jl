@@ -5,7 +5,7 @@
 import HybridSystems
 import HybridSystems: HybridSystem
 
-# hybrid automaton with one location and a self-loop TODO comparare / use OneStateAutomaton
+# hybrid automaton with one location and a self-loop TODO compare / use OneStateAutomaton
 function HybridSystem(mode::AbstractContinuousSystem, reset_map::AbstractMap)
     automaton = GraphAutomaton(1)
     add_transition!(automaton, 1, 1, 1)
@@ -93,9 +93,9 @@ This type is parametric in:
 The type associated to the jitter, `J`, can be one of the following:
 
 - `Missing`     -- no jitter, i.e. switchings are deterministic
-- `Number`      -- symetric jitter, i.e. non-deterministic switchings occur in the
+- `Number`      -- symmetric jitter, i.e. non-deterministic switchings occur in the
                    intervals `[Tsample - ζ, Tsample + ζ]`
-- `IA.Interval` -- nonsymetric jitter, i.e. non-deterministic switchings occur in the
+- `IA.Interval` -- non-symmetric jitter, i.e. non-deterministic switchings occur in the
                    intervals `[Tsample + inf(ζ), Tsample + sup(ζ)]`; note that
                    the infimum is expected to be negative for most use cases, i.e.
                    when the jitter interval is centered at zero

@@ -104,7 +104,7 @@ function platoon(; deterministic_switching::Bool=true,
 
     H = HybridSystem(automaton, modes, resetmaps, [AutonomousSwitching()])
 
-    # initial condition is at the orgin in mode 1
+    # initial condition is at the origin in mode 1
     X0 = BallInf(zeros(n), 0.0)
     initial_condition = [(1, X0)]
 

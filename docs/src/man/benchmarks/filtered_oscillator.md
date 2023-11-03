@@ -12,7 +12,7 @@ model from [[FRE11]](@ref). The model consists of a two-dimensional switched osc
 and a parametric number of filters which are used to *smooth* the oscilllator's state.
 An interesting aspect of the model is that it is scalable: the total number of continuous
 variables can be made arbitrarily large. Moreover, this is a challenging benchmark
-since several dozens of reach-sets may take each discrete jumps, hence clustering methods are indispensible.
+since several dozens of reach-sets may take each discrete jumps, hence clustering methods are indispensable.
 
 The continuous variables ``x`` and ``y`` are used to denote the state of the oscillator,
 and the remaining ``m`` variables are used for the state of the filters.

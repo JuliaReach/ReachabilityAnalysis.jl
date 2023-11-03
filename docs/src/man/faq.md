@@ -204,7 +204,7 @@ As it is seen in the question *Can I solve a for a single initial condition?*,
 even if the initial condition is a singleton, the obtained flowpipe is a sequence
 of boxes in the `x-t` plane, i.e. we obtain sets with non-zero width both in time
 and in space. This behavior may seem confusing at first, because the initial conditions
-where determinitic. The catch is that reach-sets represents a set of states
+where deterministic. The catch is that reach-sets represents a set of states
 reachable over a *time interval*, that certainly contains the exact solution for
 the time-span associated to the reach-set, `tspan(R)`. The projection of the flowpipe
 on the time axis thus returns a sequence of intervals, their width being the

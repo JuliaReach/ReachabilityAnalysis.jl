@@ -8,7 +8,7 @@ const AbstractContinuousSystem_ = AbstractContinuousSystem # to trick the linter
     solve(ivp::IVP{<:AbstractContinuousSystem}, tspan, alg; kwargs...)
 
 Solves the initial-value problem defined by `ivp` over the time span `tspan`,
-using the algorihm `alg`. If no algorithm is given, a default algorithm is chosen.
+using the algorithm `alg`. If no algorithm is given, a default algorithm is chosen.
 
 ### Input
 
@@ -299,7 +299,7 @@ function _get_cpost(ivp, args...; kwargs...)
     got_opC = haskey(kwargs, :opC)
     no_args = isempty(args) || args[1] === nothing
 
-    # continous post was specified
+    # continuous post was specified
     if got_alg
         cpost = kwargs[:alg]
     elseif got_algorithm

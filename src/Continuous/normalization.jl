@@ -198,7 +198,7 @@ julia> dim(next_set(inputset(sext), 1))
 4
 ```
 
-Extending a varing input set with more than one extra dimension:
+Extending a varying input set with more than one extra dimension:
 1] normalize(::AffineContinuousSystem{Float64,Array{Float64,2},Array{Float64,1}}) at /home/mforets/.julia/dev/ReachabilityAnalysis/src/Continuous/normalization.jl:387
 ```jldoctest add_dimension_cont_sys
 julia> sext = add_dimension(s, 7);
@@ -406,11 +406,11 @@ end
 # we left the n-dimensional second order system to a 2n-dimensional first
 # order system
 # if derivatives_last = true (Default)
-# we assum that the first n variables correspond to position and the last n
+# we assume that the first n variables correspond to position and the last n
 # to velocities as in x̃ = [x, x']
 #
 # otherwise, if derivatives_last = false
-# we assum that the first n variables correspond to velocities and the last n
+# we assume that the first n variables correspond to velocities and the last n
 # to position as in x̃ = [x', x]
 function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K; derivatives_last=true) where {N}
     n = size(M, 1)
@@ -564,7 +564,7 @@ isconstantinput(::VaryingInput) = false
 isconstantinput(::LazySet) = true
 
 # The canonical form is:
-#     - If the system doesn't have input, a constrained linear continous system (CLCS)
+#     - If the system doesn't have input, a constrained linear continuous system (CLCS)
 #       x' = Ax, x ∈ X
 #     - If the system has an input, a CLCCS, x' = Ax + u, x ∈ X, u ∈ U
 # If the original system is unconstrained, the constraint set X is the universal set.

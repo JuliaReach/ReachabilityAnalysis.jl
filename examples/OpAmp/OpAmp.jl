@@ -230,7 +230,7 @@ X0 = Singleton(zeros(2));
 
 #-
 
-# We solve both instances by choosing som values of ``δ`` and ``γ``:
+# We solve both instances by choosing some values for ``δ`` and ``γ``:
 
 ## linearly increasing input signal
 prob_lin = opamp_with_saturation(; X0=X0, γ=0.0, δ=100.0, Es=1.0);

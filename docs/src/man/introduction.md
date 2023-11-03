@@ -28,7 +28,7 @@ f(t, x0) = x0 * exp(-t)
 plot!(t -> f(t, 0.45), xlims=(0, 4), label="Analytic sol., x(0) = 0.45", color="red")
 plot!(t -> f(t, 0.55), xlims=(0, 4), label="Analytic sol., x(0) = 0.55", color="red")
 ```
-In practice, analytic solutons of ODEs are unknown. However, in this simple case
+In practice, analytic solutions of ODEs are unknown. However, in this simple case
 we knew that for an initial point $x_0 \in \mathbb{R}$, the solution is
 $x(t) = x_0 e^{-t}$ so we plotted the trajectories associated to the extremal
 values in the given initial interval.

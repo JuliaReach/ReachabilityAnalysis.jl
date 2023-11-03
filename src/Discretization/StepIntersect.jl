@@ -21,9 +21,9 @@ model with one step backward of the same model.
 Let ``x' = Ax`` with ``x(0) ∈ X₀``. This methods consists of:
 
 - Compute the discretized system with step-size ``δ`` obtaining ``Ω0`` and the given
-  approxatmion model `method`.
+  approximation model `method`.
 
-- Compute the (lazy) linear map ``ΦX₀``. This set constains of the (exact) reachable
+- Compute the (lazy) linear map ``ΦX₀``. This set consists of the (exact) reachable
   states at the time point ``δ``.
 
 - Apply the approximation model `method` with initial condition ``ΦX₀`` one step

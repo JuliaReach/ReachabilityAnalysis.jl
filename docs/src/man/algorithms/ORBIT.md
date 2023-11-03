@@ -48,7 +48,7 @@ The matrix $\Phi = e^{A\delta}$ can be evaluated in different ways, using the fu
 
 (1) `method=:base` uses Julia's built-in implementation (if `method = :base`),
 
-(2) `method = :lazy` uses a lazy wrapper of the matrix exponential which is then evaluted using Krylov subspace methods.
+(2) `method = :lazy` uses a lazy wrapper of the matrix exponential which is then evaluated using Krylov subspace methods.
 
 Method (1) is the default method. Method (2) is particularly useful to work with very large and sparse matrices (e.g. typically of order `n > 2000`). Evaluation of $\Phi_1(u, \delta)$ is available through the function [`Φ₁`](@ref). Two implementations are available:
 

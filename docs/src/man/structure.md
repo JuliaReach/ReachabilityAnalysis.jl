@@ -15,7 +15,7 @@ that we want to perform on the outputs.
 of a given linear system.
 
 - Method to lazily compute the flowpipe when we are only interested in outputs.
-- Example with linear combination of state varibles with LGG09 (eg. some of SLICOT benchmaris properties).
+- Example with linear combination of state variables with LGG09 (eg. some of SLICOT benchmarks properties).
 
 ## State-space decomposition
 
