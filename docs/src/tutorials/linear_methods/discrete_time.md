@@ -21,13 +21,11 @@ The matrix $M(\theta)$ rotates points in the xy-plane clockwise through an angle
 
 ### Propagating point clouds
 
-To gain some intuition let's build the matrix and apply it to some points.
+To gain some intuition, let's build the matrix and apply it to some points.
 
 ```@example discrete_propagation
-using ReachabilityAnalysis # hide
-using ReachabilityAnalysis: center  # hide
-
-import Plots: plot, plot!, xlims!, ylims! # hide
+using ReachabilityAnalysis, Plots
+using ReachabilityAnalysis: center
 
 # initial set
 X0 = BallInf(ones(2), 0.2)

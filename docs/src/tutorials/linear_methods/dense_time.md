@@ -36,10 +36,9 @@ Define the invariant $G: \{(x, y) \in \mathbb{R}^2: x ≥ 1.3 \}$.
 
 
 ```@example dense_propagation
-using ReachabilityAnalysis # hide
-using ReachabilityAnalysis: center  # hide
+using ReachabilityAnalysis, Plots
+using ReachabilityAnalysis: center
 
-import Plots: plot, plot!, xlims!, ylims! # hide
 
 import Random # hide
 Random.seed!(1117) # hide
