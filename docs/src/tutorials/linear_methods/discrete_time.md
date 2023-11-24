@@ -24,8 +24,8 @@ The matrix $M(\theta)$ rotates points in the xy-plane clockwise through an angle
 To gain some intuition let's build the matrix and apply it to some points.
 
 ```@example discrete_propagation
-using ReachabilityAnalysis # hide
-using ReachabilityAnalysis: center  # hide
+using ReachabilityAnalysis
+using ReachabilityAnalysis: center
 
 import Plots: plot, plot!, xlims!, ylims! # hide
 
