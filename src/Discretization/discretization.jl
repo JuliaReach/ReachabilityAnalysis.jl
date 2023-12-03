@@ -1,105 +1,19 @@
-using IntervalMatrices: correction_hull, input_correction
-using Reexport
-
-using .Exponentiation
-import ..Exponentiation: _alias
-
-# ==================================
-# Abstract interface
-# ==================================
-
-abstract type AbstractApproximationModel end
-
-function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
-    return Forward()
-end
-
-# some algorithms require a polyhedral computations backend
-hasbackend(alg::AbstractApproximationModel) = false
-
-# symmetric interval hull options
-sih(X, ::Val{:lazy}) = SymmetricIntervalHull(X)
-sih(X, ::Val{:concrete}) = symmetric_interval_hull(X)
-
-# interval matrix functions
-isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
-isinterval(A::IntervalMatrix{N,IT}) where {N,IT<:IA.Interval{N}} = true
-isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
-
-# options for a-posteriori transformation of a discretized set
-# valid options are:
-# AbstractDirections, Val{:lazy}, Val{:concrete}, Val{:vrep}, Val{:zono}, Val{:zonotope}
-# _alias(setops) = setops # no-op
-
-_alias(setops::AbstractDirections) = setops
-_alias(setops::Val{:lazy}) = setops
-_alias(setops::Val{:concrete}) = setops
-_alias(setops::Val{:vrep}) = setops
-_alias(setops::Val{:box}) = setops
-_alias(setops::Val{:zono}) = setops
-_alias(setops::Val{:zonotope}) = Val(:zono)
-
-"""
-    discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
-
-Set-based conservative discretization of a continuous-time initial value problem
-into a discrete-time problem.
-
-### Input
-
-- `ivp`   -- initial value problem for a linear ODE in canonical form (see `Notes` below)
-- `δ`     -- step size
-- `alg`   -- algorithm used to compute the approximation model
-
-### Output
-
-The initial value problem of a discrete system.
-
-### Notes
-
-Different approximation algorithms and their respective options are described
-in the docstring of each method, e.g. [`Forward`](@ref). Here is a list of all
-the available approximation models:
-
-```jldoctest
-julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
-5-element Vector{Any}:
- Backward
- CorrectionHull
- Forward
- NoBloating
- StepIntersect
-```
-
-Initial-value problems considered in this function are of the form
-
-```math
-x' = Ax(t) + u(t),\\qquad x(0) ∈ \\mathcal{X}_0,\\qquad (1)
-```
-and where ``u(t) ∈ U(k)`` add where ``\\{U(k)\\}_k`` is a sequence of sets of
-non-deterministic inputs and ``\\mathcal{X}_0`` is the set of initial
-states. Other problems, e.g. ``x' = Ax(t) + Bu(t)`` can be brought
-to the canonical form with the function [`normalize`](@ref).
-
-For references to the original papers introducing each algorithm, see the docstrings,
-e.g. `?Forward`.
-"""
-function discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
-    return error("discretization not implemented for the given arguments: $ivp, $alg")
-end
-
 # =========================================
 # Conservative time discretization methods
 # =========================================
 
+include("DiscretizationModule.jl")
+
 # Approximation model in discrete time, i.e. without bloating
+using ..DiscretizationModule # TODO Remove
+using ..Exponentiation # TODO Remove
 include("NoBloating.jl")
 
 # Forward approximation
 include("Forward.jl")
 
 # Backward approximation
-include("Backward.jl")
+include("BackwardModule.jl")
 
 # Intersect one step forward in time with one step backward
 include("StepIntersect.jl")

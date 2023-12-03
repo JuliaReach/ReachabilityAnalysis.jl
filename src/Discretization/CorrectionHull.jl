@@ -2,6 +2,8 @@
 # Discretize using the correction hull of the matrix exponential
 # ===============================================================
 
+using IntervalMatrices: correction_hull, input_correction
+
 using ..Exponentiation: _exp, _alias
 
 """

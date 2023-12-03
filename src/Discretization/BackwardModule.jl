@@ -1,7 +1,9 @@
 # ==================================
 # Backward approximation
 # ==================================
+module BackwardModule
 
+using ..DiscretizationModule
 using ..Exponentiation: _alias
 
 """
@@ -57,3 +59,5 @@ end
 Base.show(io::IO, m::MIME"text/plain", alg::Backward) = print(io, alg)
 
 # TODO: add corresponding `discrete` methods <<<<<
+
+end
