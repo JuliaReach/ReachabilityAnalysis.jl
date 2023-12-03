@@ -19,7 +19,7 @@ hasbackend(alg::AbstractApproximationModel) = false
 
 # symmetric interval hull options
 sih(X, ::Val{:lazy}) = SymmetricIntervalHull(X)
-sih(X, ::Val{:concrete}) = _symmetric_interval_hull(X)
+sih(X, ::Val{:concrete}) = symmetric_interval_hull(X)
 
 # interval matrix functions
 isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
