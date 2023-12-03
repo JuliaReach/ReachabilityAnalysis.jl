@@ -97,7 +97,7 @@ function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, alg::Forward) where {N}
     #Einit = (P2A_abs * a_sqr) * RA._symmetric_interval_hull(X0).dat
 
     #P2A_abs = (1/a_sqr) * (Φ - one(N) - aδ)
-    Einit = (Φ - one(N) - aδ) * convert(Interval, _symmetric_interval_hull(X0)).dat
+    Einit = (Φ - one(N) - aδ) * convert(Interval, symmetric_interval_hull(X0)).dat
 
     Ω0 = Interval(hull(X0.dat, Φ * X0.dat + Einit))
     X = stateset(ivp)

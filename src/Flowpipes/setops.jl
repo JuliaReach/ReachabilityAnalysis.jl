@@ -364,19 +364,6 @@ function _split(A::IntervalMatrix{T,IT,MT}) where {T,IT,ST,MT<:StaticArray{ST,IT
     return SMatrix{m,n,T}(C), SMatrix{m,n,T}(S)
 end
 
-_symmetric_interval_hull(x::Interval) = LazySets.symmetric_interval_hull(x)
-_symmetric_interval_hull(x::Hyperrectangle) = LazySets.symmetric_interval_hull(x)
-
-# type-stable version
-function _symmetric_interval_hull(S::LazySet{N}) where {N}
-    # fallback returns a hyperrectangular set
-    (c, r) = box_approximation_helper(S)
-    #if r[1] < 0
-    #    return EmptySet{N}(dim(S))
-    #end
-    return Hyperrectangle(zeros(N, length(c)), abs.(c) .+ r)
-end
-
 # type-stable version
 function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N}
     c, r = box_approximation_helper(S)
