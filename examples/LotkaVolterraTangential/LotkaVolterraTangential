@@ -223,9 +223,9 @@ validation = []
 final_area = []
 intersect_time = []
 
-# ----------------------------------------
-#  Case 1:
-# ----------------------------------------
+
+# ## Case 1
+
 ε_ext = 1e-4
 prob = lotka_volterra(; nsplit=4, ε_ext=ε_ext)
 alg = TMJets(abstol=1e-14, orderT=7, orderQ=1)
@@ -259,9 +259,7 @@ SUITE[model][cases[1]] = @benchmarkable solve($prob,
                   disjointness_method = BoxEnclosure())
 
 
-# ==============================================================================
-# Execute benchmarks and save benchmark results
-# ==============================================================================
+# ## Execute benchmarks and save benchmark results
 
 # tune parameters
 tune!(SUITE)
@@ -287,9 +285,8 @@ for (i, c) in enumerate(cases)
         " $(final_area[i]), $(intersect_time[i])\n")
 end
 
-# ==============================================================================
-# Create plots
-# ==============================================================================
+
+# ## Create plots
 
 fig = plot()
 
