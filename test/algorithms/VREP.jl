@@ -1,5 +1,6 @@
-using Polyhedra
-using CDDLib
+import Polyhedra
+import CDDLib
+using StaticArrays: SVector
 using ReachabilityAnalysis: _reconvert
 
 @testset "VREP constructor" begin
