@@ -1,8 +1,6 @@
 using ReachabilityAnalysis
 using ReachabilityAnalysis: is_intersection_empty
 
-#The task is to change the height from ``0``~[m] to ``1``~[m] within ``5``~[s].
-
 const g = 9.81           # gravity constant in m/s^2
 const R = 0.1            # radius of center mass in m
 const l = 0.5            # distance of motors to center mass in m
@@ -144,9 +142,6 @@ alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
 sol2 = solve(prob; tspan=Tspan, alg=alg);
 solz2 = overapproximate(sol2, Zonotope);
-
-#property = quad_property(solz2)
-#println("Validate property, case $(cases[2]) : $(property)")
 
 Wpos = 0.8
 Wvel = 0.8

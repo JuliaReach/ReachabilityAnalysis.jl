@@ -73,7 +73,7 @@ using ReachabilityAnalysis: is_intersection_empty
 
 # ## Reachability settings
 #
-#The task is to change the height from ``0``~[m] to ``1``~[m] within ``5``~[s].
+# The task is to change the height from ``0``~[m] to ``1``~[m] within ``5``~[s].
 # A goal region ``[0.98,1.02]`` of the height ``x_3`` has to be reached within
 # ``5``~[s] and the height has to stay below ``1.4`` for all times. After
 # ``1``~[s] the height should stay above ``0.9``~[m]. The initial value for the
@@ -218,21 +218,19 @@ end
 
 cases = ["Δ=0.1", "Δ=0.4", "Δ=0.8"];
 
-# ----------------------------------------
-#  Case 1: smaller uncertainty
-# ----------------------------------------
+# ### Case 1: smaller uncertainty
+
 Wpos = 0.1
 Wvel = 0.1
 prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
 alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
-# Warm-up run
+# warm-up run
 sol1 = solve(prob; tspan=Tspan, alg=alg);
 solz1 = overapproximate(sol1, Zonotope);
 
-# ----------------------------------------
-# Case 2: intermediate uncertainty
-# ----------------------------------------
+# ### Case 2: intermediate uncertainty
+
 Wpos = 0.4
 Wvel = 0.4
 prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
@@ -243,18 +241,17 @@ sol2 = solve(prob; tspan=Tspan, alg=alg);
 solz2 = overapproximate(sol2, Zonotope);
 
 # verify that specification holds
-#property = quad_property(solz2)
-#println("Validate property, case $(cases[2]) : $(property)")
+# property = quad_property(solz2)
+# println("Validate property, case $(cases[2]) : $(property)")
 
-# ----------------------------------------
-# Case 3: large uncertainty
-# ----------------------------------------
+# ### Case 3: large uncertainty
+
 Wpos = 0.8
 Wvel = 0.8
 prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
 alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
-# Warm-up run
+# warm-up run
 sol3 = solve(prob; tspan=Tspan, alg=alg);
 solz3 = overapproximate(sol3, Zonotope);
 
