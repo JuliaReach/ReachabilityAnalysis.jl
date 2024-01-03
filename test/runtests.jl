@@ -2,7 +2,6 @@ using Test
 using ReachabilityAnalysis
 
 TEST_MODELS = ["models/harmonic_oscillator.jl",
-               "models/harmonic_oscillator.jl",
                "models/forced_oscillator.jl",
                "models/exponential1D.jl",
                "models/motor.jl",
