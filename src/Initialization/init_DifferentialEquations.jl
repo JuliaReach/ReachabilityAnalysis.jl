@@ -285,8 +285,7 @@ end
 # merge trajectory pieces into an ODESolution object
 function _merge_trajectory_chain(trajectory_chain)
     prefix = trajectory_chain[1]
-    @inbounds for i in 2:length(trajectory_chain)
-        infix = trajectory_chain[i]
+    @inbounds for infix in Iterators.rest(trajectory_chain)
         append!(prefix.u, infix.u)
         append!(prefix.t, infix.t)
         append!(prefix.k, infix.k)
