@@ -1,4 +1,4 @@
-using Symbolics
+using Symbolics: @variables, Num
 using ReachabilityAnalysis: _jacobian_function,
                             _jacobian_expression,
                             _hessian_function,

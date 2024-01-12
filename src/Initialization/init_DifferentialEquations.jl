@@ -1,11 +1,6 @@
 import .DifferentialEquations
 const DE = DifferentialEquations
 
-# resolve namespace conflicts
-# using MathematicalSystems: islinear
-# using LazySets: concretize
-# using HybridSystems: states
-
 const DEFAULT_TRAJECTORIES = 10
 
 # extend the solve API for initial-value problems

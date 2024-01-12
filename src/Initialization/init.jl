@@ -27,14 +27,11 @@ using LazySets: AffineMap, ResetMap
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!
 
-# in-place set operations
-using LazySets: linear_map!
-
-# LazySets internal functions frequently used
+# JuliaReach internal functions
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
                                isinvertible, vector_type
 using LazySets.Approximations: AbstractDirections
-using LazySets: @commutative, AbstractReductionMethod
+using LazySets: @commutative, AbstractReductionMethod, linear_map!
 
 # aliases for intervals
 const IM = IntervalMatrices
