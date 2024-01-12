@@ -1,6 +1,4 @@
-eval(quote
-         using .MultivariatePolynomials: AbstractVariable, AbstractMonomialLike,
-                                         exponents, variables, powers
-     end)
+using .MultivariatePolynomials: AbstractVariable, AbstractMonomialLike,
+                                exponents, variables, powers
 
 eval(load_kron_multivariate())

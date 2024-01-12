@@ -1,5 +1,3 @@
-eval(quote
-         using .DynamicPolynomials: @polyvar
-     end)
+using .DynamicPolynomials: @polyvar
 
 eval(load_kron_dynamicpolynomials())
