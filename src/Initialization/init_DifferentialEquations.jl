@@ -1,11 +1,10 @@
-using .DifferentialEquations
+import .DifferentialEquations
 const DE = DifferentialEquations
 
 # resolve namespace conflicts
-using MathematicalSystems: islinear
-using LazySets: concretize
-
-using HybridSystems: states
+# using MathematicalSystems: islinear
+# using LazySets: concretize
+# using HybridSystems: states
 
 const DEFAULT_TRAJECTORIES = 10
 
@@ -45,8 +44,8 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     end
 
     # formulate ensemble ODE problem
-    ensemble_prob = ODEProblem(field, first(initial_states), tspan)
-    _prob_func(prob, i, repeat) = remake(prob; u0=initial_states[i])
+    ensemble_prob = DE.ODEProblem(field, first(initial_states), tspan)
+    _prob_func(prob, i, repeat) = DE.remake(prob; u0=initial_states[i])
 
     # choose tolerances
     reltol = get(kwargs, :reltol, 1e-3)
@@ -55,7 +54,7 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
     callback = get(kwargs, :callback, nothing)
     dtmax = get(kwargs, :dtmax, Inf)
 
-    ensemble_prob = EnsembleProblem(ensemble_prob; prob_func=_prob_func)
+    ensemble_prob = DE.EnsembleProblem(ensemble_prob; prob_func=_prob_func)
 
     if isnothing(callback)
         result = DE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
@@ -96,7 +95,7 @@ function _solve_ensemble(ivp::InitialValueProblem{<:AbstractHybridSystem},
     t0_g = tstart(tspan)
     T = tend(tspan)
 
-    termination_action = (integrator) -> terminate!(integrator)
+    termination_action = (integrator) -> DE.terminate!(integrator)
     use_discrete_callback = get(kwargs, :use_discrete_callback, false)
     dtmax = get(kwargs, :dtmax, Inf)
     if use_discrete_callback && isinf(dtmax)
@@ -124,11 +123,11 @@ function _solve_ensemble(ivp::InitialValueProblem{<:AbstractHybridSystem},
             if use_discrete_callback
                 # use a discrete callback function based on membership
                 condition = (u, t, integrator) -> u ∉ I⁻
-                callback = DiscreteCallback(condition, termination_action)
+                callback = DE.DiscreteCallback(condition, termination_action)
             else
                 # use a continuous callback function based on membership
                 condition = (u, t, integrator) -> u ∉ I⁻ ? -1 : 1
-                callback = ContinuousCallback(condition, termination_action)
+                callback = DE.ContinuousCallback(condition, termination_action)
             end
             trajectory = _solve_ensemble(ivp_loc, args...; initial_states=[x0],
                                          callback=callback, tspan=t0 .. T,
@@ -286,8 +285,7 @@ end
 # merge trajectory pieces into an ODESolution object
 function _merge_trajectory_chain(trajectory_chain)
     prefix = trajectory_chain[1]
-    @inbounds for i in 2:length(trajectory_chain)
-        infix = trajectory_chain[i]
+    @inbounds for infix in Iterators.rest(trajectory_chain)
         append!(prefix.u, infix.u)
         append!(prefix.t, infix.t)
         append!(prefix.k, infix.k)
