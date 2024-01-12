@@ -1,4 +1,4 @@
-using .Symbolics: jacobian, hessian
+using .Symbolics: jacobian, hessian, build_function
 
 # ===========================================================================
 # Functionalities for Jacobian matrices
