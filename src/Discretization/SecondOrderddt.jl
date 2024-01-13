@@ -2,7 +2,10 @@
 # Second-order approximation from d/dt
 # ===================================
 
+using Reexport
+
 using ..Exponentiation: _exp, _alias
+@reexport import ..DiscretizationModule: discretize
 
 """
     SecondOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel

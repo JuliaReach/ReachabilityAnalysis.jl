@@ -2,7 +2,11 @@
 # Forward approximation
 # ==================================
 
+using Reexport
+
 using ..Exponentiation: _exp, _alias
+
+@reexport import ..DiscretizationModule: discretize
 
 """
     Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel

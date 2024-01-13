@@ -2,7 +2,11 @@
 # Approximation model in discrete time, i.e. without bloating
 # ============================================================
 
+using Reexport
+
 using ..Exponentiation: _exp, _alias
+
+@reexport import ..DiscretizationModule: discretize
 
 """
     NoBloating{EM, SO, IT} <: AbstractApproximationModel

@@ -2,7 +2,11 @@
 # First-order approximation model
 # ===============================
 
+using Reexport
+
 using ..Exponentiation: _exp
+
+@reexport import ..DiscretizationModule: discretize
 
 """
     FirstOrder{EM} <: AbstractApproximationModel

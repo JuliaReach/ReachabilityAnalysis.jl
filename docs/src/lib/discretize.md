@@ -13,6 +13,7 @@ Depth = 3
 ## Discretize API
 
 ```@docs
+ReachabilityAnalysis.DiscretizationModule
 normalize
 discretize
 ```

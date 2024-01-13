@@ -8,10 +8,12 @@ import IntervalArithmetic as IA
 using IntervalMatrices
 using LazySets
 using LazySets.Approximations: AbstractDirections
+using Reexport
 
 using ..Exponentiation
 import ..Exponentiation: _alias
 
+@reexport import MathematicalSystems: discretize
 export AbstractApproximationModel, sih, isinterval
 
 abstract type AbstractApproximationModel end

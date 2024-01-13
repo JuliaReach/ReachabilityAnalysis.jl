@@ -1,4 +1,7 @@
+using Reexport
+
 using ..Exponentiation: _exp, _alias
+@reexport import ..DiscretizationModule: discretize
 
 # obs: S should normally be <:JuMP.MOI.AbstractOptimizer
 struct ForwardBackward{EM,SO,SI,IT,BT,S} <: AbstractApproximationModel

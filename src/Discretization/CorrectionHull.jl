@@ -2,9 +2,12 @@
 # Discretize using the correction hull of the matrix exponential
 # ===============================================================
 
+using Reexport
+
 using IntervalMatrices: correction_hull, input_correction
 
 using ..Exponentiation: _exp, _alias
+@reexport import ..DiscretizationModule: discretize
 
 """
     CorrectionHull{EM} <: AbstractApproximationModel
