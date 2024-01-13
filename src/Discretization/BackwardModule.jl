@@ -6,6 +6,8 @@ module BackwardModule
 using ..DiscretizationModule
 using ..Exponentiation: _alias
 
+export Backward
+
 """
     Backward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
 

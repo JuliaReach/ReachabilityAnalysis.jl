@@ -2,6 +2,7 @@
 # Conservative time discretization methods
 # =========================================
 
+using Reexport
 include("DiscretizationModule.jl")
 
 # Approximation model in discrete time, i.e. without bloating
@@ -14,6 +15,7 @@ include("Forward.jl")
 
 # Backward approximation
 include("BackwardModule.jl")
+@reexport using ..BackwardModule
 
 # Intersect one step forward in time with one step backward
 include("StepIntersect.jl")
