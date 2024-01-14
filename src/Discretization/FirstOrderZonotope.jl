@@ -2,6 +2,10 @@
 # First-order approximation model with zonotopes
 # ==============================================
 
+using Reexport
+
+@reexport import ..DiscretizationModule: discretize
+
 """
     FirstOrderZonotope{EM} <: AbstractApproximationModel
 

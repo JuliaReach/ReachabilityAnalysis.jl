@@ -3,7 +3,11 @@
 # backward of the same model
 # ============================================================================
 
+using Reexport
+
 using ..Exponentiation: _exp, _alias
+
+@reexport import ..DiscretizationModule: discretize
 
 """
     StepIntersect{DM<:AbstractApproximationModel} <: AbstractApproximationModel
