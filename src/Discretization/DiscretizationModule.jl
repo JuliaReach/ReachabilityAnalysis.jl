@@ -66,8 +66,7 @@ The initial value problem of a discrete system.
 ### Notes
 
 Different approximation algorithms and their respective options are described
-in the docstring of each method, e.g. [`Forward`](@ref). Here is a list of all
-the available approximation models:
+in the docstring of each method. Here is a list of all the available approximation models:
 
 ```jldoctest
 julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
