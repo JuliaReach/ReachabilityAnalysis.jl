@@ -270,7 +270,7 @@ function LazySets.linear_map(M, fp::Flowpipe)
     return Flowpipe(out, fp.ext)
 end
 
-function LazySets.affine_map(M, b, fp::Flowpipe)
+function LazySets.affine_map(M, fp::Flowpipe, b)
     out = [reconstruct(R, affine_map(M, set(R), b)) for R in fp]
     return Flowpipe(out, fp.ext)
 end
