@@ -82,7 +82,7 @@ function LazySets.linear_map(M, fp::MixedFlowpipe)
     return MixedFlowpipe(out, fp.ext)
 end
 
-function LazySets.affine_map(M, b, fp::MixedFlowpipe)
-    out = [affine_map(M, b, F) for F in fp]
+function LazySets.affine_map(M, fp::MixedFlowpipe, b)
+    out = [affine_map(M, F, b) for F in fp]
     return MixedFlowpipe(out, fp.ext)
 end
