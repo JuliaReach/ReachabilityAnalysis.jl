@@ -1,6 +1,6 @@
 name = "ReachabilityAnalysis"
 uuid = "1e97bd63-91d1-579d-8e8d-501d2b57c93f"
-version = "0.22.4"
+version = "0.22.5"
 
 [deps]
 CarlemanLinearization = "4803f6b2-022a-4c1b-a771-522a3413ec86"
