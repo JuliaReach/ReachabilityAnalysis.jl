@@ -157,7 +157,7 @@ end
     @test isequivalent(ConvexHullArray(set.(Z)), set(Z0))
 end
 
-@testset "Overapproximation of a Taylor model reach-sets II" begin
+@testset "Overapproximation of Taylor model reach-sets II" begin
 
     # Two dimensional
     # ------------------

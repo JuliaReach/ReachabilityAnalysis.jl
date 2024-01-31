@@ -256,13 +256,12 @@ function overapproximate(R::TaylorModelReachSet{N}, ::ZonotopeEnclosure) where {
 end
 
 # tdom defined in the methods below is the same as Δt - t0, but the domain inclusion check
-# in TM.evauate may fail, so we unpack the domain again here; also note that
+# in TM.evaluate may fail, so we unpack the domain again here; also note that
 # by construction the TMs in time are centered at zero
 
-# overapproximate taylor model reachset with one hyperrectangle
-function _overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
-                          Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
-
+# overapproximate Taylor model reachset with a set
+function _overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet};
+                          Δt::TimeInterval=tspan(R), dom=symBox(dim(R)), kwargs...)
     # dimension of the reachset
     n = dim(R)
 
@@ -273,9 +272,6 @@ function _overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     dom ⊆ symBox(dim(R)) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
     Δt ⊆ tspan(R) || throw(ArgumentError("the given time range $Δt does not belong to the " *
                                          "reach-set's time span, $(tspan(R))"))
-
-    # normalized time domain
-    tdom = domain(R)
 
     # evaluate the Taylor model in time
     X = set(R)
@@ -295,22 +291,40 @@ function _overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     # fX̂ is a TaylorModelN whose coefficients are floats
     fX̂ = fp_rpa.(X̂)
 
-    # evaluate the spatial variables in the given domain
-    X̂b = IntervalBox([evaluate(fX̂[i], dom) for i in 1:n]...)
-    H = convert(Hyperrectangle, X̂b)
-    return ReachSet(H, Δt)
+    # evaluate the spatial variables in the given domain and overapproximate
+    Y = _overapproximate_TM(fX̂, T; kwargs...)
+
+    return ReachSet(Y, Δt)
 end
 
-LazySets.box_approximation(R::TaylorModelReachSet) = _overapproximate(R, Hyperrectangle)
+# overapproximate a Taylor model with a hyperrectangle
+# TODO outsource to LazySets
+function _overapproximate_TM(fX̂, ::Type{<:Hyperrectangle}; kwargs...)
+    B = IntervalBox([evaluate(fX̂[i], domain(p)) for (i, p) in enumerate(fX̂)]...)
+    return convert(Hyperrectangle, B)
+end
 
-# overapproximate taylor model reachset with several hyperrectangles,
-# by splitting in time (ntdiv), and/or space (with either nsdiv for uniform partitions
-# or by specifying a partition (vector of integers))
-# e.g. if the partition is uniform for each dimension, the number of returned sets
-# is nsdiv^D * ntdiv
+# overapproximate a Taylor model with a zonotope using LazySets
+function _overapproximate_TM(fX̂, ::Type{<:Zonotope}; kwargs...)
+    return overapproximate(fX̂, Zonotope; kwargs...)
+end
+
+function overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet};
+                         Δt::TimeInterval=tspan(R), dom=symBox(dim(R)), kwargs...)
+    return _overapproximate(R, T; Δt=Δt, dom=dom, kwargs...)
+end
+
+LazySets.box_approximation(R::TaylorModelReachSet) = overapproximate(R, Hyperrectangle)
+
+# overapproximate TaylorModelReachSet with several hyperrectangles, by splitting
+# in space (with either nsdiv for uniform partitions or by specifying a
+# partition (vector of integers); the version not used should be set to
+# `nothing`) and/or in time (ntdiv)
+# e.g. if the partition is uniform for each dimension, the number of returned
+# sets is nsdiv^D * ntdiv
 function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
                          partition=nothing, nsdiv=nothing, ntdiv=1,
-                         Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
+                         Δt::TimeInterval=tspan(R), dom=symBox(dim(R)), kwargs...) where {N}
     if !isnothing(partition) && !isnothing(nsdiv)
         throw(ArgumentError("either `partition` or `nsdiv` should be specified, not both"))
     end
@@ -318,13 +332,13 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
         nsdiv = 1
     end
 
-    D = dim(R)
-    S = symBox(D)
-
     # no splitting
     if isnothing(partition) && nsdiv == 1 && ntdiv == 1
-        return _overapproximate(R, Hyperrectangle; Δt, dom)
+        return _overapproximate(R, Hyperrectangle; Δt=Δt, dom=dom, kwargs...)
     end
+
+    D = dim(R)
+    S = symBox(D)
     @assert Δt == tspan(R) "time subdomain not implemented"
     @assert dom == S "spatial subdomain not implemented"
 
@@ -378,44 +392,6 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
     return R̂out
 end
 
-# overapproximate taylor model reachset with one zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope};
-                         Δt::TimeInterval=tspan(R), dom=symBox(dim(R))) where {N}
-
-    # consistency checks
-    dim(R) == dim(dom) ||
-        throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
-                            "but they are $(dim(R)) and $(dim(dom)) respectively"))
-    dom ⊆ symBox(dim(R)) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
-    Δt ⊆ tspan(R) || throw(ArgumentError("the given time range $Δt does not belong to the " *
-                                         "reach-set's time span, $(tspan(R))"))
-
-    # dimension of the reachset
-    n = dim(R)
-
-    # evaluate the Taylor model in time
-    X = set(R)
-    tdom = Δt - tstart(R)  # normalize time (to TM-internal time)
-    tdom = tdom ∩ domain(R)  # intersection handles round-off errors
-    # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = evaluate(X, tdom)
-
-    # transform the domain if needed
-    X_Δt = _taylor_shift(X_Δt, dom)
-
-    # builds the associated taylor model for each coordinate j = 1...n
-    #  X̂ is a TaylorModelN whose coefficients are intervals
-    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
-
-    # compute floating point rigorous polynomial approximation
-    # fX̂ is a TaylorModelN whose coefficients are floats
-    fX̂ = fp_rpa.(X̂)
-
-    # overapproximate the Taylor model with a zonotope using LazySets
-    Z = overapproximate(fX̂, Zonotope)
-    return ReachSet(Z, Δt)
-end
-
 # overapproximate taylor model reachset with several zonotopes given the partition,
 # that specifies the way in which the symmetric box [-1, 1]^n is split:
 #
@@ -448,21 +424,9 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope},
     return ReachSet(ConvexHullArray(Z), Δt)
 end
 
-# evaluate at a given time and overapproximate the resulting set with a zonotope
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope}, t::AbstractFloat;
-                         remove_zero_generators=true) where {N}
-    @assert t ∈ tspan(R) "the given time point $t does not belong to the reach-set's time span, $(tspan(R))"
-
-    X = set(R)
-    tn = t - tstart(R)  # normalize time (to TM-internal time)
-    tn = interval(tn) ∩ domain(R)  # intersection handles round-off errors
-    X_Δt = evaluate(X, tn)
-    n = dim(R)
-    X̂ = [TaylorModelN(X_Δt[j], zeroI, zeroBox(n), symBox(n)) for j in 1:n]
-    fX̂ = fp_rpa.(X̂)
-    Zi = overapproximate(fX̂, Zonotope; remove_zero_generators=remove_zero_generators)
-    Δt = TimeInterval(t, t)
-    return ReachSet(Zi, Δt)
+# evaluate at a given time point and overapproximate the resulting set
+function overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet}, t::AbstractFloat; kwargs...)
+    return overapproximate(R, T, TimeInterval(t, t); kwargs...)
 end
 
 # convert a hyperrectangular set to a taylor model reachset
