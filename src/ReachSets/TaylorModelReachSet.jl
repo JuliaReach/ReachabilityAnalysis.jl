@@ -426,7 +426,7 @@ end
 
 # evaluate at a given time point and overapproximate the resulting set
 function overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet}, t::AbstractFloat; kwargs...)
-    return overapproximate(R, T, TimeInterval(t, t); kwargs...)
+    return overapproximate(R, T; Δt=TimeInterval(t, t), kwargs...)
 end
 
 # convert a hyperrectangular set to a taylor model reachset
