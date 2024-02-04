@@ -136,11 +136,15 @@ _exp(A::AbstractMatrix, ::LazyExpAlg) = SparseMatrixExp(A)
 
 # pade approximants (requires Expokit.jl)
 _exp(::AbstractMatrix, ::PadeExpAlg) = throw(ArgumentError("algorithm requires a sparse matrix"))
-_exp(::SparseMatrixCSC, ::PadeExpAlg) = require(@__MODULE__, Expokit)
+
+function _exp(A::SparseMatrixCSC, alg::PadeExpAlg)
+    require(@__MODULE__, :Expokit)
+    return _exp_pade(A, alg)
+end
 
 function load_expokit_pade()
     return quote
-        @inline Exponentiation._exp(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
+        _exp_pade(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
     end
 end  # quote / load_expokit_pade
 
@@ -457,7 +461,7 @@ function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=m
     v = V.radius
     Aabs = copy(abs.(A))
 
-    require(@__MODULE__, ExponentialUtilities)
+    require(@__MODULE__, :ExponentialUtilities)
     Pv = _phiv(Aabs, v, 1, δt; m, tol)
     return E⁺ = Hyperrectangle(zeros(n), Pv)
 end
@@ -470,5 +474,16 @@ function elementwise_abs(A::SparseMatrixCSC)
     return SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, abs.(nonzeros(A)))
 end
 elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
+
+# =====================
+# Optional dependencies
+# =====================
+
+using Requires
+
+function __init__()
+    @require Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4" eval(load_expokit_pade())
+    @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
+end
 
 end # module

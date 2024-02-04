@@ -115,9 +115,6 @@ function __init__()
     # sparse dynamic representation of multivariate polynomials
     @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
 
-    # exponentiation methods using Krylov subspace and Padé approximations
-    @require Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4" include("init_Expokit.jl")
-
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
 
