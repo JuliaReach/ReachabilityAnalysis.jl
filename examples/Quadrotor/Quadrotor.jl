@@ -240,9 +240,9 @@ alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 sol2 = solve(prob; tspan=Tspan, alg=alg);
 solz2 = overapproximate(sol2, Zonotope);
 
-# verify that specification holds
-# property = quad_property(solz2)
-# println("Validate property, case $(cases[2]) : $(property)")
+## verify that specification holds
+## property = quad_property(solz2)
+## println("Validate property, case $(cases[2]) : $(property)")
 
 # ### Case 3: large uncertainty
 
