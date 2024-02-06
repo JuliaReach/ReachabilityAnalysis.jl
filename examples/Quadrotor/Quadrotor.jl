@@ -92,7 +92,7 @@ const l = 0.5            # distance of motors to center mass in m
 const Mrotor = 0.1       # motor mass in kg
 const M = 1.0            # center mass in kg
 const m = M + 4 * Mrotor   # total mass in kg
-const mg = m * g
+const mg = m * g;
 
 # moments of inertia
 const Jx = (2 / 5) * M * R^2 + 2 * l^2 * Mrotor
@@ -100,7 +100,7 @@ const Jy = Jx
 const Jz = (2 / 5) * M * R^2 + 4 * l^2 * Mrotor
 const Cyzx = (Jy - Jz) / Jx
 const Czxy = (Jz - Jx) / Jy
-const Cxyz = 0.0 #(Jx - Jy)/Jz
+const Cxyz = 0.0; #(Jx - Jy)/Jz
 
 # considering the control parameters as *parameters*
 const u₁ = 1.0
@@ -210,7 +210,7 @@ function quadrotor(; T=5.0, plot_vars=[0, 3],
     prob = @ivp(x' = quadrotor!(x), dim:12, x(0) ∈ X0)
 
     return prob
-end
+end;
 
 #-
 
@@ -223,7 +223,7 @@ cases = ["Δ=0.1", "Δ=0.4", "Δ=0.8"];
 Wpos = 0.1
 Wvel = 0.1
 prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
-alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
+alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false);
 
 # warm-up run
 sol1 = solve(prob; tspan=Tspan, alg=alg);
@@ -234,7 +234,7 @@ solz1 = overapproximate(sol1, Zonotope);
 Wpos = 0.4
 Wvel = 0.4
 prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
-alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
+alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false);
 
 # warm-up run
 sol2 = solve(prob; tspan=Tspan, alg=alg);
@@ -249,7 +249,7 @@ solz2 = overapproximate(sol2, Zonotope);
 Wpos = 0.8
 Wvel = 0.8
 prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
-alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
+alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false);
 
 # warm-up run
 sol3 = solve(prob; tspan=Tspan, alg=alg);
