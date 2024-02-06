@@ -42,7 +42,11 @@ for model in MODELS
                 # for the local build, one needs to set `nbviewer_root_url`
                 Literate.markdown(input, target_dir_md; postprocess=mdpost, credit=false, nbviewer_root_url="..")
             end
-            Literate.notebook(input, target_dir_md; execute=true, credit=false)
+
+            # notebooks are deactivated to speed up the generation
+#             Literate.notebook(input, target_dir_md; execute=true, credit=false)
+# if used, add the following to the top of the script files (where `MODELNAME` is the model name):
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/MODELNAME.ipynb)
         elseif any(endswith.(file, [".jld2", ".png"]))
             # ignore *.jld2 and *.png files without warning
         else
