@@ -2,12 +2,21 @@
 # Composition operation for one step of an approximation model with one step
 # backward of the same model
 # ============================================================================
+module StepIntersectModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias
+using ..ApplySetops: _apply_setops
+using ..ForwardModule: Forward
+using MathematicalSystems
+using LazySets
 using Reexport
 
-using ..Exponentiation: _exp, _alias
+export StepIntersect
 
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
 
 """
     StepIntersect{DM<:AbstractApproximationModel} <: AbstractApproximationModel
@@ -52,10 +61,11 @@ end
 function Base.show(io::IO, alg::StepIntersect)
     print(io, "`StepIntersect` approximation model with:\n")
     print(io, "    - model: $(alg.model)\n")
-    return print(io, "    - set operations method: $(alg.setops)\n")
+    print(io, "    - set operations method: $(alg.setops)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::StepIntersect) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::StepIntersect) = print(io, alg)
 
 # ------------------------------------------------------------
 # Homogeneous case
@@ -78,9 +88,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::StepIntersect)
     Ω0₋ = initial_state(ivpnegd)
 
     Ω0 = _apply_setops(Ω0₊ ∩ Ω0₋, alg.setops)
-    return IVP(CLDS(Φ, X), Ω0)
+    return IVP(ConstrainedLinearDiscreteSystem(Φ, X), Ω0)
 end
 
-# ------------------------------------------------------------
-# Inhomogeneous case
-# ------------------------------------------------------------
+end  # module

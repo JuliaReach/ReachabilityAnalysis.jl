@@ -23,9 +23,6 @@ export
       TMJets21b,
       VREP,
 
-# Approximation models
-      StepIntersect,
-
 # Flowpipes
       flowpipe,
       Flowpipe,

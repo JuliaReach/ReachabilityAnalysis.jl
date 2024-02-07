@@ -25,7 +25,8 @@ include("BackwardModule.jl")
 @reexport using ..BackwardModule
 
 # Intersect one step forward in time with one step backward
-include("StepIntersect.jl")
+include("StepIntersectModule.jl")
+@reexport using ..StepIntersectModule
 
 # Discretize using the correction hull of the matrix exponential
 include("CorrectionHullModule.jl")
