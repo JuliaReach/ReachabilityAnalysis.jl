@@ -73,7 +73,7 @@ Different approximation algorithms and their respective options are described
 in the docstring of each method. Here is a list of all the available approximation models:
 
 ```jldoctest
-julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
+julia> subtypes(ReachabilityAnalysis.DiscretizationModule.AbstractApproximationModel)
 9-element Vector{Any}:
  Backward
  CorrectionHull
@@ -103,4 +103,4 @@ function discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
     return error("discretization not implemented for the given arguments: $ivp, $alg")
 end
 
-end
+end  # module

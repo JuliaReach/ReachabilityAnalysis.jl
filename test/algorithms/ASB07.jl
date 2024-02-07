@@ -1,4 +1,4 @@
-using ReachabilityAnalysis: IntervalExpAlg
+using ..Exponentiation: IntervalExpAlg
 using ..Overapproximate: _convert_or_overapproximate
 
 @testset "ASB07 algorithm: homogeneous case" begin

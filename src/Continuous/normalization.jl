@@ -52,12 +52,14 @@ Append one or more zero rows and columns to a matrix.
 ### Examples
 
 ```jldoctest add_dimension_test
+julia> using ReachabilityAnalysis: add_dimension
+
 julia> A = [0.4 0.25; 0.46 -0.67]
 2×2 Matrix{Float64}:
  0.4    0.25
  0.46  -0.67
 
-julia> ReachabilityAnalysis.add_dimension(A)
+julia> add_dimension(A)
 3×3 Matrix{Float64}:
  0.4    0.25  0.0
  0.46  -0.67  0.0
@@ -66,7 +68,7 @@ julia> ReachabilityAnalysis.add_dimension(A)
 To append more than one zero row-column, use the second argument `m`:
 
 ```jldoctest add_dimension_test
-julia> ReachabilityAnalysis.add_dimension(A, 2)
+julia> add_dimension(A, 2)
 4×4 Matrix{Float64}:
  0.4    0.25  0.0  0.0
  0.46  -0.67  0.0  0.0
@@ -92,19 +94,21 @@ Adds an extra dimension to a LazySet through a Cartesian product.
 ### Examples
 
 ```jldoctest add_dimension_set
+julia> using ReachabilityAnalysis: add_dimension
+
 julia> X = BallInf(ones(9), 0.5);
 
 julia> dim(X)
 9
 
-julia> Xext = ReachabilityAnalysis.add_dimension(X);
+julia> Xext = add_dimension(X);
 
 julia> dim(Xext)
 10
 
 julia> X = ZeroSet(4);
 
-julia> dim(ReachabilityAnalysis.add_dimension(X))
+julia> dim(add_dimension(X))
 5
 
 julia> typeof(X)
@@ -114,7 +118,7 @@ ZeroSet{Float64}
 More than one dimension can be added passing the second argument:
 
 ```jldoctest add_dimension_set
-julia> Xext = ReachabilityAnalysis.add_dimension(BallInf(zeros(10), 0.1), 4);
+julia> Xext = add_dimension(BallInf(zeros(10), 0.1), 4);
 
 julia> dim(Xext)
 14
@@ -148,13 +152,15 @@ Adds an extra dimension to a initial-value system.
 ```jldoctest add_dimension_cont_sys
 julia> using MathematicalSystems, SparseArrays
 
+julia> using ReachabilityAnalysis: add_dimension
+
 julia> A = sprandn(3, 3, 0.5);
 
 julia> X0 = BallInf(zeros(3), 1.0);
 
 julia> s = InitialValueProblem(LinearContinuousSystem(A), X0);
 
-julia> sext = ReachabilityAnalysis.add_dimension(s);
+julia> sext = add_dimension(s);
 
 julia> statedim(sext)
 4
@@ -171,7 +177,7 @@ julia> U = ConstantInput(Ball2(ones(3), 0.1));
 
 julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
 
-julia> sext = ReachabilityAnalysis.add_dimension(s);
+julia> sext = add_dimension(s);
 
 julia> statedim(sext)
 4
@@ -189,7 +195,7 @@ julia> U = VaryingInput([Ball2(ones(3), 0.1 * i) for i in 1:3]);
 
 julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
 
-julia> sext = ReachabilityAnalysis.add_dimension(s);
+julia> sext = add_dimension(s);
 
 julia> statedim(sext)
 4
@@ -201,7 +207,7 @@ julia> dim(next_set(inputset(sext), 1))
 Extending a varying input set with more than one extra dimension:
 
 ```jldoctest add_dimension_cont_sys
-julia> sext = ReachabilityAnalysis.add_dimension(s, 7);
+julia> sext = add_dimension(s, 7);
 
 julia> statedim(sext)
 10

@@ -11,8 +11,8 @@ for singleton initial conditions and proper input sets.
 
 The type fields are:
 
-- `N`   -- number type of the step-size
-- `AM`  -- type of the approximation model
+- `N`  -- number type of the step-size
+- `AM` -- type of the approximation model
 
 ## Notes
 

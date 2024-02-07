@@ -123,14 +123,15 @@ $\delta \to 0$ (in Hausdorff distance).
 ```
 
 Algorithms implementing conservative time discretization can be used from the
-[`discretize(ivp::IVP, δ, alg::AbstractApproximationModel)`](@ref) function.
+[`discretize(ivp::IVP, δ, alg::ReachabilityAnalysis.DiscretizationModule.AbstractApproximationModel)`](@ref)
+function.
 Set-based conservative discretization of a continuous-time initial value problem
 into a discrete-time problem.
 This function receives three inputs: the initial value problem (``ivp`) for a
 linear ODE in canonical form, (e.g. the system returned by `normalize`);
 the step-size (`δ`), and the algorithm (`alg`) used to compute the approximation model.
-Do `subtypes(ReachabilityAnalysis.AbstractApproximationModel)` to see the
-available approximation models.
+Do `subtypes(ReachabilityAnalysis.DiscretizationModule.AbstractApproximationModel)`
+to see the available approximation models.
 
 The output of a discretization is a new initial value problem of a discrete system.
 Different approximation algorithms and their respective options are described

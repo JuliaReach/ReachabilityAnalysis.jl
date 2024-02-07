@@ -3,6 +3,7 @@
 # =========================================
 
 using Reexport
+
 include("DiscretizationModule.jl")
 
 include("ApplySetops.jl")
@@ -11,8 +12,6 @@ include("Overapproximate.jl")
 @reexport using ..Overapproximate
 
 # Approximation model in discrete time, i.e. without bloating
-using ..DiscretizationModule # TODO Remove
-using ..Exponentiation # TODO Remove
 include("NoBloatingModule.jl")
 @reexport using ..NoBloatingModule
 
