@@ -1,12 +1,21 @@
 # ============================================================
 # Approximation model in discrete time, i.e. without bloating
 # ============================================================
+module NoBloatingModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias, BaseExp, Φ₁, Φ₁_u
+using ..ApplySetops: _apply_setops
+using MathematicalSystems
+using LazySets
 using Reexport
 
-using ..Exponentiation: _exp, _alias
+export NoBloating
 
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
 
 """
     NoBloating{EM, SO, IT} <: AbstractApproximationModel
@@ -48,10 +57,11 @@ function Base.show(io::IO, alg::NoBloating)
     print(io, "`NoBloating` approximation model with:\n")
     print(io, "    - exponentiation method: $(alg.exp)\n")
     print(io, "    - set operations method: $(alg.setops)\n")
-    return print(io, "    - invertibility assumption: $(alg.inv)\n")
+    print(io, "    - invertibility assumption: $(alg.inv)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::NoBloating) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::NoBloating) = print(io, alg)
 
 # homogeneous case
 function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::NoBloating)
@@ -94,3 +104,5 @@ function _initial_state(X0::CartesianProduct{N,<:Singleton{N},<:Singleton{N}}) w
     return convert(Singleton, X0)
 end
 _initial_state(X0) = X0
+
+end  # module

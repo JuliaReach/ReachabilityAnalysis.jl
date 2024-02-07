@@ -13,7 +13,8 @@ include("Overapproximate.jl")
 # Approximation model in discrete time, i.e. without bloating
 using ..DiscretizationModule # TODO Remove
 using ..Exponentiation # TODO Remove
-include("NoBloating.jl")
+include("NoBloatingModule.jl")
+@reexport using ..NoBloatingModule
 
 # Forward approximation
 include("ForwardModule.jl")
