@@ -28,7 +28,8 @@ include("BackwardModule.jl")
 include("StepIntersect.jl")
 
 # Discretize using the correction hull of the matrix exponential
-include("CorrectionHull.jl")
+include("CorrectionHullModule.jl")
+@reexport using ..CorrectionHullModule
 
 # First-order approximation from d/dt
 include("SecondOrderddt.jl")

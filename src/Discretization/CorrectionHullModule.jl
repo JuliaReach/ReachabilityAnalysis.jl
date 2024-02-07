@@ -1,13 +1,25 @@
 # ===============================================================
 # Discretize using the correction hull of the matrix exponential
 # ===============================================================
+module CorrectionHullModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias, IntervalExpAlg, interval_matrix
+using ..Overapproximate: _convert_or_overapproximate, _overapproximate
+using IntervalMatrices: IntervalMatrix, correction_hull, input_correction, _exp_remainder
+using MathematicalSystems
+using LazySets
+using LazySets: LinearMap
+import IntervalArithmetic as IA
+using LinearAlgebra
 using Reexport
 
-using IntervalMatrices: correction_hull, input_correction
+export CorrectionHull
 
-using ..Exponentiation: _exp, _alias
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
 
 """
     CorrectionHull{EM} <: AbstractApproximationModel
@@ -47,10 +59,11 @@ end
 function Base.show(io::IO, alg::CorrectionHull)
     print(io, "`CorrectionHull` approximation model with:\n")
     print(io, "    - exponentiation method: $(alg.exp)\n")
-    return print(io, "    - order: $(alg.order)\n")
+    print(io, "    - order: $(alg.order)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::CorrectionHull) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::CorrectionHull) = print(io, alg)
 
 # -----------------------------------------------------------------
 # Correction hull: homogeneous case x' = Ax, x in X
@@ -87,7 +100,7 @@ end
 
 # F(δ) without the E(δ) correction term
 function _correction_hull_without_E(A, δ, p)
-    timeint(δ, i) = interval((i^(-i / (i - 1)) - i^(-1 / (i - 1))) * δ^i, 0)
+    timeint(δ, i) = IA.interval((i^(-i / (i - 1)) - i^(-1 / (i - 1))) * δ^i, 0)
     F = sum(map(x -> timeint(δ, i) * x, A^i / factorial(i)) for i in 2:p)
     return IntervalMatrix(F)
 end
@@ -180,7 +193,7 @@ function _Cδ(A, δ, order)
     n = size(A, 1)
     A² = A * A
     if isa(A, IntervalMatrix)
-        Iδ = IntervalMatrix(Diagonal(fill(IntervalArithmetic.interval(δ), n)))
+        Iδ = IntervalMatrix(Diagonal(fill(IA.interval(δ), n)))
     else
         Iδ = Matrix(δ * I, n, n)
     end
@@ -200,6 +213,8 @@ function _Cδ(A, δ, order)
             M += (δⁱ⁺¹ / αᵢ₊₁) * Aⁱ
         end
     end
-    E = IntervalMatrices._exp_remainder(A, δ, order; n=n)
+    E = _exp_remainder(A, δ, order; n=n)
     return M + E * δ
 end
+
+end  # module
