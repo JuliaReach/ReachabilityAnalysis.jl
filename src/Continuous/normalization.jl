@@ -215,7 +215,7 @@ julia> dim(ReachabilityAnalysis.next_set(inputset(sext), 1))
 function add_dimension(cs, m=1)
     Aext = add_dimension(cs.s.A, m)
     X0ext = add_dimension(cs.x0, m)
-    if hasmethod(inputset, Tuple{typeof(cs.s)})
+    if !isnothing(inputset(cs))
         Uext = map(x -> add_dimension(x, m), inputset(cs))
         s = CLCCS(Aext, Matrix(1.0I, size(Aext)), nothing, Uext)
     else
