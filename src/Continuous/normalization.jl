@@ -138,14 +138,14 @@ function add_dimension(X::ZeroSet, m=1)
 end
 
 """
-    add_dimension(cs, m=1)
+    add_dimension(ivp::IVP, m=1)
 
-Adds an extra dimension to a continuous system.
+Adds an extra dimension to a initial-value system.
 
 ### Input
 
-- `cs` -- continuous system
-- `m` -- (optional, default: `1`) the number of extra dimensions
+- `ivp` -- initial-value system
+- `m`   -- (optional, default: `1`) the number of extra dimensions
 
 ### Examples
 
@@ -212,11 +212,11 @@ julia> dim(ReachabilityAnalysis.next_set(inputset(sext), 1))
 10
 ```
 """
-function add_dimension(cs, m=1)
-    Aext = add_dimension(cs.s.A, m)
-    X0ext = add_dimension(cs.x0, m)
-    if !isnothing(inputset(cs))
-        Uext = map(x -> add_dimension(x, m), inputset(cs))
+function add_dimension(ivp::IVP, m=1)  # only correct for linear systems
+    Aext = add_dimension(ivp.s.A, m)
+    X0ext = add_dimension(ivp.x0, m)
+    if !isnothing(inputset(ivp))
+        Uext = map(x -> add_dimension(x, m), inputset(ivp))
         s = CLCCS(Aext, Matrix(1.0I, size(Aext)), nothing, Uext)
     else
         s = LCS(Aext)
