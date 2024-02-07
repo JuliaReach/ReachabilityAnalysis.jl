@@ -27,7 +27,6 @@ export
       SecondOrderddt,
       FirstOrderZonotope,
       CorrectionHull,
-      FirstOrder,
       NoBloating,
       StepIntersect,
 

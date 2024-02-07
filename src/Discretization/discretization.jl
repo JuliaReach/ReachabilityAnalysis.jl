@@ -36,7 +36,8 @@ include("SecondOrderddt.jl")
 include("FirstOrderZonotope.jl")
 
 # First-order approximation
-include("FirstOrder.jl")
+include("FirstOrderModule.jl")
+@reexport using ..FirstOrderModule
 
 # Forward-Backward discretization using continuous convex hull
 include("ForwardBackwardModule.jl")
