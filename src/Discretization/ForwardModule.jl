@@ -1,12 +1,22 @@
 # ==================================
 # Forward approximation
 # ==================================
+module ForwardModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias, BaseExp, elementwise_abs, Φ₂
+using ..ApplySetops: _apply_setops
+using IntervalArithmetic: hull
+using MathematicalSystems
+using LazySets
 using Reexport
 
-using ..Exponentiation: _exp, _alias
+export Forward
 
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
 
 """
     Forward{EM, SO, SI, IT, BT} <: AbstractApproximationModel
@@ -57,10 +67,11 @@ function Base.show(io::IO, alg::Forward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::Forward) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::Forward) = print(io, alg)
 
 # ------------------------------------------------------------
 # Forward Approximation: Homogeneous case
@@ -138,3 +149,5 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
     return InitialValueProblem(Sdis, Ω0)
 end
+
+end  # module

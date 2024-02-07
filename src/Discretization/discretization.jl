@@ -16,7 +16,8 @@ using ..Exponentiation # TODO Remove
 include("NoBloating.jl")
 
 # Forward approximation
-include("Forward.jl")
+include("ForwardModule.jl")
+@reexport using ..ForwardModule
 
 # Backward approximation
 include("BackwardModule.jl")

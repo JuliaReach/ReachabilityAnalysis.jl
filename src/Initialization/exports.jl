@@ -29,7 +29,6 @@ export
       CorrectionHull,
       FirstOrder,
       ForwardBackward,
-      Forward,
       NoBloating,
       StepIntersect,
 
