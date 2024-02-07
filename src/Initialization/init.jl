@@ -121,9 +121,6 @@ function __init__()
     # external reachability backend: Flow* C++ library
     @require Flowstar = "a8054ddd-9dca-4d20-8ffe-ae96ec1541f1" include("init_Flowstar.jl")
 
-    # methods that require optimization modeling and solvers
-    @require JuMP = "4076af6c-e467-56ae-b986-b466b2749572" include("init_JuMP.jl")
-
     # tools for symbolic algebra
     @require MultivariatePolynomials = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3" include("init_MultivariatePolynomials.jl")
 

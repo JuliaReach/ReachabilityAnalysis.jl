@@ -39,4 +39,5 @@ include("FirstOrderZonotope.jl")
 include("FirstOrder.jl")
 
 # Forward-Backward discretization using continuous convex hull
-include("ForwardBackward.jl")
+include("ForwardBackwardModule.jl")
+@reexport using ..ForwardBackwardModule

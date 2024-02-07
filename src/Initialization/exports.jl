@@ -28,7 +28,6 @@ export
       FirstOrderZonotope,
       CorrectionHull,
       FirstOrder,
-      ForwardBackward,
       NoBloating,
       StepIntersect,
 

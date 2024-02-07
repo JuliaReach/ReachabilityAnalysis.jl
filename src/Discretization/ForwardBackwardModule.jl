@@ -1,7 +1,23 @@
+# ==================================
+# Forward/backward approximation
+# ==================================
+module ForwardBackwardModule
+
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias, BaseExp, elementwise_abs, Φ₂
+using ..ApplySetops: _apply_setops
+using MathematicalSystems
+using LazySets
+using Parameters
+using Requires
 using Reexport
 
-using ..Exponentiation: _exp, _alias
+export ForwardBackward
+
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
 
 # obs: S should normally be <:JuMP.MOI.AbstractOptimizer
 struct ForwardBackward{EM,SO,SI,IT,BT,S} <: AbstractApproximationModel
@@ -31,10 +47,11 @@ function Base.show(io::IO, alg::ForwardBackward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::ForwardBackward) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::ForwardBackward) = print(io, alg)
 
 # ------------------------------------------------------------
 # ForwardBackward Approximation: Homogeneous case
@@ -179,3 +196,13 @@ function load_forwardbackward_discretization()
         end
     end # end quote
 end # end load_forwardbackward_discretization
+
+# ======================
+# Optional dependencies
+# ======================
+
+function __init__()
+    @require JuMP = "4076af6c-e467-56ae-b986-b466b2749572" eval(load_forwardbackward_discretization())
+end
+
+end  # module
