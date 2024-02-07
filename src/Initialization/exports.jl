@@ -25,7 +25,6 @@ export
 
 # Approximation models
       SecondOrderddt,
-      FirstOrderZonotope,
       StepIntersect,
 
 # Flowpipes

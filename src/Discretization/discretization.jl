@@ -35,7 +35,8 @@ include("CorrectionHullModule.jl")
 include("SecondOrderddt.jl")
 
 # First-order approximation with zonotope
-include("FirstOrderZonotope.jl")
+include("FirstOrderZonotopeModule.jl")
+@reexport using ..FirstOrderZonotopeModule
 
 # First-order approximation
 include("FirstOrderModule.jl")
