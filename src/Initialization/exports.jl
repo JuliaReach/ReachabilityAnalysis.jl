@@ -24,7 +24,6 @@ export
       VREP,
 
 # Approximation models
-      SecondOrderddt,
       StepIntersect,
 
 # Flowpipes

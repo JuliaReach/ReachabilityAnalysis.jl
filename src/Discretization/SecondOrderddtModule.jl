@@ -1,11 +1,21 @@
-# ===================================
+# ====================================
 # Second-order approximation from d/dt
-# ===================================
+# ====================================
+module SecondOrderddtModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias, BaseExp, Φ₂
+using ..ApplySetops: _apply_setops
+using LinearAlgebra
+using MathematicalSystems
+using LazySets
 using Reexport
 
-using ..Exponentiation: _exp, _alias
+export SecondOrderddt
+
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
 
 """
     SecondOrderddt{EM, SO, SI, IT, BT} <: AbstractApproximationModel
@@ -66,10 +76,11 @@ function Base.show(io::IO, alg::SecondOrderddt)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::SecondOrderddt) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::SecondOrderddt) = print(io, alg)
 
 # ------------------------------------------------------------
 # SecondOrderddt Approximation: Homogeneous case
@@ -112,3 +123,5 @@ function _bloat(P::LazySet, ε)
     end
     return HPolytope(A, bε)
 end
+
+end  # module
