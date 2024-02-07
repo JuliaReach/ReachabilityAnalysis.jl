@@ -8,6 +8,12 @@ include("Initialization/exports.jl")
 include("Continuous/solve.jl")
 
 # ===========================================================
+# Discretization
+# ===========================================================
+include("Discretization/Exponentiation.jl")
+include("Discretization/discretization.jl")
+
+# ===========================================================
 # Structures to represent solutions of reachability problems
 # ===========================================================
 include("Flowpipes/setops.jl")
@@ -24,8 +30,6 @@ include("Continuous/fields.jl")
 include("Continuous/normalization.jl")
 include("Continuous/homogeneization.jl")
 include("Continuous/linearization.jl")
-include("Discretization/Exponentiation.jl")
-include("Discretization/discretization.jl")
 
 # ===========================================================
 # Reachability solver algorithms
