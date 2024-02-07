@@ -39,10 +39,6 @@ end
 
 *(M::AbstractMatrix, input::ConstantInput) = ConstantInput(M * input.U)
 
-# convenience functions
-next_set(inputs::ConstantInput) = collect(nextinput(inputs, 1))[1]
-next_set(inputs::AbstractInput, state::Int64) = collect(nextinput(inputs, state))[1]
-
 """
     add_dimension(A::AbstractMatrix, m=1)
 
@@ -169,6 +165,8 @@ If there is an input set, it is also extended:
 ```jldoctest add_dimension_cont_sys
 julia> using LinearAlgebra
 
+julia> using ReachabilityAnalysis.DiscretizationModule: next_set
+
 julia> U = ConstantInput(Ball2(ones(3), 0.1));
 
 julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
@@ -178,7 +176,7 @@ julia> sext = ReachabilityAnalysis.add_dimension(s);
 julia> statedim(sext)
 4
 
-julia> dim(ReachabilityAnalysis.next_set(inputset(sext)))
+julia> dim(next_set(inputset(sext)))
 4
 ```
 
@@ -196,7 +194,7 @@ julia> sext = ReachabilityAnalysis.add_dimension(s);
 julia> statedim(sext)
 4
 
-julia> dim(ReachabilityAnalysis.next_set(inputset(sext), 1))
+julia> dim(next_set(inputset(sext), 1))
 4
 ```
 
@@ -208,7 +206,7 @@ julia> sext = ReachabilityAnalysis.add_dimension(s, 7);
 julia> statedim(sext)
 10
 
-julia> dim(ReachabilityAnalysis.next_set(inputset(sext), 1))
+julia> dim(next_set(inputset(sext), 1))
 10
 ```
 """

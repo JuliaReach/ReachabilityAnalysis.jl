@@ -14,7 +14,11 @@ using ..Exponentiation
 import ..Exponentiation: _alias
 
 @reexport import MathematicalSystems: discretize
-export AbstractApproximationModel, sih, isinterval
+export AbstractApproximationModel, sih, isinterval, next_set
+
+# convenience functions
+next_set(inputs::ConstantInput) = collect(nextinput(inputs, 1))[1]
+next_set(inputs::AbstractInput, state::Int64) = collect(nextinput(inputs, state))[1]
 
 abstract type AbstractApproximationModel end
 
