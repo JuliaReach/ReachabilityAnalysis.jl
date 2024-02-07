@@ -70,11 +70,15 @@ in the docstring of each method. Here is a list of all the available approximati
 
 ```jldoctest
 julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
-5-element Vector{Any}:
+9-element Vector{Any}:
  Backward
  CorrectionHull
+ FirstOrder
+ FirstOrderZonotope
  Forward
+ ForwardBackward
  NoBloating
+ SecondOrderddt
  StepIntersect
 ```
 
