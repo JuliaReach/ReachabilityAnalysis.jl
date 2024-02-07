@@ -1,3 +1,5 @@
+using ..Overapproximate: _convert_or_overapproximate
+
 """
     GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
 
