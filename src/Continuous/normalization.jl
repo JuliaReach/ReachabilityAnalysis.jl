@@ -57,12 +57,12 @@ Append one or more zero rows and columns to a matrix.
 
 ```jldoctest add_dimension_test
 julia> A = [0.4 0.25; 0.46 -0.67]
-2×2 Array{Float64,2}:
+2×2 Matrix{Float64}:
  0.4    0.25
  0.46  -0.67
 
-julia> add_dimension(A)
-3×3 Array{Float64,2}:
+julia> ReachabilityAnalysis.add_dimension(A)
+3×3 Matrix{Float64}:
  0.4    0.25  0.0
  0.46  -0.67  0.0
  0.0    0.0   0.0
@@ -70,8 +70,8 @@ julia> add_dimension(A)
 To append more than one zero row-column, use the second argument `m`:
 
 ```jldoctest add_dimension_test
-julia> add_dimension(A, 2)
-4×4 Array{Float64,2}:
+julia> ReachabilityAnalysis.add_dimension(A, 2)
+4×4 Matrix{Float64}:
  0.4    0.25  0.0  0.0
  0.46  -0.67  0.0  0.0
  0.0    0.0   0.0  0.0
@@ -101,14 +101,14 @@ julia> X = BallInf(ones(9), 0.5);
 julia> dim(X)
 9
 
-julia> Xext = add_dimension(X);
+julia> Xext = ReachabilityAnalysis.add_dimension(X);
 
 julia> dim(Xext)
 10
 
 julia> X = ZeroSet(4);
 
-julia> dim(add_dimension(X))
+julia> dim(ReachabilityAnalysis.add_dimension(X))
 5
 
 julia> typeof(X)
@@ -118,7 +118,7 @@ ZeroSet{Float64}
 More than one dimension can be added passing the second argument:
 
 ```jldoctest add_dimension_set
-julia> Xext = add_dimension(BallInf(zeros(10), 0.1), 4);
+julia> Xext = ReachabilityAnalysis.add_dimension(BallInf(zeros(10), 0.1), 4);
 
 julia> dim(Xext)
 14
@@ -138,14 +138,14 @@ function add_dimension(X::ZeroSet, m=1)
 end
 
 """
-    add_dimension(cs, m=1)
+    add_dimension(ivp::IVP, m=1)
 
-Adds an extra dimension to a continuous system.
+Adds an extra dimension to a initial-value system.
 
 ### Input
 
-- `cs` -- continuous system
-- `m` -- (optional, default: `1`) the number of extra dimensions
+- `ivp` -- initial-value system
+- `m`   -- (optional, default: `1`) the number of extra dimensions
 
 ### Examples
 
@@ -158,7 +158,7 @@ julia> X0 = BallInf(zeros(3), 1.0);
 
 julia> s = InitialValueProblem(LinearContinuousSystem(A), X0);
 
-julia> sext = add_dimension(s);
+julia> sext = ReachabilityAnalysis.add_dimension(s);
 
 julia> statedim(sext)
 4
@@ -167,16 +167,18 @@ julia> statedim(sext)
 If there is an input set, it is also extended:
 
 ```jldoctest add_dimension_cont_sys
+julia> using LinearAlgebra
+
 julia> U = ConstantInput(Ball2(ones(3), 0.1));
 
 julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
 
-julia> sext = add_dimension(s);
+julia> sext = ReachabilityAnalysis.add_dimension(s);
 
 julia> statedim(sext)
 4
 
-julia> dim(next_set(inputset(sext)))
+julia> dim(ReachabilityAnalysis.next_set(inputset(sext)))
 4
 ```
 
@@ -189,32 +191,32 @@ julia> U = VaryingInput([Ball2(ones(3), 0.1 * i) for i in 1:3]);
 
 julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
 
-julia> sext = add_dimension(s);
+julia> sext = ReachabilityAnalysis.add_dimension(s);
 
 julia> statedim(sext)
 4
 
-julia> dim(next_set(inputset(sext), 1))
+julia> dim(ReachabilityAnalysis.next_set(inputset(sext), 1))
 4
 ```
 
 Extending a varying input set with more than one extra dimension:
-1] normalize(::AffineContinuousSystem{Float64,Array{Float64,2},Array{Float64,1}}) at /home/mforets/.julia/dev/ReachabilityAnalysis/src/Continuous/normalization.jl:387
+
 ```jldoctest add_dimension_cont_sys
-julia> sext = add_dimension(s, 7);
+julia> sext = ReachabilityAnalysis.add_dimension(s, 7);
 
 julia> statedim(sext)
 10
 
-julia> dim(next_set(inputset(sext), 1))
+julia> dim(ReachabilityAnalysis.next_set(inputset(sext), 1))
 10
 ```
 """
-function add_dimension(cs, m=1)
-    Aext = add_dimension(cs.s.A, m)
-    X0ext = add_dimension(cs.x0, m)
-    if hasmethod(inputset, Tuple{typeof(cs.s)})
-        Uext = map(x -> add_dimension(x, m), inputset(cs))
+function add_dimension(ivp::IVP, m=1)  # only correct for linear systems
+    Aext = add_dimension(ivp.s.A, m)
+    X0ext = add_dimension(ivp.x0, m)
+    if !isnothing(inputset(ivp))
+        Uext = map(x -> add_dimension(x, m), inputset(ivp))
         s = CLCCS(Aext, Matrix(1.0I, size(Aext)), nothing, Uext)
     else
         s = LCS(Aext)

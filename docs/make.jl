@@ -161,7 +161,7 @@ makedocs(;
                                 assets=["assets/aligned.css"]),
          sitename="ReachabilityAnalysis.jl",
          modules=[ReachabilityAnalysis],
-         doctest=false,
+         #doctest=false,
          pagesonly=true,
          pages=[
                 #
