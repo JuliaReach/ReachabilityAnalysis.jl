@@ -1,5 +1,4 @@
 # # Quadrotor
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/Quadrotor.ipynb)
 #
 #md # !!! note "Overview"
 #md #     System type: polynomial continuous system\

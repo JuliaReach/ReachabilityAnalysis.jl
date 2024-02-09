@@ -1,41 +1,56 @@
 import Literate
-using Literate: script, markdown, notebook
 
-# source directory for model files written using Literate.jl format
 source_dir = joinpath(@__DIR__, "..", "examples")
-
-# target directory for the tests files (bare .jl files)
+# target directory for script files (*.jl) (used in the tests)
 target_dir_jl = joinpath(@__DIR__, "..", "test", "models", "generated")
-
-# target directory for the markdown files (used by Documenter)
+# target directory for markdown and notebook files (used by Documenter)
 target_dir_md = joinpath(@__DIR__, "src", "generated_examples")
 mkpath(target_dir_md)
 
-# model files in sub-directories of source_dir
-MODELS = ["Brusselator/Brusselator.jl",
-          "Building/Building.jl",
-          "DuffingOscillator/DuffingOscillator.jl",
-          "EMBrake/EMBrake.jl",
-          "Heat3D/Heat3D.jl",
-          "ISS/ISS.jl",
-          "LaubLoomis/LaubLoomis.jl",
-          "Lorenz/Lorenz.jl",
-          "LotkaVolterra/LotkaVolterra.jl",
-          "OpAmp/OpAmp.jl",
-          "SquareWaveOscillator/SquareWaveOscillator.jl",
-          "Platoon/Platoon.jl",
-          "ProductionDestruction/ProductionDestruction.jl",
-          "Quadrotor/Quadrotor.jl",
-          "SEIR/SEIR.jl",
-          "Spacecraft/Spacecraft.jl",
-          "TransmissionLine/TransmissionLine.jl",
-          "VanDerPol/VanDerPol.jl"]
+MODELS = [
+          "Brusselator",
+          "Building",
+          "DuffingOscillator",
+          "EMBrake",
+          "Heat3D",
+          "ISS",
+          "LaubLoomis",
+          "Lorenz",
+          "LotkaVolterra",
+          "OpAmp",
+          "SquareWaveOscillator",
+          "Platoon",
+          "ProductionDestruction",
+          "Quadrotor",
+          "SEIR",
+          "Spacecraft",
+          "TransmissionLine",
+          "VanDerPol"
+         ]
 
-for file in MODELS
-    source_path = abspath(joinpath(source_dir, file))
-    text = script(source_path, target_dir_jl; credit=false)
-    code = strip(read(text, String))
-    mdpost(str) = replace(str, "@__CODE__" => code)
-    markdown(source_path, target_dir_md; postprocess=mdpost, credit=false)
-    notebook(source_path, target_dir_md; execute=true, credit=false)
+for model in MODELS
+    model_path = abspath(joinpath(source_dir, model))
+    for file in readdir(model_path)
+        if endswith(file, ".jl")
+            input = abspath(joinpath(model_path, file))
+            script = Literate.script(input, target_dir_jl; credit=false)
+            code = strip(read(script, String))
+            mdpost(str) = replace(str, "@__CODE__" => code)
+            if get(ENV, "DOCUMENTATIONGENERATOR", "") == "true"
+                Literate.markdown(input, target_dir_md; postprocess=mdpost, credit=false)
+            else
+                # for the local build, one needs to set `nbviewer_root_url`
+                Literate.markdown(input, target_dir_md; postprocess=mdpost, credit=false, nbviewer_root_url="..")
+            end
+
+            # notebooks are deactivated to speed up the generation
+#             Literate.notebook(input, target_dir_md; execute=true, credit=false)
+# if used, add the following to the top of the script files (where `MODELNAME` is the model name):
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/MODELNAME.ipynb)
+        elseif any(endswith.(file, [".jld2", ".png"]))
+            # ignore *.jld2 and *.png files without warning
+        else
+            @warn "ignoring $file in $model_path"
+        end
+    end
 end

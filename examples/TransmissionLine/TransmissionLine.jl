@@ -1,7 +1,5 @@
 # # Transmission line circuit
 #
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/TransmissionLine.ipynb)
-#
 #md # !!! note "Overview"
 #md #     System type: linear continuous system\
 #md #     State dimension: parametric, typically between 4 to 40\
