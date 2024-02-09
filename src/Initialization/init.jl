@@ -115,14 +115,8 @@ function __init__()
     # sparse dynamic representation of multivariate polynomials
     @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
 
-    # exponentiation methods using Krylov subspace and Padé approximations
-    @require Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4" include("init_Expokit.jl")
-
     # exponentiation methods using Krylov subspace approximations
     @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
-
-    # exponentiation methods for large sparse matrices
-    @require FastExpm = "7868e603-8603-432e-a1a1-694bd70b01f2" include("init_FastExpm.jl")
 
     # external reachability backend: Flow* C++ library
     @require Flowstar = "a8054ddd-9dca-4d20-8ffe-ae96ec1541f1" include("init_Flowstar.jl")
