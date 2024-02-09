@@ -1,2 +1,1 @@
-
 # Helicopter model
