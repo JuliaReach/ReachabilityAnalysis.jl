@@ -23,16 +23,6 @@ export
       TMJets21b,
       VREP,
 
-# Approximation models
-      SecondOrderddt,
-      FirstOrderZonotope,
-      CorrectionHull,
-      FirstOrder,
-      ForwardBackward,
-      Forward,
-      NoBloating,
-      StepIntersect,
-
 # Flowpipes
       flowpipe,
       Flowpipe,

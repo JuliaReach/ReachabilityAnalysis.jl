@@ -1,12 +1,21 @@
 # ===============================
 # First-order approximation model
 # ===============================
+module FirstOrderModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, BaseExp
+using LinearAlgebra
+using MathematicalSystems
+using LazySets
 using Reexport
 
-using ..Exponentiation: _exp
+export FirstOrder
 
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
 
 """
     FirstOrder{EM} <: AbstractApproximationModel
@@ -42,10 +51,11 @@ end
 
 function Base.show(io::IO, alg::FirstOrder)
     print(io, "`FirstOrder` approximation model with:\n")
-    return print(io, "    - exponentiation method: $(alg.exp)\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::FirstOrder) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::FirstOrder) = print(io, alg)
 
 # -----------------------------------------------
 # FirstOrder approximation: Homogeneous case
@@ -102,3 +112,5 @@ function discretize(ivp::IVP{<:CLCCS,<:AbstractZonotope}, δ, alg::FirstOrder)
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, V)
     return InitialValueProblem(Sdis, Ω0)
 end
+
+end  # module

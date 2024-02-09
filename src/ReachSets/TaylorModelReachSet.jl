@@ -2,6 +2,7 @@
 # Taylor model reach set
 # ================================================================
 
+import ..Overapproximate: _overapproximate, _overapproximate_hparallelotope
 using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 
 """

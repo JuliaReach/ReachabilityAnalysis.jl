@@ -4,7 +4,7 @@
 module BackwardModule
 
 using ..DiscretizationModule
-using ..Exponentiation: _alias
+using ..Exponentiation: _alias, BaseExp
 
 export Backward
 
@@ -55,11 +55,12 @@ function Base.show(io::IO, alg::Backward)
     print(io, "    - set operations method: $(alg.setops)\n")
     print(io, "    - symmetric interval hull method: $(alg.sih)\n")
     print(io, "    - invertibility assumption: $(alg.inv)\n")
-    return print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    print(io, "    - polyhedral computations backend: $(alg.backend)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::Backward) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::Backward) = print(io, alg)
 
 # TODO: add corresponding `discrete` methods <<<<<
 
-end
+end  # module

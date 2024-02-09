@@ -1,10 +1,21 @@
 # ==============================================
 # First-order approximation model with zonotopes
 # ==============================================
+module FirstOrderZonotopeModule
 
+using ..DiscretizationModule
+using ..Exponentiation: _exp, _alias, BaseExp
+using LinearAlgebra
+using MathematicalSystems
+using LazySets
 using Reexport
 
+export FirstOrderZonotope
+
 @reexport import ..DiscretizationModule: discretize
+
+const CLCS = ConstrainedLinearContinuousSystem
+const CLCCS = ConstrainedLinearControlContinuousSystem
 
 """
     FirstOrderZonotope{EM} <: AbstractApproximationModel
@@ -42,10 +53,11 @@ end
 
 function Base.show(io::IO, alg::FirstOrderZonotope)
     print(io, "`FirstOrderZonotope` approximation model with:\n")
-    return print(io, "    - exponentiation method: $(alg.exp)\n")
+    print(io, "    - exponentiation method: $(alg.exp)\n")
+    return nothing
 end
 
-Base.show(io::IO, m::MIME"text/plain", alg::FirstOrderZonotope) = print(io, alg)
+Base.show(io::IO, ::MIME"text/plain", alg::FirstOrderZonotope) = print(io, alg)
 
 # -----------------------------------------------
 # FirstOrderZonotope approximation: Homogeneous case
@@ -110,7 +122,7 @@ end
 # Common code
 # -----------
 
-function _discretize_zonotope(Φ, X0, alg::FirstOrderZonotope, δ, norm_A)
+function _discretize_zonotope(Φ, X0, ::FirstOrderZonotope, δ, norm_A)
     c = center(X0)
     G = genmat(X0)
     n, p = size(G)
@@ -126,3 +138,5 @@ function _discretize_zonotope(Φ, X0, alg::FirstOrderZonotope, δ, norm_A)
 
     return Z, α
 end
+
+end  # module

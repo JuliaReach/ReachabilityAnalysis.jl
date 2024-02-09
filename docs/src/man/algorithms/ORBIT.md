@@ -44,13 +44,17 @@ Before considering the computation of $\Phi$ and $\Phi_1$, note that the method 
 x(k\delta) = \Phi^k x_0 + \sum_{i=0}^{k-1} \Phi^i v_{k-i},\qquad k = 1,\ldots, N
 ```
 
-The matrix $\Phi = e^{A\delta}$ can be evaluated in different ways, using the function [`_exp`](@ref):
+The matrix $\Phi = e^{A\delta}$ can be evaluated in different ways, using the function
+[`ReachabilityAnalysis.Exponentiation._exp`](@ref):
 
-(1) `method=:base` uses Julia's built-in implementation (if `method = :base`),
+(1) `method = :base` uses Julia's built-in implementation (if `method = :base`),
 
 (2) `method = :lazy` uses a lazy wrapper of the matrix exponential which is then evaluated using Krylov subspace methods.
 
-Method (1) is the default method. Method (2) is particularly useful to work with very large and sparse matrices (e.g. typically of order `n > 2000`). Evaluation of $\Phi_1(u, \delta)$ is available through the function [`Φ₁`](@ref). Two implementations are available:
+Method (1) is the default method. Method (2) is particularly useful to work with
+very large and sparse matrices (e.g. typically of order `n > 2000`). Evaluation
+of $\Phi_1(u, \delta)$ is available through the function
+[`ReachabilityAnalysis.Exponentiation.Φ₁`](@ref). Two implementations are available:
 
 (1) If the coefficients matrix $A$ is invertible, then the integral is equivalent to computing $A^{-1}(e^{A\delta} - I)$.
 

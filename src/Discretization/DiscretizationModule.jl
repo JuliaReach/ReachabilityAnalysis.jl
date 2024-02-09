@@ -14,7 +14,11 @@ using ..Exponentiation
 import ..Exponentiation: _alias
 
 @reexport import MathematicalSystems: discretize
-export AbstractApproximationModel, sih, isinterval
+export AbstractApproximationModel, sih, isinterval, next_set
+
+# convenience functions
+next_set(inputs::ConstantInput) = collect(nextinput(inputs, 1))[1]
+next_set(inputs::AbstractInput, state::Int64) = collect(nextinput(inputs, state))[1]
 
 abstract type AbstractApproximationModel end
 
@@ -69,7 +73,7 @@ Different approximation algorithms and their respective options are described
 in the docstring of each method. Here is a list of all the available approximation models:
 
 ```jldoctest
-julia> subtypes(ReachabilityAnalysis.AbstractApproximationModel)
+julia> subtypes(ReachabilityAnalysis.DiscretizationModule.AbstractApproximationModel)
 9-element Vector{Any}:
  Backward
  CorrectionHull
@@ -99,4 +103,4 @@ function discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
     return error("discretization not implemented for the given arguments: $ivp, $alg")
 end
 
-end
+end  # module
