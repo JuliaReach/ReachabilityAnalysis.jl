@@ -26,15 +26,14 @@
 # such `.mat` file has been converted to the [JLD2 format](https://github.com/JuliaIO/JLD2.jl)
 # and stored in the file `iss.jld2`.
 
-using ReachabilityAnalysis, JLD2
+using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 using ReachabilityAnalysis: add_dimension
 
 LazySets.set_ztol(Float64, 1e-15);
 
-examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
-ISS_path = joinpath(examples_dir, "ISS", "ISS.jld2")
+path = @current_path("ISS", "ISS.jld2")
 
-@load ISS_path C;
+@load path C;
 const C3 = C[3, :]; # variable y₃
 const C3_ext = vcat(C3, fill(0.0, 3));
 
@@ -99,7 +98,7 @@ const C3_ext = vcat(C3, fill(0.0, 3));
 # to the given input range ``U``.
 
 function ISSF01()
-    @load ISS_path A B
+    @load path A B
 
     U = Hyperrectangle(; low=[0.0, 0.8, 0.9], high=[0.1, 1.0, 1.0])
     X0 = BallInf(zeros(size(A, 1)), 0.0001)
@@ -156,7 +155,7 @@ fig
 # value and constant over time.
 
 function ISSC01()
-    @load ISS_path A B
+    @load path A B
 
     A_ext = add_dimension(A, 3)
     A_ext[1:270, 271:273] = B

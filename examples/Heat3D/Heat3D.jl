@@ -23,7 +23,6 @@
 # - *(constant inputs):* The inputs are uncertain only in their initial value, and
 #    constant over time: ``u(0)\in \mathcal{U}``, ``\dot u (t)= 0``.
 
-using ReachabilityAnalysis, SparseArrays, JLD2
+using ReachabilityAnalysis, SparseArrays, JLD2, ReachabilityBase.CurrentPath
 
-examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
-HEAT01_path = joinpath(examples_dir, "Heat3D", "HEAT01.jld2")
+path = @current_path("Heat3D", "HEAT01.jld2")

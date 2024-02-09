@@ -39,18 +39,17 @@
 # In both cases the input set $\mathcal{U}$ is the interval $[0.8, 1.0]$ is,
 # and the initial states are taken from Table 2.2 in [^TLT16].
 
-using ReachabilityAnalysis, SparseArrays, JLD2
+using ReachabilityAnalysis, SparseArrays, JLD2, ReachabilityBase.CurrentPath
 
 LazySets.set_ztol(Float64, 1e-14)
 
 const x25 = [zeros(24); 1.0; zeros(23)]
 const x25e = vcat(x25, 0.0)
 
-examples_dir = normpath(@__DIR__, "..", "..", "..", "examples")
-building_path = joinpath(examples_dir, "Building", "building.jld2")
+path = @current_path("Building", "building.jld2")
 
 function building_BLDF01()
-    @load building_path A B
+    @load path A B
     n = size(A, 1)
     U = Interval(0.8, 1.0)
     S = @system(x' = Ax + Bu, u ∈ U, x ∈ Universe(n))
@@ -66,7 +65,7 @@ end
 using ReachabilityAnalysis: add_dimension
 
 function building_BLDC01()
-    @load building_path A B
+    @load path A B
     n = size(A, 1)
     U = Interval(0.8, 1.0)
 
