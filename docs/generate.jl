@@ -14,7 +14,6 @@ MODELS = [
           "Building",
           "DuffingOscillator",
           "EMBrake",
-          "Heat3D",
           "ISS",
           "LaubLoomis",
           "Lorenz",
