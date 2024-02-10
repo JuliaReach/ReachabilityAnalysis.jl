@@ -1,4 +1,5 @@
 import Literate
+import ReachabilityBase.CurrentPath: @current_path
 
 source_dir = joinpath(@__DIR__, "..", "examples")
 # target directory for script files (*.jl) (used in the tests)
@@ -13,7 +14,6 @@ MODELS = [
           "Building",
           "DuffingOscillator",
           "EMBrake",
-          "Heat3D",
           "ISS",
           "LaubLoomis",
           "Lorenz",
@@ -29,6 +29,10 @@ MODELS = [
           "VanDerPol"
           #
           ]
+
+macro current_path(prefix::String, filename::String)
+    return joinpath(source_dir, prefix, filename)
+end
 
 for model in MODELS
     model_path = abspath(joinpath(source_dir, model))

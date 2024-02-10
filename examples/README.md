@@ -12,7 +12,7 @@ to load models that can be used like this:
 ```julia
 using ReachabilityModels, Plots
 
-prob = load_model("building"); # initial-value problem for the Van der Pol modeld
+prob = load_model("building"); # initial-value problem
 
 sol = solve(prob, tspan=(0, 5)); # solve it using default options
 
