@@ -209,7 +209,7 @@ makedocs(;
                                        "Production-Destruction" => "generated_examples/ProductionDestruction.md",
                                        "Brusselator"            => "generated_examples/Brusselator.md",
                                        "Quadrotor"              => "generated_examples/Quadrotor.md",
-                                       "Epidemic model"         => "generated_examples/SEIR.md",
+                                       "Epidemic (SEIR) model"  => "generated_examples/SEIR.md",
                                        "Spacecraft"             => "generated_examples/Spacecraft.md"
                                        #
                                        ],

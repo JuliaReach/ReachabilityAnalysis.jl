@@ -1,81 +1,80 @@
 # # SEIR
-#
+
 #md # !!! note "Overview"
-#md #     System type: Nonlinear system\
-#md #     State dimension: 7\
+#md #     System type: Polynomial continuous system\
+#md #     State dimension: 4\
 #md #     Application domain: Epidemiology
-#
+
 # ## Model description
-#
-# The SEIR Model is an Compartmental model, these try to predict things such as
+
+# The SEIR model is an compartmental model. These try to predict things such as
 # how a disease spreads, or the total number infected, or the duration of an
 # epidemic, and to estimate various epidemiological parameters such as the
-# reproductive number.
-# The dynamics are described as follows:
+# reproductive number. The dynamics are described as follows:
 #
 # ```math
-#   \left\{ \begin{array}{lcl}
-#   \frac{dS}{dt} & = & \beta I S \\
-#   \frac{dE}{dt} & = & \beta I S - \alpha E \\
-#   \frac{dI}{dt} & = & -\gamma I - \alpha E \\
-#   \frac{dR}{dt} & = & \gamma I
-#   \end{array} \right.
+# \begin{aligned}
+#     \dot{S} &= β I S \\
+#     \dot{E} &= β I S - α E \\
+#     \dot{I} &= -γ I - α E \\
+#     \dot{R} &= γ I
+# \end{aligned}
 # ```
 #
 # where ``S`` is the stock of susceptible population, ``E`` is the stock of
-# exposed population``I`` is the stock of infected, ``R`` is the stock of
-# removed population (either by death or recovery), with ``S + E + I + R = N``
+# exposed population, ``I`` is the stock of infected, ``R`` is the stock of
+# removed population (either by death or recovery), with ``S + E + I + R = N``.
 
-using ReachabilityAnalysis, Plots
+using ReachabilityAnalysis  #!jl
 
-@taylorize function seir2!(du, u, p, t)
-    S, E, I, R, α, β, γ = u
+@taylorize function seir!(dx, x, p, t)
+    S, E, I, R, α, β, γ = x
 
     βIS = β * (I * S)
     αE = α * E
     γI = γ * I
 
-    du[1] = -βIS      # dS
-    du[2] = βIS - αE  # dE
-    du[3] = -γI + αE  # dI
-    du[4] = γI        # dR
+    dx[1] = -βIS      # dS
+    dx[2] = βIS - αE  # dE
+    dx[3] = -γI + αE  # dI
+    dx[4] = γI        # dR
 
-    #uncertain parameters
-    local zerou = zero(u[1])
-    du[5] = zerou
-    du[6] = zerou
-    return du[7] = zerou
+    ## uncertain parameters
+    dx[5] = zero(α)
+    dx[6] = zero(β)
+    dx[7] = zero(γ)
+    return dx
 end
 
-E₀ = 1e-4
-u₀ = [1 - E₀, E₀, 0, 0]
-param_error = 0.01
-α = 0.2 ± param_error
-β = 1.0 ± 0.0
-γ = 0.5 ± param_error
-p = [α, β, γ]
-X0 = IntervalBox(vcat(u₀, p));
-prob = @ivp(x' = seir2!(x), dim = 7, x(0) ∈ X0);
+# ## Specification
 
-# ## Reachability settings
-#
-# The initial values used were ``E₀ = 1e-4, u₀ = [1-E₀, E₀, 0, 0]``,
-# ``α = 0.2 ± 0.01, β = 1.0 ± 0.0, γ = 0.5 ± 0.01`` and ``p = [α, β, γ]``, for a
-# time span of 200.
-# The algorithm used was `TMJets` with ``n_T=7`` and ``n_Q=1``
+# The initial condition is ``E₀ = 1e-4``, ``x₀ = [1-E₀, E₀, 0, 0]``,
+# ``α = 0.2 ± 0.01``, ``β = 1.0 ± 0.0``, ``γ = 0.5 ± 0.01``, and
+# ``p = [α, β, γ]``. The time horizon is ``200``.
+
+E₀ = 1e-4
+x₀ = [1 - E₀, E₀, 0, 0]
+α = 0.2 ± 0.01
+β = 1.0 ± 0.0
+γ = 0.5 ± 0.01
+p = [α, β, γ]
+X0 = IntervalBox(vcat(x₀, p));
+prob = @ivp(x' = seir!(x), dim:7, x(0) ∈ X0);
+
+# ## Analysis
+
+sol = solve(prob; T=200.0, alg=TMJets21a(; orderT=7, orderQ=1))
+solz = overapproximate(sol, Zonotope);
 
 # ## Results
 
-sol = solve(prob; tspan=(0.0, 200.0), alg=TMJets21a(; orderT=7, orderQ=1));
-solz = overapproximate(sol, Zonotope);
+using Plots  #!jl
+#!jl import DisplayAs  #hide
 
-LazySets.set_ztol(Float64, 1e-13)
 fig = plot(; legend=:outerright)
 plot!(fig, solz; vars=(0, 1), color=:blue, lw=0.0, lab="S")
 plot!(fig, solz; vars=(0, 2), color=:green, lw=0.0, lab="E")
 plot!(fig, solz; vars=(0, 3), color=:red, lw=0.0, lab="I")
-plot!(solz; vars=(0, 4), color=:grey, lw=0.0, lab="R")
-fig
+plot!(fig, solz; vars=(0, 4), color=:grey, lw=0.0, lab="R")
 
-#!jl import DisplayAs  #hide
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
