@@ -44,7 +44,7 @@ LINEAR_METHODS = ["Linear methods" => [
                                        #"Propagating hyperrectangles"   => "tutorials/linear_methods/hyperrectangles_setprop.md",
                                        #"Propagating support functions" => "tutorials/linear_methods/supfunc_setprop.md",
                                        #"Helicopter model"              => "tutorials/linear_methods/helicopter.md",
-                                       "Structural model" => "generated_examples/ISS.md"
+                                       "International Space Station" => "generated_examples/ISS.md"
                                        #
                                        ]]
 
