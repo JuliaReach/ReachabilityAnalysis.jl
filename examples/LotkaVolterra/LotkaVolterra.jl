@@ -1,85 +1,102 @@
 # # Lotka-Volterra
-#
+
 #md # !!! note "Overview"
-#md #     System type: Nonlinear system\
+#md #     System type: Polynomial continuous system\
 #md #     State dimension: 2\
-#md #     Application domain: Biological Systems
-#
+#md #     Application domain: Biological systems
+
 # ## Model description
-#
-# The 2-dimensional Lotka-Volterra system depicts the populations change of a class of predators and a class of
-# preys. The growth rate of preys’ population $x$ over time is given by
+
+# The 2-dimensional Lotka-Volterra system depicts the population change of a
+# class of predators and a class of preys. The growth rate of the prey
+# population ``x`` over time is governed by the differential equation
 
 # ```math
-#     \frac{dx}{dt} = α x - β xy,
+#     \dot{x} = α x - β x y,
 # ```
-# where  ``\alpha``, ``\beta`` are constant parameters and ``y`` is the population of predators.
-#
-# It gives that the number of preys grows exponentially without predation.
+# where ``α``, ``β`` are constant parameters and ``y`` is the population of
+# predators. We can see that the number of prey grows exponentially without
+# predation.
 #
 # The population growth of predators is governed by the differential equation
 #
 # ```math
-# \frac{dy}{dt} = δ xy - γy,
+#     \dot{y} = δ x y - γ y,
 # ```
-# where  ``\gamma, \delta`` are constant parameters.
+# where ``γ, δ`` are constant parameters.
+#
+# We set these parameters to ``α = 1.5``, ``β = 1``, ``γ = 3``, and ``δ = 1``.
 
-# We set those parameters as ``\alpha = 1.5 , \beta = 1 , \gamma = 3`` and
-# ``\delta = 1``.
+using ReachabilityAnalysis  #!jl
 
-using ReachabilityAnalysis
-
-@taylorize function lotkavolterra!(dx, x, params, t)
+@taylorize function lotkavolterra!(du, u, p, t)
     local α, β, γ, δ = 1.5, 1.0, 3.0, 1.0
-    dx[1] = α * x[1] - β * x[1] * x[2]
-    dx[2] = δ * x[1] * x[2] - γ * x[2]
-    return dx
+
+    x, y = u
+    xy = x * y
+    du[1] = α * x - β * xy
+    du[2] = δ * xy - γ * y
+    return du
 end
 
-# ## Reachability settings
-#
-# We consider the initial set  $x\in [4.8,5.2], y \in [1.8,2.2]$.
+# ## Specification
 
-X0 = Hyperrectangle(; low=[4.8, 1.8], high=[5.2, 2.2]);
-prob = @ivp(x' = lotkavolterra!(x), dim = 2, x(0) ∈ X0)
-sol = solve(prob; T=8.0, alg=TMJets());
+# We consider the initial set ``x ∈ [4.8, 5.2], y ∈ [1.8, 2.2]``.
+
+X0 = Hyperrectangle(; low=[4.8, 1.8], high=[5.2, 2.2])
+prob = @ivp(x' = lotkavolterra!(x), dim:2, x(0) ∈ X0);
+
+# ## Analysis
+
+sol = solve(prob; T=8.0, alg=TMJets())
 solz = overapproximate(sol, Zonotope);
 
 # ## Results
 
-using Plots
-
-fig = plot(solz; vars=(1, 2), alpha=0.3, lw=0.0, xlab="x", ylab="y", label="Flowpipe",
-           legend=:bottomright)
-plot!(X0; label="X(0)")
-
+using Plots  #!jl
 #!jl import DisplayAs  #hide
+
+fig = plot(solz; vars=(1, 2), alpha=0.3, lw=0.0, xlab="x", ylab="y",
+           lab="Flowpipe", legend=:bottomright)
+plot!(fig, X0; label="X(0)")
+
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # # Adding parameter variation
 
-@taylorize function f(du, u, p, t)
-    du[1] = u[3] * u[1] - u[4] * (u[1] * u[2]) - u[7] * u[1]^2
-    du[2] = -u[5] * u[2] + u[6] * (u[1] * u[2])
+# In this setting, we consider all parameters as uncertain model constants. In
+# addition, we add another term ``ϵ`` to the first differential equation.
 
-    #encode uncertain params
-    du[3] = zero(u[1]) # p[1]
-    du[4] = zero(u[1]) # p[2]
-    du[5] = zero(u[1]) # p[3]
-    du[6] = zero(u[1]) # p[4]
-    return du[7] = zero(u[1]) # p[5]
+@taylorize function lotkavolterra_parametric!(du, u, p, t)
+    x, y, αp, βp, γp, δp, ϵp = u
+    xy = x * y
+    du[1] = αp * x - βp * xy - ϵp * x^2
+    du[2] = δp * xy - γp * y
+
+    ## encode uncertain parameters
+    du[3] = zero(αp)
+    du[4] = zero(βp)
+    du[5] = zero(γp)
+    du[6] = zero(δp)
+    du[7] = zero(ϵp)
+    return du
 end
 
-# encode initial-value problem
-p_int = (0.99 .. 1.01) × (0.99 .. 1.01) × (2.99 .. 3.01) × (0.99 .. 1.01) × (0.099 .. 0.101)
-U0 = Singleton([1.0, 1.0]) × convert(Hyperrectangle, p_int)
-prob = @ivp(u' = f(u), dim:7, u(0) ∈ U0);
+# ## Specification
 
-sol = solve(prob; tspan=(0.0, 10.0));
+p_int = (0.99 .. 1.01) × (0.99 .. 1.01) × (2.99 .. 3.01) × (0.99 .. 1.01) × (0.099 .. 0.101)
+U0 = cartesian_product(Singleton([1.0, 1.0]), convert(Hyperrectangle, p_int))
+prob = @ivp(u' = lotkavolterra_parametric!(u), dim:7, u(0) ∈ U0);
+
+# ## Analysis
+
+sol = solve(prob; tspan=(0.0, 10.0))
 solz = overapproximate(sol, Zonotope);
 
-fig = plot(solz; vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e-15", xlab="u1",
-           ylab="u2")
+# ## Results
+
+fig = plot(solz; vars=(1, 2), lw=0.3, title="Uncertain parameters",
+           lab="abstol = 1e-15", xlab="x", ylab="y")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -87,31 +104,47 @@ fig = plot(solz; vars=(1, 2), lw=0.3, title="Uncertain params", lab="abstol = 1e
 
 # Now we consider an initial box around u0
 
-# ### ``\epsilon = 0.05``
+# ## ``ϵ = 0.05``
 
-u0 = Singleton([1.0, 1.0])
-□(ϵ) = BallInf(zeros(2), ϵ)
-U0 = (u0 ⊕ □(0.05)) × convert(Hyperrectangle, p_int)
+# In this setting, we consider the uncertain parameter ``ϵ`` with radius
+# ``0.05``.
 
-prob = @ivp(u' = f(u), dim:7, u(0) ∈ U0)
+# ### Specification
 
-sol = solve(prob; tspan=(0.0, 10.0), alg=TMJets(; abstol=1e-10))
-solz = overapproximate(sol, Zonotope)
-fig = plot(solz; vars=(1, 2), color=:orange, lw=0.3,
-           lab="eps = 0.05", title="Uncertain u0 and uncertain params",
-           xlab="u1", ylab="u2")
+□(ϵ) = BallInf([1.0, 1.0], ϵ)
+
+U0 = cartesian_product(□(0.05), convert(Hyperrectangle, p_int))
+prob = @ivp(u' = lotkavolterra_parametric!(u), dim:7, u(0) ∈ U0);
+
+# ### Analysis
+
+sol = solve(prob; T=10.0, alg=TMJets(; abstol=1e-10))
+solz = overapproximate(sol, Zonotope);
+
+# ### Results
+
+fig = plot(solz; vars=(1, 2), color=:orange, lw=0.3, lab="ϵ = 0.05",
+           title="Uncertain u0 and uncertain parameters", xlab="x", ylab="y")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
-# ### ``\epsilon = 0.01``
+# ## ``ϵ = 0.01``
 
-U0 = (u0 ⊕ □(0.01)) × convert(Hyperrectangle, p_int)
-prob = @ivp(u' = f(u), dim:7, u(0) ∈ U0)
+# In this setting, we consider the uncertain parameter ``ϵ`` with radius
+# ``0.01``.
 
-sol = solve(prob; tspan=(0.0, 10.0), alg=TMJets(; abstol=1e-10))
-solz = overapproximate(sol, Zonotope)
-plot!(solz; vars=(1, 2), color=:blue, lw=0.3,
-      lab="eps = 0.01", title="Uncertain u0 and uncertain params",
-      xlab="u1", ylab="u2")
+# ### Specification
+
+U0 = cartesian_product(□(0.01), convert(Hyperrectangle, p_int))
+prob = @ivp(u' = lotkavolterra_parametric!(u), dim:7, u(0) ∈ U0);
+
+# ### Analysis
+
+sol = solve(prob; T=10.0, alg=TMJets(; abstol=1e-10))
+solz = overapproximate(sol, Zonotope);
+
+# ### Results
+
+plot!(solz; vars=(1, 2), color=:blue, lw=0.3, lab="ϵ = 0.01")
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
