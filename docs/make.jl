@@ -86,8 +86,8 @@ HYBRID_SYSTEMS = ["Hybrid systems" => [
 CLOCKED_SYSTEMS = ["Clocked systems" => [
                                          #
                                          #"Introduction"           => "tutorials/clocked_systems/introduction.md",
-                                         "Platoon"                => "generated_examples/Platoon.md",
-                                         "Electro-mechanic break" => "generated_examples/EMBrake.md"
+                                         "Platoon"                 => "generated_examples/Platoon.md",
+                                         "Electromechanical brake" => "generated_examples/EMBrake.md"
                                          #
                                          ]]
 
