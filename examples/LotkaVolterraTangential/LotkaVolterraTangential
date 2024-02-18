@@ -1,115 +1,134 @@
-# # Lotka-Voltera with Nonlinear Guard
-#
+# # Lotka-Volterra with Nonlinear Guard
+
+# TODO: This notebook is incomplete. It contains parts of the Spacecraft model.
+# It also contains text from the ARCH-COMP report but does not cite it.
+
 #md # !!! note "Overview"
-#md #     System type: hybrid system with nonlinear guard\
+#md #     System type: Polynomial hybrid system with nonlinear guard\
 #md #     State dimension: 4\
 #md #     Application domain: Population Dynamics
-#
+
 # ## Model description
-#
-# The benchmark described below refers to the Lotka-Volterra equations,
-# or predator-prey equations, which are well-known in the literature.
-# We refer to the wikipedia article [Lotka-Volterra equations](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
+
+# The benchmark described below refers to the Lotka-Volterra equations, or
+# predator-prey equations, which are well-known in the literature. We refer to
+# [Wikipedia](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations)
 # for additional background.
-
+#
 # The system is defined as follows:
+#
+# ```math
+# \begin{aligned}
+#     \dot{x} &= 3 x - 3 x y \\
+#     \dot{y} &= x y - y
+# \end{aligned}
+# ```
+#
+# which produces cyclic trajectories around the equilibrium point ``(1,1)``
+# dependent on the initial state.
+#
+# We are interested to see how this nonlinear dynamics plays with a nonlinear
+# guard, whose boundary is
+#
+# ```math
+#     \sqrt{(x - 1)^2 + (y - 1)^2} = 0.15,
+# ```
+#
+# which is a circle of radius ``0.15`` around the equilibrium.
+#
+# By choosing an initial state ``I = (1.3, 1)``, the cycle has a period of
+# approximately ``3.64`` time units. The trajectory of the Lotka-Volterra system
+# is almost tangential (externally) to the guard circle. Hence, small variations
+# in the width of the initial set would put the trajectory partially within the
+# guard. Consequently, we are interested in evaluating the time spent within the
+# circle by introducing a continuous counter variable called ``cnt``.
+#
+# The corresponding hybrid automaton is used to model the system:
+#
+# - Continuous variables: ``x``, ``y`` and ``cnt``;
+# - Locations: {\em outside} and {\em inside};
+# - Dynamics: those from Eq.~\ref{eq:lv} for ``x,y`` in both locations, and
+#
+# ```math
+# \dot{cnt} = \left\{
+# \begin{aligned}
+#     0, \,\, \mbox{in {\em outside}} \\
+#     1, \,\, \mbox{in {\em inside}}
+# \end{aligned}
+# \right.
+# ```
+#
+# - Guards:
+#
+# ```math
+# \left\{
+# \begin{aligned}
+#     (x - Q_x)^2 + (y - Q_y)^2 ≤ R^2 \,\,\mbox{from {\em outside} to {\em inside}} \\
+#     (x - Q_x)^2 + (y - Q_y)^2 ≥ R^2 \,\,\mbox{from {\em inside} to {\em outside}}
+# \end{aligned}
+# \right.
+# ```
+#
+# - Invariants: the complement of the corresponding guards (i.e., transitions
+#   are urgent);
+# - Resets: none, i.e., the identity for both transitions.
 
-\begin{equation}
-\label{eq:lv}\left\{
-\begin{array}{ll}
-\dot{x} = 3 x - 3 x y \\
-\dot{y} = x y - y
-\end{array}
-\right.
-\end{equation}
-%
-which produces cyclic trajectories around the equilibrium point $(1,1)$ dependent on the initial state.
+# ## Analysis
 
-We are interested to see how this nonlinear dynamics plays with a nonlinear guard, whose boundary is:
+# We want to start the system from ``I = (1.3 ± ε, 1.0)``, with ``ε = 0.008``,
+# and evolve it for ``T = 3.64`` time units. Since the original system was close
+# to tangency, by enlarging the initial set we expect to produce different
+# sequences of discrete events due to the distinction between crossing and not
+# crossing, and possibly by distinguishing the crossing sets based on the
+# different crossing times.
+#
+# The following two properties must be verified:
+#
+# 1. At least one final set must not cross the guard, and at least one final set
+# must cross it twice by entering and exiting the reference circle;
+# 2. ``cnt < 0.2`` holds for all final sets.
+#
+# In terms of metrics, it is required to supply the following:
+#
+# 1. The execution time for computing the reachable set and checking the
+#    properties;
+# 2. The area ``x × y`` of the box hull enclosing all the final sets;
+# 3. The maximum of the ``cnt`` value obtained from all the final sets.
+#
+# In addition, a figure showing the reachable set along with the circular guard
+# shall be provided. The axes are ``[0.6, 1.4] × [0.6, 1.4]``.
 
-\begin{equation}
-\label{eq:guard}
-\sqrt{\left(x - 1\right)^2 + \left(y - 1\right)^2} = 0.15
-\end{equation}
-%
-which is a circle of radius $0.15$ around the equilibrium.
+# ## Results
 
-By choosing an initial state $I = (1.3,1.0)$ the cycle has a period of approximately $3.64$ time units. The trajectory of the Lotka--Volterra system trajectory is almost tangent (externally) to the guard circle. Hence, small variations in the width of the initial set would put the trajectory partially within the guard. Consequently we are interested in evaluating the time spent within the circle by introducing a continuous counter variable called $cnt$.
-
-The corresponding hybrid automaton is used to model the system:
-\begin{itemize}
-\item Continuous variables: $x$, $y$ and $cnt$;
-\item Locations: {\em outside} and {\em inside};
-\item Dynamics: those from Eq.~\ref{eq:lv} for $x,y$ in both locations, and
-\begin{equation}
-\dot{cnt} = \left\{
-\begin{array}{ll}
-0, \,\, \mbox{in {\em outside}} \\
-1, \,\, \mbox{in {\em inside}}
-\end{array}
-\right.
-\end{equation}
-\item Guards:
-\begin{equation}
-\left\{
-\begin{array}{ll}
-\left(x - Q_x\right)^2 + \left(y - Q_y\right)^2 \leq R^2 \,\,\mbox{from {\em outside} to  {\em inside}} \\
-\left(x - Q_x\right)^2 + \left(y - Q_y\right)^2 \geq R^2 \,\,\mbox{from {\em inside} to  {\em outside}}
-\end{array}
-\right.
-\end{equation}
-\item Invariants: the complement of the corresponding guards (i.e., transitions are urgent);
-\item Resets: none, i.e., the identity for both transitions.
-\end{itemize}
-
-\subsubsection{Analysis}
-
-We want to start the system from $I = \left(1.3 \pm \epsilon, 1.0 \right)$, with $\epsilon = 0.008$, and evolve it for $T = 3.64$ time units. Since the original system was close to tangency, by enlarging the initial set we expect to produce different sequences of discrete events due to the distinction between crossing and not crossing, and possibly by distinguishing the crossing sets based on the different crossing times.
-
-The following two properties must be verified:
-\begin{enumerate}
-\item At least one final set must not cross the guard, and at least one final set must cross it twice by entering and exiting the reference circle;
-\item $cnt < 0.2$ holds for all final sets.
-\end{enumerate}
-
-\subsubsection{Evaluation}
-
-In terms of metrics, it is required to supply the following:
-\begin{enumerate}
-\item The execution time for computing the reachable set and checking the properties;
-\item The area $x \times y$ of the box hull enclosing all the final sets;
-\item The maximum of the $cnt$ value obtained from all the final sets.
-\end{enumerate}
-In addition, a figure showing the reachable set along with the circular guard shall be provided. The axes are $[0.6, 1.4] \times [0.6, 1.4]$.
-
-\subsubsection{Results}
-
-This benchmark produced polarizing results: those tools that could handle it easily with good performance, and those that were not able to handle the hybrid nature of the problem. Table~\ref{tab:compTimes:lotkavolterra} gives the timing/quality results, while Fig.~\ref{fig:lotkavolterra} shows the graphical output. A future improvement could be to focus on the section of the figure that displays the crossing and the subsequent trajectories.
-
-
-
+# This benchmark produced polarizing results: those tools that could handle it
+# easily with good performance, and those that were not able to handle the
+# hybrid nature of the problem. Table~\ref{tab:compTimes:lotkavolterra} gives
+# the timing/quality results, while Fig.~\ref{fig:lotkavolterra} shows the
+# graphical output. A future improvement could be to focus on the section of the
+# figure that displays the crossing and the subsequent trajectories.
+#
 # The nonlinear dynamic equations describe the two-dimensional, planar motion of
 # the space-craft on an orbital plane towards a space station:
 #
 # ```math
-#   \left\{ \begin{array}{lcl}
-#   \dot{x} & = & v_x \\
-#   \dot{y} & = & v_y \\
-#   \dot{v_x} & = & n^2x + 2nv_y + \frac{\mu}{r^2} - \frac{\mu}{r^3} (r +x) + \frac{u_x}{m_c} \\
-#   \dot{v_y} & = & n^2y - 2nv_x - \frac{\mu}{r^3_c}y + \frac{u_y}{m_c}
-#   \end{array} \right.
+# \begin{aligned}
+#     \dot{x} &= v_x \\
+#     \dot{y} &= v_y \\
+#     \dot{v_x} &= n^2x + 2nv_y + \dfrac{μ}{r^2} - \dfrac{μ}{r^3} (r +x) + \dfrac{u_x}{m_c} \\
+#     \dot{v_y} &= n^2y - 2nv_x - \dfrac{μ}{r^3_c}y + \dfrac{u_y}{m_c}
+# \end{aligned}
 # ```
 #
 # The model consists of position (relative to the target) ``x``, ``y`` [m], time
-# ``t`` [min], as well as horizontal and vertical velocity ``v_x``, ``v_y`` [m / min].
-# The parameters are ``µ = 3.986 × 10^{14} × 60^2`` [``m^3 / min^2``],
-# ``r = 42164 × 10^3 [m], m_c = 500 [kg], n = \sqrt{\frac{\mu}{r^3}}`` and
-# ``r_c = \sqrt{(r + x)^2 + y^2}``.
+# ``t`` [min], as well as horizontal and vertical velocity ``v_x``, ``v_y``
+# [m / min]. The parameters are ``µ = 3.986 × 10^{14} × 60^2``
+# [m``^3`` / min``^2``], ``r = 42164 × 10^3`` [m], ``m_c = 500`` [kg],
+# ``n = \sqrt{\dfrac{μ}{r^3}}``, and ``r_c = \sqrt{(r + x)^2 + y^2}``.
 #
 # The hybrid nature of this benchmark originates from a switched controller. In
-# particular, the modes are approaching (``x ∈ [−1000, −100] [m]``), rendezvous
-# attempt (``x ≥ −100 [m]``), and aborting. A transition to mode aborting occurs
-# nondeterministically at ``t ∈ [120, 150] [min]``.
+# particular, the modes are approaching (``x ∈ [−1000, −100]`` [m]), rendezvous
+# attempt (``x ≥ −100`` [m]), and aborting. A transition to mode aborting occurs
+# nondeterministically at ``t ∈ [120, 150]`` [min].
 #
 # The linear feedback controllers for the diﬀerent modes are deﬁned as
 # ``\binom{u_x}{u_y} = K_1\underline{x}`` for mode approaching, and
@@ -117,23 +136,24 @@ This benchmark produced polarizing results: those tools that could handle it eas
 # ``\underline{x} = (x, y, v_x, v_y)^T`` is the vector of system states. The
 # feedback matrices ``K_i`` were determined with an LQR-approach applied to the
 # linearized system dynamics, which resulted in the following numerical values:
+#
 # ```math
 # K_1 =
 # \begin{pmatrix}
-# −28.8287 & 0.1005 & −1449.9754 & 0.0046 \\
-# −0.087 & −33.2562 & 0.00462 & −1451.5013
+#     −28.8287 & 0.1005 & −1449.9754 & 0.0046 \\
+#     −0.087 & −33.2562 & 0.00462 & −1451.5013
 # \end{pmatrix}
-# ```
-# ```math
+#
 # K_2 =
 # \begin{pmatrix}
-# −288.0288 & 0.1312 & −9614.9898 & 0 \\
-# −0.1312 & −288 & 0 & −9614.9883
+#     −288.0288 & 0.1312 & −9614.9898 & 0 \\
+#     −0.1312 & −288 & 0 & −9614.9883
 # \end{pmatrix}
 # ```
-# In the mode aborting, the system is uncontrolled ``\binom{u_x}{u_y} = \binom{0}{0}``.
+# In the mode aborting, the system is uncontrolled:
+# ``\binom{u_x}{u_y} = \binom{0}{0}``.
 
-using ReachabilityAnalysis, Plots
+using ReachabilityAnalysis  #!jl
 
 const T_lv = 3.64
 
@@ -222,7 +242,6 @@ validation = []
 final_area = []
 intersect_time = []
 
-
 # ## Case 1
 
 ε_ext = 1e-4
@@ -257,7 +276,6 @@ SUITE[model][cases[1]] = @benchmarkable solve($prob,
                   clustering_method = BoxClustering(3),
                   disjointness_method = BoxEnclosure())
 
-
 # ## Execute benchmarks and save benchmark results
 
 # tune parameters
@@ -284,7 +302,6 @@ for (i, c) in enumerate(cases)
         " $(final_area[i]), $(intersect_time[i])\n")
 end
 
-
 # ## Create plots
 
 fig = plot()
@@ -310,5 +327,3 @@ plot!(fig, B, 1e-4, color=:white, lw=2.0, linecolor=:red, tickfont=font(30, "Tim
         xlims=(0.6, 1.4), ylims=(0.6, 1.4),
         bottom_margin=6mm, left_margin=2mm, right_margin=8mm, top_margin=3mm,
         size=(1000, 1000))
-
-savefig("ARCH-COMP20-JuliaReach-LotkaVolterra.png")
