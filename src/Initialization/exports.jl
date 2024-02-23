@@ -30,7 +30,6 @@ export
       MappedFlowpipe,
       HybridFlowpipe,
       MixedFlowpipe,
-      MixedHybridFlowpipe,
 
 # Reach-sets
       ReachSet,
@@ -45,7 +44,6 @@ export
       tend,
       tspan,
       vars,
-      sup_func, # TODO keep?
       setrep,
       rsetrep,
       reset_map,
@@ -66,7 +64,6 @@ export
 
 # Lazy operations on flowpipes
       Projection,
-      Shift,
 
 # Hybrid types
       HACLD1,
