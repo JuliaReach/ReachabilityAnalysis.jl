@@ -442,7 +442,7 @@ or the guard of any outgoing transition.
 A dictionary mapping (`::Dict{Int,Vector{Int}}`) the index of each location
 ``ℓ`` to the dimension indices that are constrained in ``ℓ``.
 """
-function constrained_dimensions(HS::HybridSystem)
+function constrained_dimensions(HS::HybridSystems.HybridSystem)
     result = Dict{Int,Vector{Int}}()
     sizehint!(result, nstates(HS))
     for mode in states(HS)
