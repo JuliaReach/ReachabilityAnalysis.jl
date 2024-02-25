@@ -24,10 +24,10 @@ The filtered oscillator was also studied in [[BFFPS19]](@ref) to test the scalab
 of a new scheme that exploits the sparsity of the hybrid automaton to efficiently
 compute flowpipe-guard intersections. Such scheme is not considered in this section.
 
-Recall that for a system of $n$ variables, a box overapproximation requires to
-compute $n$ samples of the approximation boundary, whereas an octagon requires
-$O(n^2)$ many. Hence, using an octagon template, while gives tighter results
-in general, may incur in much higher computational cost if $n$ is high.
+Recall that for a system of ``n`` variables, a box overapproximation requires to
+compute ``n`` samples of the approximation boundary, whereas an octagon requires
+``O(n^2)`` many. Hence, using an octagon template, while gives tighter results
+in general, may incur in much higher computational cost if ``n`` is high.
 
 ### Model
 

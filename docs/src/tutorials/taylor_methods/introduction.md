@@ -9,12 +9,12 @@ This section provides a quickstart to the Taylor-models reachability method with
 It is a small example that mixes intervals, the sine function, and differential equations. It is easy to check that the function
 
 ```math
-x(t) = x_0 \exp\left(\cos(t) - 1\right),\qquad x_0 \in \mathbb{R},
+x(t) = x_0 \exp\left(\cos(t) - 1\right),\qquad x_0 ∈ \mathbb{R},
 ```
 solves the following differential equation:
 
 ```math
-x'(t) = -x(t) ~ \sin(t),\qquad t \geq 0.
+x'(t) = -x(t) ~ \sin(t),\qquad t ≥ 0.
 ```
 
 Standard integration schemes fail to produce helpful solutions if the initial state is an interval. We illustrate this point

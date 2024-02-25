@@ -8,16 +8,16 @@ CurrentModule = ReachabilityAnalysis
 Our motivating example is to solve the following simple linear set-based recurrence
 
 ```math
-X_{k+1} = M(\theta) X_k, \qquad 0 \leq k \leq 50, X_0 = [0.8, 1.2] \times [0.8, 1.2] \subset \mathbb{R}^2
+X_{k+1} = M(θ) X_k, \qquad 0 ≤ k ≤ 50, X_0 = [0.8, 1.2] \times [0.8, 1.2] ⊆ \mathbb{R}^2
 ```
 
-Let $\theta \in [0, 2 \pi]$ be an equally spaced vector of length $50$, and $M(\theta)$ is the [rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix) given by:
+Let ``θ ∈ [0, 2 π]`` be an equally spaced vector of length ``50``, and ``M(θ)`` is the [rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix) given by:
 
 ```math
-M(\theta) = \begin{pmatrix}\cos\theta && \sin\theta \\ -\sin\theta && \cos\theta \end{pmatrix}.
+M(θ) = \begin{pmatrix}\cosθ && \sinθ \\ -\sinθ && \cosθ \end{pmatrix}.
 ```
 
-The matrix $M(\theta)$ rotates points in the xy-plane clockwise through an angle $θ$ around the origin of a two-dimensional Cartesian coordinate system.
+The matrix ``M(θ)`` rotates points in the xy-plane clockwise through an angle ``θ`` around the origin of a two-dimensional Cartesian coordinate system.
 
 ### Propagating point clouds
 
@@ -75,7 +75,7 @@ ylims!(-0.4, 1.4) # hide
 
 Does propagating point clouds solve the problem?
 Practically speaking, while we can compute the successors of any
-$x_0 \in X_0$ we still lack a *global* description of the set according
+``x_0 ∈ X_0`` we still lack a *global* description of the set according
 the the given discrete recurrence.. which brings us back to the original question:
 how to represent the solution of the recurrence for *all points in simultaneous*?
 
@@ -153,7 +153,7 @@ fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
     gif(anim, fps=15)
     ```
 
-Now we will use *reach-sets* and associate the angle $\theta$ with the time field.
+Now we will use *reach-sets* and associate the angle ``θ`` with the time field.
 
 ```@example discrete_propagation
 # propagate sets passing the time point (angle)
@@ -250,7 +250,7 @@ fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 Finally, observe that set operations with flowpipes are also supported. The following
-example intersects the flowpipe $F$ with a half-space.
+example intersects the flowpipe ``F`` with a half-space.
 
 ```@example discrete_propagation
 H  = HalfSpace([1, 1.], 1.) # x + y ≤ 1

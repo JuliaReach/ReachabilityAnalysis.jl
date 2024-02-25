@@ -15,10 +15,10 @@ After those preliminary sections, we discuss the notion of conservative time
 discretization for systems of linear differential equations of the form
 
 ```math
-    x'(t) = Ax(t),\qquad x(0) \in X_0 \in \mathbb{R}^n.
+    x'(t) = Ax(t),\qquad x(0) ∈ X_0 ∈ \mathbb{R}^n.
 ```
-for all times $t \in [0, T]$. Linear systems with non-deterministic inputs
-is disussed in another section of this manual. We also consider an invariant specification: $x(t) \in X$ for all times.
+for all times ``t ∈ [0, T]``. Linear systems with non-deterministic inputs
+is disussed in another section of this manual. We also consider an invariant specification: ``x(t) ∈ X`` for all times.
 
 The final part of this section introduces support function techniques and discusses
 the helicopter model application. For ease of exposition, this section only considers.
@@ -43,10 +43,10 @@ nothing # hide
 Here we have solved the differential equation
 
 ```math
-x'(t) = -x(t),\qquad x(0) \in X_0 = [1, 2] \subset \mathbb{R},
+x'(t) = -x(t),\qquad x(0) ∈ X_0 = [1, 2] ⊆ \mathbb{R},
 ```
-for $t \in [0, 5]$, whose solution is known to be the decaying exponential
-$x(t) = x_0e^{-t}$. Let's plot the result, which requires loading the [Plots.jl]()
+for ``t ∈ [0, 5]``, whose solution is known to be the decaying exponential
+``x(t) = x_0e^{-t}``. Let's plot the result, which requires loading the [Plots.jl]()
 package
 
 variable index `0` denotes time).
@@ -130,7 +130,7 @@ tspan(R)
 ```
 
 Actually, the algorithm that has been used to solve the problem has a fixed step size
-of $δ = 0.05$.
+of ``δ = 0.05``.
 
 ```@example quickstart
 tspan(sol[end]) # time-span of the final reach-set
@@ -153,7 +153,7 @@ tstart(R)
 tend(R)
 ```
 
-The set wrapped by $R$ is obtained with `set`:
+The set wrapped by ``R`` is obtained with `set`:
 
 ```@example quickstart
 set(R)
@@ -163,10 +163,10 @@ We see it is an interval (`LazySets.Interval` is just a thin wrapper around `Int
 more on this in a note below).
 
 It is interesting to observe that the infimum of `sol[1]` 0.9487, while we have
-specified that the initial interval is $X_0 = [1, 2]$. The explanation is that the
+specified that the initial interval is ``X_0 = [1, 2]``. The explanation is that the
 computed reach-set contains the true solution for *all* intermediate times between
-0 and 0.05 and for all initial states in $X_0$. Since the values of $x(t)$ decrease
-in the time interval $[0, 0.05]$ the width of `sol[1]` should be sufficiently big
+0 and 0.05 and for all initial states in ``X_0``. Since the values of ``x(t)`` decrease
+in the time interval ``[0, 0.05]`` the width of `sol[1]` should be sufficiently big
 as to enclose those variations. We can make a quick check:
 
 ```@example quickstart
@@ -174,7 +174,7 @@ as to enclose those variations. We can make a quick check:
 ```
 which shows that `R` indeed is a correct enclosure of the solution for all points
 in the initial set. It is easy to check that by decreasing the step-size, the enclosure
-of the solution at $[0, 0.05]$ converges to the true value (from outside), and similarly
+of the solution at ``[0, 0.05]`` converges to the true value (from outside), and similarly
 for other time intervals.
 
 ### More about time intervals
