@@ -39,11 +39,6 @@ and `TaylorSeries.jl` is used to work with truncated Taylor series.
     disjointness::DM = ZonotopeEnclosure()
 end
 
-const DEFAULT_MAX_STEPS_TMJETS = 2000
-const DEFAULT_ABS_TOL_TMJETS = 1e-10
-const DEFAULT_ORDER_T_TMJETS = 8
-const DEFAULT_ORDER_Q_TMJETS = 2
-
 numtype(::TMJets20{N}) where {N} = N
 rsetrep(::TMJets20{N}) where {N} = TaylorModelReachSet{N}
 

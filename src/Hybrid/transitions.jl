@@ -41,8 +41,8 @@ function DiscreteTransition(; guard::GT, source_invariant::IT⁻,
     return DiscreteTransition(IdentityMap(n), ZeroSet(n), guard, source_invariant, target_invariant)
 end
 
-# constructor from hybrid system given source and target modes id's and the transition t
-function DiscreteTransition(H::HybridSystem, transition)
+# constructor from hybrid system given the transition
+function DiscreteTransition(H::HybridSystems.HybridSystem, transition)
     assignment = resetmap(H, transition)
     R = _state_matrix(assignment)
     W = _affine_term(assignment)
