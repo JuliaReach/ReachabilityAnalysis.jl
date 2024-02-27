@@ -1,35 +1,62 @@
-# # Electromechanic break
-#
+# # Electromechanical brake
+
 #md # !!! note "Overview"
-#md #     System type: Affine system\
-#md #     State dimension: 48\
-#md #     Application domain: Mechanical Engineering
-#
+#md #     System type: Linear clocked hybrid system\
+#md #     State dimension: 4\
+#md #     Application domain: Mechanical engineering
+
 # ## Model description
+
+# This system models an electromechanical brake, which works as in the following
+# image.
 #
-# The system is described by the linear differential equations:
+# ![](embrake_scheme.png)
+#
+# The system is described by linear differential equations:
 #
 # ```math
-#   \begin{array}{lcl}
-#   \dot{x}(t) &=& Ax(t) + Bu(t),\qquad u(t) \in \mathcal{U} \\
-#   y(t) &=& C x(t)
-#   \end{array}
+# \begin{aligned}
+#     \dot{x}(t) &= Ax(t) + Bu(t),\qquad u(t) ∈ \mathcal{U} \\
+#     y(t) &= Cx(t)
+# \end{aligned}
 # ```
+#
+# A hybrid-automaton model is depicted below.
+#
+# ![](embrake_automaton.png)
 #
 # There are two versions of this benchmark:
 #
-# - *(time-varying inputs):* The inputs can change arbitrarily over time: $\forall t: u(t)\in \mathcal{U}$.
+# - **Time-varying inputs**: The inputs can change arbitrarily over time:
+#    ``\forall t: u(t) ∈ \mathcal{U}``.
 #
-# - *(constant inputs):* The inputs are uncertain only in their initial value, and
-#    constant over time: ``u(0)\in \mathcal{U}``, ``\dot u (t)= 0``.
+# - **Constant inputs**: The inputs are only uncertain in the initial value, and
+#    constant over time: ``u(0) ∈ \mathcal{U}``, ``\dot{u}(t) = 0.``
 
-using ReachabilityAnalysis, SparseArrays, JLD2 #!jl
+using ReachabilityAnalysis, SparseArrays  #!jl
 
-# adapt default LazySets tolerances
-ReachabilityBase.Comparison.set_rtol(Float64, 1e-12)
-ReachabilityBase.Comparison.set_ztol(Float64, 1e-13)
+# ## Common functionality between model variants
 
-## Fixed parameters
+# The following code is shared between all model variants.
+
+function embrake_common(; A, Tsample, ζ, x0)
+    ## continuous system
+    EMbrake = @system(x' = A * x)
+
+    ## initial condition
+    X₀ = Singleton([0.0, 0, 0, 0])
+
+    ## reset map
+    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
+    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
+    reset_map(X) = Ar * X + br
+
+    ## hybrid system with clocked affine dynamics
+    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
+    return IVP(ha, X₀)
+end;
+
+# ## Fixed parameters
 
 # The model without parameter variation is defined below.
 
@@ -49,29 +76,14 @@ function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
                 0 0 0 0;
                 0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
+    return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
+end;
 
-    ## initial conditions
-    I₀  = Singleton([0.0])
-    x₀  = Singleton([0.0])
-    xe₀ = Singleton([0.0])
-    xc₀ = Singleton([0.0])
-    X₀  = I₀ × x₀ × xe₀ × xc₀
+# ## Parameter variation
 
-    ## reset map
-    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
-    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
-    reset_map(X) = Ar * X + br
+# The model with parameter variation described below consists of changing only
+# one coefficient, which corresponds to the Flow\* settings in [^SO15].
 
-    ## hybrid system with clocked linear dynamics
-    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
-    return IVP(ha, X₀)
-end
-
-## Parameter variation
-
-# The model with parameter variation described below consists of changing only one
-# coefficient, which corresponds to the Flow* settings in [^SO15].
 function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
     ## model's constants
     L = 1.e-3
@@ -89,29 +101,13 @@ function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
                         0 0 0 0;
                         0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
+    return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
+end;
 
-    ## initial conditions
-    I₀  = Singleton([0.0])
-    x₀  = Singleton([0.0])
-    xe₀ = Singleton([0.0])
-    xc₀ = Singleton([0.0])
-    X₀  = I₀ × x₀ × xe₀ × xc₀
+# ## Extended parameter variation
 
-    ## reset map
-    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
-    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
-    reset_map(X) = Ar * X + br
-
-    ## hybrid system with clocked linear dynamics
-    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
-    return IVP(ha, X₀)
-end
-
-## Extended parameter variation
-
-# In the following model, considered in [...], we vary all constants by χ% with
-# respect to their nominal values. The variation percentage defaults to 5%.
+# In the following model, considered in [^SO15], we vary all constants by χ%
+# with respect to their nominal values. The variation percentage defaults to 5%.
 
 function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
     ## model's constants
@@ -130,27 +126,10 @@ function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
                         0 0 0 0;
                         0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
-
-    ## initial conditions
-    I₀  = Singleton([0.0])
-    x₀  = Singleton([0.0])
-    xe₀ = Singleton([0.0])
-    xc₀ = Singleton([0.0])
-    X₀  = I₀ × x₀ × xe₀ × xc₀
-
-    ## reset map
-    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
-    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
-    reset_map(X) = Ar * X + br
-
-    ## hybrid system with clocked linear dynamics
-    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
-    return IVP(ha, X₀)
-end
+    return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
+end;
 
 # ## References
 
-# [^SO15]: Strathmann, Thomas, and Jens Oehlerking. *Verifying Properties of an Electro-Mechanical Braking System.* ARCH CPSWeek. 2015.
-
-# []:
+# [^SO15]: Strathmann, Thomas, and Jens Oehlerking. *Verifying Properties of an
+#          Electro-Mechanical Braking System*. ARCH. 2015.

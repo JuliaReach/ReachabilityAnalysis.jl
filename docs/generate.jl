@@ -19,12 +19,12 @@ MODELS = [
           "Lorenz",
           "LotkaVolterra",
           "OpAmp",
-          "SquareWaveOscillator",
           "Platoon",
           "ProductionDestruction",
           "Quadrotor",
           "SEIR",
           "Spacecraft",
+          "SquareWaveOscillator",
           "TransmissionLine",
           "VanDerPol"
           #
@@ -54,8 +54,10 @@ for model in MODELS
             # Literate.notebook(input, target_dir_md; execute=true, credit=false)
             # if used, add the following to the top of the script files (where `MODELNAME` is the model name):
             #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated_examples/MODELNAME.ipynb)
-        elseif any(endswith.(file, [".jld2", ".png"]))
-            # ignore *.jld2 and *.png files without warning
+        elseif any(endswith.(file, [".png", ".jpg", ".gif"]))
+            cp(joinpath(model_path, file), joinpath(target_dir_md, file); force=true)
+        elseif any(endswith.(file, [".jld2"]))
+            # ignore *.jld2 files without warning
         else
             @warn "ignoring $file in $model_path"
         end

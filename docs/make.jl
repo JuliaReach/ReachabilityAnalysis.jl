@@ -44,7 +44,7 @@ LINEAR_METHODS = ["Linear methods" => [
                                        #"Propagating hyperrectangles"   => "tutorials/linear_methods/hyperrectangles_setprop.md",
                                        #"Propagating support functions" => "tutorials/linear_methods/supfunc_setprop.md",
                                        #"Helicopter model"              => "tutorials/linear_methods/helicopter.md",
-                                       "Structural model" => "generated_examples/ISS.md"
+                                       "International Space Station" => "generated_examples/ISS.md"
                                        #
                                        ]]
 
@@ -86,8 +86,8 @@ HYBRID_SYSTEMS = ["Hybrid systems" => [
 CLOCKED_SYSTEMS = ["Clocked systems" => [
                                          #
                                          #"Introduction"           => "tutorials/clocked_systems/introduction.md",
-                                         "Platoon"                => "generated_examples/Platoon.md",
-                                         "Electro-mechanic break" => "generated_examples/EMBrake.md"
+                                         "Platoon"                 => "generated_examples/Platoon.md",
+                                         "Electromechanical brake" => "generated_examples/EMBrake.md"
                                          #
                                          ]]
 
@@ -209,7 +209,7 @@ makedocs(;
                                        "Production-Destruction" => "generated_examples/ProductionDestruction.md",
                                        "Brusselator"            => "generated_examples/Brusselator.md",
                                        "Quadrotor"              => "generated_examples/Quadrotor.md",
-                                       "Epidemic model"         => "generated_examples/SEIR.md",
+                                       "Epidemic (SEIR) model"  => "generated_examples/SEIR.md",
                                        "Spacecraft"             => "generated_examples/Spacecraft.md"
                                        #
                                        ],

@@ -1,7 +1,3 @@
-using ReachabilityAnalysis, Symbolics, Plots
-
-LazySets.set_ztol(Float64, 1e-15)
-
 function multistable_oscillator(; X0=Interval(0.0, 0.05),
                                 V₊=+13.5, V₋=-13.5,
                                 R=20.E3, C=5.5556E-8,
@@ -9,17 +5,17 @@ function multistable_oscillator(; X0=Interval(0.0, 0.05),
     @variables x
     τ = 1 / (R * C)
     α = R2 / (R1 + R2)
-
     A = -τ
+    automaton = GraphAutomaton(2)
+
     b = (τ / α) * V₊
     I₊ = HalfSpace(x <= α * V₊)
-    m1 = @system(x' = Ax + b, x ∈ I₊)
+    m1 = @system(x' = A * x + b, x ∈ I₊)
 
     b = (τ / α) * V₋
     I₋ = HalfSpace(x >= α * V₋)
-    m2 = @system(x' = Ax + b, x ∈ I₋)
+    m2 = @system(x' = A * x + b, x ∈ I₋)
 
-    automaton = GraphAutomaton(2)
     add_transition!(automaton, 1, 2, 1)
     g1 = Hyperplane(x == α * V₊)
     r1 = ConstrainedIdentityMap(1, g1)
@@ -35,30 +31,27 @@ function multistable_oscillator(; X0=Interval(0.0, 0.05),
     # initial condition in mode 1
     X0e = [(1, X0)]
     return IVP(H, X0e)
-end
+end;
 
-prob = multistable_oscillator()
+prob = multistable_oscillator();
 
 sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=false);
 
+location.(sol)'
+
 fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
-
-tspan.(sol)
-
-location.(sol)
 
 fig = plot(sol[1][(end - 10):end]; vars=(0, 1), xlab="t", ylab="v-")
-plot!(x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+plot!(fig, x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 
-Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
+Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1));
 
 fig = plot(sol[1][(end - 10):end]; vars=(0, 1))
-plot!(sol[2][1:10]; vars=(0, 1))
-plot!(x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
-plot!(Xc[1]; vars=(0, 1), c=:grey)
+plot!(fig, sol[2][1:10]; vars=(0, 1))
+plot!(fig, x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+plot!(fig, Xc[1]; vars=(0, 1), c=:grey)
 
-sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=true);
+sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=true)
+tspan(sol)
 
 fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
-
-tspan(sol)

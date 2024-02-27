@@ -1,17 +1,13 @@
 # # Square Wave Oscillator
-#
+
 #md # !!! note "Overview"
-#md #     System type: linear hybrid\
+#md #     System type: Linear hybrid system\
 #md #     State dimension: 1\
 #md #     Application domain: Electronics
-#
+
 # ## Model description
 
-# ## Hybrid automaton formulation
-
-using ReachabilityAnalysis, Symbolics, Plots
-
-LazySets.set_ztol(Float64, 1e-15)
+using ReachabilityAnalysis, Symbolics  #!jl
 
 function multistable_oscillator(; X0=Interval(0.0, 0.05),
                                 V₊=+13.5, V₋=-13.5,
@@ -20,17 +16,17 @@ function multistable_oscillator(; X0=Interval(0.0, 0.05),
     @variables x
     τ = 1 / (R * C)
     α = R2 / (R1 + R2)
-
     A = -τ
+    automaton = GraphAutomaton(2)
+
     b = (τ / α) * V₊
     I₊ = HalfSpace(x <= α * V₊)
-    m1 = @system(x' = Ax + b, x ∈ I₊)
+    m1 = @system(x' = A * x + b, x ∈ I₊)
 
     b = (τ / α) * V₋
     I₋ = HalfSpace(x >= α * V₋)
-    m2 = @system(x' = Ax + b, x ∈ I₋)
+    m2 = @system(x' = A * x + b, x ∈ I₋)
 
-    automaton = GraphAutomaton(2)
     add_transition!(automaton, 1, 2, 1)
     g1 = Hyperplane(x == α * V₊)
     r1 = ConstrainedIdentityMap(1, g1)
@@ -46,54 +42,65 @@ function multistable_oscillator(; X0=Interval(0.0, 0.05),
     ## initial condition in mode 1
     X0e = [(1, X0)]
     return IVP(H, X0e)
-end
+end;
 
-# ## Results
+# ## Specification
 
-prob = multistable_oscillator()
+prob = multistable_oscillator();
+
+# ## Analysis
 
 sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=false);
 
+# Below we print the automaton location of each flowpipe segment:
+
+location.(sol)'
+
+# ## Results
+
+using Plots  #!jl
+#!jl import DisplayAs  #hide
+
+old_ztol = LazySets._ztol(Float64)  #!jl
+LazySets.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
+
 fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
 
-#!jl import DisplayAs  #hide
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
-#-
+# ## Analyzing the first transition
 
-tspan.(sol)
-
-#-
-
-location.(sol)
-
-# Let us analyze in some detail the first transition.
-# If we plot the last 10 reach-sets of the first flowpipe, we observe that only the
-# last 3 actually intersect the guard:
+# Let us analyze the first transition in detail. If we plot the last ten reach
+# sets of the first flowpipe, we observe that only the last three actually
+# intersect with the guard:
 
 fig = plot(sol[1][(end - 10):end]; vars=(0, 1), xlab="t", ylab="v-")
-plot!(x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+plot!(fig, x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
-# We now cluster those reach-sets into a single hyperrectangle:
+# We now cluster those reach sets into a single hyperrectangle:
 
-Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1))
+Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1));
 
-# Plotting `Xc` matches with the flowpipe after the jump:
+# Plotting this set matches with the flowpipe after the jump:
 
 fig = plot(sol[1][(end - 10):end]; vars=(0, 1))
-plot!(sol[2][1:10]; vars=(0, 1))
-plot!(x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
-plot!(Xc[1]; vars=(0, 1), c=:grey)
+plot!(fig, sol[2][1:10]; vars=(0, 1))
+plot!(fig, x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
+plot!(fig, Xc[1]; vars=(0, 1), c=:grey)
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
-# Finally, we note that the algorithm finds an invariant of the system after the first
-# period. To activate such check pass the `fixpoint_check=true` flag to the hybrid
-# solve API.
+# ## Fixpoint check
 
-sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=true);
+# Finally, we note that the algorithm can find an invariant of the system after
+# the first period. To activate this check, pass the `fixpoint_check=true` flag
+# to the `solve` function. The computation terminates as soon as the last reach
+# set is contained in a previously explored starting set.
+
+sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=true)
+tspan(sol)
 
 #-
 
@@ -101,11 +108,6 @@ fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
-# When the fixpoint check is activated, the computation terminates as soon as the
-# last reach-set is contained in a previously explored initial state.
+#-
 
-tspan(sol)
-
-# ## References
-
-#
+LazySets.set_ztol(Float64, old_ztol);  # reset precision #!jl
