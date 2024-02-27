@@ -1,101 +1,80 @@
-using ReachabilityAnalysis, Symbolics, Plots
-
 @variables x y z
-const positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z])
+positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z]);
 
 function prod_dest_verif(sol; T=100.0, target=10.0)
-
-    # convert to a zonotopic flowpipe
-    solz = overapproximate(sol, Zonotope)
-
-    # project the final reach-set onto the space variables x, y, z
-    X = project(solz(T); vars=(1, 2, 3))
+    # obtain the final reach set and project onto the state variables x, y, z
+    Xh = box_approximation(sol(T))
+    X = project(Xh; vars=(1, 2, 3))
 
     # check that all variables are nonnegative
     nonnegative = X ⊆ positive_orthant
 
-    # compute the volume of the last reach-set
-    H = overapproximate(X, Hyperrectangle)
-    vol = volume(H)
+    # compute the volume
+    vol = volume(X)
 
-    # check that that target belongs to the minkowski sum of the reach-sets projected in each coordinate
-    B = convert(IntervalBox, H) # get the product-of-intervals representation
+    # check that the target belongs to the Minkowski sum of the projections
+    # onto each coordinate
+    B = convert(IntervalBox, X) # get a product-of-intervals representation
     contains_target = target ∈ sum(B)
 
     return nonnegative && contains_target, vol
-end
+end;
 
-@taylorize function prod_dest_I!(du, u, params, t)
+@taylorize function prod_dest_I!(du, u, p, t)
     local a = 0.3
-    x, y, z = u[1], u[2], u[3]
+    x, y, z = u
 
-    du[1] = -(x * y) / (1 + x)
-    du[2] = (x * y) / (1 + x) - a * y
-    du[3] = a * y
+    xyx = (x * y) / (1 + x)
+    ay = a * y
+
+    du[1] = -xyx
+    du[2] = xyx - ay
+    du[3] = ay
     return du
 end
 
-X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01)
-prob = @ivp(x' = prod_dest_I!(x), dim:3, x(0) ∈ X0)
+X0 = Hyperrectangle(; low=[9.5, 0.01, 0.01], high=[10, 0.01, 0.01])
+prob = @ivp(x' = prod_dest_I!(x), dim:3, x(0) ∈ X0);
 
-solI = solve(prob; T=100.0, alg=TMJets(; abstol=1e-11, orderT=7, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
 
-property, vol = prod_dest_verif(solI)
+property, vol = prod_dest_verif(sol)
+@assert property "the property should be proven"
+vol
 
-fig = plot(solI; vars=(0, 3), linecolor=:orange, color=:orange, alpha=0.3, lab="I")
+fig = plot(sol; vars=(0, 3), lc=:orange, c=:orange, alpha=0.3, lab="I", xlab="t", ylab="z")
 
-@taylorize function prod_dest_IP!(du, u, params, t)
+@taylorize function prod_dest_IP!(du, u, p, t)
     x, y, z, a = u[1], u[2], u[3], u[4]
 
-    du[1] = -(x * y) / (1 + x)
-    du[2] = (x * y) / (1 + x) - a * y
-    du[3] = a * y
-    du[4] = zero(x)
+    xyx = (x * y) / (1 + x)
+    ay = a * y
+
+    du[1] = -xyx
+    du[2] = xyx - ay
+    du[3] = ay
+    du[4] = zero(a)
     return du
 end
 
-X0 = (9.98 .. 9.98) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
-prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0)
+X0 = Hyperrectangle(; low=[9.98, 0.01, 0.01, 0.296], high=[9.98, 0.01, 0.01, 0.304])
+prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
 
-solP = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=7, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1));
 
-property, vol = prod_dest_verif(solP)
+property, vol = prod_dest_verif(sol)
+@assert property "the property should be proven"
+vol
 
-fig = plot(solP; vars=(0, 3), linecolor=:blue, color=:blue, alpha=0.3, lab="P")
+fig = plot(sol; vars=(0, 3), lc=:blue, c=:blue, alpha=0.3, lab="P", xlab="t", ylab="z")
 
-X0 = (9.5 .. 10.0) × (0.01 .. 0.01) × (0.01 .. 0.01) × (0.296 .. 0.304)
-prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0)
+X0 = Hyperrectangle(; low=[9.5, 0.01, 0.01, 0.296], high=[10, 0.01, 0.01, 0.304])
+prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
 
-solIP = solve(prob; T=100.0, alg=TMJets(; abstol=1e-11, orderT=7, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
 
-property, vol = prod_dest_verif(solIP)
+property, vol = prod_dest_verif(sol)
+@assert property "the property should be proven"
+vol
 
-fig = plot(solIP; vars=(0, 3), linecolor=:red, color=:red, alpha=0.3, lab="I & P")
-
-@taylorize function prod_dest_I_optimized!(du, u, params, t)
-    local a = 0.3
-    x, y, z = u[1], u[2], u[3]
-
-    num = x * y
-    den = 1 + x
-    aux = num / den
-    aux2 = a * y
-    du[1] = -aux
-    du[2] = aux - aux2
-    du[3] = aux2
-    return du
-end
-
-@taylorize function prod_dest_IP_optimized!(du, u, params, t)
-    x, y, z, a = u[1], u[2], u[3], u[4]
-
-    num = x * y
-    den = 1 + x
-    aux = num / den
-    aux2 = a * y
-    du[1] = -aux
-    du[2] = aux - aux2
-    du[3] = aux2
-    du[4] = zero(x)
-    return du
-end
+fig = plot(sol; vars=(0, 3), lc=:red, c=:red, alpha=0.3, lab="I & P", xlab="t", ylab="z")

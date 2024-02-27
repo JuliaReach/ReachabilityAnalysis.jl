@@ -1,9 +1,6 @@
-using ReachabilityAnalysis, SparseArrays, Symbolics
+const var = @variables x[1:9] t;
 
-const var = @variables x[1:9] t
-
-function platoon_connected(; deterministic_switching::Bool=true,
-                           c1=5.0)  # clock constraints
+function platoon_connected(; deterministic_switching::Bool=true, c1=5.0)
     n = 9 + 1
 
     # x' = Ax + Bu + c
@@ -29,12 +26,11 @@ function platoon_connected(; deterministic_switching::Bool=true,
     B = sparse([2], [1], [1.0], n, 1)
     U = Hyperrectangle(; low=[-9.0], high=[1.0])
     c = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0]
-    @system(x' = Ax + Bu + c, x ∈ invariant, u ∈ U)
-end
+    @system(x' = A * x + B * u + c, x ∈ invariant, u ∈ U)
+end;
 
-function platoon_disconnected(; deterministic_switching::Bool=true,
-                              c2=5.0)  # clock constraints
-    n = 10 # 9 dimensions + time
+function platoon_disconnected(; deterministic_switching::Bool=true, c2=5.0)
+    n = 9 + 1
 
     # x' = Ax + Bu + c
     A = Matrix{Float64}(undef, n, n)
@@ -59,14 +55,15 @@ function platoon_disconnected(; deterministic_switching::Bool=true,
     B = sparse([2], [1], [1.0], n, 1)
     U = Hyperrectangle(; low=[-9.0], high=[1.0])
     c = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0]
-    @system(x' = Ax + Bu + c, x ∈ invariant, u ∈ U)
-end
+    @system(x' = A * x + B * u + c, x ∈ invariant, u ∈ U)
+end;
 
 function platoon(; deterministic_switching::Bool=true,
-                 c1=5.0,  # clock constraints
-                 c2=5.0,  # clock constraints
+                 c1=5.0,  # clock constraint
+                 c2=5.0,  # clock constraint
                  tb=10.0,  # lower bound for loss of communication
-                 tc=20.0, tr=20.0) # upper bound for loss of communication (tc) and reset time (tr)
+                 tc=20.0,  # upper bound for loss of communication
+                 tr=20.0)  # reset time
 
     # three variables for each vehicle, (ei, d(et)/dt, ai) for
     # (spacing error, relative velocity, speed), and the last dimension is time
@@ -100,28 +97,26 @@ function platoon(; deterministic_switching::Bool=true,
         guard = HalfSpace(t <= tr, var)
     end
     t2 = ConstrainedResetMap(n, guard, reset)
-    resetmaps = [t1, t2]
 
+    resetmaps = [t1, t2]
     H = HybridSystem(automaton, modes, resetmaps, [AutonomousSwitching()])
 
-    # initial condition is at the origin in mode 1
+    # initial condition: at the origin in mode 1
     X0 = BallInf(zeros(n), 0.0)
     initial_condition = [(1, X0)]
 
     return IVP(H, initial_condition)
-end
+end;
 
 function dmin_specification(sol, dmin)
-    return (-ρ(sparsevec([1], [-1.0], 10), sol) > -dmin) &&
-           (-ρ(sparsevec([4], [-1.0], 10), sol) > -dmin) &&
-           (-ρ(sparsevec([7], [-1.0], 10), sol) > -dmin)
+    return (-ρ(sparsevec([1], [-1.0], 10), sol) ≥ -dmin) &&
+           (-ρ(sparsevec([4], [-1.0], 10), sol) ≥ -dmin) &&
+           (-ρ(sparsevec([7], [-1.0], 10), sol) ≥ -dmin)
 end
 
 prob_PLAD01 = platoon();
 
-const boxdirs = BoxDirections(10)
-const octdirs = OctDirections(10);
-
+boxdirs = BoxDirections(10)
 length(boxdirs)
 
 alg = BOX(; δ=0.01)
@@ -130,9 +125,9 @@ sol_PLAD01_BND42 = solve(prob_PLAD01;
                          clustering_method=BoxClustering(1),
                          intersection_method=TemplateHullIntersection(boxdirs),
                          intersect_source_invariant=false,
-                         tspan=(0.0 .. 20.0));
+                         T=20.0);
 
-dmin_specification(sol_PLAD01_BND42, 42)
+@assert dmin_specification(sol_PLAD01_BND42, 42) "the property should be proven"
 
 -ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND42)
 
@@ -140,22 +135,21 @@ dmin_specification(sol_PLAD01_BND42, 42)
 
 -ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND42)
 
-using Plots, LaTeXStrings
-
 fig = plot(sol_PLAD01_BND42; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND42", lw=0.1)
-plot!(x -> x, x -> -42.0, 0.0, 20.0; linewidth=2, color="red", linestyle=:dash, leg=nothing)
+plot!(x -> x, x -> -42.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)
 
+octdirs = OctDirections(10)
 length(octdirs)
 
-alg = LGG09(; δ=0.03, template=octdirs, approx_model=Forward(; setops=octdirs));
+alg = LGG09(; δ=0.03, template=octdirs, approx_model=Forward(; setops=octdirs))
 sol_PLAD01_BND30 = solve(prob_PLAD01;
                          alg=alg,
                          clustering_method=LazyClustering(1),
                          intersection_method=TemplateHullIntersection(octdirs),
                          intersect_source_invariant=false,
-                         tspan=(0.0 .. 20.0));
+                         T=20.0);
 
-dmin_specification(sol_PLAD01_BND30, 30)
+@assert dmin_specification(sol_PLAD01_BND30, 30) "the property should be proven"
 
 -ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND30)
 
@@ -164,4 +158,4 @@ dmin_specification(sol_PLAD01_BND30, 30)
 -ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND30)
 
 fig = plot(sol_PLAD01_BND30; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND30", lw=0.1)
-plot!(x -> x, x -> -30.0, 0.0, 20.0; linewidth=2, color="red", linestyle=:dash, leg=nothing)
+plot!(x -> x, x -> -30.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)

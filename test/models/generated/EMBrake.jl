@@ -1,7 +1,19 @@
-ReachabilityBase.Comparison.set_rtol(Float64, 1e-12)
-ReachabilityBase.Comparison.set_ztol(Float64, 1e-13)
+function embrake_common(; A, Tsample, ζ, x0)
+    # continuous system
+    EMbrake = @system(x' = A * x)
 
-# Fixed parameters
+    # initial condition
+    X₀ = Singleton([0.0, 0, 0, 0])
+
+    # reset map
+    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
+    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
+    reset_map(X) = Ar * X + br
+
+    # hybrid system with clocked affine dynamics
+    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
+    return IVP(ha, X₀)
+end;
 
 function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
     # model's constants
@@ -19,26 +31,8 @@ function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
                 0 0 0 0;
                 0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
-
-    # initial conditions
-    I₀  = Singleton([0.0])
-    x₀  = Singleton([0.0])
-    xe₀ = Singleton([0.0])
-    xc₀ = Singleton([0.0])
-    X₀  = I₀ × x₀ × xe₀ × xc₀
-
-    # reset map
-    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
-    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
-    reset_map(X) = Ar * X + br
-
-    # hybrid system with clocked linear dynamics
-    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
-    return IVP(ha, X₀)
-end
-
-# Parameter variation
+    return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
+end;
 
 function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
     # model's constants
@@ -57,26 +51,8 @@ function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
                         0 0 0 0;
                         0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
-
-    # initial conditions
-    I₀  = Singleton([0.0])
-    x₀  = Singleton([0.0])
-    xe₀ = Singleton([0.0])
-    xc₀ = Singleton([0.0])
-    X₀  = I₀ × x₀ × xe₀ × xc₀
-
-    # reset map
-    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
-    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
-    reset_map(X) = Ar * X + br
-
-    # hybrid system with clocked linear dynamics
-    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
-    return IVP(ha, X₀)
-end
-
-# Extended parameter variation
+    return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
+end;
 
 function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
     # model's constants
@@ -95,21 +71,5 @@ function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
                         0 0 0 0;
                         0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
-
-    # initial conditions
-    I₀  = Singleton([0.0])
-    x₀  = Singleton([0.0])
-    xe₀ = Singleton([0.0])
-    xc₀ = Singleton([0.0])
-    X₀  = I₀ × x₀ × xe₀ × xc₀
-
-    # reset map
-    Ar = sparse([1, 2, 3, 4, 4], [1, 2, 2, 2, 4], [1.0, 1.0, -1.0, -Tsample, 1.0], 4, 4)
-    br = sparsevec([3, 4], [x0, Tsample * x0], 4)
-    reset_map(X) = Ar * X + br
-
-    # hybrid system with clocked linear dynamics
-    ha = HACLD1(EMbrake, reset_map, Tsample, ζ)
-    return IVP(ha, X₀)
-end
+    return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
+end;

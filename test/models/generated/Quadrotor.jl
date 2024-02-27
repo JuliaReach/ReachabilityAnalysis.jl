@@ -1,74 +1,42 @@
 using ReachabilityAnalysis
-using ReachabilityAnalysis: is_intersection_empty
 
-const g = 9.81           # gravity constant in m/s^2
-const R = 0.1            # radius of center mass in m
-const l = 0.5            # distance of motors to center mass in m
-const Mrotor = 0.1       # motor mass in kg
-const M = 1.0            # center mass in kg
-const m = M + 4 * Mrotor   # total mass in kg
-const mg = m * g
+# parameters of the model
+const g = 9.81            # gravity constant in m/s^2
+const R = 0.1             # radius of center mass in m
+const l = 0.5             # distance of rotors to center mass in m
+const Mrotor = 0.1        # rotor mass in kg
+const M = 1.0             # center mass in kg
+const m = M + 4 * Mrotor  # total mass in kg
+const mg = m * g;
 
-const Jx = (2 / 5) * M * R^2 + 2 * l^2 * Mrotor
+# moments of inertia
+const Jx = 0.4 * M * R^2 + 2 * l^2 * Mrotor
 const Jy = Jx
-const Jz = (2 / 5) * M * R^2 + 4 * l^2 * Mrotor
+const Jz = 0.4 * M * R^2 + 4 * l^2 * Mrotor
 const Cyzx = (Jy - Jz) / Jx
 const Czxy = (Jz - Jx) / Jy
-const Cxyz = 0.0 #(Jx - Jy)/Jz
+const Cxyz = 0.0; #(Jx - Jy)/Jz
 
+# control parameters
 const u₁ = 1.0
 const u₂ = 0.0
 const u₃ = 0.0
 
-const Tspan = (0.0, 5.0)
-const v3 = LazySets.SingleEntryVector(3, 12, 1.0)
+@taylorize function quadrotor!(dx, x, p, t)
+    x₁, x₂, x₃, x₄, x₅, x₆, x₇, x₈, x₉, x₁₀, x₁₁, x₁₂ = x
 
-@inline function quad_property(solz)
-    tf = tend(solz)
-
-    #Condition: b1 = (x[3] < 1.4) for all time
-    unsafe1 = HalfSpace(-v3, -1.4) # unsafe: -x3 <= -1.4
-    b1 = all([is_intersection_empty(unsafe1, set(R)) for R in solz(0.0 .. tf)])
-    #b1 = ρ(v3, solz) < 1.4
-
-    #Condition: x[3] > 0.9 for t ≥ 1.0
-    unsafe2 = HalfSpace(v3, 0.9) # unsafe: x3 <= 0.9
-    b2 = all([is_intersection_empty(unsafe2, set(R)) for R in solz(1.0 .. tf)])
-
-    #Condition: x[3] ⊆ Interval(0.98, 1.02) for t ≥ 5.0 (t=5 is `tf`)
-    b3 = set(project(solz[end]; vars=(3))) ⊆ Interval(0.98, 1.02)
-
-    return b1 && b2 && b3
-end
-
-@taylorize function quadrotor!(dx, x, params, t)
-    #unwrap the variables and the controllers; the last three are the controllers
-    #x₁, x₂, x₃, x₄, x₅, x₆, x₇, x₈, x₉, x₁₀, x₁₁, x₁₂, u₁, u₂, u₃ = x
-    x₁  = x[1]
-    x₂  = x[2]
-    x₃  = x[3]
-    x₄  = x[4]
-    x₅  = x[5]
-    x₆  = x[6]
-    x₇  = x[7]
-    x₈  = x[8]
-    x₉  = x[9]
-    x₁₀ = x[10]
-    x₁₁ = x[11]
-    x₁₂ = x[12]
-
-    #equations of the controllers
+    # equations of the controllers
     F = (mg - 10 * (x₃ - u₁)) + 3 * x₆  # height control
-    τϕ = -(x₇ - u₂) - x₁₀            # roll control
-    τθ = -(x₈ - u₃) - x₁₁            # pitch control
-    local τψ = 0.0                   # heading is uncontrolled
+    τϕ = -(x₇ - u₂) - x₁₀               # roll control
+    τθ = -(x₈ - u₃) - x₁₁               # pitch control
+    local τψ = 0.0                    # heading is uncontrolled
 
     Tx = τϕ / Jx
     Ty = τθ / Jy
     Tz = τψ / Jz
     F_m = F / m
 
-    #Some abbreviations
+    # some abbreviations
     sx7 = sin(x₇)
     cx7 = cos(x₇)
     sx8 = sin(x₈)
@@ -91,8 +59,7 @@ end
     p12 = cx7_cx8 * x₁₂
     xdot9 = p11 + p12
 
-    #differential equations for the quadrotor
-
+    # differential equations for the quadrotor
     dx[1] = (cx9 * x4cx8 + (sx7cx9 * sx8 - cx7sx9) * x₅) + (cx7cx9 * sx8 + sx7sx9) * x₆
     dx[2] = (sx9 * x4cx8 + (sx7sx9 * sx8 + cx7cx9) * x₅) + (cx7sx9 * sx8 - sx7cx9) * x₆
     dx[3] = (sx8 * x₄ - sx7cx8 * x₅) - cx7cx8 * x₆
@@ -105,53 +72,74 @@ end
     dx[10] = Cyzx * (x₁₁ * x₁₂) + Tx
     dx[11] = Czxy * (x₁₀ * x₁₂) + Ty
     dx[12] = Cxyz * (x₁₀ * x₁₁) + Tz
-
     return dx
+end;
+
+using ReachabilityBase.Arrays: SingleEntryVector
+
+const T = 5.0
+const v3 = SingleEntryVector(3, 12, 1.0)
+
+@inline function quad_property(sol)
+    tf = tend(sol)
+
+    # Condition: b1 = (x[3] < 1.4) for all time
+    unsafe1 = HalfSpace(-v3, -1.4) # unsafe: -x3 <= -1.4
+    b1 = all([isdisjoint(unsafe1, set(R)) for R in sol(0.0 .. tf)])
+    #b1 = ρ(v3, sol) < 1.4
+
+    # Condition: x[3] > 0.9 for t ≥ 1.0
+    unsafe2 = HalfSpace(v3, 0.9) # unsafe: x3 <= 0.9
+    b2 = all([isdisjoint(unsafe2, set(R)) for R in sol(1.0 .. tf)])
+
+    # Condition: x[3] ⊆ Interval(0.98, 1.02) for t = 5.0
+    b3 = set(project(sol[end]; vars=(3))) ⊆ Interval(0.98, 1.02)
+
+    return b1 && b2 && b3
 end
 
-function quadrotor(; T=5.0, plot_vars=[0, 3],
-                   property=quad_property,
-                   project_reachset=true,
-                   Wpos=0.4, Wvel=0.4)
-
-    #initial conditions
-    X0c = zeros(12)
+function quadrotor(; Wpos, Wvel)
+    # initial condition
     ΔX0 = [Wpos, Wpos, Wpos, Wvel, Wvel, Wvel, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    X0 = Hyperrectangle(X0c, ΔX0)
+    X0 = Hyperrectangle(zeros(12), ΔX0)
 
-    #initial-value problem
+    # initial-value problem
     prob = @ivp(x' = quadrotor!(x), dim:12, x(0) ∈ X0)
 
     return prob
-end
+end;
 
 cases = ["Δ=0.1", "Δ=0.4", "Δ=0.8"];
 
 Wpos = 0.1
 Wvel = 0.1
-prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
+prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
 alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
-sol1 = solve(prob; tspan=Tspan, alg=alg);
-solz1 = overapproximate(sol1, Zonotope);
+sol = solve(prob; T=T, alg=alg)
+solz1 = overapproximate(sol, Zonotope);
+
+@assert quad_property(solz1) "the property should be proven"
 
 Wpos = 0.4
 Wvel = 0.4
-prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
+prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
 alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
-sol2 = solve(prob; tspan=Tspan, alg=alg);
-solz2 = overapproximate(sol2, Zonotope);
+sol = solve(prob; T=T, alg=alg)
+solz2 = overapproximate(sol, Zonotope);
+
+@assert quad_property(solz2) "the property should be proven"
 
 Wpos = 0.8
 Wvel = 0.8
-prob = quadrotor(; project_reachset=false, Wpos=Wpos, Wvel=Wvel)
+prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
 alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
 
-sol3 = solve(prob; tspan=Tspan, alg=alg);
-solz3 = overapproximate(sol3, Zonotope);
+sol = solve(prob; T=T, alg=alg)
+solz3 = overapproximate(sol, Zonotope);
 
-using Plots
+@assert !quad_property(solz3) "the property should not be proven"
 
 fig = plot(solz3; vars=(0, 3), linecolor="green", color=:green, alpha=0.8)
 plot!(solz2; vars=(0, 3), linecolor="blue", color=:blue, alpha=0.8)

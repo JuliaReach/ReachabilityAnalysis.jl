@@ -144,8 +144,8 @@ dim(πsol_ISSF01)
 using Plots, Plots.PlotMeasures, LaTeXStrings  #!jl
 #!jl import DisplayAs  #hide
 
-old_ztol = LazySets._ztol(Float64)
-LazySets.set_ztol(Float64, 1e-8);  # use higher precision for the plots
+old_ztol = LazySets._ztol(Float64)  #!jl
+LazySets.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
 
 #-
 
@@ -178,7 +178,7 @@ fig = Plots.plot(πsol_ISSC01; vars=(0, 1), linecolor=:blue, color=:blue, alpha=
 
 #-
 
-LazySets.set_ztol(Float64, old_ztol);  # reset precision
+LazySets.set_ztol(Float64, old_ztol);  # reset precision #!jl
 
 # ## References
 
