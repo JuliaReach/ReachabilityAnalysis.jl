@@ -162,10 +162,6 @@ Return the time-shifted flowpipe by the given number.
 
 A new flowpipe such that the time-span of each constituent reach-set has been
 shifted by `t0`.
-
-### Notes
-
-See also `Shift` for the lazy counterpart.
 """
 function shift(fp::Flowpipe{N,<:AbstractReachSet}, t0::Number) where {N}
     return Flowpipe([shift(X, t0) for X in array(fp)], fp.ext)

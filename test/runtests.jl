@@ -38,3 +38,5 @@ TEST_ALGORITHMS = ["algorithms/INT.jl",
 foreach(include, TEST_MODELS)
 foreach(include, TEST_FILES)
 foreach(include, TEST_ALGORITHMS)
+
+include("Aqua.jl")
