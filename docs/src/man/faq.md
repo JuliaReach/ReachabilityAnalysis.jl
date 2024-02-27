@@ -129,8 +129,8 @@ algorithms for stiff and non-stiff ODEs as well as many other advanced features,
 such as distributed computing, multi-threading and GPU support.
 See [EnsembleAlgorithms](https://diffeq.sciml.ai/stable/features/ensemble/#EnsembleAlgorithms) for details.
 
-As a simple example consider the scalar ODE $x'(t) = 1.01x(t)$ with initial condition on the
-interval $x(0) \in [0, 0.5]$. To solve it using ensemble simulations, pass the `ensemble=true`
+As a simple example consider the scalar ODE ``x'(t) = 1.01x(t)`` with initial condition on the
+interval ``x(0) ∈ [0, 0.5]``. To solve it using ensemble simulations, pass the `ensemble=true`
 keyword argument to the solve function (if the library `DifferentialEquations` was not loaded in
 your current session, an error is triggered). The number of trajectories can be specified
 with the `trajectories` keyword argument.

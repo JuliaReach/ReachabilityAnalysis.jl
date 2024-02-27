@@ -21,14 +21,14 @@ Z = linear_map(M, B) # zonotope
 ```
 
 Zonotopes are commonly represented using their generator representation.
-Here, a zonotope $Z ⊆ \mathbb{R}^n$ is defined by a center $c ∈ \mathbb{R}^n$ and
-a finite number of generators $g_1, . . . , g_p ∈ \mathbb{R}^n$ such that
+Here, a zonotope ``Z ⊆ \mathbb{R}^n`` is defined by a center ``c ∈ \mathbb{R}^n`` and
+a finite number of generators ``g_1, . . . , g_p ∈ \mathbb{R}^n`` such that
 
 ```math
-Z = \left\{ c + \sum_{i=1}^{p} \xi_i g_i | \xi_i ∈ [−1, 1]\right\}.
+Z = \left\{ c + \sum_{i=1}^{p} ξ_i g_i | ξ_i ∈ [−1, 1]\right\}.
 ```
-It is common to note $Z = (c, \langle g_1 . . . , g_p \rangle)$ or simply
-$Z = (c, G)$, where $g_i$ is the $i$-th column of $G$. In the example above,
+It is common to note ``Z = (c, ⟨ g_1 . . . , g_p ⟩)`` or simply
+``Z = (c, G)``, where ``g_i`` is the ``i``-th column of ``G``. In the example above,
 
 ```@example zonotope_definition
 @show center(Z)
@@ -43,7 +43,7 @@ Z3 = Zonotope([1.0, 0.0], [0.1 0.0; 0.0 0.1])
 ```
 
 The order of a zonotope is the ratio between the number of dimensions and the number
-of generators; i.e. $o = \frac{k}{n}$. Use the function `order(Z)` to get the order
+of generators; i.e. ``o = \frac{k}{n}``. Use the function `order(Z)` to get the order
 of a given zonotope.
 
 
@@ -60,19 +60,19 @@ There are other useful characterization of zonotopes. A zonotope can be seen as 
 
 ## Operations with zonotopes
 
-The cost is measured in terms of the number of binary operations, $\mathrm{Op}(\cdot)$.
+The cost is measured in terms of the number of binary operations, ``\mathrm{Op}(⋅)``.
 
 
-$Z_1 = (c, \langle v_1, \dotsb, v_k \rangle), Z_2 = (d, \langle w_1, \dotsb, w_m \rangle) \subset \mathbb{R}^n, M \in \mathbb{R}^{m \times n}$
+``Z_1 = (c, ⟨ v_1, …, v_k ⟩), Z_2 = (d, ⟨ w_1, …, w_m ⟩) ⊆ \mathbb{R}^n, M ∈ \mathbb{R}^{m \times n}``
 
-$Z_1 \oplus Z_2 = (c+d, \langle v_1, \dotsb, v_k, w_1, \dotsb, w_m \rangle)$
+``Z_1 \oplus Z_2 = (c+d, ⟨ v_1, …, v_k, w_1, …, w_m ⟩)``
 
-$MZ_1 = (Mc, \langle Mv_1, \dotsb, Mv_k \rangle)$
+``MZ_1 = (Mc, ⟨ Mv_1, …, Mv_k ⟩)``
 
-$CH(Z_1, e^{A\delta}Z_1) \subseteq \frac{1}{2}(c + e^{A\delta}c,\langle v_1 + e^{A\delta}v_1, \dotsb, v_k+e^{A\delta}v_k, v_1 - e^{A\delta}v_1, v_k - e^{A\delta}v_k, c - e^{A\delta}c \rangle )$
+``CH(Z_1, e^{Aδ}Z_1) ⊆ \frac{1}{2}(c + e^{Aδ}c,⟨ v_1 + e^{Aδ}v_1, …, v_k+e^{Aδ}v_k, v_1 - e^{Aδ}v_1, v_k - e^{Aδ}v_k, c - e^{Aδ}c ⟩ )``
 
-| Operation                 | Simplification Rule | Cost               |
-|---------------------------|---------------------|--------------------|
-| $Z_1 \oplus Z_2$          |                     |      $n$            |
-| $MZ_1$                    |                     |      $2mn(k+1)$              |
-| $CH(Z_1, e^{A\delta}Z_1)$ |                     |      $2n^2(k+1)+2n(k+2)$         |
+| Operation              | Simplification Rule | Cost                  |
+|------------------------|---------------------|-----------------------|
+| ``Z_1 \oplus Z_2``     |                     | ``n``                 |
+| ``MZ_1``               |                     | ``2mn(k+1)``          |
+| ``CH(Z_1, e^{Aδ}Z_1)`` |                     | ``2n^2(k+1)+2n(k+2)`` |

@@ -45,7 +45,7 @@ A second order system is one of the form
 ```math
     Mx''(t) + Cx'(t) + Kx(t) = f(t)
 ```
-where ``x(t) \in \mathbb{R}^n`` is the state vector and ``f : \mathbb{R} \to \mathbb{R}^n``
+where ``x(t) ∈ \mathbb{R}^n`` is the state vector and ``f : \mathbb{R} \to \mathbb{R}^n``
 is the forcing term. Here ``M``, ``C`` and ``K`` are often called the mass matrix,
 viscosity matrix and stiffness matrix respectively. These names are adopted from
 physical applications, particularly from structural mechanics. Assuming that the

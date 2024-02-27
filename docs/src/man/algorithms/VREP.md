@@ -10,14 +10,14 @@ CurrentModule = ReachabilityAnalysis
 This algorithm solves the recurrence relation
 
 ```math
-X_{k+1} = \Phi X_k \oplus V_k
+X_{k+1} = Φ X_k \oplus V_k
 ```
 using the vertex representation of the sets involved. If the system is homogeneous,
-i.e. $V_k = ∅$ for all $k \geq 0$, then the number of vertices of the sequence doesn't
-increase. On the other hand, the number of vertices of $X_k$ increases hence the method
+i.e. ``V_k = ∅`` for all ``k ≥ 0``, then the number of vertices of the sequence doesn't
+increase. On the other hand, the number of vertices of ``X_k`` increases hence the method
 requires doing some conservative reduction strategy.
 
-The method is aimed towards small dimensional systems -- typically $n < 15$ --
+The method is aimed towards small dimensional systems -- typically ``n < 15`` --
 which show a substantial benefit by using heap-allocated statically sized arrays
 through the [StaticArrays.jl](https://github.com/JuliaArrays/StaticArrays.jl) package.
 To use static arrays, pass the option `static=true`. Optionally, a dimension field

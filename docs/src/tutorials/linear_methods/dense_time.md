@@ -11,28 +11,29 @@ Thus, our next "toy" problem is the system of ordinary differential equations
 that describe a simple, undamped, harmonic oscillator:
 
 ```math
-\left\{ \begin{aligned}
+\begin{aligned}
 x'(t) &= y(t) \\
 y'(t) &= -x(t)
-\end{aligned} \right. \qquad \textrm{subject to } (x(0), y(0)) \in X_0 = [0.8, 1.2] \times [0.8, 1.2] \subset \mathbb{R}^2
+\end{aligned}
+\qquad \textrm{subject to } (x(0), y(0)) ∈ X_0 = [0.8, 1.2] \times [0.8, 1.2] ⊆ \mathbb{R}^2
 ```
-We are interested in solving this problem for all $t \in [0, T]$ with $T = 2\pi$.
+We are interested in solving this problem for all ``t ∈ [0, T]`` with ``T = 2π``.
 
 The problem studied in the previous section is the "discrete analogue" of the purely continuous system of differential equations defined above.
 
-The matrix $M(\omega t)$ describes the solution of a mathematical model called *simple harmonic oscillator* with natural frequency $\omega = 1$, and the **analytic solution** is
+The matrix ``M(ω t)`` describes the solution of a mathematical model called *simple harmonic oscillator* with natural frequency ``ω = 1``, and the **analytic solution** is
 
 ```math
-\left\{ \begin{aligned}
+\begin{aligned}
 x(t) &= x_0 \cos~ t + y_0 \sin~ t \\
 y(t) &= -x_0 \sin t + y_0 \cos t
-\end{aligned} \right.
+\end{aligned}
 ```
 
-Observe that $(x(t), y(t))^T$ is just the matrix $M(t)$ applied to the initial state $(x_0, y_0)^T$.
+Observe that ``(x(t), y(t))^T`` is just the matrix ``M(t)`` applied to the initial state ``(x_0, y_0)^T``.
 
 
-Define the invariant $G: \{(x, y) \in \mathbb{R}^2: x ≥ 1.3 \}$.
+Define the invariant ``G: \{(x, y) ∈ \mathbb{R}^2: x ≥ 1.3 \}``.
 
 
 ```@example dense_propagation
@@ -104,20 +105,20 @@ ylims!(0.8, 1.2)
 
 <b>Proposition 1.</b> Conservative time discretization for linear homogeneous systems [[LGG09]](@ref).
 
-Let $x' = Ax$ with initial states $x(0) \in X_0$. Then the convex set
+Let ``x' = Ax`` with initial states ``x(0) ∈ X_0``. Then the convex set
 
-$$
-\Omega_0 := CH(X_0, \Phi X_0 \oplus B_r),
-$$
+````
+Ω_0 := CH(X_0, Φ X_0 \oplus B_r),
+````
 
-where $\Phi = e^{A \delta}$ is the state transition matrix given a step size
-$\delta > 0$ and $B_r$ is the infinity norm ball centered at the origin and
-radius $r = (e^{\delta \Vert A \Vert } - 1 - \delta \Vert A \Vert)\Vert X_0\Vert$,
-satisfies $R^e([0, \delta], X_0) \subseteq \Omega_0$, where
-$R^e([0, \delta], X_0)$ are the exact reachable states between time $0$ and $\delta$.
+where ``Φ = e^{A δ}`` is the state transition matrix given a step size
+``δ > 0`` and ``B_r`` is the infinity norm ball centered at the origin and
+radius ``r = (e^{δ \Vert A \Vert } - 1 - δ \Vert A \Vert)\Vert X_0\Vert``,
+satisfies ``R^e([0, δ], X_0) ⊆ Ω_0``, where
+``R^e([0, δ], X_0)`` are the exact reachable states between time ``0`` and ``δ``.
 
-Moreover, $\Omega_0$ converges to the true reachable states when the step size
-$\delta \to 0$ (in Hausdorff distance).
+Moreover, ``Ω_0`` converges to the true reachable states when the step size
+``δ \to 0`` (in Hausdorff distance).
 
 </div>
 ```
