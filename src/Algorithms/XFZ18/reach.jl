@@ -109,7 +109,6 @@ function solve_sos(model; verbose=true)
 end
 
 function extract_approximations(model, 𝑂)
-
     # time horizon TODO : check consistency w/rescaling
     T = 𝑂[:T]
 
@@ -125,19 +124,18 @@ function extract_approximations(model, 𝑂)
     return (ϵopt, Punder, Pover)
 end
 
-function post(𝒫::XFZ18, 𝒮::AbstractSystem, 𝑂::Options)
-
+function post(::XFZ18, 𝒮::AbstractSystem, 𝑂::Options)
     # dynamics
     @assert 𝒮.s isa PolynomialContinuousSystem
 
     # construct sum-of-squares problem
-    model = build_sos(𝒫, 𝒮, 𝑂)
+    model = build_sos(𝒮, opt)
 
     # solve the sum-of-squares optimization
-    solve_sos(model, 𝑂)
+    solve_sos(model)
 
     # extract under and over approximations
-    (ϵopt, Punder, Pover) = extract_approximations(model)
+    ϵopt, Punder, Pover = extract_approximations(model, 𝑂)
 
     # returns the polynomial under and overapproximations of the reach set
     # for any t ∈ [0, T]
