@@ -128,7 +128,7 @@ Algorithms implementing conservative time discretization can be used from the
 function.
 Set-based conservative discretization of a continuous-time initial value problem
 into a discrete-time problem.
-This function receives three inputs: the initial value problem (``ivp`) for a
+This function receives three inputs: the initial value problem (`ivp`) for a
 linear ODE in canonical form, (e.g. the system returned by `normalize`);
 the step-size (`δ`), and the algorithm (`alg`) used to compute the approximation model.
 Do `subtypes(ReachabilityAnalysis.DiscretizationModule.AbstractApproximationModel)`
@@ -141,10 +141,10 @@ in the docstring of each method, e.g. [`Forward`](@ref).
 Initial-value problems considered in this function are of the form
 
 ```math
-x' = Ax(t) + u(t),\\qquad x(0) ∈ \\mathcal{X}_0,\\qquad (1)
+x' = Ax(t) + u(t),\qquad x(0) ∈ \mathcal{X}_0,\qquad (1)
 ```
-and where ``u(t) ∈ U(k)`` add where ``\\{U(k)\\}_k`` is a sequence of sets of
-non-deterministic inputs and ``\\mathcal{X}_0`` is the set of initial
+and where ``u(t) ∈ U(k)`` add where ``\{U(k)\}_k`` is a sequence of sets of
+non-deterministic inputs and ``\mathcal{X}_0`` is the set of initial
 states. Recall that this initial-value problem is called homogeneous whenever `U`
 is the empty set. Other problems, e.g. ``x' = Ax(t) + Bu(t)`` can be brought
 to the canonical form with the function [`normalize`](@ref).
@@ -160,7 +160,7 @@ discrete time case.
 of the given continuous system are included in the computed flowpipe of the
 discretized system. More precisely, given a step size ``δ`` and the system (1)
 conservative set-based discretization function computes a set, ``Ω₀``, that
-guarantees to contain all the trajectories of (1) starting at any ``x(0) ∈ \\mathcal{X}_0``
+guarantees to contain all the trajectories of (1) starting at any ``x(0) ∈ \mathcal{X}_0``
 and for any input function that satisfies ``u(t) ∈ U(1)``, for any ``t ∈ [0, δ]``.
 If ``U`` is time-varying, this function also discretizes the inputs for ``k ≥ 0``.
 
