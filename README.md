@@ -7,7 +7,7 @@
 [dev-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [dev-url]: https://juliareach.github.io/ReachabilityAnalysis.jl/dev/
 [ci-img]: https://github.com/JuliaReach/ReachabilityAnalysis.jl/workflows/CI/badge.svg
-[ci-url]: https://github.com/JuliaReach/ReachabilityAnalysis.jl/actions/workflows/ci.yml
+[ci-url]: https://github.com/JuliaReach/ReachabilityAnalysis.jl/actions/workflows/test-master.yml
 [cov-img]: https://codecov.io/github/JuliaReach/ReachabilityAnalysis.jl/coverage.svg
 [cov-url]: https://app.codecov.io/github/JuliaReach/ReachabilityAnalysis.jl
 [chat-img]: https://img.shields.io/badge/zulip-join_chat-brightgreen.svg
@@ -130,7 +130,7 @@ const T = 2*pi / ω
     local β = 1.0
     local δ = 0.3
     local γ = 0.37
-    
+
     x, v = u
     f = γ * cos(ω * t)
 
