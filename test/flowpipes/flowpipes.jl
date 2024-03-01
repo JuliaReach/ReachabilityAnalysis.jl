@@ -56,7 +56,7 @@ end
 
 @testset begin
     "Flowpipe inclusion"
-    # Projectile problem 
+    # Projectile problem
     A = [0.0 0.5 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.7; 0.0 0.0 0.0 0.0]
     X0 = Singleton([0.0, 5.0, 100.0, 0])
     U = Singleton([0.0, 0.0, 0.0, -9.81])
@@ -113,7 +113,7 @@ end
     δ = 0.1
     F1 = Flowpipe([ReachSet(X, (0 .. δ) + k * δ) for k in 0:10])
 
-    #= FIXME requires LazySets#2157
+    #= TODO requires LazySets#2157
     N = eltype(X)
     U1 = cluster(F1, 8:10, UnionClustering())
     @test U1 isa Vector{ReachSet{N, UnionSetArray{N,Interval{N, IntervalArithmetic.Interval{N}}}}}

@@ -47,7 +47,7 @@ using ..Overapproximate: _convert_or_overapproximate
     sol1_nonrec = solve(P_lin; tspan=(0.0, 1.0), alg=ASB07(; δ=0.04, recursive=false))
     @test diameter(set(sol1_rec[end])) < diameter(set(sol1_nonrec[end]))
 
-    # FIXME test without IntervalMatrix wrapper
+    # TODO test without IntervalMatrix wrapper
     #A = [-1.0 ± 0.05 -4.0 ± 0.05;
     #     4.0 ± 0.05 -1.0 ± 0.05]
     #P_lin = @ivp(x' = Ax, x(0) ∈ X0)

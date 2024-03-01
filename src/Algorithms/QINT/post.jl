@@ -1,5 +1,5 @@
 # this algorithms assumes that the initial-value problem is one-dimensional
-# FIXME requires special scalar quadratic system type
+# TODO requires special scalar quadratic system type
 function reach_homog_QINT(alg::QINT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
                           Δt0::TimeInterval=zeroI, kwargs...) where {N}
     n = statedim(ivp)
@@ -8,7 +8,7 @@ function reach_homog_QINT(alg::QINT{N}, ivp::IVP{<:AbstractContinuousSystem}, ts
 
     @unpack Δ, δ, θ, maxiter, approx_model = alg
 
-    # normalize system to canonical form FIXME
+    # normalize system to canonical form TODO
     ivp_norm = _normalize(ivp)
     Ω0 = initial_state(ivp_norm)
 
@@ -30,7 +30,7 @@ function reach_homog_QINT(alg::QINT{N}, ivp::IVP{<:AbstractContinuousSystem}, ts
     #F = Vector{ReachSet{N, IT}}(undef, NSTEPS)
 
     if got_homogeneous
-        # FIXME consider Δt0
+        # TODO consider Δt0
         F = reach_homog_QINT(; a=a, b=b, c=c, X0=Ω0, T=T, Δ=Δ, δ=δ, θ=θ, maxiter=maxiter)
     else
         error("not implemented yet")

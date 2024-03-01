@@ -107,7 +107,7 @@ function cluster(F, idx, ::LazyClustering{Missing,Val{true}})
     return [convexify(view(F, idx))]
 end
 
-# FIXME return a UnionSetArray of reach-sets
+# TODO return a UnionSetArray of reach-sets
 function cluster(F, idx, ::LazyClustering{Missing,Val{false}})
     return [view(F, idx)]
 end
