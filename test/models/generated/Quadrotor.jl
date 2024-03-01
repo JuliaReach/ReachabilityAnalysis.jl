@@ -1,4 +1,5 @@
 using ReachabilityAnalysis
+using ReachabilityBase.Arrays: SingleEntryVector
 
 # parameters of the model
 const g = 9.81            # gravity constant in m/s^2
@@ -75,8 +76,6 @@ const u₃ = 0.0
     return dx
 end;
 
-using ReachabilityBase.Arrays: SingleEntryVector
-
 const T = 5.0
 const v3 = SingleEntryVector(3, 12, 1.0)
 
@@ -109,8 +108,6 @@ function quadrotor(; Wpos, Wvel)
     return prob
 end;
 
-cases = ["Δ=0.1", "Δ=0.4", "Δ=0.8"];
-
 Wpos = 0.1
 Wvel = 0.1
 prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
@@ -140,10 +137,3 @@ sol = solve(prob; T=T, alg=alg)
 solz3 = overapproximate(sol, Zonotope);
 
 @assert !quad_property(solz3) "the property should not be proven"
-
-fig = plot(solz3; vars=(0, 3), linecolor="green", color=:green, alpha=0.8)
-plot!(solz2; vars=(0, 3), linecolor="blue", color=:blue, alpha=0.8)
-plot!(solz1; vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,
-      xlab="t", ylab="x3",
-      xtick=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0], ytick=[-1.0, -0.5, 0.0, 0.5, 1.0, 1.5],
-      xlims=(0.0, 5.0), ylims=(-1.0, 1.5))

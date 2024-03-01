@@ -25,7 +25,7 @@
 # The numerical values for the model's constants (in their respective units) are
 # ``A = 1, B = 1.5``.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 @taylorize function brusselator!(du, u, p, t)
     local A = 1.0
@@ -49,10 +49,10 @@ end
 # The initial set is ``x ∈ [0.8, 1]``, ``y ∈ [0, 0.2]``. The time horizon is
 # ``18``. These settings are taken from [^CAS13].
 
-U₀ = (0.8 .. 1.0) × (0.0 .. 0.2)  #!jl
-prob = @ivp(u' = brusselator!(u), u(0) ∈ U₀, dim:2)  #!jl
+U₀ = (0.8 .. 1.0) × (0.0 .. 0.2)
+prob = @ivp(u' = brusselator!(u), u(0) ∈ U₀, dim:2)
 
-T = 18.0;  #!jl
+T = 18.0;
 
 # ## Analysis
 
@@ -60,8 +60,8 @@ T = 18.0;  #!jl
 # second-order expansion in the spatial variables. The version `TMJets20` is
 # more efficient here.
 
-alg = TMJets20(; orderT=6, orderQ=2)  #!jl
-sol = solve(prob; T=T, alg=alg);  #!jl
+alg = TMJets20(; orderT=6, orderQ=2)
+sol = solve(prob; T=T, alg=alg);
 
 # ## Results
 
@@ -97,7 +97,7 @@ bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim:2);
 
 # First we solve for ``r = 0.01``:
 
-sol_01 = solve(bruss(0.01); T=30.0, alg=alg);  #!jl
+sol_01 = solve(bruss(0.01); T=30.0, alg=alg);
 
 #-
 
@@ -115,7 +115,7 @@ plot!(fig, U0(0.01); color=:orange, lab="Uo", xlims=(0.6, 1.3))  #!jl
 # flowpipe zoomed to the last portion and compare ``r = 0.01`` with a larger set
 # of initial states, ``r = 0.1``.
 
-sol_1 = solve(bruss(0.1); T=30.0, alg=alg);  #!jl
+sol_1 = solve(bruss(0.1); T=30.0, alg=alg);
 
 #-
 

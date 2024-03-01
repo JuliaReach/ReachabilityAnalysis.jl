@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 @taylorize function brusselator!(du, u, p, t)
     local A = 1.0
     local B = 1.5
@@ -11,6 +13,18 @@
     return du
 end
 
+U₀ = (0.8 .. 1.0) × (0.0 .. 0.2)
+prob = @ivp(u' = brusselator!(u), u(0) ∈ U₀, dim:2)
+
+T = 18.0;
+
+alg = TMJets20(; orderT=6, orderQ=2)
+sol = solve(prob; T=T, alg=alg);
+
 U0(r) = BallInf([1.0, 1.0], r);
 
 bruss(r) = @ivp(u' = brusselator!(u), u(0) ∈ U0(r), dim:2);
+
+sol_01 = solve(bruss(0.01); T=30.0, alg=alg);
+
+sol_1 = solve(bruss(0.1); T=30.0, alg=alg);

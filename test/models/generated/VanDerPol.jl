@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 @taylorize function vanderpol!(du, u, p, t)
     x, y = u
     local μ = 1.0
@@ -22,7 +24,6 @@ solz = overapproximate(sol, Zonotope);
 
 y_bound = ρ([0.0, 1.0], solz)
 @assert y_bound < 2.75 "the property should be proven"
-y_bound
 
 line = LineSegment([1, 2.0], [2.0, 2.5])
 
@@ -41,9 +42,5 @@ end;
 
 ifirst = cross_section(line, solz, 1:13)
 ilast = cross_section(line, solz, [388]);
-
-lfirst = norm(ifirst.q - ifirst.p)
-
-llast = norm(ilast.q - ilast.p)
 
 @assert ilast ⊆ ifirst "the cross section should get smaller"

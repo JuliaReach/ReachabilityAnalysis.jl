@@ -1,3 +1,5 @@
+using ReachabilityAnalysis, Symbolics
+
 @variables x y z
 positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z]);
 
@@ -40,9 +42,6 @@ sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
-vol
-
-fig = plot(sol; vars=(0, 3), lc=:orange, c=:orange, alpha=0.3, lab="I", xlab="t", ylab="z")
 
 @taylorize function prod_dest_IP!(du, u, p, t)
     x, y, z, a = u[1], u[2], u[3], u[4]
@@ -64,9 +63,6 @@ sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
-vol
-
-fig = plot(sol; vars=(0, 3), lc=:blue, c=:blue, alpha=0.3, lab="P", xlab="t", ylab="z")
 
 X0 = Hyperrectangle(; low=[9.5, 0.01, 0.01, 0.296], high=[10, 0.01, 0.01, 0.304])
 prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
@@ -75,6 +71,3 @@ sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
-vol
-
-fig = plot(sol; vars=(0, 3), lc=:red, c=:red, alpha=0.3, lab="I & P", xlab="t", ylab="z")

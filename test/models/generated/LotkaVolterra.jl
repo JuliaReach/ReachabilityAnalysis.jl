@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 @taylorize function lotkavolterra!(du, u, p, t)
     local α, β, γ, δ = 1.5, 1.0, 3.0, 1.0
 
@@ -13,10 +15,6 @@ prob = @ivp(x' = lotkavolterra!(x), dim:2, x(0) ∈ X0);
 
 sol = solve(prob; T=8.0, alg=TMJets())
 solz = overapproximate(sol, Zonotope);
-
-fig = plot(solz; vars=(1, 2), alpha=0.3, lw=0.0, xlab="x", ylab="y",
-           lab="Flowpipe", legend=:bottomright)
-plot!(fig, X0; label="X(0)")
 
 @taylorize function lotkavolterra_parametric!(du, u, p, t)
     x, y, αp, βp, γp, δp, ϵp = u
@@ -40,9 +38,6 @@ prob = @ivp(u' = lotkavolterra_parametric!(u), dim:7, u(0) ∈ U0);
 sol = solve(prob; tspan=(0.0, 10.0))
 solz = overapproximate(sol, Zonotope);
 
-fig = plot(solz; vars=(1, 2), lw=0.3, title="Uncertain parameters",
-           lab="abstol = 1e-15", xlab="x", ylab="y")
-
 □(ϵ) = BallInf([1.0, 1.0], ϵ)
 
 U0 = cartesian_product(□(0.05), convert(Hyperrectangle, p_int))
@@ -50,9 +45,6 @@ prob = @ivp(u' = lotkavolterra_parametric!(u), dim:7, u(0) ∈ U0);
 
 sol = solve(prob; T=10.0, alg=TMJets(; abstol=1e-10))
 solz = overapproximate(sol, Zonotope);
-
-fig = plot(solz; vars=(1, 2), color=:orange, lw=0.3, lab="ϵ = 0.05",
-           title="Uncertain u0 and uncertain parameters", xlab="x", ylab="y")
 
 U0 = cartesian_product(□(0.01), convert(Hyperrectangle, p_int))
 prob = @ivp(u' = lotkavolterra_parametric!(u), dim:7, u(0) ∈ U0);

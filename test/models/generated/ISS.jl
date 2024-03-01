@@ -1,3 +1,4 @@
+using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 using ReachabilityAnalysis: add_dimension
 
 path = @current_path("ISS", "ISS.jld2")
@@ -31,27 +32,7 @@ prob_ISSF01 = ISSF01()
 sol_ISSF01 = solve(prob_ISSF01; T=20.0,
                    alg=LGG09(; δ=6e-4, template=dirs, sparse=true, cache=false));
 
-dim(sol_ISSF01)
-
-πsol_ISSF01 = flatten(sol_ISSF01);
-
-dim(πsol_ISSF01)
-
-fig = Plots.plot(πsol_ISSF01[1:10:end]; vars=(0, 1), linecolor=:blue, color=:blue,
-                 alpha=0.8, xlab=L"t", ylab=L"y_{3}", xtick=[0, 5, 10, 15, 20.0],
-                 ytick=[-0.00075, -0.0005, -0.00025, 0, 0.00025, 0.0005, 0.00075],
-                 xlims=(0.0, 20.0), ylims=(-0.00075, 0.00075),
-                 bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
-
 dirs = CustomDirections([C3_ext, -C3_ext])
 prob_ISSC01 = ISSC01()
 sol_ISSC01 = solve(prob_ISSC01; T=20.0,
                    alg=LGG09(; δ=0.01, template=dirs, sparse=true, cache=false));
-
-πsol_ISSC01 = flatten(sol_ISSC01);
-
-fig = Plots.plot(πsol_ISSC01; vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8,
-                 lw=1.0, xlab=L"t", ylab=L"y_{3}", xtick=[0, 5, 10, 15, 20.0],
-                 ytick=[-0.0002, -0.0001, 0.0, 0.0001, 0.0002],
-                 xlims=(0.0, 20.0), ylims=(-0.0002, 0.0002),
-                 bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)

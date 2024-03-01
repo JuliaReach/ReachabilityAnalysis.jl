@@ -61,7 +61,7 @@
 # beginning by defining the positive orthant in three-dimensional space,
 # `positive_orthant`, as an unbounded polyhedron in constraint representation.
 
-using ReachabilityAnalysis, Symbolics  #!jl
+using ReachabilityAnalysis, Symbolics
 
 @variables x y z
 positive_orthant = HPolyhedron([x >= 0, y >= 0, z >= 0], [x, y, z]);
@@ -141,7 +141,7 @@ sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
-vol
+vol  #!jl
 
 # #### Results
 
@@ -150,7 +150,7 @@ vol
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(sol; vars=(0, 3), lc=:orange, c=:orange, alpha=0.3, lab="I", xlab="t", ylab="z")
+fig = plot(sol; vars=(0, 3), lc=:orange, c=:orange, alpha=0.3, lab="I", xlab="t", ylab="z")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -183,13 +183,13 @@ sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
-vol
+vol  #!jl
 
 # #### Results
 
 # We plot ``z`` over time.
 
-fig = plot(sol; vars=(0, 3), lc=:blue, c=:blue, alpha=0.3, lab="P", xlab="t", ylab="z")
+fig = plot(sol; vars=(0, 3), lc=:blue, c=:blue, alpha=0.3, lab="P", xlab="t", ylab="z")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -211,13 +211,13 @@ sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
-vol
+vol  #!jl
 
 # #### Results
 
 # We plot ``z`` over time.
 
-fig = plot(sol; vars=(0, 3), lc=:red, c=:red, alpha=0.3, lab="I & P", xlab="t", ylab="z")
+fig = plot(sol; vars=(0, 3), lc=:red, c=:red, alpha=0.3, lab="I & P", xlab="t", ylab="z")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

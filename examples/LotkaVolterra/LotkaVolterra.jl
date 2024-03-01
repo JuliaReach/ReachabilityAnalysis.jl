@@ -27,7 +27,7 @@
 #
 # We set these parameters to ``α = 1.5``, ``β = 1``, ``γ = 3``, and ``δ = 1``.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 @taylorize function lotkavolterra!(du, u, p, t)
     local α, β, γ, δ = 1.5, 1.0, 3.0, 1.0
@@ -56,9 +56,9 @@ solz = overapproximate(sol, Zonotope);
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(solz; vars=(1, 2), alpha=0.3, lw=0.0, xlab="x", ylab="y",
-           lab="Flowpipe", legend=:bottomright)
-plot!(fig, X0; label="X(0)")
+fig = plot(solz; vars=(1, 2), alpha=0.3, lw=0.0, xlab="x", ylab="y",  #!jl
+           lab="Flowpipe", legend=:bottomright)  #!jl
+plot!(fig, X0; label="X(0)")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -95,8 +95,8 @@ solz = overapproximate(sol, Zonotope);
 
 # ## Results
 
-fig = plot(solz; vars=(1, 2), lw=0.3, title="Uncertain parameters",
-           lab="abstol = 1e-15", xlab="x", ylab="y")
+fig = plot(solz; vars=(1, 2), lw=0.3, title="Uncertain parameters",  #!jl
+           lab="abstol = 1e-15", xlab="x", ylab="y")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -123,8 +123,8 @@ solz = overapproximate(sol, Zonotope);
 
 # ### Results
 
-fig = plot(solz; vars=(1, 2), color=:orange, lw=0.3, lab="ϵ = 0.05",
-           title="Uncertain u0 and uncertain parameters", xlab="x", ylab="y")
+fig = plot(solz; vars=(1, 2), color=:orange, lw=0.3, lab="ϵ = 0.05",  #!jl
+           title="Uncertain u0 and uncertain parameters", xlab="x", ylab="y")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

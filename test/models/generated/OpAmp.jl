@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 function opamp_nondet(; X0=Singleton([0.0]),
                       R₁=2.0, R₂=6.0, C=1.e-3,
                       Ein=Interval(1.9, 2.1))
@@ -13,21 +15,13 @@ end;
 
 sol_nondet = solve(opamp_nondet(); T=0.1, alg=INT(; δ=1e-4));
 
-fig = plot(sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",
-           title="Solution for nondeterministic input", lw=0.2)
-
-Δt = 0 .. 0.04
-
-fig = plot(; xlab=L"t", ylab=L"e_{out}(t)", title="Solution for nondeterministic input")
-
 sol_nondet = solve(opamp_nondet(; X0=Interval(-1.0, 1.0)); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -1 .. 1", lw=0.2)
 
 sol_nondet = solve(opamp_nondet(; X0=Interval(-0.5, 0.5)); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -0.5 .. 0.5", lw=0.2)
 
 sol_nondet = solve(opamp_nondet(); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = 0", lw=0.2)
+
+using Symbolics
 
 function opamp_with_saturation(; X0=Singleton(zeros(2)),
                                R₁=2.0, R₂=6.0, C=1.e-3,
@@ -65,13 +59,6 @@ prob_const = opamp_with_saturation(; X0=X0, γ=0.0, δ=0.0, Es=3.0);
 
 sol_const = solve(prob_const; T=0.1, alg=BOX(; δ=1e-4));
 
-fig = plot(sol_const; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",
-           title="Constant input signal", lw=0.2)
-plot!(fig, x -> x, x -> 1.5, 0.0, 0.1; color="red", lw=2, ls=:dash, lab="")
-
-fig = plot(sol_const; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",
-           title="Solution for constant input", lw=0.2)
-
 X0 = Singleton(zeros(2));
 
 prob_lin = opamp_with_saturation(; X0=X0, γ=0.0, δ=100.0, Es=1.0)
@@ -80,15 +67,3 @@ prob_exp = opamp_with_saturation(; X0=X0, γ=-100.0, δ=100.0, Es=3.0);
 sol_lin = solve(prob_lin; T=0.1, alg=BOX(; δ=1e-4))
 
 sol_exp = solve(prob_exp; T=0.1, alg=BOX(; δ=1e-4));
-
-fig = plot(sol_lin; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",
-           title="Linear input with saturation", lw=0.2)
-
-fig = plot(sol_exp; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",
-           title="Exponential input", lw=0.2)
-
-fig = plot(sol_lin; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",
-           title="Solution for linear input", lw=0.2)
-
-fig = plot(sol_exp; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",
-           title="Solution for exponential input", lw=0.2)

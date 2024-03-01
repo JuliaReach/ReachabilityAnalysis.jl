@@ -8,21 +8,17 @@ function tline(; η=3, R=1.00, Rd=10.0, L=1e-10, C=1e-13 * 4.00)
     A = [A₁₁ A₁₂; A₂₁ A₂₂]
     B = sparse([η + 1], [1], 1 / L, 2η, 1)
     return A, B
-end;
+end
 
-A, _ = tline(; η=20)
-fig = spy(A; legend=nothing, markersize=2.0, title="Sparsity pattern of A",
-          xlab="columns", ylab="rows")
+η = 20
+n = 2η
+A, B = tline(; η=η);
 
 function scale!(s, α=1.0)
     s.A .*= α
     s.B .*= α
     return s
 end;
-
-η = 20
-n = 2η
-A, B = tline(; η=η)
 
 Uin_ss = Interval(-0.2, 0.2)
 □(ϵ) = BallInf(zeros(n), ϵ)
@@ -36,7 +32,3 @@ scale!(s, α)
 prob = InitialValueProblem(s, X0);
 
 sol = solve(prob; T=0.7, alg=BOX(; δ=1e-3));
-
-Uout_vs_t = @. (-1.0) * project(sol, η);
-
-fig = plot(Uout_vs_t; vars=(0, η), c=:blue, xlab="t", ylab="Uout", alpha=0.5, lw=0.5)

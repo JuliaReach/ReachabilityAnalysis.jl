@@ -34,7 +34,7 @@
 # communication in zero time. We will consider PLAN01: ``t_b = 10``,
 # ``t_c = 20``, and ``t_r = 20``.
 
-using ReachabilityAnalysis, SparseArrays, Symbolics  #!jl
+using ReachabilityAnalysis, SparseArrays, Symbolics
 
 const var = @variables x[1:9] t;
 
@@ -195,7 +195,7 @@ prob_PLAD01 = platoon();
 # coordinate:
 
 boxdirs = BoxDirections(10)
-length(boxdirs)
+length(boxdirs)  #!jl
 
 #-
 
@@ -217,27 +217,27 @@ sol_PLAD01_BND42 = solve(prob_PLAD01;
 
 # Minimum of ``x_1(t)``:
 
--ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND42)
+-ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND42)  #!jl
 
 #-
 
 # Minimum of ``x_4(t)``:
 
--ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND42)
+-ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND42)  #!jl
 
 #-
 
 # Minimum of ``x_7(t)``:
 
--ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND42)
+-ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND42)  #!jl
 
 # Next, we plot variable ``x_1`` over time.
 
 using Plots, LaTeXStrings  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(sol_PLAD01_BND42; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND42", lw=0.1)
-plot!(x -> x, x -> -42.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)
+fig = plot(sol_PLAD01_BND42; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND42", lw=0.1)  #!jl
+plot!(x -> x, x -> -42.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -252,7 +252,7 @@ plot!(x -> x, x -> -42.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=not
 # are 200 such directions:
 
 octdirs = OctDirections(10)
-length(octdirs)
+length(octdirs)  #!jl
 
 #md # !!! tip "Performance tip"
 #md #     The increase in the number of directions implies an increase in
@@ -281,23 +281,23 @@ sol_PLAD01_BND30 = solve(prob_PLAD01;
 
 # Minimum of ``x_1(t)``:
 
--ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND30)
+-ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND30)  #!jl
 
 #-
 
 # Minimum of ``x_4(t)``:
 
--ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND30)
+-ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND30)  #!jl
 
 #-
 
 # Minimum of ``x_7(t)``:
 
--ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND30)
+-ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND30)  #!jl
 
 # Finally, we plot variable ``x_1`` over time again.
 
-fig = plot(sol_PLAD01_BND30; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND30", lw=0.1)
-plot!(x -> x, x -> -30.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)
+fig = plot(sol_PLAD01_BND30; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND30", lw=0.1)  #!jl
+plot!(x -> x, x -> -30.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 @taylorize function seir!(dx, x, p, t)
     S, E, I, R, α, β, γ = x
 
@@ -28,9 +30,3 @@ prob = @ivp(x' = seir!(x), dim:7, x(0) ∈ X0);
 
 sol = solve(prob; T=200.0, alg=TMJets21a(; orderT=7, orderQ=1))
 solz = overapproximate(sol, Zonotope);
-
-fig = plot(; legend=:outerright)
-plot!(fig, solz; vars=(0, 1), color=:blue, lw=0.0, lab="S")
-plot!(fig, solz; vars=(0, 2), color=:green, lw=0.0, lab="E")
-plot!(fig, solz; vars=(0, 3), color=:red, lw=0.0, lab="I")
-plot!(fig, solz; vars=(0, 4), color=:grey, lw=0.0, lab="R")

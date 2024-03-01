@@ -1,3 +1,5 @@
+using ReachabilityAnalysis, SparseArrays
+
 function embrake_common(; A, Tsample, ζ, x0)
     # continuous system
     EMbrake = @system(x' = A * x)

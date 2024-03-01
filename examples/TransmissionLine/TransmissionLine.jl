@@ -114,6 +114,9 @@
 # are useful constructors in the base package `LinearAlgebra` that greatly
 # simplify building matrices with special shape, as in our case, such as
 # diagonal and band matrices, with the types `Diagonal` and `Bidiagonal`.
+#
+# We consider the case of ``η = 20`` nodes as in [^AKS11], such that the system
+# has ``n = 40`` state variables.
 
 using ReachabilityAnalysis, LinearAlgebra, SparseArrays
 
@@ -125,7 +128,11 @@ function tline(; η=3, R=1.00, Rd=10.0, L=1e-10, C=1e-13 * 4.00)
     A = [A₁₁ A₁₂; A₂₁ A₂₂]
     B = sparse([η + 1], [1], 1 / L, 2η, 1)
     return A, B
-end;
+end
+
+η = 20
+n = 2η
+A, B = tline(; η=η);
 
 # We can visualize the structure of the sparse coefficients matrix ``A`` for the
 # case ``η = 20`` with a `spy` plot:
@@ -133,9 +140,8 @@ end;
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-A, _ = tline(; η=20)
-fig = spy(A; legend=nothing, markersize=2.0, title="Sparsity pattern of A",
-          xlab="columns", ylab="rows")
+fig = spy(A; legend=nothing, markersize=2.0, title="Sparsity pattern of A",  #!jl
+          xlab="columns", ylab="rows")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -193,13 +199,6 @@ end;
 # We are interested in the step response to an input voltage ``U_{in}(t)``
 # arbitrarily varying over the domain ``U_{in} = [0.99, 1.01]`` for all
 # ``t ∈ [0, T]``.
-#
-# We consider the case of ``η = 20`` nodes as in [^AKS11], such that the system
-# has ``n = 40`` state variables.
-
-η = 20
-n = 2η
-A, B = tline(; η=η)
 
 Uin_ss = Interval(-0.2, 0.2)
 □(ϵ) = BallInf(zeros(n), ϵ)
@@ -221,11 +220,11 @@ sol = solve(prob; T=0.7, alg=BOX(; δ=1e-3));
 # To get the variable ``U_{out}``, we have to project onto the ``η``-th
 # coordinate and invert the sign of the flowpipe.
 
-Uout_vs_t = @. (-1.0) * project(sol, η);
+Uout_vs_t = @. (-1.0) * project(sol, η);  #!jl
 
 # ## Results
 
-fig = plot(Uout_vs_t; vars=(0, η), c=:blue, xlab="t", ylab="Uout", alpha=0.5, lw=0.5)
+fig = plot(Uout_vs_t; vars=(0, η), c=:blue, xlab="t", ylab="Uout", alpha=0.5, lw=0.5)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

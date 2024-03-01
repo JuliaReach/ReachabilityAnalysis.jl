@@ -25,7 +25,7 @@
 # exposed population, ``I`` is the stock of infected, ``R`` is the stock of
 # removed population (either by death or recovery), with ``S + E + I + R = N``.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 @taylorize function seir!(dx, x, p, t)
     S, E, I, R, α, β, γ = x
@@ -71,10 +71,10 @@ solz = overapproximate(sol, Zonotope);
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(; legend=:outerright)
-plot!(fig, solz; vars=(0, 1), color=:blue, lw=0.0, lab="S")
-plot!(fig, solz; vars=(0, 2), color=:green, lw=0.0, lab="E")
-plot!(fig, solz; vars=(0, 3), color=:red, lw=0.0, lab="I")
-plot!(fig, solz; vars=(0, 4), color=:grey, lw=0.0, lab="R")
+fig = plot(; legend=:outerright)  #!jl
+plot!(fig, solz; vars=(0, 1), color=:blue, lw=0.0, lab="S")  #!jl
+plot!(fig, solz; vars=(0, 2), color=:green, lw=0.0, lab="E")  #!jl
+plot!(fig, solz; vars=(0, 3), color=:red, lw=0.0, lab="I")  #!jl
+plot!(fig, solz; vars=(0, 4), color=:grey, lw=0.0, lab="R")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

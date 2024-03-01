@@ -1,3 +1,5 @@
+using ReachabilityAnalysis, SparseArrays, Symbolics
+
 const var = @variables x[1:9] t;
 
 function platoon_connected(; deterministic_switching::Bool=true, c1=5.0)
@@ -117,7 +119,6 @@ end
 prob_PLAD01 = platoon();
 
 boxdirs = BoxDirections(10)
-length(boxdirs)
 
 alg = BOX(; δ=0.01)
 sol_PLAD01_BND42 = solve(prob_PLAD01;
@@ -129,17 +130,7 @@ sol_PLAD01_BND42 = solve(prob_PLAD01;
 
 @assert dmin_specification(sol_PLAD01_BND42, 42) "the property should be proven"
 
--ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND42)
-
--ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND42)
-
--ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND42)
-
-fig = plot(sol_PLAD01_BND42; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND42", lw=0.1)
-plot!(x -> x, x -> -42.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)
-
 octdirs = OctDirections(10)
-length(octdirs)
 
 alg = LGG09(; δ=0.03, template=octdirs, approx_model=Forward(; setops=octdirs))
 sol_PLAD01_BND30 = solve(prob_PLAD01;
@@ -150,12 +141,3 @@ sol_PLAD01_BND30 = solve(prob_PLAD01;
                          T=20.0);
 
 @assert dmin_specification(sol_PLAD01_BND30, 30) "the property should be proven"
-
--ρ(sparsevec([1], [-1.0], 10), sol_PLAD01_BND30)
-
--ρ(sparsevec([4], [-1.0], 10), sol_PLAD01_BND30)
-
--ρ(sparsevec([7], [-1.0], 10), sol_PLAD01_BND30)
-
-fig = plot(sol_PLAD01_BND30; vars=(0, 1), xlab=L"t", ylab=L"x_1", title="PLAD01 - BND30", lw=0.1)
-plot!(x -> x, x -> -30.0, 0.0, 20.0; linewidth=2, color="red", ls=:dash, leg=nothing)
