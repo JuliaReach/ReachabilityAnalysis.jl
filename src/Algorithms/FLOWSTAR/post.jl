@@ -74,7 +74,7 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
         ContinuousReachModel(states, params, setting, scheme, eom, dom)
     end
 
-    # call Flow*; use Val(true) to obtain TaylorModel1 of TaylorN 
+    # call Flow*; use Val(true) to obtain TaylorModel1 of TaylorN
     sol = FlowstarContinuousSolution(model, Val(true))
     flow = sol.flow
 
