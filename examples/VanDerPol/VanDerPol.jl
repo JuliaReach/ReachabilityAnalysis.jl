@@ -39,7 +39,7 @@
 # The system has a stable limit cycle. This limit cycle becomes increasingly
 # sharp for higher values ``μ``. Here we consider the parameter ``μ = 1``.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 @taylorize function vanderpol!(du, u, p, t)
     x, y = u
@@ -90,7 +90,7 @@ solz = overapproximate(sol, Zonotope);
 
 y_bound = ρ([0.0, 1.0], solz)
 @assert y_bound < 2.75 "the property should be proven"
-y_bound
+y_bound  #!jl
 
 # This shows that the property is satisfied. Below we plot the flowpipe in the
 # x-y plane, together with the horizontal line ``y = 2.75``.
@@ -179,11 +179,11 @@ ilast = cross_section(line, solz, [388]);
 
 # We can also calculate the length of each cross section.
 
-lfirst = norm(ifirst.q - ifirst.p)
+lfirst = norm(ifirst.q - ifirst.p)  #!jl
 
 #-
 
-llast = norm(ilast.q - ilast.p)
+llast = norm(ilast.q - ilast.p)  #!jl
 
 #-
 

@@ -187,7 +187,7 @@ end
 # To model the system as a hybrid automaton, it is useful to work with symbolic
 # state variables.
 
-using Symbolics  #!jl
+using Symbolics
 
 const var = @variables x y vx vy t
 
@@ -350,7 +350,7 @@ solz = overapproximate(sol, Zonotope);
 using Plots, Plots.PlotMeasures, LaTeXStrings  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(solz; vars=(1, 2), xlab="x", ylab="y")
+fig = plot(solz; vars=(1, 2), xlab="x", ylab="y")  #!jl
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -360,32 +360,32 @@ fig = plot(solz; vars=(1, 2), xlab="x", ylab="y")
 # using different colors. The plotting code is more sophisticated than before,
 # and is an example of finer control of the options used to plot the flowpipes.
 
-idx_approaching = findall(x -> x == 1, location.(solz))
-idx_attempt = findall(x -> x == 2, location.(solz))
-idx_aborting = findall(x -> x == 3, location.(solz))
+idx_approaching = findall(x -> x == 1, location.(solz))  #!jl
+idx_attempt = findall(x -> x == 2, location.(solz))  #!jl
+idx_aborting = findall(x -> x == 3, location.(solz))  #!jl
 
-fig = plot(; legend=:bottomright, tickfont=font(10, "Times"), guidefontsize=15,
-           xlab=L"x", ylab=L"y", lw=0.0, xtick=[-750, -500, -250, 0, 250.0],
-           ytick=[-400, -300, -200, -100, 0.0], xlims=(-1000.0, 400.0), ylims=(-450.0, 0.0),
-           size=(600, 600), bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
+fig = plot(; legend=:bottomright, tickfont=font(10, "Times"), guidefontsize=15,  #!jl
+           xlab=L"x", ylab=L"y", lw=0.0, xtick=[-750, -500, -250, 0, 250.0],  #!jl
+           ytick=[-400, -300, -200, -100, 0.0], xlims=(-1000.0, 400.0), ylims=(-450.0, 0.0),  #!jl
+           size=(600, 600), bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)  #!jl
 
-plot!(fig, solz[idx_approaching[1]]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1,
-      lab="Approaching")
-for k in idx_approaching[2:end]
-    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1)
-end
+plot!(fig, solz[idx_approaching[1]]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1,  #!jl
+      lab="Approaching")  #!jl
+for k in idx_approaching[2:end]  #!jl
+    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1)  #!jl
+end  #!jl
 
-plot!(fig, solz[idx_attempt[1]]; vars=(1, 2), lw=0.0, color=:red, alpha=1, lab="Attempt")
-for k in idx_attempt[2:end]
-    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:red, alpha=1)
-end
+plot!(fig, solz[idx_attempt[1]]; vars=(1, 2), lw=0.0, color=:red, alpha=1, lab="Attempt")  #!jl
+for k in idx_attempt[2:end]  #!jl
+    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:red, alpha=1)  #!jl
+end  #!jl
 
-plot!(fig, solz[idx_aborting[1]]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1, lab="Aborting")
-for k in idx_aborting[2:end]
-    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1)
-end
+plot!(fig, solz[idx_aborting[1]]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1, lab="Aborting")  #!jl
+for k in idx_aborting[2:end]  #!jl
+    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1)  #!jl
+end  #!jl
 
-fig
+fig  #!jl
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

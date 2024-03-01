@@ -67,6 +67,7 @@
 # We leave the heading uncontrolled by setting ``τ_ψ = 0``.
 
 using ReachabilityAnalysis
+using ReachabilityBase.Arrays: SingleEntryVector
 
 ## parameters of the model
 const g = 9.81            # gravity constant in m/s^2
@@ -156,8 +157,6 @@ end;
 # settings the same. No goals are specified for these cases: the objective
 # instead is to understand the scalability of the tool.
 
-using ReachabilityBase.Arrays: SingleEntryVector
-
 const T = 5.0
 const v3 = SingleEntryVector(3, 12, 1.0)
 
@@ -191,8 +190,6 @@ function quadrotor(; Wpos, Wvel)
 end;
 
 # ## Analysis
-
-cases = ["Δ=0.1", "Δ=0.4", "Δ=0.8"];
 
 # ### Case 1: smaller uncertainty
 
@@ -241,12 +238,12 @@ solz3 = overapproximate(sol, Zonotope);
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(solz3; vars=(0, 3), linecolor="green", color=:green, alpha=0.8)
-plot!(solz2; vars=(0, 3), linecolor="blue", color=:blue, alpha=0.8)
-plot!(solz1; vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,
-      xlab="t", ylab="x3",
-      xtick=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0], ytick=[-1.0, -0.5, 0.0, 0.5, 1.0, 1.5],
-      xlims=(0.0, 5.0), ylims=(-1.0, 1.5))
+fig = plot(solz3; vars=(0, 3), linecolor="green", color=:green, alpha=0.8)  #!jl
+plot!(solz2; vars=(0, 3), linecolor="blue", color=:blue, alpha=0.8)  #!jl
+plot!(solz1; vars=(0, 3), linecolor="yellow", color=:yellow, alpha=0.8,  #!jl
+      xlab="t", ylab="x3",  #!jl
+      xtick=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0], ytick=[-1.0, -0.5, 0.0, 0.5, 1.0, 1.5],  #!jl
+      xlims=(0.0, 5.0), ylims=(-1.0, 1.5))  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

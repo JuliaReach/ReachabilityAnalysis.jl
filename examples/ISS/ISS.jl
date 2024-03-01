@@ -35,7 +35,7 @@
 # - **ISSC01** (constant inputs): The inputs are only uncertain in their initial
 #   value, and constant over time: ``u(0) ∈ \mathcal{U}``, ``\dot{u}(t) = 0``.
 
-using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath  #!jl
+using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 using ReachabilityAnalysis: add_dimension
 
 path = @current_path("ISS", "ISS.jld2")
@@ -121,17 +121,17 @@ sol_ISSF01 = solve(prob_ISSF01; T=20.0,
 # The solution `sol_ISSF01` is a 270-dimensional set that (only) contains
 # template reach sets for the linear combination `C_3 x(t)`.
 
-dim(sol_ISSF01)
+dim(sol_ISSF01)  #!jl
 
 # For visualization, it is necessary to specify that we want to plot "time" vs.
 # ``y_3(t)``. We can transform the flowpipe on the output ``y_3(t)`` by
 # "flattening" the flowpipe along directions `dirs`.
 
-πsol_ISSF01 = flatten(sol_ISSF01);
+πsol_ISSF01 = flatten(sol_ISSF01);  #!jl
 
 # Now `πsol_ISSF01` is a one-dimensional flowpipe.
 
-dim(πsol_ISSF01)
+dim(πsol_ISSF01)  #!jl
 
 #md # !!! tip "Performance tip"
 #md #     Note that projecting the solution along direction ``C_3`` corresponds
@@ -149,11 +149,11 @@ LazySets.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
 
 #-
 
-fig = Plots.plot(πsol_ISSF01[1:10:end]; vars=(0, 1), linecolor=:blue, color=:blue,
-                 alpha=0.8, xlab=L"t", ylab=L"y_{3}", xtick=[0, 5, 10, 15, 20.0],
-                 ytick=[-0.00075, -0.0005, -0.00025, 0, 0.00025, 0.0005, 0.00075],
-                 xlims=(0.0, 20.0), ylims=(-0.00075, 0.00075),
-                 bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
+fig = plot(πsol_ISSF01[1:10:end]; vars=(0, 1), linecolor=:blue, color=:blue,  #!jl
+           alpha=0.8, xlab=L"t", ylab=L"y_{3}", xtick=[0, 5, 10, 15, 20.0],  #!jl
+           ytick=[-0.00075, -0.0005, -0.00025, 0, 0.00025, 0.0005, 0.00075],  #!jl
+           xlims=(0.0, 20.0), ylims=(-0.00075, 0.00075),  #!jl
+           bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)  #!jl
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # ### ISSC01
@@ -165,15 +165,15 @@ sol_ISSC01 = solve(prob_ISSC01; T=20.0,
 
 # We can flatten the flowpipe to the output ``y_3(t)`` as before:
 
-πsol_ISSC01 = flatten(sol_ISSC01);
+πsol_ISSC01 = flatten(sol_ISSC01);  #!jl
 
 #-
 
-fig = Plots.plot(πsol_ISSC01; vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8,
-                 lw=1.0, xlab=L"t", ylab=L"y_{3}", xtick=[0, 5, 10, 15, 20.0],
-                 ytick=[-0.0002, -0.0001, 0.0, 0.0001, 0.0002],
-                 xlims=(0.0, 20.0), ylims=(-0.0002, 0.0002),
-                 bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
+fig = plot(πsol_ISSC01; vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8,  #!jl
+           lw=1.0, xlab=L"t", ylab=L"y_{3}", xtick=[0, 5, 10, 15, 20.0],  #!jl
+           ytick=[-0.0002, -0.0001, 0.0, 0.0001, 0.0002],  #!jl
+           xlims=(0.0, 20.0), ylims=(-0.0002, 0.0002),  #!jl
+           bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)  #!jl
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-

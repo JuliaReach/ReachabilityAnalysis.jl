@@ -73,7 +73,7 @@
 # It is convenient to define constants ``α`` and ``β`` such that
 # ``\dfrac{d e_{out}(t)}{dt} = α e_{out}(t) + β e_{in}(t)``.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 function opamp_nondet(; X0=Singleton([0.0]),
                       R₁=2.0, R₂=6.0, C=1.e-3,
@@ -101,8 +101,8 @@ sol_nondet = solve(opamp_nondet(); T=0.1, alg=INT(; δ=1e-4));
 using Plots, LaTeXStrings  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",
-           title="Solution for nondeterministic input", lw=0.2)
+fig = plot(sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",  #!jl
+           title="Solution for nondeterministic input", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -110,18 +110,18 @@ fig = plot(sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",
 # we solve for three different initial conditions of increasing width, for a
 # shorter time horizon.
 
-Δt = 0 .. 0.04
+Δt = 0 .. 0.04  #!jl
 
-fig = plot(; xlab=L"t", ylab=L"e_{out}(t)", title="Solution for nondeterministic input")
+fig = plot(; xlab=L"t", ylab=L"e_{out}(t)", title="Solution for nondeterministic input")  #!jl
 
 sol_nondet = solve(opamp_nondet(; X0=Interval(-1.0, 1.0)); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -1 .. 1", lw=0.2)
+plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -1 .. 1", lw=0.2)  #!jl
 
 sol_nondet = solve(opamp_nondet(; X0=Interval(-0.5, 0.5)); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -0.5 .. 0.5", lw=0.2)
+plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -0.5 .. 0.5", lw=0.2)  #!jl
 
 sol_nondet = solve(opamp_nondet(); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = 0", lw=0.2)
+plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = 0", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -160,7 +160,7 @@ plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = 0", lw=0.2)
 # ``e_{in}(0) ∈ E_{in, 0}``, ``e_{in}(t)`` constant and ``γ = δ = 0``. We will
 # consider the other cases in the next section.
 
-using Symbolics  #!jl
+using Symbolics
 
 function opamp_with_saturation(; X0=Singleton(zeros(2)),
                                R₁=2.0, R₂=6.0, C=1.e-3,
@@ -210,16 +210,16 @@ sol_const = solve(prob_const; T=0.1, alg=BOX(; δ=1e-4));
 
 # ### Results
 
-fig = plot(sol_const; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",
-           title="Constant input signal", lw=0.2)
-plot!(fig, x -> x, x -> 1.5, 0.0, 0.1; color="red", lw=2, ls=:dash, lab="")
+fig = plot(sol_const; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",  #!jl
+           title="Constant input signal", lw=0.2)  #!jl
+plot!(fig, x -> x, x -> 1.5, 0.0, 0.1; color="red", lw=2, ls=:dash, lab="")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(sol_const; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",
-           title="Solution for constant input", lw=0.2)
+fig = plot(sol_const; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",  #!jl
+           title="Solution for constant input", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -251,29 +251,29 @@ sol_exp = solve(prob_exp; T=0.1, alg=BOX(; δ=1e-4));
 
 # ## Results
 
-fig = plot(sol_lin; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",
-           title="Linear input with saturation", lw=0.2)
+fig = plot(sol_lin; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",  #!jl
+           title="Linear input with saturation", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(sol_exp; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",
-           title="Exponential input", lw=0.2)
+fig = plot(sol_exp; vars=(0, 2), xlab=L"t", ylab=L"e_{in}(t)",  #!jl
+           title="Exponential input", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(sol_lin; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",
-           title="Solution for linear input", lw=0.2)
+fig = plot(sol_lin; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",  #!jl
+           title="Solution for linear input", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(sol_exp; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",
-           title="Solution for exponential input", lw=0.2)
+fig = plot(sol_exp; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",  #!jl
+           title="Solution for exponential input", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 

@@ -24,6 +24,6 @@
 # - **Constant inputs**: The inputs are only uncertain in the initial value, and
 #    constant over time: ``u(0) ∈ \mathcal{U}``, ``\dot{u}(t) = 0.``
 
-using ReachabilityAnalysis, SparseArrays, JLD2, ReachabilityBase.CurrentPath  #!jl
+using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 
 path = @current_path("Heat3D", "HEAT01.jld2")

@@ -26,7 +26,7 @@
 # ``σ``, ``ρ``, and ``β`` are proportional to the Prandtl number, Rayleigh
 # number, and certain physical dimensions of the layer itself.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 @taylorize function lorenz!(du, u, p, t)
     local σ = 10.0
@@ -54,9 +54,7 @@ prob = @ivp(x' = lorenz!(x), dim:3, x(0) ∈ X0);
 # ``n_Q=2``.
 
 alg = TMJets(; abstol=1e-15, orderT=10, orderQ=2, maxsteps=50_000)
-
 sol = solve(prob; T=10.0, alg=alg)
-
 solz = overapproximate(sol, Zonotope);
 
 # ## Results
@@ -64,15 +62,15 @@ solz = overapproximate(sol, Zonotope);
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(solz; vars=(0, 1), xlab="t", ylab="x")
+fig = plot(solz; vars=(0, 1), xlab="t", ylab="x")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 # It is apparent by inspection that variable ``x(t)`` does not exceed ``20`` in
 # the computed time span:
 
-fig = plot(solz(0.0 .. 1.5); vars=(0, 1), xlab="t", ylab="x", lw=0)
-plot!(fig, x -> 20.0; c=:red, xlims=(0.0, 1.5), lab="")
+fig = plot(solz(0.0 .. 1.5); vars=(0, 1), xlab="t", ylab="x", lw=0)  #!jl
+plot!(fig, x -> 20.0; c=:red, xlims=(0.0, 1.5), lab="")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -83,11 +81,11 @@ plot!(fig, x -> 20.0; c=:red, xlims=(0.0, 1.5), lab="")
 
 #-
 
-ρ([1.0, 0, 0], solz(0 .. 1.5))
+ρ([1.0, 0, 0], solz(0 .. 1.5))  #!jl
 
 # In a similar fashion, we can compute extremal values of variable ``y(t)``:
 
-fig = plot(solz; vars=(0, 2), xlab="t", ylab="y")
+fig = plot(solz; vars=(0, 2), xlab="t", ylab="y")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -95,11 +93,11 @@ fig = plot(solz; vars=(0, 2), xlab="t", ylab="y")
 # quantities are a lower bound on the exact minimum (resp. an upper bound on the
 # exact maximum):
 
--ρ([0.0, -1.0, 0.0], solz), ρ([0.0, 1.0, 0.0], solz)
+-ρ([0.0, -1.0, 0.0], solz), ρ([0.0, 1.0, 0.0], solz)  #!jl
 
 #-
 
-fig = plot(solz; vars=(0, 3), xlab="t", ylab="z")
+fig = plot(solz; vars=(0, 3), xlab="t", ylab="z")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
@@ -107,6 +105,6 @@ fig = plot(solz; vars=(0, 3), xlab="t", ylab="z")
 
 # Below we plot the flowpipe projected on the ``x``/``z``-plane.
 
-fig = plot(solz; vars=(1, 3), xlab="x", ylab="z")
+fig = plot(solz; vars=(1, 3), xlab="x", ylab="z")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

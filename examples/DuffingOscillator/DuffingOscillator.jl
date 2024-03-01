@@ -7,7 +7,7 @@
 
 # ## Model description
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 const ω = 1.2
 
@@ -42,18 +42,18 @@ sol = solve(prob; tspan=(0.0, 20 * T), alg=TMJets21a());
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(sol; vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
+fig = plot(sol; vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(sol; vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)
+fig = plot(sol; vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
 #-
 
-fig = plot(sol; vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
+fig = plot(sol; vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide

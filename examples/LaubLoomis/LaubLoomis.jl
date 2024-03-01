@@ -11,7 +11,7 @@
 # enzymatic activities. The dynamics can be defined by the following
 # seven-dimensional system of differential equations.
 
-using ReachabilityAnalysis  #!jl
+using ReachabilityAnalysis
 
 @taylorize function laubloomis!(dx, x, p, t)
     dx[1] = 1.4 * x[3] - 0.9 * x[1]
@@ -68,11 +68,11 @@ sol_1z = overapproximate(sol_1, Zonotope);
 # We verify that the specification holds:
 
 @assert ρ(e4, sol_1z) < 4.5 "the property should be proven"
-ρ(e4, sol_1z)
+ρ(e4, sol_1z)  #!jl
 
 # To compute the width of the final box, we use the support function:
 
-ρ(e4, sol_1z[end]) + ρ(-e4, sol_1z[end])
+ρ(e4, sol_1z[end]) + ρ(-e4, sol_1z[end])  #!jl
 
 # ### Case 2: Intermediate initial set
 
@@ -87,11 +87,11 @@ sol_2z = overapproximate(sol_2, Zonotope);
 # We verify that the specification holds:
 
 @assert ρ(e4, sol_2z) < 4.5 "the property should be proven"
-ρ(e4, sol_2z)
+ρ(e4, sol_2z)  #!jl
 
 # Width of final box:
 
-ρ(e4, sol_2z[end]) + ρ(-e4, sol_2z[end])
+ρ(e4, sol_2z[end]) + ρ(-e4, sol_2z[end])  #!jl
 
 # ### Case 3: Large initial set
 
@@ -106,30 +106,27 @@ sol_3z = overapproximate(sol_3, Zonotope);
 # We verify that the specification holds:
 
 @assert ρ(e4, sol_3z) < 5.0 "the property should be proven"
-ρ(e4, sol_3z)
+ρ(e4, sol_3z)  #!jl
 
 # Width of final box:
 
-ρ(e4, sol_3z[end]) + ρ(-e4, sol_3z[end])
+ρ(e4, sol_3z[end]) + ρ(-e4, sol_3z[end])  #!jl
 
 # ## Results
 
 using Plots, Plots.PlotMeasures, LaTeXStrings  #!jl
 #!jl import DisplayAs  #hide
 
-fig = plot(sol_3z; vars=(0, 4), linecolor="green", color=:green, alpha=0.8, lab="W = 0.1")
-plot!(fig, sol_2z; vars=(0, 4), linecolor="blue", color=:blue, alpha=0.8, lab="W = 0.05")
-plot!(fig, sol_1z; vars=(0, 4), linecolor="yellow", color=:yellow, alpha=0.8, lab="W = 0.01",
-      tickfont=font(10, "Times"), guidefontsize=15,
-      xlab=L"t",
-      ylab=L"x_4",
-      xtick=[0.0, 5.0, 10.0, 15.0, 20.0], ytick=[1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
-      xlims=(0.0, 20.0), ylims=(1.5, 5.02),
-      bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm,
-      size=(600, 600))
-
-plot!(fig, x -> x, x -> 4.5, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")
-plot!(fig, x -> x, x -> 5.0, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")
+fig = plot(sol_3z; vars=(0, 4), linecolor="green", color=:green, alpha=0.8, lab="W = 0.1")  #!jl
+plot!(fig, sol_2z; vars=(0, 4), linecolor="blue", color=:blue, alpha=0.8, lab="W = 0.05")  #!jl
+plot!(fig, sol_1z; vars=(0, 4), linecolor="yellow", color=:yellow, alpha=0.8, lab="W = 0.01",  #!jl
+      tickfont=font(10, "Times"), guidefontsize=15, xlab=L"t", ylab=L"x_4",  #!jl
+      xtick=[0.0, 5.0, 10.0, 15.0, 20.0], ytick=[1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],  #!jl
+      xlims=(0.0, 20.0), ylims=(1.5, 5.02),  #!jl
+      bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm,  #!jl
+      size=(600, 600))  #!jl
+plot!(fig, x -> x, x -> 4.5, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")  #!jl
+plot!(fig, x -> x, x -> 5.0, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
 
