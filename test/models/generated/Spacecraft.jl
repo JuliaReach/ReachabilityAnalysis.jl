@@ -118,6 +118,8 @@ end
     return du
 end
 
+using Symbolics
+
 const var = @variables x y vx vy t
 
 function spacecraft(; abort_time=(120.0, 150.0))
@@ -241,32 +243,3 @@ solz = overapproximate(sol, Zonotope);
 @assert line_of_sight(solz) "the property should be proven"
 @assert !collision_avoidance(solz) "the property cannot be proven with these settings"
 @assert velocity_constraint(solz) "the property should be proven"
-
-fig = plot(solz; vars=(1, 2), xlab="x", ylab="y")
-
-idx_approaching = findall(x -> x == 1, location.(solz))
-idx_attempt = findall(x -> x == 2, location.(solz))
-idx_aborting = findall(x -> x == 3, location.(solz))
-
-fig = plot(; legend=:bottomright, tickfont=font(10, "Times"), guidefontsize=15,
-           xlab=L"x", ylab=L"y", lw=0.0, xtick=[-750, -500, -250, 0, 250.0],
-           ytick=[-400, -300, -200, -100, 0.0], xlims=(-1000.0, 400.0), ylims=(-450.0, 0.0),
-           size=(600, 600), bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
-
-plot!(fig, solz[idx_approaching[1]]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1,
-      lab="Approaching")
-for k in idx_approaching[2:end]
-    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1)
-end
-
-plot!(fig, solz[idx_attempt[1]]; vars=(1, 2), lw=0.0, color=:red, alpha=1, lab="Attempt")
-for k in idx_attempt[2:end]
-    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:red, alpha=1)
-end
-
-plot!(fig, solz[idx_aborting[1]]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1, lab="Aborting")
-for k in idx_aborting[2:end]
-    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1)
-end
-
-fig

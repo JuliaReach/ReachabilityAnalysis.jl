@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 const ω = 1.2
 
 @taylorize function duffing!(du, u, p, t)
@@ -21,9 +23,3 @@ prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim:2)
 T = 2 * pi / ω;
 
 sol = solve(prob; tspan=(0.0, 20 * T), alg=TMJets21a());
-
-fig = plot(sol; vars=(0, 1), xlab="t", ylab="x", lw=0.2, color=:blue)
-
-fig = plot(sol; vars=(0, 2), xlab="t", ylab="v", lw=0.2, color=:blue)
-
-fig = plot(sol; vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)

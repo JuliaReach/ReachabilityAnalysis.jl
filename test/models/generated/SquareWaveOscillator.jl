@@ -1,3 +1,5 @@
+using ReachabilityAnalysis, Symbolics
+
 function multistable_oscillator(; X0=Interval(0.0, 0.05),
                                 V₊=+13.5, V₋=-13.5,
                                 R=20.E3, C=5.5556E-8,
@@ -37,21 +39,6 @@ prob = multistable_oscillator();
 
 sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=false);
 
-location.(sol)'
-
-fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")
-
-fig = plot(sol[1][(end - 10):end]; vars=(0, 1), xlab="t", ylab="v-")
-plot!(fig, x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
-
 Xc = cluster(sol[1], [318, 319, 320], BoxClustering(1));
 
-fig = plot(sol[1][(end - 10):end]; vars=(0, 1))
-plot!(fig, sol[2][1:10]; vars=(0, 1))
-plot!(fig, x -> 6.75; xlims=(3.1e-4, 3.3e-4), lab="Guard", lw=2.0, color=:red)
-plot!(fig, Xc[1]; vars=(0, 1), c=:grey)
-
 sol = solve(prob; T=100e-4, alg=INT(; δ=1.E-6), fixpoint_check=true)
-tspan(sol)
-
-fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")

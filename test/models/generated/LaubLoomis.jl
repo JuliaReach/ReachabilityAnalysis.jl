@@ -1,3 +1,5 @@
+using ReachabilityAnalysis
+
 @taylorize function laubloomis!(dx, x, p, t)
     dx[1] = 1.4 * x[3] - 0.9 * x[1]
     dx[2] = 2.5 * x[5] - 1.5 * x[2]
@@ -24,9 +26,6 @@ sol_1 = solve(prob; T=20.0, alg=alg)
 sol_1z = overapproximate(sol_1, Zonotope);
 
 @assert ρ(e4, sol_1z) < 4.5 "the property should be proven"
-ρ(e4, sol_1z)
-
-ρ(e4, sol_1z[end]) + ρ(-e4, sol_1z[end])
 
 prob = laubloomis(; W=0.05)
 alg = TMJets(; abstol=1e-12, orderT=7, orderQ=1, adaptive=false)
@@ -35,9 +34,6 @@ sol_2 = solve(prob; T=20.0, alg=alg)
 sol_2z = overapproximate(sol_2, Zonotope);
 
 @assert ρ(e4, sol_2z) < 4.5 "the property should be proven"
-ρ(e4, sol_2z)
-
-ρ(e4, sol_2z[end]) + ρ(-e4, sol_2z[end])
 
 prob = laubloomis(; W=0.1)
 alg = TMJets(; abstol=1e-12, orderT=7, orderQ=1, adaptive=false)
@@ -46,20 +42,3 @@ sol_3 = solve(prob; T=20.0, alg=alg)
 sol_3z = overapproximate(sol_3, Zonotope);
 
 @assert ρ(e4, sol_3z) < 5.0 "the property should be proven"
-ρ(e4, sol_3z)
-
-ρ(e4, sol_3z[end]) + ρ(-e4, sol_3z[end])
-
-fig = plot(sol_3z; vars=(0, 4), linecolor="green", color=:green, alpha=0.8, lab="W = 0.1")
-plot!(fig, sol_2z; vars=(0, 4), linecolor="blue", color=:blue, alpha=0.8, lab="W = 0.05")
-plot!(fig, sol_1z; vars=(0, 4), linecolor="yellow", color=:yellow, alpha=0.8, lab="W = 0.01",
-      tickfont=font(10, "Times"), guidefontsize=15,
-      xlab=L"t",
-      ylab=L"x_4",
-      xtick=[0.0, 5.0, 10.0, 15.0, 20.0], ytick=[1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
-      xlims=(0.0, 20.0), ylims=(1.5, 5.02),
-      bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm,
-      size=(600, 600))
-
-plot!(fig, x -> x, x -> 4.5, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")
-plot!(fig, x -> x, x -> 5.0, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")
