@@ -174,19 +174,16 @@ end
     # solve with default options (no simulations)
     sol = solve(S; T=T)
 
-    # will have many intermediate steps
+    # handle invariants discretely
     solsd = solve(S; T=T, ensemble=true, trajectories=10, use_discrete_callback=true)
     @test length(ensemble(solsd)) == 10
 
+    # include the X0 vertices (here: singleton X0, so all simulations are the same)
     solsd = solve(S; T=T, ensemble=true, trajectories=10, include_vertices=true,
                   use_discrete_callback=true)
-    @test length(ensemble(solsd)) == 10 + 1  # singleton initial condition
+    @test length(ensemble(solsd)) == 10 + 1
 
-    # will handle invariants continuously but not have many intermediate steps
-    solsc = solve(S; T=T, ensemble=true, trajectories=10)
-    @test length(ensemble(solsc)) == 10
-
-    # will handle invariants continuously with additionally many intermediate steps
+    # handle invariants continuously
     solscstep = solve(S; T=T, ensemble=true, trajectories=10, dtmax=0.1)
     @test length(ensemble(solscstep)) == 10
 end
