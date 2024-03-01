@@ -130,7 +130,7 @@ function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::Fall
     return isdisjoint(set(overapproximate(R, Zonotope)), Y)
 end
 
-# FIXME when UnionSet, UnionSetArray <: LazySet
+# TODO when UnionSet, UnionSetArray <: LazySet
 function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
                                 method::FallbackDisjointness)
     return isdisjoint(set(overapproximate(R, Zonotope)), Y)
@@ -359,7 +359,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
         if nsdiv == 1
             partition = [S]
         else
-            # FIXME (also below) may use IA.mince directly
+            # TODO (also below) may use IA.mince directly
             partition = fill(nsdiv, D)
             Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
             partition = convert.(IntervalBox, Sdiv)
@@ -461,7 +461,7 @@ function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReac
 end
 
 # overapproximate a zonotopic set with a taylor model reachset
-# FIXME pass algorithm option to choose between using parallelotope oa or  order reduction
+# TODO pass algorithm option to choose between using parallelotope oa or order reduction
 function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
                          indices=1:dim(Z), box_reduction=false) where {N}

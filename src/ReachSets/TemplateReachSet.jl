@@ -58,7 +58,7 @@ function set(R::TemplateReachSet)
     return T([HalfSpace(di, R.sf[i]) for (i, di) in enumerate(R.dirs)])
 end
 
-# FIXME requires adding boundedness property as a type parameter
+# TODO requires adding boundedness property as a type parameter
 setrep(::Type{<:TemplateReachSet{N,VN}}) where {N,VN} = HPolyhedron{N,VN}
 setrep(::TemplateReachSet{N,VN}) where {N,VN} = HPolyhedron{N,VN}
 
