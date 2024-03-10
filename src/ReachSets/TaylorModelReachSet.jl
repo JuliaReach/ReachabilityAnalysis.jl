@@ -125,53 +125,32 @@ end
 # Disjointness checks
 # ======================
 
-function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, method::FallbackDisjointness)
+function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, ::FallbackDisjointness)
     return isdisjoint(set(overapproximate(R, Zonotope)), Y)
-end
-
-# TODO when UnionSet, UnionSetArray <: LazySet
-function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
-                                method::FallbackDisjointness)
-    return isdisjoint(set(overapproximate(R, Zonotope)), Y)
-end
-function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
-                                method::ZonotopeEnclosure)
-    return isdisjoint(set(overapproximate(R, Zonotope)), Y)
-end
-function _is_intersection_empty(R::TaylorModelReachSet, Y::Union{UnionSet,UnionSetArray},
-                                method::BoxEnclosure)
-    return isdisjoint(set(overapproximate(R, Hyperrectangle)), Y)
 end
 
 function _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
-                                method::FallbackDisjointness)
+                                ::FallbackDisjointness)
     return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 end
 function _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
-                                method::ZonotopeEnclosure)
+                                ::ZonotopeEnclosure)
     return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 end
 
-@commutative function _is_intersection_empty(R::TaylorModelReachSet,
-                                             Y::Union{LazySet,UnionSet,UnionSetArray},
-                                             method::ZonotopeEnclosure)
+@commutative function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet,
+                                             ::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end
 
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe,
-                                             method::AbstractDisjointnessMethod)
-    return false
-end
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe,
-                                             method::ZonotopeEnclosure)
-    return false
-end
-
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, X::Universe,
-                                             method::BoxEnclosure)
-    return false
+for T in (:AbstractDisjointnessMethod, :FallbackDisjointness, :ZonotopeEnclosure, :BoxEnclosure, :Dummy)
+    @eval begin
+        @commutative function _is_intersection_empty(::TaylorModelReachSet, ::Universe,
+                                                     method::$T)
+            return false
+        end
+    end
 end
 
 # ======================

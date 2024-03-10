@@ -53,6 +53,7 @@ function _reconvert(Ω0::Hyperrectangle{N,Vector{N},Vector{N}}, static::Val{true
     return nodim_msg()
 end
 _reconvert(Ω0::Hyperrectangle{N,<:SVector,<:SVector}, static::Val{true}, dim) where {N} = Ω0
+_reconvert(Ω0::Hyperrectangle{N,<:SVector,<:SVector}, static::Val{true}, dim::Val) where {N} = Ω0
 
 # convert any Hyperrectangle to be represented with regular arrays
 function _reconvert(Ω0::Hyperrectangle, static::Val{false}, dim::Missing)
@@ -60,8 +61,7 @@ function _reconvert(Ω0::Hyperrectangle, static::Val{false}, dim::Missing)
 end
 
 # convert any Hyperrectangle to be represented with static arrays
-function _reconvert(Ω0::Hyperrectangle{N,VNC,VNR}, static::Val{true},
-                    dim::Val{n}) where {N,VNC,VNR,n}
+function _reconvert(Ω0::Hyperrectangle{N}, static::Val{true}, dim::Val{n}) where {N,n}
     #n = length(Ω0.center) # dimension
     return Ω0 = Hyperrectangle(SVector{n,N}(Ω0.center), SVector{n,N}(Ω0.radius); check_bounds=false)
 end
@@ -71,6 +71,8 @@ _reconvert(Φ::Matrix{N}, static::Val{false}, dim) where {N} = Φ
 _reconvert(Φ::IntervalMatrix{N}, static::Val{false}, dim) where {N} = Φ
 _reconvert(Φ::AbstractMatrix, static::Val{false}, dim) = Matrix(Φ)
 _reconvert(Φ::SMatrix, static::Val{true}, dim) = Φ
+_reconvert(Φ::SMatrix, static::Val{true}, dim::Val) = Φ
+_reconvert(Φ::SMatrix, static::Val{true}, dim::Missing) = Φ
 function _reconvert(Φ::AbstractMatrix, static::Val{true}, dim::Missing)
     return _reconvert(Φ, static, Val(size(Φ, 1)))
 end
@@ -92,6 +94,8 @@ const VPOLY{N,VN} = Union{VPolygon{N,VN},VPolytope{N,VN}}
 # no-op
 _reconvert(V::VPOLY{N,VN}, static::Val{false}, dim) where {N,VN<:AbstractVector{N}} = V
 _reconvert(V::VPOLY{N,VN}, static::Val{true}, dim) where {N,VN<:SVector{N}} = V
+_reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Val) where {N,VN<:SVector{N}} = V
+_reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Missing) where {N,VN<:SVector{N}} = V
 
 function _reconvert(V::VPOLY{N,VN}, static::Val{true},
                     dim::Val{n}) where {N,VN<:AbstractVector{N},n}
@@ -105,7 +109,7 @@ function _reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Missing) where {N,VN
 end
 
 Base.convert(::Type{HPolytope{N,VT}}, P::HPolytope{N,VT}) where {N,VT} = P
-function Base.convert(::Type{HPolytope{N,VT}}, P) where {N,VT}
+function Base.convert(::Type{HPolytope{N,VT}}, P::LazySet) where {N,VT}
     return HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
 end
 
