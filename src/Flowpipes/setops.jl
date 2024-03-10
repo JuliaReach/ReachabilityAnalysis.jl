@@ -217,10 +217,6 @@ function _split_symmetric_box(D::Int, partition::Vector{Int})
     return convert.(IA.IntervalBox, Sp)
 end
 
-function Base.:(*)(M::AbstractMatrix, X::UnionSetArray{N,<:AbstractSingleton{N}}) where {N}
-    return UnionSetArray([linear_map(M, p) for p in array(X)])
-end
-
 # ==================================
 # Zonotope order reduction methods
 # ==================================
