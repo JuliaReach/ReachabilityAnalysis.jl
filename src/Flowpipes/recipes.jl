@@ -469,7 +469,7 @@ end
 
     x = Vector{N}()
     y = Vector{N}()
-    for k in 1:length(sol)
+    for k in eachindex(sol)
         x_new = X(k)
         y_new = Y(k)
         append!(x, x_new)

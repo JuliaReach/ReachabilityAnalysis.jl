@@ -510,7 +510,7 @@ function _intersection(X::LazySet, Y::LazySet,
 
     @inbounds for (i, d) in enumerate(dirs)
         d = convert(VN, d)
-        b = minimum(ρ(d, X ∩ H[j]) for j in 1:length(H))
+        b = minimum(ρ(d, X ∩ H[j]) for j in eachindex(H))
         out[i] = HalfSpace(d, b)
     end
     return HPolytope(out)
