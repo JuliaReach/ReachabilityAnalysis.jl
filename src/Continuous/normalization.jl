@@ -434,8 +434,7 @@ function _second_order_linear_matrix(M::AbstractMatrix{N}, C, K; derivatives_las
     return A, M⁻¹
 end
 
-function normalize(system::SOLCS{N}; derivatives_last=true) where {N}
-    n = statedim(system)
+function normalize(system::SOLCS; derivatives_last=true)
     M = mass_matrix(system)
     C = viscosity_matrix(system)
     K = stiffness_matrix(system)
@@ -505,8 +504,8 @@ end
 
 @inline isidentity(B::IdentityMultiple) = B.M.λ == oneunit(B.M.λ)
 
-_wrap_invariant(X::LazySet, n::Int) = X
-_wrap_invariant(X::Nothing, n::Int) = Universe(n)
+_wrap_invariant(X::LazySet, ::Int) = X
+_wrap_invariant(::Nothing, n::Int) = Universe(n)
 
 _wrap_inputs(U::AbstractInput, B::IdentityMultiple) = isidentity(B) ? U : map(u -> B * u, U)
 _wrap_inputs(U::AbstractInput, B::AbstractMatrix) = map(u -> B * u, U)
@@ -561,8 +560,6 @@ end
 # ==========================================================
 # Shared functionality for linear continuous post operators
 # ==========================================================
-
-Base.:*(im::IdentityMultiple, d::Diagonal) = im.M.λ * d  # TODO: add to MathematicalSystems
 
 hasinput(S::AbstractSystem) = inputdim(S) > 0
 isconstantinput(::ConstantInput) = true
