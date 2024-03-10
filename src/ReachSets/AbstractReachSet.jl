@@ -270,17 +270,6 @@ end
     return false
 end
 
-@commutative function _is_intersection_empty(R::AbstractReachSet,
-                                             Y::UnionSet{N,<:Interval{N},<:Interval{N}},
-                                             ::FallbackDisjointness) where {N}
-    return isdisjoint(set(R), Y)
-end
-
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::UnionSetArray{N,<:Interval{N}},
-                                             ::FallbackDisjointness) where {N}
-    return isdisjoint(set(R), Y)
-end
-
 # ------------------------------
 # Concrete intersection methods
 # ------------------------------
