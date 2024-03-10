@@ -179,11 +179,11 @@ end
 # =========================
 
 # extend LazySets concrete projection for other arguments
-LazySets.project(X::LazySet, vars::NTuple{D,<:Integer}) where {D} = project(X, collect(vars))
+LazySets.project(X::LazySet, vars::NTuple{D,Int}) where {D} = project(X, collect(vars))
 LazySets.project(X::LazySet; vars) = project(X, vars)
 
 # extend LazySets lazy projection for other arguments
-LazySets.Projection(X::LazySet, vars::NTuple{D,<:Integer}) where {D} = Projection(X, collect(vars))
+LazySets.Projection(X::LazySet, vars::NTuple{D,Int}) where {D} = Projection(X, collect(vars))
 LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 
 # ===============================

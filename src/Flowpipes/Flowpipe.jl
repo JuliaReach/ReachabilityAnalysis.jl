@@ -130,7 +130,7 @@ function (fp::Flowpipe)(dt::TimeInterval)
 end
 
 # concrete projection of a flowpipe along variables `vars`
-function project(fp::Flowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
+function project(fp::Flowpipe, vars::NTuple{D,Int}) where {D}
     Xk = array(fp)
     πfp = map(X -> project(X, vars), Xk)
     return Flowpipe(πfp, fp.ext)
@@ -243,13 +243,13 @@ Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
 Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 
 # lazy projection of a flowpipe
-function Projection(F::Flowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
+function Projection(F::Flowpipe, vars::NTuple{D,Int}) where {D}
     Xk = array(F)
     out = map(X -> Projection(X, vars), Xk)
     return Flowpipe(out)
 end
 Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
-Projection(F::Flowpipe, vars::AbstractVector{M}) where {M<:Integer} = Projection(F, Tuple(vars))
+Projection(F::Flowpipe, vars::AbstractVector{Int}) = Projection(F, Tuple(vars))
 
 # membership test
 function ∈(x::AbstractVector{N}, fp::Flowpipe{N,<:AbstractLazyReachSet{N}}) where {N}

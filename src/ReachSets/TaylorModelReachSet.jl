@@ -55,9 +55,9 @@ function reconstruct(R::TaylorModelReachSet, X)
 end
 
 # TODO remove but add comment in docs
-function project(R::TaylorModelReachSet, vars::NTuple{D,M}) where {D,M<:Integer}
-    throw(ArgumentError("the concrete projection of Taylor model reach-set is not " *
-                        "available; try first to overapproximate the Taylor model and the  project"))
+function project(::TaylorModelReachSet, ::NTuple{D,Int}) where {D}
+    throw(ArgumentError("the concrete projection of a Taylor model reach-set is not " *
+                        "available; try to first overapproximate the Taylor model and then project"))
 end
 
 # constructor with a time point

@@ -40,10 +40,11 @@ the third to tenth reach-sets in another cluster.
 """
 abstract type AbstractClusteringMethod{P} end
 
-_partition(method::AbstractClusteringMethod{Missing}, idx) = nfolds(idx, 1)
-_partition(method::AbstractClusteringMethod{<:Integer}, idx) = nfolds(idx, partition(method))
-function _partition(method::AbstractClusteringMethod{VT},
-                    idx) where {D<:Integer,VTi<:AbstractVector{D},VT<:AbstractVector{VTi}}
+_partition(::AbstractClusteringMethod{Missing}, idx) = nfolds(idx, 1)
+
+_partition(method::AbstractClusteringMethod{Int}, idx) = nfolds(idx, partition(method))
+
+function _partition(method::AbstractClusteringMethod{<:AbstractVector{<:AbstractVector{Int}}}, idx)
     return [idx[vi] for vi in partition(method)]
 end
 
@@ -95,11 +96,10 @@ end
 partition(method::LazyClustering) = method.partition
 
 LazyClustering(; convex::Bool=true) = LazyClustering(missing, Val(convex))
-function LazyClustering(nchunks::D; convex::Bool=true) where {D<:Integer}
-    return LazyClustering{D,typeof(Val(convex))}(nchunks, Val(convex))
+function LazyClustering(nchunks::Int; convex::Bool=true)
+    return LazyClustering{Int,typeof(Val(convex))}(nchunks, Val(convex))
 end
-function LazyClustering(partition::VT) where {D<:Integer,VTi<:AbstractVector{D},
-                                              VT<:AbstractVector{VTi}}
+function LazyClustering(partition::VT) where {VT<:AbstractVector{<:AbstractVector{Int}}}
     return LazyClustering{VT,typeof(Val(convex))}(partition, Val(convex))
 end
 
@@ -156,18 +156,16 @@ end
 partition(method::BoxClustering) = method.inpartition
 
 BoxClustering() = BoxClustering(missing, missing)
-BoxClustering(nchunks::D) where {D<:Integer} = BoxClustering{D,Missing}(nchunks, missing)
-function BoxClustering(partition::VT) where {D<:Integer,VTi<:AbstractVector{D},
-                                             VT<:AbstractVector{VTi}}
+BoxClustering(nchunks::Int) = BoxClustering{Int,Missing}(nchunks, missing)
+function BoxClustering(partition::VT) where {VT<:AbstractVector{<:AbstractVector{Int}}}
     return BoxClustering{VT,Missing}(partition, missing)
 end
 
-_out_partition(method::BoxClustering{PI,Missing}, idx, n) where {PI} = fill(1, n)
-function _out_partition(method::BoxClustering{PI,<:Integer}, idx, n) where {PI}
+_out_partition(::BoxClustering{PI,Missing}, idx, n) where {PI} = fill(1, n)
+function _out_partition(method::BoxClustering{PI,Int}, idx, n) where {PI}
     return fill(method.outpartition, n)
 end
-function _out_partition(method::BoxClustering{PI,VT}, idx,
-                        n) where {PI,D<:Integer,VT<:AbstractVector{D}}
+function _out_partition(method::BoxClustering{PI,<:AbstractVector{Int}}, idx, n) where {PI}
     return method.outpartition
 end
 
@@ -350,14 +348,12 @@ end
 partition(method::UnionClustering) = method.partition
 
 UnionClustering() = UnionClustering(missing)
-UnionClustering(nchunks::D) where {D<:Integer} = UnionClustering{D}(nchunks)
-function UnionClustering(partition::VT) where {D<:Integer,VTi<:AbstractVector{D},
-                                               VT<:AbstractVector{VTi}}
+UnionClustering(nchunks::Int) = UnionClustering{Int}(nchunks)
+function UnionClustering(partition::VT) where {VT<:AbstractVector{<:AbstractVector{Int}}}
     return UnionClustering{VT}(partition)
 end
 
-function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx,
-                 method::UnionClustering{Missing}) where {N}
+function cluster(F::Flowpipe{N,<:AbstractLazyReachSet}, idx, ::UnionClustering{Missing}) where {N}
     Fidx = view(F, idx)
     Δt = tspan(Fidx)
     Uidx = UnionSetArray([set(R) for R in Fidx])
