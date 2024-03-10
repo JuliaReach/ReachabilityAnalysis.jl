@@ -1,5 +1,4 @@
-using Test
-using ReachabilityAnalysis
+using Test, ReachabilityAnalysis
 
 TEST_MODELS = ["models/harmonic_oscillator.jl",
                "models/forced_oscillator.jl",
