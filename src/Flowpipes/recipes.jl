@@ -21,9 +21,6 @@ using LazySets: plot_recipe,
                 isapproxzero,
                 _plot_singleton_list
 
-import LazySets: _plot_singleton_list_1D,
-                 _plot_singleton_list_2D
-
 # heuristics for projecting a reach-set either concretely or lazily to the space
 # spanned by vars; the returned set is concrete when the exact projection can be done
 # efficiently; in all other cases a lazy set is returned

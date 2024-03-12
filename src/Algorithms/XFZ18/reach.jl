@@ -9,8 +9,6 @@ using Reachability
 using MathematicalSystems: PolynomialContinuousSystem, InitialValueProblem
 const ∂ = differentiate
 
-export XFZ18
-
 """
     XFZ18 <: ContinuousPost
 

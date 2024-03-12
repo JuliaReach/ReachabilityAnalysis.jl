@@ -22,6 +22,7 @@ export
       TMJets21a,
       TMJets21b,
       VREP,
+      # XFZ18,
 
 # Flowpipes
       flowpipe,
@@ -64,6 +65,9 @@ export
 
 # Lazy operations on flowpipes
       Projection,
+
+# system types
+      CanonicalQuadraticForm,
 
 # Hybrid types
       HACLD1,

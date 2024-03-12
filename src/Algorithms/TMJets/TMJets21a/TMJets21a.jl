@@ -9,7 +9,7 @@ Set propagation using Taylor models with the function `validated_integ` in `Tayl
     abstol::N = DEFAULT_ABS_TOL_TMJETS
     maxsteps::Int = DEFAULT_MAX_STEPS_TMJETS
     adaptive::Bool = true
-    minabstol::N = Float64(TaylorModels._DEF_MINABSTOL)
+    minabstol::N = Float64(TM._DEF_MINABSTOL)
     absorb::Bool = false
     disjointness::DM = ZonotopeEnclosure()
 end

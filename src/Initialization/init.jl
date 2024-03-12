@@ -30,16 +30,16 @@ using LazySets: Interval, radius, sample, ∅, dim, scale, scale!
 # JuliaReach internal functions
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
                                isinvertible, vector_type
+using ReachabilityBase.Comparison: _leq, _geq
 using LazySets.Approximations: AbstractDirections
 using LazySets: @commutative, AbstractReductionMethod, linear_map!
 
 # aliases for intervals
 const IM = IntervalMatrices
-import IntervalArithmetic
-const IA = IntervalArithmetic
+import IntervalArithmetic as IA
 const TimeInterval = IA.Interval{Float64}
-import TaylorModels
-const TM = TaylorModels
+import TaylorModels as TM
+using TaylorModels: TaylorModel1, TaylorN, fp_rpa, shrink_wrapping!
 
 # method extensions for Taylor model reach-sets
 import TaylorModels: domain, remainder, polynomial, get_order, evaluate
@@ -48,15 +48,19 @@ import TaylorModels: domain, remainder, polynomial, get_order, evaluate
 const CPA = CartesianProductArray
 
 # convenience union for dispatch on structs that are admissible as initial sets or inputs
-const AdmissibleSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.IntervalBox}
+const AdmissibleSet = Union{LazySet,IA.Interval,IA.IntervalBox}
 
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, directions, linear_map, LinearMap, split!,
-                 set, array, _isapprox
+                 set, array, _isapprox,
+                 _plot_singleton_list_1D, _plot_singleton_list_2D
 
 import Base: ∈, ∩, convert, isdisjoint
 import LinearAlgebra: normalize
+
+import MathematicalSystems: system, statedim, initial_state
+import HybridSystems: HybridSystem
 
 import CommonSolve: solve # common solve name
 

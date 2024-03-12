@@ -327,7 +327,7 @@ function validated_integ!(F, f!, X0, t0::T, tmax::T, orderQ::Int, orderT::Int,
     xauxI = Vector{Taylor1{IA.Interval{T}}}(undef, dof)
 
     # Set initial conditions
-    TaylorModels.initialize!(X0, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
+    TM.initialize!(X0, orderQ, orderT, x, dx, xTMN, xI, dxI, rem, xTM1v)
     sign_tstep = copysign(1, tmax - t0)
 
     # Output vectors

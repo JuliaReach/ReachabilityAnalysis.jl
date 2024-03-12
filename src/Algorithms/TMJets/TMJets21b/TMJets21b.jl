@@ -10,7 +10,7 @@ Set propagation using Taylor models with the function `validated_integ` in `Tayl
     maxsteps::Int = DEFAULT_MAX_STEPS_TMJETS
     absorb::Bool = false
     adaptive::Bool = true
-    minabstol::N = Float64(TaylorModels._DEF_MINABSTOL)
+    minabstol::N = Float64(TM._DEF_MINABSTOL)
     validatesteps::Int = 30
     ε::N = 1e-10
     δ::N = 1e-6
