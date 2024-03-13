@@ -297,3 +297,9 @@ end
                                     method::AbstractIntersectionMethod)
     return _intersection(set(R), X, method)
 end
+
+# ------------------------------
+# Methods to overapproximate
+# ------------------------------
+
+box_approximation(R::AbstractReachSet; kwargs...) = overapproximate(R, Hyperrectangle; kwargs...)
