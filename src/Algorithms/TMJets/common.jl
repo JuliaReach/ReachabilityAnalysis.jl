@@ -15,9 +15,9 @@ const DEFAULT_ORDER_Q_TMJETS = 2
 """
     TMJets
 
-The algorithm TMJets defaults to `TMJets21b`.
+The algorithm TMJets defaults to `TMJets2`.
 """
-const TMJets = TMJets21b
+const TMJets = TMJets2
 
 # =======================================================================
 # Initialization functions to prepare the input for validated integration

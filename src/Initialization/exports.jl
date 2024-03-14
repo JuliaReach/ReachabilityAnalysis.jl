@@ -18,9 +18,8 @@ export
       ORBIT,
       QINT,
       TMJets,
-      TMJets20,
-      TMJets21a,
-      TMJets21b,
+      TMJets1,
+      TMJets2,
       VREP,
 
 # Flowpipes
