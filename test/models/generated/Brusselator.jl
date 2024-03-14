@@ -18,7 +18,7 @@ prob = @ivp(u' = brusselator!(u), u(0) ∈ U₀, dim:2)
 
 T = 18.0;
 
-alg = TMJets20(; orderT=6, orderQ=2)
+alg = TMJets1(; orderT=6, orderQ=2)
 sol = solve(prob; T=T, alg=alg);
 
 U0(r) = BallInf([1.0, 1.0], r);

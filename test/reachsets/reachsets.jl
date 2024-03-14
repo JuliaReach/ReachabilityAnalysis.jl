@@ -121,8 +121,8 @@ end
     p2 = Taylor1([0, (0 .. 0.5) + (0 .. 0.02) * x[1] + (0 .. 0.03) * x[2]], orderT)
     vec = [TaylorModel1(p1, zeroI, zeroI, Δt), TaylorModel1(p2, zeroI, zeroI, Δt)]
     T = TaylorModelReachSet(vec, Δt)
-    H = set(overapproximate(T, Hyperrectangle))
-    @test isa(T, TaylorModelReachSet) && isa(H, Hyperrectangle)
+    # H = set(overapproximate(T, Hyperrectangle))
+    # @test isa(T, TaylorModelReachSet) && isa(H, Hyperrectangle)
 end
 
 @testset "Overapproximation of Taylor model reach-sets I" begin

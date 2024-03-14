@@ -1,4 +1,4 @@
-@testset "TMJets algorithm (TMJets21b)" begin
+@testset "TMJets algorithm (TMJets2)" begin
     prob, tspan = vanderpol()
 
     # default algorithm for nonlinear systems
@@ -33,7 +33,7 @@
     @test flowpipe(sols) isa MixedFlowpipe
 end
 
-@testset "TMJets algorithm (TMJets21b): linear IVPs" begin
+@testset "TMJets algorithm (TMJets2): linear IVPs" begin
     prob, dt = exponential_1d()
     sol = solve(prob; tspan=dt, alg=TMJets())
     @test sol.alg isa TMJets
@@ -65,10 +65,10 @@ end
     #    @test sol.alg isa TMJets
 end
 
-@testset "TMJets algorithm (TMJets20): linear IVPs" begin
+@testset "TMJets algorithm (TMJets1): linear IVPs" begin
     prob, dt = exponential_1d()
-    sol = solve(prob; tspan=dt, alg=TMJets20())
-    @test sol.alg isa TMJets20
+    sol = solve(prob; tspan=dt, alg=TMJets1())
+    @test sol.alg isa TMJets1
 
     # getter functions for a taylor model reach-set
     R = sol[1]
@@ -80,14 +80,14 @@ end
 
     # test intersection with invariant
     prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
-    sol_inv = solve(prob; tspan=dt, alg=TMJets20())
+    sol_inv = solve(prob; tspan=dt, alg=TMJets1())
     @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
     m = length(sol_inv)
     # check that the following reach-set escapes the invariant
     @test [0.3] ∉ overapproximate(sol[m + 1], Zonotope)
 end
 
-@testset "1D Burgers equation (TMJets21b)" begin
+@testset "1D Burgers equation (TMJets2)" begin
     L0 = 1.0 # domain length
     U0 = 1.0 # Re = 20.
     x = range(-0.5 * L0, 0.5 * L0; length=4)
@@ -95,7 +95,7 @@ end
     X0 = Singleton(-U0 * sin.(2 * π / L0 * x))
     # IVP definition
     prob = @ivp(x' = burgers!(x), dim = 4, x(0) ∈ X0)
-    sol = solve(prob; tspan=(0.0, 1.0), alg=TMJets())
+    sol = solve(prob; tspan=(0.0, 1.0), alg=TMJets2())
     @test dim(sol) == 4
 end
 
