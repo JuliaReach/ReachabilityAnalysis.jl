@@ -317,13 +317,13 @@ end
 
 LazySets.box_approximation(R::TaylorModelReachSet) = overapproximate(R, Hyperrectangle)
 
-# overapproximate TaylorModelReachSet with several hyperrectangles, by splitting
+# overapproximate TaylorModelReachSet with several sets by splitting
 # in space (with either nsdiv for uniform partitions or by specifying a
 # partition (vector of integers); the version not used should be set to
 # `nothing`) and/or in time (ntdiv)
 # e.g. if the partition is uniform for each dimension, the number of returned
 # sets is nsdiv^D * ntdiv
-function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
+function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectangle,Zonotope}};
                          partition=nothing, nsdiv=nothing, ntdiv=1,
                          Δt::TimeInterval=tspan(R), dom=symBox(dim(R)), kwargs...) where {N}
     if !isnothing(partition) && !isnothing(nsdiv)
@@ -335,7 +335,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
 
     # no splitting
     if isnothing(partition) && nsdiv == 1 && ntdiv == 1
-        return _overapproximate(R, Hyperrectangle; Δt=Δt, dom=dom, kwargs...)
+        return _overapproximate(R, T; Δt=Δt, dom=dom, kwargs...)
     end
 
     D = dim(R)
@@ -361,20 +361,23 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
         else
             # TODO (also below) may use IA.mince directly
             partition = fill(nsdiv, D)
-            Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
+            Sdiv = LazySets.split(convert(T, S), partition)
             partition = convert.(IntervalBox, Sdiv)
         end
 
     else
-        Sdiv = LazySets.split(convert(Hyperrectangle, S), partition)
+        Sdiv = LazySets.split(convert(T, S), partition)
         partition = convert.(IntervalBox, Sdiv)
     end
     nparts = length(partition)
 
     # preallocate output vectors
-    ST = Hyperrectangle{N,SVector{D,N},SVector{D,N}}
-    X̂out = Vector{ST}(undef, nparts * ntdiv)
-    R̂out = Vector{ReachSet{N,ST}}(undef, nparts * ntdiv)
+    if T <: Hyperrectangle
+        ST = Hyperrectangle{N,SVector{D,N},SVector{D,N}}
+        R̂out = Vector{ReachSet{N,ST}}(undef, nparts * ntdiv)
+    else
+        R̂out = Vector{ReachSet{N}}(undef, nparts * ntdiv)
+    end
 
     # evaluate the spatial variables in the symmetric box
     @inbounds for k in 1:ntdiv
@@ -384,10 +387,13 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Hyperrectangle};
             X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:D])
 
             idx = j + (k - 1) * nparts
-            X̂out[idx] = convert(Hyperrectangle, X̂ib)
+            X̂out = convert(T, convert(Hyperrectangle, X̂ib))
 
-            R̂out[idx] = ReachSet(X̂out[idx], tspdiv[k])
+            R̂out[idx] = ReachSet(X̂out, tspdiv[k])
         end
+    end
+    if T <: Zonotope  # concrete output vector
+        R̂out = [e for e in R̂out]
     end
 
     return R̂out
