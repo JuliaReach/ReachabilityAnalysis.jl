@@ -45,7 +45,7 @@ end
 project(fp::ShiftedFlowpipe, vars::AbstractVector) = project(fp, Tuple(vars))
 project(fp::ShiftedFlowpipe; vars) = project(fp, Tuple(vars))
 
-function project(fp::ShiftedFlowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
+function project(fp::ShiftedFlowpipe, vars::NTuple{D,Int}) where {D}
     Xk = array(fp)
     # TODO: use projection of the reachsets
     if 0 ∈ vars # projection includes "time"
@@ -60,7 +60,7 @@ end
 
 # this method is analogue to project(::AbstractLazyReachSet, vars; check_vars=true)
 # TODO add check_vars ?
-function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D,M}) where {D,M<:Integer}
+function project(fp::ShiftedFlowpipe, i::Int, vars::NTuple{D,Int}) where {D}
     t0 = time_shift(fp)
     R = fp[i]
     if 0 ∈ vars

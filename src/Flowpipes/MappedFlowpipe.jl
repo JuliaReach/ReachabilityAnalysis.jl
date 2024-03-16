@@ -16,7 +16,7 @@ struct MappedFlowpipe{FT<:AbstractFlowpipe,ST} <: AbstractFlowpipe
 end
 
 """
-    Projection(fp::AbstractFlowpipe, vars::NTuple{D, T}) where {D, T<:Integer}
+    Projection(fp::AbstractFlowpipe, vars::NTuple{D,Int}) where {D}
 
 Return the lazy projection of a flowpipe.
 
@@ -30,7 +30,7 @@ The projection is lazy, and consists of mapping each set
 `X` in the flowpipe to `MX`, where `M` is the projection matrix associated with
 the given variables `vars`.
 """
-function LazySets.Projection(fp::AbstractFlowpipe, vars::NTuple{D,T}) where {D,T<:Integer}
+function LazySets.Projection(fp::AbstractFlowpipe, vars::NTuple{D,Int}) where {D}
     # TODO: assert that vars belong to the variables of the flowpipe
     M = projection_matrix(collect(vars), dim(F), Float64)
     func = @map(x -> M * x)

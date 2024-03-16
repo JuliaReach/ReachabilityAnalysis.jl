@@ -327,11 +327,10 @@ end
 
 # the initial states are passed as a vector-of-tuples, each tuple being of the form
 # (loc, X) where loc is an integer that corresponds to the mode and X is a set
-function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{M,ST}}};
+function _distribute(ivp::InitialValueProblem{<:HybridSystem,Vector{Tuple{Int,ST}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {HS<:HybridSystem,M<:Integer,
-                                                       ST<:AdmissibleSet}
+                     intersect_invariant=false) where {ST<:AdmissibleSet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
@@ -342,7 +341,6 @@ function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{M,ST}}};
         STwl = ST
     end
 
-    N = eltype(ST)
     WL = WaitingList{TimeInterval,STwl,Int,StateInLocation{STwl,Int}}
 
     if !check_invariant && !intersect_invariant
@@ -356,11 +354,10 @@ end
 
 # "duck-typing" the initial states passed as a vector-of-tuples, each tuple being
 # of the form (X, loc) where loc is an integer that corresponds to the mode and X is a set
-function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{ST,M}}};
+function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{ST,Int}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet,
-                                                       M<:Integer}
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
@@ -371,7 +368,6 @@ function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{ST,M}}};
         STwl = ST
     end
 
-    N = eltype(ST)
     WL = WaitingList{TimeInterval,STwl,Int,StateInLocation{STwl,Int}}
 
     if !check_invariant && !intersect_invariant
@@ -414,7 +410,7 @@ end
 # optionally it is checked that each set has a non-empty intersction with loc_i's invariant
 function _distribute(ivp::InitialValueProblem{HS, VQT};
                      check_invariant=false) where {HS<:HybridSystem,
-                     ST, QT<:Tuple{<:Integer, ST}, VQT<:AbstractVector{QT}}
+                     ST, QT<:Tuple{Int}, ST}, VQT<:AbstractVector{QT}}
     initial_states = WaitingList{Int, ST}()
     for loc in states(S)
         if check_invariant

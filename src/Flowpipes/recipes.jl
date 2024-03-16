@@ -177,8 +177,7 @@ end
 
 # TODO use LazySets._plot_singleton_list_1D if the reach-sets are stored as a struct
 # array. Otherwise, we could use pass the list through x -> set(x)
-function _plot_singleton_list_1D(list::Union{Flowpipe{N},AbstractVector{RN}}) where {N,
-                                                                                     RN<:AbstractReachSet{N}}
+function _plot_singleton_list_1D(list::Union{Flowpipe{N},AbstractVector{<:AbstractReachSet{N}}}) where {N}
     m = length(list)
 
     x = Vector{N}(undef, m)
@@ -191,8 +190,7 @@ function _plot_singleton_list_1D(list::Union{Flowpipe{N},AbstractVector{RN}}) wh
     return x, y
 end
 
-function _plot_singleton_list_2D(list::Union{Flowpipe{N},AbstractVector{RN}}) where {N,
-                                                                                     RN<:AbstractReachSet{N}}
+function _plot_singleton_list_2D(list::Union{Flowpipe{N},AbstractVector{<:AbstractReachSet{N}}}) where {N}
     m = length(list)
     x = Vector{N}(undef, m)
     y = Vector{N}(undef, m)
@@ -256,10 +254,10 @@ end
 # Flowpipe plot recipes
 # ========================
 
-@recipe function plot_list(list::Union{Flowpipe{N},AbstractVector{RN}};
+@recipe function plot_list(list::Union{Flowpipe{N},AbstractVector{<:AbstractReachSet{N}}};
                            vars=nothing,
                            ε=N(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,RN<:AbstractReachSet{N}}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -280,11 +278,10 @@ end
 end
 
 # composite flowpipes
-@recipe function plot_list(fp::Union{HF,MF};
+@recipe function plot_list(fp::Union{<:HybridFlowpipe{N},<:MixedFlowpipe{N}};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,HF<:HybridFlowpipe{N},
-                                                            MF<:MixedFlowpipe{N}}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -313,10 +310,10 @@ end
 # Solution plot recipes
 # ========================
 
-@recipe function plot_list(sol::ReachSolution{FT};
+@recipe function plot_list(sol::ReachSolution{<:Flowpipe{N}};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,FT<:Flowpipe{N}}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -338,13 +335,11 @@ end
 end
 
 # compound solution flowpipes
-@recipe function plot_list(sol::Union{SMF,SHF};
+@recipe function plot_list(sol::Union{ReachSolution{<:MixedFlowpipe{N}},
+                                      ReachSolution{<:HybridFlowpipe{N}}};
                            vars=nothing,
                            ε=Float64(PLOT_PRECISION),
-                           Nφ=PLOT_POLAR_DIRECTIONS) where {N,MF<:MixedFlowpipe{N},
-                                                            HF<:HybridFlowpipe{N},
-                                                            SMF<:ReachSolution{MF},
-                                                            SHF<:ReachSolution{HF}}
+                           Nφ=PLOT_POLAR_DIRECTIONS) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -435,15 +430,15 @@ end
 # plot each variable vs time
 @recipe function plot_reachset(R::AbstractLazyReachSet{N};
                                ε::N=N(PLOT_PRECISION)
-                               ) where {N<:Real, D, M<:Integer}
+                               ) where {N}
     error("not implemented yet")
 end
 
-@recipe function plot_list(list::AbstractVector{RN};
+@recipe function plot_list(list::AbstractVector{<:AbstractReachSet{N}};
                            ε::N=N(PLOT_PRECISION),
                            Nφ::Int=PLOT_POLAR_DIRECTIONS,
                            fast::Bool=true
-                          ) where {N<:Real, RN<:AbstractReachSet{N}}
+                          ) where {N}
     error("not implemented yet")
 end
 =#

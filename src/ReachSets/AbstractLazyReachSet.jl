@@ -95,8 +95,8 @@ end
 # ------------------------------------
 
 """
-    project(R::AbstractLazyReachSet, variables::NTuple{D, M};
-            check_vars::Bool=true) where {D, M<:Integer}
+    project(R::AbstractLazyReachSet, variables::NTuple{D,Int};
+            check_vars::Bool=true) where {D}
 
 Projects a reach-set onto the subspace spanned by the given variables.
 
@@ -129,8 +129,8 @@ associated with the given variables `vars`.
 To project onto the time variable, use the index `0`. For instance, `(0, 1)` projects
 onto the time variable and the first variable in `R`.
 """
-function project(R::AbstractLazyReachSet, variables::NTuple{D,M};
-                 check_vars::Bool=true) where {D,M<:Integer}
+function project(R::AbstractLazyReachSet, variables::NTuple{D,Int};
+                 check_vars::Bool=true) where {D}
     vR = vars(R)
     vRvec = collect(vR)
 
@@ -162,7 +162,7 @@ function project(R::AbstractLazyReachSet, variable::Int; check_vars::Bool=true)
 end
 
 # concrete projection overloads
-function project(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
+function project(R::AbstractLazyReachSet, vars::AbstractVector{Int})
     return project(R, Tuple(vars))
 end
 project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
@@ -178,8 +178,8 @@ project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
 # Lazy projection of a reach-set
 # -------------------------------
 
-function Projection(R::AbstractLazyReachSet, variables::NTuple{D,M},
-                    check_vars::Bool=true) where {D,M<:Integer}
+function Projection(R::AbstractLazyReachSet, variables::NTuple{D,Int},
+                    check_vars::Bool=true) where {D}
     vR = vars(R)
     vRvec = collect(vR)
 
@@ -202,7 +202,7 @@ function Projection(R::AbstractLazyReachSet, variables::NTuple{D,M},
 end
 
 # handle generic vars vector
-function Projection(R::AbstractLazyReachSet, vars::AbstractVector{M}) where {M<:Integer}
+function Projection(R::AbstractLazyReachSet, vars::AbstractVector{Int})
     return Projection(R, Tuple(vars))
 end
 
