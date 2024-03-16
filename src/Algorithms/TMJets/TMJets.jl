@@ -1,7 +1,7 @@
 """
     TMJets1{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
 
-Validated integration using Taylor models.
+Validated integration using Taylor models with the `validated_integ` algorithm.
 
 ### Fields
 
@@ -45,9 +45,9 @@ rsetrep(::TMJets1{N}) where {N} = TaylorModelReachSet{N}
 
 
 """
-    TMJets1{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
+    TMJets2{N, DM<:AbstractDisjointnessMethod} <: AbstractContinuousPost
 
-Validated integration using Taylor models.
+Validated integration using Taylor models with the `validated_integ2` algorithm.
 
 ### Fields
 
