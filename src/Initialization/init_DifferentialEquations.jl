@@ -1,5 +1,4 @@
-import .DifferentialEquations
-const DE = DifferentialEquations
+import .DifferentialEquations as DE
 import Random
 
 const DEFAULT_TRAJECTORIES = 10

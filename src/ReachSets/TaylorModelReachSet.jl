@@ -3,7 +3,6 @@
 # ================================================================
 
 import ..Overapproximate: _overapproximate, _overapproximate_hparallelotope
-using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 
 """
     TaylorModelReachSet{N, S} <: AbstractTaylorModelReachSet{N}
@@ -178,8 +177,6 @@ end
 # ======================
 # Remainder handling
 # ======================
-
-using TaylorModels: shrink_wrapping!
 
 function _shrink_wrapping(R::TaylorModelReachSet)
     rem = remainder(R)

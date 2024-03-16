@@ -18,17 +18,12 @@ function _project(sol, vars)
     return πsol_1n = Flowpipe([ReachSet(set(project(R, vars)), tspan(R)) for R in sol])
 end
 
-# TODO refactor to MathematicalSystems
-import MathematicalSystems: statedim
-
 struct CanonicalQuadraticForm{T,MT<:AbstractMatrix{T}} <: AbstractContinuousSystem
     F1::MT
     F2::MT
 end
 statedim(f::CanonicalQuadraticForm) = size(f.F1, 1)
 canonical_form(s::CanonicalQuadraticForm) = s.F1, s.F2
-export CanonicalQuadraticForm
-#-
 
 # TODO generalize to AbstractContinuousSystem using vector_field
 function canonical_form(s::BlackBoxContinuousSystem)

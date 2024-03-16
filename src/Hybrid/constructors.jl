@@ -2,9 +2,6 @@
 # Convenience hybrid automaton constructors
 # ==========================================
 
-import HybridSystems
-import HybridSystems: HybridSystem
-
 # hybrid automaton with one location and a self-loop TODO compare / use OneStateAutomaton
 function HybridSystem(mode::AbstractContinuousSystem, reset_map::AbstractMap)
     automaton = GraphAutomaton(1)
@@ -44,8 +41,6 @@ HybridSystems.mode(ivp::InitialValueProblem{<:HybridSystem}, i::Integer) = mode(
 # ===============================================
 # Hybrid systems with time-triggered transitions
 # ===============================================
-
-import MathematicalSystems: system, statedim, initial_state
 
 # particular HA where transitions are only time-triggered
 abstract type AbstractHybridAutomatonwithClockedLinearDynamics <: AbstractHybridSystem end

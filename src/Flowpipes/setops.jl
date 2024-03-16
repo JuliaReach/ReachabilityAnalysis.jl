@@ -266,8 +266,6 @@ _is_intersection_empty(X, Y) = _is_intersection_empty(X, Y, FallbackDisjointness
 # Disjointness checks between specific set types
 # -----------------------------------------------
 
-using LazySets: _geq, _leq
-
 # H : {x : ax <= b}, one-dimensional with a != 0
 @commutative function _is_intersection_empty(X::Interval, H::HalfSpace)
     a = H.a[1]

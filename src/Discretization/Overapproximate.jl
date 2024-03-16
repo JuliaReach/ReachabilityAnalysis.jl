@@ -3,7 +3,7 @@ module Overapproximate
 using LazySets
 import LazySets: _split
 using IntervalMatrices
-using StaticArrays
+using StaticArrays: SVector, SMatrix, MMatrix, StaticArray
 import IntervalArithmetic as IA
 
 export _convert_or_overapproximate, _overapproximate, _split, relative_error,
