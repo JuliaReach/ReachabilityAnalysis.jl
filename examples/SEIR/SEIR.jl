@@ -63,7 +63,7 @@ prob = @ivp(x' = seir!(x), dim:7, x(0) ∈ X0);
 
 # ## Analysis
 
-sol = solve(prob; T=200.0, alg=TMJets21a(; orderT=7, orderQ=1))
+sol = solve(prob; T=200.0, alg=TMJets1(; orderT=7, orderQ=1))
 solz = overapproximate(sol, Zonotope);
 
 # ## Results

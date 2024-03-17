@@ -35,7 +35,7 @@ T = 2 * pi / ω;
 
 # ## Analysis
 
-sol = solve(prob; tspan=(0.0, 20 * T), alg=TMJets21a());
+sol = solve(prob; tspan=(0.0, 20 * T), alg=TMJets1());
 
 # ## Results
 
