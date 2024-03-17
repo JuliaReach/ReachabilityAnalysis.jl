@@ -5,8 +5,8 @@
 # Set representation: Interval
 # Matrix operations: Dense
 # Invariant: No
-function reach_homog_BFFPSV18!(F, Xhat0, Φ::AbstractMatrix{NM}, NSTEPS, δ, X::Universe,
-                               ST::Type{<:Interval{N}}, vars, block_indices,
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::AbstractMatrix{NM}, NSTEPS, δ,
+                               X::Universe, ST::Type{<:Interval{N}}, vars, block_indices,
                                row_blocks, column_blocks, Δt0,
                                viewval::Val{true}) where {NM,N}
 
@@ -44,8 +44,8 @@ end
 # Set representation: Generic
 # Matrix operations: Dense
 # Invariant: No
-function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
-                               ST, vars, block_indices,
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ::N,
+                               X::Universe, ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj},
                                Δt0,
@@ -86,9 +86,8 @@ end
 # Set representation: Generic
 # Matrix operations: Sparse
 # Invariant: No
-function reach_homog_BFFPSV18!(F, Xhat0, Φ::MT, NSTEPS, δ::N, X::Universe,
-                               ST, vars,
-                               block_indices,
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ::N,
+                               X::Universe, ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj},
                                Δt0,

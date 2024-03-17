@@ -240,22 +240,22 @@ end
 
 # internal implementation
 function _is_intersection_empty(R::AbstractReachSet, Y::AbstractReachSet,
-                                method::FallbackDisjointness)
+                                ::FallbackDisjointness)
     return isdisjoint(set(R), set(Y))
 end
 
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet,
-                                             method::FallbackDisjointness)
+                                             ::FallbackDisjointness)
     return isdisjoint(set(R), Y)
 end
 
 @commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet,
-                                             method::ZonotopeEnclosure)
+                                             ::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end
 
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::BoxEnclosure)
+@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
     H = overapproximate(R, Hyperrectangle)
     return isdisjoint(set(H), Y)
 end
@@ -266,19 +266,8 @@ function _is_intersection_empty(P::HPolyhedron, Z::Zonotope, ::BoxEnclosure)
 end
 
 # in this method we assume that the intersection is non-empty
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, method::Dummy)
+@commutative function _is_intersection_empty(::AbstractReachSet, ::LazySet, ::Dummy)
     return false
-end
-
-@commutative function _is_intersection_empty(R::AbstractReachSet,
-                                             Y::UnionSet{N,<:Interval{N},<:Interval{N}},
-                                             method::FallbackDisjointness) where {N}
-    return isdisjoint(set(R), Y)
-end
-
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::UnionSetArray{N,<:Interval{N}},
-                                             method::FallbackDisjointness) where {N}
-    return isdisjoint(set(R), Y)
 end
 
 # ------------------------------

@@ -169,10 +169,8 @@ project(R::AbstractLazyReachSet; vars) = project(R, Tuple(vars))
 
 # projection of an array of reach-sets
 _project_vec(R, vars) = map(Ri -> project(Ri, Tuple(vars)), R)
-project(R::Vector{<:AbstractLazyReachSet}, vars::VecOrTupleOrInt) = _project_vec(R, vars)
-project(R::Vector{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
-project(R::SubArray{<:AbstractLazyReachSet}, vars) = _project_vec(R, vars)
-project(R::SubArray{<:AbstractLazyReachSet}; vars) = _project_vec(R, vars)
+project(R::AbstractVector{<:AbstractLazyReachSet}, vars::VecOrTupleOrInt) = _project_vec(R, vars)
+project(R::AbstractVector{<:AbstractLazyReachSet}; vars::VecOrTupleOrInt) = _project_vec(R, vars)
 
 # -------------------------------
 # Lazy projection of a reach-set
