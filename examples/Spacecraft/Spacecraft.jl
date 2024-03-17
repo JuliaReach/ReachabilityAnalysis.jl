@@ -9,7 +9,8 @@
 
 # Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid
 # systems with nonlinear dynamics since mission failure can cost lives and is
-# extremely expensive. This benchmark is taken from [^CM17].
+# extremely expensive. This benchmark is taken from [^CM17] but adapted to the
+# settings of ARCH-COMP [^ARCHCOMP].
 
 # The nonlinear differential equations describe the two-dimensional, planar
 # motion of the space-craft on an orbital plane towards a space station:
@@ -228,7 +229,7 @@ function spacecraft(; abort_time=(120.0, 150.0))
                      resetmaps=[t1, t2, t3])
 
     ## initial condition in mode 1
-    X0 = Hyperrectangle([-900.0, -400, 0, 0, 0], [25.0, 25, 0, 0, 0])
+    X0 = Hyperrectangle([-900.0, -400, 2.5, 2.5, 0.], [25., 25., 2.5, 2.5, 0])
     init = [(1, X0)]
 
     return InitialValueProblem(H, init)
@@ -255,12 +256,12 @@ end;
 # !!! note "Remark on velocity constraint"
 #     In the original benchmark [^CM17], the constraint on the velocity was set
 #     to 0.05 m/s, but it can be shown (by a counterexample) that this
-#     constraint cannot be satisﬁed. We therefore use the relax constraint to
+#     constraint cannot be satisﬁed. We therefore use the relaxed constraint to
 #     ``0.055`` [m/s] ``= 3.3`` [m/min].
 
-const tan30 = tand(30)
+const tan20 = tand(20)
 
-LineOfSightCone = HPolyhedron([x >= -100, y >= x * tan30, -y >= x * tan30], var)
+LineOfSightCone = HPolyhedron([x >= -100, y >= x * tan20, -y >= x * tan20], var)
 
 target = BallInf(zeros(2), 2.0)
 
@@ -341,7 +342,7 @@ solz = overapproximate(sol, Zonotope);
 # Now we verify the specification. Verifying the collision avoidance requires
 # more effort, so here we do not manage to prove this property.
 
-@assert line_of_sight(solz) "the property should be proven"
+@assert !line_of_sight(solz) "the property cannot be proven with these settings"
 @assert !collision_avoidance(solz) "the property cannot be proven with these settings"
 @assert velocity_constraint(solz) "the property should be proven"
 
@@ -393,3 +394,5 @@ fig  #!jl
 
 # [^CM17]: N. Chan and S. Mitra. *Verifying safety of an autonomous spacecraft
 #          rendezvous mission*. ARCH 2017.
+# [^ARCHCOMP]: L. Geretti et al. *ARCH-COMP22 Category Report: Continuous and
+#              Hybrid Systems with Nonlinear Dynamics*. In ARCH 2022.
