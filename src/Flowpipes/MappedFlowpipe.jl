@@ -41,6 +41,6 @@ function overapproximate(fp::Flowpipe, args...)
     return Flowpipe(map(R -> overapproximate(R, args...), fp), fp.ext)
 end
 
-function overapproximate(fp::VRT, args...) where {RT,VRT<:AbstractVector{RT}}
+function overapproximate(fp::AbstractVector{<:AbstractReachSet}, args...)
     return Flowpipe(map(R -> overapproximate(R, args...), fp))
 end
