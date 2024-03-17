@@ -53,7 +53,7 @@ const AdmissibleSet = Union{LazySet,IA.Interval,IA.IntervalBox}
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, directions, linear_map, LinearMap, split!,
-                 set, array, _isapprox,
+                 set, array, _isapprox, flatten,
                  _plot_singleton_list_1D, _plot_singleton_list_2D
 
 import Base: ∈, ∩, convert, isdisjoint
