@@ -9,7 +9,8 @@
 
 # Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid
 # systems with nonlinear dynamics since mission failure can cost lives and is
-# extremely expensive. This benchmark is taken from [^CM17].
+# extremely expensive. This benchmark is taken from [^CM17] but adapted to the
+# settings of ARCH-COMP [^ARCHCOMP].
 
 # The nonlinear differential equations describe the two-dimensional, planar
 # motion of the space-craft on an orbital plane towards a space station:
@@ -246,7 +247,7 @@ end;
 #   ``L = \{\binom{x}{y} | (x ≥ −100) ∧ (y ≥ x \tan(30°)) ∧ (−y ≥ x \tan(30°))\}``.
 #
 # - Collision avoidance: In mode *aborting*, the spacecraft has to avoid a
-#   collision with the target, which is modeled as a box ``B`` with ``2`` [m]
+#   collision with the target, which is modeled as a box ``B`` with ``0.2`` [m]
 #   edge length and the center placed at the origin.
 #
 # - Velocity constraint: In mode *rendezvous attempt*, the absolute velocity has
@@ -255,14 +256,14 @@ end;
 # !!! note "Remark on velocity constraint"
 #     In the original benchmark [^CM17], the constraint on the velocity was set
 #     to 0.05 m/s, but it can be shown (by a counterexample) that this
-#     constraint cannot be satisﬁed. We therefore use the relax constraint to
+#     constraint cannot be satisﬁed. We therefore use the relaxed constraint to
 #     ``0.055`` [m/s] ``= 3.3`` [m/min].
 
 const tan30 = tand(30)
 
 LineOfSightCone = HPolyhedron([x >= -100, y >= x * tan30, -y >= x * tan30], var)
 
-target = BallInf(zeros(2), 2.0)
+target = BallInf(zeros(2), 0.2)
 
 function line_of_sight(sol)
     all_idx = findall(x -> x == 2, location.(sol))  # "rendezvous attempt" mode
@@ -393,3 +394,5 @@ fig  #!jl
 
 # [^CM17]: N. Chan and S. Mitra. *Verifying safety of an autonomous spacecraft
 #          rendezvous mission*. ARCH 2017.
+# [^ARCHCOMP]: L. Geretti et al. *ARCH-COMP20 Category Report: Continuous and
+#              Hybrid Systems with Nonlinear Dynamics*. In ARCH 2020.
