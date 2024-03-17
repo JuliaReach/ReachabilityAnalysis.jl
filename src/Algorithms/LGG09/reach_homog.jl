@@ -34,7 +34,7 @@ end
 
 function _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threaded::Val{true})
     ℓ = _collect(dirs)
-    Threads.@threads for j in 1:length(ℓ)
+    Threads.@threads for j in eachindex(ℓ)
         reach_homog_dir_LGG09!(ρℓ, j, Ω₀, Φᵀ, ℓ[j], NSTEPS, cache)
     end
 end
@@ -111,7 +111,7 @@ end
 
 #=---- version using vector-of-vectors
     # preallocate output sequence
-    ρℓ = [Vector{N}(undef, NSTEPS) for _ in 1:length(dirs)]
+    ρℓ = [Vector{N}(undef, NSTEPS) for _ in dirs]
 
     # for each direction, compute NSTEPS iterations
     @inbounds for (i, ℓ) in enumerate(dirs)
@@ -121,7 +121,7 @@ end
     # fill template reach-set sequence
     Δt = (zero(N) .. δ) + time_shift
     @inbounds for k in 1:NSTEPS
-        sf = [ρℓ[i][k] for i in 1:length(dirs)]
+        sf = [ρℓ[i][k] for i in eachindex(dirs)]
         F[k] = TemplateReachSet(dirs, sf, Δt)
         Δt += δ
     end

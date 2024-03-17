@@ -7,7 +7,7 @@ DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                     :(using ReachabilityAnalysis); recursive=true)
 
 # pass --fast as an argument to skip rebuilding the examples and running doctests
-const _FAST = findfirst(isequal("--fast"), ARGS) !== nothing
+const _FAST = findfirst(==("--fast"), ARGS) !== nothing
 
 # ========================
 # Generate examples

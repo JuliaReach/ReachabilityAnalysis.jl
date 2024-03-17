@@ -12,7 +12,7 @@ using StaticArrays: SVector, SMatrix, SA, StaticArray
     Jexpr0 = [-2.5+2x * y x^2; 1.5-2x * y -x^2]
 
     Jexpr = _jacobian_expression(f, var)
-    @test isequal(Jexpr, Jexpr0)
+    @test isequal(Jexpr0, Jexpr)
     J = _jacobian_function(f, var)
     v = [1.0, 2.0]
     Jv = [1.5 1; -2.5 -1]
@@ -55,7 +55,7 @@ using StaticArrays: SVector, SMatrix, SA, StaticArray
     aux = [1.0, 1.0] # can be any vector
     @test J(aux) == A
     Jexpr = _jacobian_expression(sys, var)
-    @test isequal(Jexpr, A)
+    @test Jexpr == A
 end
 
 # @testset "Symbolic-Numeric utils: Hessian" begin

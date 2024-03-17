@@ -109,7 +109,7 @@ function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...
     FT = Flowpipe{numtype(cpost),rsetrep(cpost)} # TODO add third parameter
     sol_tot = Vector{FT}(undef, nsets)
 
-    Threads.@threads for i in 1:length(X0)
+    Threads.@threads for i in eachindex(X0)
         sol_i = ReachabilityAnalysis.post(cpost, IVP(S, X0[i]), tspan; kwargs...)
         sol_tot[i] = sol_i
     end

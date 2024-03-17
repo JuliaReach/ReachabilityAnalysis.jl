@@ -118,7 +118,7 @@ end
 function _bloat(P::LazySet, ε)
     A, b = tosimplehrep(P)
     bε = copy(b)
-    for i in 1:length(b)
+    for i in eachindex(b)
         bε[i] += ε * opnorm(transpose(A[i, :]))
     end
     return HPolytope(A, bε)
