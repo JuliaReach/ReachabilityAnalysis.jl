@@ -144,7 +144,8 @@ end
     return isdisjoint(set(Z), Y)
 end
 
-for T in (:AbstractDisjointnessMethod, :FallbackDisjointness, :ZonotopeEnclosure, :BoxEnclosure, :Dummy)
+for T in
+    (:AbstractDisjointnessMethod, :FallbackDisjointness, :ZonotopeEnclosure, :BoxEnclosure, :Dummy)
     @eval begin
         @commutative function _is_intersection_empty(::TaylorModelReachSet, ::Universe,
                                                      method::$T)
