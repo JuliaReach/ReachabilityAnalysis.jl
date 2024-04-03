@@ -18,7 +18,8 @@ discretization for systems of linear differential equations of the form
     x'(t) = Ax(t),\qquad x(0) ∈ X_0 ∈ \mathbb{R}^n.
 ```
 for all times ``t ∈ [0, T]``. Linear systems with non-deterministic inputs
-is disussed in another section of this manual. We also consider an invariant specification: ``x(t) ∈ X`` for all times.
+is discussed in another section of this manual. We also consider an invariant
+specification: ``x(t) ∈ X`` for all times.
 
 The final part of this section introduces support function techniques and discusses
 the helicopter model application. For ease of exposition, this section only considers.

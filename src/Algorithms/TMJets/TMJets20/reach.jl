@@ -243,7 +243,7 @@ function validated_step!(f!, t::Taylor1{T}, x::Vector{Taylor1{TaylorN{T}}},
     local success, _t0
 
     for nchecks in 1:25
-        # Validate the solution: remainder consistent with Schauder thm
+        # Validate the solution: remainder consistent with Schauder theorem
         δtI = sign_tstep * IA.interval(0, sign_tstep * δt)
         (success, Δ, _t0) = remainder_taylorstep!(f!, t, x, dx, xI, dxI, symIbox, δtI, params,
                                                   adaptive)
