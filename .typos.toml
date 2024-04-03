@@ -7,6 +7,8 @@ OT = "OT"
 ND = "ND"
 GIR = "GIR"
 AKS = "AKS"
+FRE = "FRE"
+Ein = "Ein"
 
 [files]
 # do not check the following files:
