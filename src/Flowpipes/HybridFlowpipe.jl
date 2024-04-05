@@ -3,7 +3,7 @@
 # ================================
 
 """
-    HybridFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
+    HybridFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: AbstractFlowpipe
 
 Type that wraps a vector of flowpipes of the same type, such that they are
 contiguous in time.
@@ -19,27 +19,18 @@ The evaluation functions (in time) for this type do not assume that the flowpipe
 That is, the final time of the `i`-th flowpipe does not match the start time of the `i+1`-th flowpipe.
 """
 struct HybridFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: AbstractFlowpipe
-    Fk::VectorOfArray{RT,2,Vector{FT}}
+    Fk::Vector{FT}
     ext::Dict{Symbol,Any}
 end
 
-function HybridFlowpipe(Fk::Vector{FT}) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
-    voa = VectorOfArray{RT,2,Vector{FT}}(Fk)
-    ext = Dict{Symbol,Any}()
-    return HybridFlowpipe{N,RT,FT}(voa, ext)
-end
-
 function HybridFlowpipe(Fk::Vector{FT},
-                        ext::Dict{Symbol,Any}) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
-    voa = VectorOfArray{RT,2,Vector{FT}}(Fk)
-    return HybridFlowpipe{N,RT,FT}(voa, ext)
+                        ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
+    return HybridFlowpipe{N,RT,FT}(Fk, ext)
 end
 
-function HybridFlowpipe(Fk::Vector{SFT}) where {N,RT,FT<:Flowpipe{N,RT},NT<:Number,
-                                                SFT<:ShiftedFlowpipe{FT,NT}}
-    voa = VectorOfArray{RT,2,Vector{SFT}}(Fk)
-    ext = Dict{Symbol,Any}()
-    return HybridFlowpipe{N,RT,SFT}(voa, ext)
+function HybridFlowpipe(Fk::Vector{SFT},
+                        ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT,FT<:Flowpipe{N,RT},NT<:Number,SFT<:ShiftedFlowpipe{FT,NT}}
+    return HybridFlowpipe{N,RT,SFT}(Fk, ext)
 end
 
 # interface functions
