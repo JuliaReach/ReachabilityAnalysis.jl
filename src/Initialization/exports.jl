@@ -18,8 +18,8 @@ export
       ORBIT,
       QINT,
       TMJets,
-      TMJets1,
-      TMJets2,
+      TMJets21a,
+      TMJets21b,
       VREP,
 # XFZ18,
 

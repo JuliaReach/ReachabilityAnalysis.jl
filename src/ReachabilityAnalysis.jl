@@ -49,8 +49,9 @@ include("Algorithms/FLOWSTAR/FLOWSTAR.jl")
 
 # Nonlinear
 include("Algorithms/CARLIN/CARLIN.jl")
-include("Algorithms/TMJets/TMJets.jl")
+include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
 include("Algorithms/TMJets/common.jl")
+include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
 include("Algorithms/QINT/QINT.jl")
 
 # ===========================================================

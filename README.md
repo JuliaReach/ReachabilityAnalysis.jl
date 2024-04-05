@@ -125,7 +125,7 @@ with position in the interval `0.9 .. 1.1` and velocity in `-0.1 .. 0.1`.
 using ReachabilityAnalysis, Plots
 
 const ω = 1.2
-const T = 2*pi / ω
+const T = 2 * pi / ω
 
 @taylorize function duffing!(du, u, p, t)
     local α = -1.0
@@ -148,7 +148,7 @@ X0 = Hyperrectangle(low=[0.9, -0.1], high=[1.1, 0.1])
 prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim=2)
 
 # solve using a Taylor model set representation
-sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets())
+sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets21a());
 
 # plot the flowpipe in state-space
 plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
@@ -165,7 +165,7 @@ plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
 |         |      |
 | ![LaubLoomis](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-LaubLoomis.png?raw=true) [Laub-Loomis model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/LaubLoomis/)    | ![PD](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-ProductionDestruction.png?raw=true)<br> [Production-Destruction model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/ProductionDestruction/)|
 |         |      |
-|![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) [Coupled van der pol oscillator model](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/VanDerPol/vanderpol.jl) | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendez-vous model](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Spacecraft/) |
+|![vanderpol](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-VanDerPol.png?raw=true) [Coupled van der Pol oscillator](https://github.com/JuliaReach/ARCH2020_NLN_RE/blob/master/models/VanDerPol/vanderpol.jl) | ![spaccecraft](https://github.com/JuliaReach/JuliaReach-website/blob/master/images/reachability/NLN/ARCH-COMP20-JuliaReach-Spacecraft.png?raw=true) [Spacecraft rendezvous](https://juliareach.github.io/ReachabilityAnalysis.jl/dev/generated_examples/Spacecraft/) |
 
 
 ## :blue_book: Publications

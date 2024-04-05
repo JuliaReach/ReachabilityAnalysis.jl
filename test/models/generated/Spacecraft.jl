@@ -214,7 +214,7 @@ function solve_spacecraft(prob; k=25, s=missing)
     # transition from mode 1 to mode 2
     sol12 = solve(prob;
                   tspan=(0.0, 200.0),
-                  alg=TMJets1(; abstol=1e-5, maxsteps=10_000, orderT=5, orderQ=1,
+                  alg=TMJets21a(; abstol=1e-5, maxsteps=10_000, orderT=5, orderQ=1,
                                disjointness=BoxEnclosure()),
                   max_jumps=1,
                   intersect_source_invariant=false,
@@ -229,7 +229,7 @@ function solve_spacecraft(prob; k=25, s=missing)
     H = system(prob)
     sol3 = solve(IVP(mode(H, 3), [set(X) for X in sol12jump_c]);
                  tspan=(t0, 200.0),
-                 alg=TMJets1(; abstol=1e-10, orderT=7, orderQ=1, disjointness=BoxEnclosure()))
+                 alg=TMJets21a(; abstol=1e-10, orderT=7, orderQ=1, disjointness=BoxEnclosure()))
     d = Dict{Symbol,Any}(:loc_id => 3)
     F12 = [fp for fp in sol12.F]
     F23 = [Flowpipe(fp.Xk, d) for fp in sol3.F]
