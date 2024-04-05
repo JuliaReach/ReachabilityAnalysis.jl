@@ -47,7 +47,7 @@ V = vertices_list(X0) .|> Singleton |> UnionSetArray
 plot!(c)
 plot!(V)
 plot!(M(pi/4) * c) # rotate 45 degrees
-plot!(M(pi/4) * V)
+plot!(linear_map(M(pi/4), V))
 
 xlims!(0.0, 1.8) # hide
 ylims!(-0.4, 1.4) # hide
@@ -60,9 +60,9 @@ fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 X = sample(X0, 25) .|> Singleton |> UnionSetArray
 
 plot!(X)
-plot!(M(pi/4) * X, c=:blue)     # rotate 45 degrees
-plot!(M(pi/2) * X, c=:green)    # rotate 90 degrees
-plot!(M(4pi/3) * X, c=:orange)  # rotate 180 degrees
+plot!(linear_map(M(pi/4), X), c=:blue)     # rotate 45 degrees
+plot!(linear_map(M(pi/2), X), c=:green)    # rotate 90 degrees
+plot!(linear_map(M(4pi/3), X), c=:orange)  # rotate 180 degrees
 
 plot!(X0, c=:white)
 plot!(M(pi/4) * X0, c=:white)
