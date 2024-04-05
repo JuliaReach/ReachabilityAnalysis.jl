@@ -51,7 +51,7 @@ fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 The divergence observed in the solution is due to using an algorithm which doesn't specialize for intervals hence suffers from dependency problems.
 
-However, specialized algorithms can handle this case without noticeable wrapping effect, producing a sequence of sets whose union covers the true solution for all initial points. We use the [`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) interface to the algorithm [`TMJets1`](@ref), which is itself implemented in
+However, specialized algorithms can handle this case without noticeable wrapping effect, producing a sequence of sets whose union covers the true solution for all initial points. We use the [`ReachabilityAnalysis.jl`](https://github.com/JuliaReach/ReachabilityAnalysis.jl) interface to the algorithm [`TMJets21a`](@ref), which is itself implemented in
 [`TaylorModels.jl`](https://github.com/JuliaIntervals/TaylorModels.jl).
 
 ```@example nonlinear_univariate
@@ -69,7 +69,7 @@ X0 = -1 .. 1
 prob = @ivp(x' = f(x), x(0) ∈ X0, dim=1)
 
 # solve it using a Taylor model method
-sol = solve(prob, alg=TMJets1(abstol=1e-10), T=15)
+sol = solve(prob, alg=TMJets21a(abstol=1e-10), T=15)
 
 # visualize the solution in time
 fig = plot(sol, vars=(0, 1), xlab="t", ylab="x(t)", title="Specialized (Taylor-model based) integrator")

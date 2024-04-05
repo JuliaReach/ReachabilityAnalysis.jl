@@ -59,7 +59,7 @@ T = 18.0;
 # We use the `TMJets` algorithm with sixth-order expansion in time and
 # second-order expansion in the spatial variables.
 
-alg = TMJets1(; orderT=6, orderQ=2)
+alg = TMJets21a(; orderT=6, orderQ=2)
 sol = solve(prob; T=T, alg=alg);
 
 # ## Results
