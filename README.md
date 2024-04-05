@@ -146,7 +146,7 @@ X0 = Hyperrectangle(low=[0.9, -0.1], high=[1.1, 0.1])
 prob = @ivp(x' = duffing!(x), x(0) ∈ X0, dim=2)
 
 # solve using a Taylor model set representation
-sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets21a())
+sol = solve(prob, tspan=(0.0, 20*T), alg=TMJets())
 
 # plot the flowpipe in state-space
 plot(sol, vars=(1, 2), xlab="x", ylab="v", lw=0.5, color=:red)
