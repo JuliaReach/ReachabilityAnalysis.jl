@@ -215,7 +215,7 @@ function solve_spacecraft(prob; k=25, s=missing)
     sol12 = solve(prob;
                   tspan=(0.0, 200.0),
                   alg=TMJets21a(; abstol=1e-5, maxsteps=10_000, orderT=5, orderQ=1,
-                               disjointness=BoxEnclosure()),
+                                disjointness=BoxEnclosure()),
                   max_jumps=1,
                   intersect_source_invariant=false,
                   intersection_method=TemplateHullIntersection(BoxDirections(5)),
