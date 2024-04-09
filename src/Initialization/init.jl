@@ -113,7 +113,7 @@ using Requires
 
 function __init__()
     # numerical differential equations suite
-    @require DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa" include("init_DifferentialEquations.jl")
+    @require OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed" include("init_OrdinaryDiffEq.jl")
 
     # sparse dynamic representation of multivariate polynomials
     @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")

@@ -72,7 +72,7 @@ plot!(trange, 2.0 * exp.(-trange), vars=(0, 1), c=:magenta, lab="")
 ```
 
 The user-facing interface is designed to be intuitive and interactive, and it is
-inspired by of other Julia packages such as DifferentialEquations.jl.
+inspired by of other Julia packages such as [OrdinaryDiffEq.jl](https://github.com/SciML/OrdinaryDiffEq.jl).
 Moreover, the library internals are written in a modular and composable way,
 such that advanced users are able to modify and changed easily, or to compose with
 other algorithms, different steps of the solution process.

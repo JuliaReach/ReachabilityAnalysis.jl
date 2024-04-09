@@ -67,7 +67,7 @@ function solve(ivp::IVP{<:AbstractContinuousSystem_}, args...; kwargs...)
     got_ensemble = get(kwargs, :ensemble, false)
     dict = Dict{Symbol,Any}(:ensemble => nothing)
     if got_ensemble
-        @requires DifferentialEquations
+        @requires OrdinaryDiffEq
         ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
         dict[:ensemble] = ensemble_sol
     end
