@@ -18,10 +18,10 @@ x'(t) = -x(t) ~ \sin(t),\qquad t ≥ 0.
 ```
 
 Standard integration schemes fail to produce helpful solutions if the initial state is an interval. We illustrate this point
-by solving the given differential equation with the `Tsit5` algorithm from [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/) suite.
+by solving the given differential equation with the `Tsit5` algorithm from [OrdinaryDiffEq.jl](https://github.com/SciML/OrdinaryDiffEq.jl) suite.
 
 ```@example nonlinear_univariate
-using DifferentialEquations, IntervalArithmetic
+using OrdinaryDiffEq, IntervalArithmetic
 
 # initial condition
 x₀ = [-1 .. 1]
