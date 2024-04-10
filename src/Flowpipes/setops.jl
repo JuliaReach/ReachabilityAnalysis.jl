@@ -108,11 +108,6 @@ function _reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Missing) where {N,VN
     return _reconvert(V, static, Val(LazySets.dim(V)))
 end
 
-Base.convert(::Type{HPolytope{N,VT}}, P::HPolytope{N,VT}) where {N,VT} = P
-function Base.convert(::Type{HPolytope{N,VT}}, P::LazySet) where {N,VT}
-    return HPolytope([HalfSpace(VT(c.a), c.b) for c in constraints_list(P)])
-end
-
 function Base.convert(::Type{Hyperrectangle{N,Vector{N},Vector{N}}},
                       H::Hyperrectangle{N,SVector{L,N},SVector{L,N}}) where {N,L}
     return Hyperrectangle(Vector(H.center), Vector(H.radius))
@@ -184,26 +179,8 @@ LazySets.Projection(X::LazySet, vars::NTuple{D,Int}) where {D} = Projection(X, c
 LazySets.Projection(X::LazySet; vars) = Projection(X, vars)
 
 # ===============================
-# Decompositions and partitions
+# Splitting
 # ===============================
-
-#const Partition{}
-
-# concrete decomposition using a uniform block partition
-#const Partition{N, VT} = AbstractVector{VT} where {VT<:AbstractVector{Int}}
-
-function _decompose(X::LazySet{N},
-                    blocks, # ::AbstractVector{<:AbstractVector{Int}}
-                    set_type::Type{ST}) where {N,ST<:LazySet}
-    n = dim(X)
-    result = Vector{ST}(undef, length(blocks))
-
-    @inbounds for (i, bi) in enumerate(blocks)
-        πX = Projection(X, bi)
-        result[i] = overapproximate(πX, ST)
-    end
-    return CartesianProductArray(result)
-end
 
 # split the symmetric box [-1, 1]^n in nparts in each dimension
 function _split_symmetric_box(n::Int, nparts::Int)
@@ -215,16 +192,6 @@ function _split_symmetric_box(D::Int, partition::Vector{Int})
     S = BallInf(zeros(D), 1.0)
     Sp = split(S, partition)
     return convert.(IA.IntervalBox, Sp)
-end
-
-# ==================================
-# Zonotope order reduction methods
-# ==================================
-
-# zonotope with mixed static array types
-function LazySets.reduce_order(Z::Zonotope{N,SVector{n,N},MMatrix{n,p,N,L}}, r::Real,
-                               alg::AbstractReductionMethod) where {n,N,p,L}
-    return reduce_order(Zonotope(Z.center, SMatrix(Z.generators)), r, alg)
 end
 
 # ====================================

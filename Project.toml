@@ -32,7 +32,7 @@ ExprTools = "0.1"
 HybridSystems = "0.4"
 IntervalArithmetic = "0.16 - 0.20, =0.20.9"  # new versions require updates and are incompatible with dependencies
 IntervalMatrices = "0.6 - 0.10"
-LazySets = "2.11"
+LazySets = "2.12"
 LinearAlgebra = "<0.0.1, 1.6"
 MathematicalSystems = "0.11 - 0.13"
 Parameters = "0.10 - 0.12"
