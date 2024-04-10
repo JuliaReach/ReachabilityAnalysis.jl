@@ -169,7 +169,7 @@ const tan30 = tand(30)
 
 LineOfSightCone = HPolyhedron([x >= -100, y >= x * tan30, -y >= x * tan30], var)
 
-target = BallInf(zeros(2), 2.0)
+target = BallInf(zeros(2), 0.2)
 
 function line_of_sight(sol)
     all_idx = findall(x -> x == 2, location.(sol))  # "rendezvous attempt" mode
