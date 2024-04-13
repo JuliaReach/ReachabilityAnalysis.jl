@@ -53,12 +53,12 @@ function _solve_ensemble(ivp::InitialValueProblem, args...;
 
     if isnothing(callback)
         result = ODE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
-                          trajectories=trajectories, reltol=reltol,
-                          abstol=abstol, dtmax=dtmax)
+                           trajectories=trajectories, reltol=reltol,
+                           abstol=abstol, dtmax=dtmax)
     else
         result = ODE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
-                          trajectories=trajectories, reltol=reltol,
-                          abstol=abstol, dtmax=dtmax, callback=callback)
+                           trajectories=trajectories, reltol=reltol,
+                           abstol=abstol, dtmax=dtmax, callback=callback)
     end
     return result
 end
