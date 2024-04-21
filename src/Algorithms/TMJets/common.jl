@@ -86,34 +86,3 @@ function _initialize(X0::CartesianProduct{N,<:Zonotope,<:Interval}, orderQ, orde
 
     return set(X)
 end
-
-# =================================
-# External solver function
-# =================================
-
-function _solve_external(f!, X0, t0, T, orderQ, orderT, abstol, maxsteps, Δt0; kwargs...)
-    N = eltype(X0)
-
-    # box overapproximation of the initial states
-    X0box = convert(IntervalBox, box_approximation(X0))
-
-    # extract solver name and options
-    parse_eqs = get(kwargs, :parse_eqs, false)
-    solver_name = get(kwargs, :solver_name, TM.validated_integ)
-    solver_kwargs = get(kwargs, :solver_kwargs, Dict(:maxsteps => maxsteps))
-
-    # call external solver
-    tv, xv, xTM1v = solver_name(f!, X0box, t0, T, orderQ, orderT, abstol; parse_eqs,
-                                solver_kwargs...)
-
-    # build flowpipe
-    F = Vector{TaylorModelReachSet{N}}()
-    sizehint!(F, maxsteps)
-    @inbounds for i in eachindex(tv)
-        δt = TimeInterval(tv[i] + domain(xTM1v[1, i]))
-        Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
-        push!(F, Ri)
-    end
-    ext = Dict{Symbol,Any}(:tv => tv, :xv => xv, :xTM1v => xTM1v)
-    return Flowpipe(F, ext)
-end
