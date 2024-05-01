@@ -3,7 +3,7 @@
 # ============================================
 
 """
-    MixedFlowpipe{N, D, FT<:AbstractFlowpipe, VOA<:VectorOfArray{N, D, Vector{FT}}} <: AbstractFlowpipe
+    MixedFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: AbstractFlowpipe
 
 Type that wraps a vector of flowpipes of the same time, such that they are
 not necessarily contiguous in time.
@@ -18,20 +18,13 @@ not necessarily contiguous in time.
 This type does not assume that the flowpipes are contiguous in time.
 """
 struct MixedFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: AbstractFlowpipe
-    Fk::VectorOfArray{RT,2,Vector{FT}}
+    Fk::Vector{FT}
     ext::Dict{Symbol,Any}
 end
 
-function MixedFlowpipe(Fk::Vector{FT}) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
-    voa = VectorOfArray{RT,2,Vector{FT}}(Fk)
-    ext = Dict{Symbol,Any}()
-    return MixedFlowpipe{N,RT,FT}(voa, ext)
-end
-
 function MixedFlowpipe(Fk::Vector{FT},
-                       ext::Dict{Symbol,Any}) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
-    voa = VectorOfArray{RT,2,Vector{FT}}(Fk)
-    return MixedFlowpipe{N,RT,FT}(voa, ext)
+                       ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
+    return MixedFlowpipe{N,RT,FT}(Fk, ext)
 end
 
 # interface functions

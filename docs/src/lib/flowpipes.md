@@ -59,12 +59,6 @@ MixedFlowpipe
 ShiftedFlowpipe
 ```
 
-## Partitioned flowpipe
-
-```@docs
-PartitionedFlowpipe
-```
-
 ## Mapped flowpipe
 
 ```@docs

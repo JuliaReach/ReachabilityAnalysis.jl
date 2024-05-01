@@ -6,8 +6,7 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       Reexport,                    # see @reexport macro below
       RecipesBase,                 # plotting
       Parameters,                  # structs with kwargs
-      StaticArrays,                # statically sized arrays
-      RecursiveArrayTools          # vector of arrays type
+      StaticArrays                 # statically sized arrays
 
 # manipulate function definition expressions
 using ExprTools: splitdef, combinedef
