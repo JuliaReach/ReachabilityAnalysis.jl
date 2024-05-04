@@ -24,12 +24,16 @@ struct HybridFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: Abstrac
 end
 
 function HybridFlowpipe(Fk::Vector{FT},
-                        ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
+                        ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT<:AbstractReachSet{N},
+                                                                         FT<:Flowpipe{N,RT}}
     return HybridFlowpipe{N,RT,FT}(Fk, ext)
 end
 
 function HybridFlowpipe(Fk::Vector{SFT},
-                        ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT,FT<:Flowpipe{N,RT},NT<:Number,SFT<:ShiftedFlowpipe{FT,NT}}
+                        ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT,FT<:Flowpipe{N,RT},
+                                                                         NT<:Number,
+                                                                         SFT<:ShiftedFlowpipe{FT,
+                                                                                              NT}}
     return HybridFlowpipe{N,RT,SFT}(Fk, ext)
 end
 

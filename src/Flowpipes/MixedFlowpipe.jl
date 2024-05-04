@@ -23,7 +23,8 @@ struct MixedFlowpipe{N,RT<:AbstractReachSet{N},FT<:AbstractFlowpipe} <: Abstract
 end
 
 function MixedFlowpipe(Fk::Vector{FT},
-                       ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT<:AbstractReachSet{N},FT<:Flowpipe{N,RT}}
+                       ext::Dict{Symbol,Any}=Dict{Symbol,Any}()) where {N,RT<:AbstractReachSet{N},
+                                                                        FT<:Flowpipe{N,RT}}
     return MixedFlowpipe{N,RT,FT}(Fk, ext)
 end
 
