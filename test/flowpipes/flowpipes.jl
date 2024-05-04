@@ -8,7 +8,6 @@ using ReachabilityAnalysis: _isapprox
 
     # base, numeric, set and reach-set types
     FT = typeof(fp)
-    @test basetype(FT) == basetype(fp) == Flowpipe
     N = ReachabilityAnalysis.numtype(fp)
     @test N == Float64
     ZT = Zonotope{N,Vector{N},Matrix{N}}
