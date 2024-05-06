@@ -85,33 +85,6 @@ function _intersection(R::TaylorModelReachSet, Y::LazySet, ::BoxIntersection)
     return isempty(out) ? EmptySet(dim(out)) : overapproximate(out, Hyperrectangle)
 end
 
-# TODO refactor? See LazySets#2158
-function _intersection(R::TaylorModelReachSet, Y::UnionSetArray{N,HT},
-                       ::BoxIntersection) where {N,HT<:HalfSpace{N}}
-    X = set(overapproximate(R, Hyperrectangle))
-
-    # find first non-empty intersection
-    m = length(Y.array) # can't use array(Y) ?
-    i = 1
-    local W
-    @inbounds while i <= m
-        W = intersection(X, Y.array[i])
-        !isempty(W) && break
-        i += 1
-    end
-    if i == m + 1
-        return EmptySet(dim(Y))
-    end
-
-    # add all other non-empty intersections
-    out = [W]
-    @inbounds for j in (i + 1):m
-        W = intersection(X, Y.array[j])
-        !isempty(W) && push!(out, W)
-    end
-    return isempty(out) ? EmptySet(dim(out)) : overapproximate(UnionSetArray(out), Hyperrectangle)
-end
-
 # ======================
 # Inclusion checks
 # ======================
