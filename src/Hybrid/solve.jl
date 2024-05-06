@@ -401,7 +401,7 @@ end
 
 #=
 # TODO distribute initial set exceptions:
-# IA.Interval, IntervalBox, UninSet, UnionSetArray
+# IA.Interval, IntervalBox
 
 # no-op if the ivp has a WaitingList
 

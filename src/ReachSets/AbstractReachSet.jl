@@ -34,8 +34,7 @@ following methods:
 abstract type AbstractReachSet{N} end
 
 # convenience union for dispatch on structs that behave like a set
-const SetOrReachSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.IntervalBox,
-                            AbstractReachSet}
+const SetOrReachSet = Union{LazySet,IA.Interval,IA.IntervalBox,AbstractReachSet}
 
 """
     basetype(T::Type{<:AbstractReachSet})
