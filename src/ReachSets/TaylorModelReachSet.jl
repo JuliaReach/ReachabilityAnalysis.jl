@@ -377,8 +377,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope},
     end
     Z = overapproximate.(fX̂, Zonotope)
     Δt = tspan(R)
-    #return ReachSet(UnionSetArray(Z), Δt) # but UnionSetArray is not yet a lazyset
-    return ReachSet(ConvexHullArray(Z), Δt)
+    return ReachSet(UnionSetArray(Z), Δt)
 end
 
 # evaluate at a given time point and overapproximate the resulting set
