@@ -24,7 +24,7 @@ using ExprTools: splitdef, combinedef
 using LazySets: AffineMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
-using LazySets: Interval, radius, sample, ∅, dim, scale, scale!
+using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂
 
 # JuliaReach internal functions
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
