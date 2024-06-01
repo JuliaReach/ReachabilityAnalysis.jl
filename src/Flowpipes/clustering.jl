@@ -114,12 +114,12 @@ end
 
 function cluster(F, idx, method::LazyClustering{P,Val{true}}) where {P}
     p = _partition(method, idx)
-    return convF = [convexify(view(F, cj)) for cj in p]
+    return [convexify(view(F, cj)) for cj in p]
 end
 
 function cluster(F, idx, method::LazyClustering{P,Val{false}}) where {P}
     p = _partition(method, idx)
-    return convF = [view(F, cj) for cj in p]
+    return [view(F, cj) for cj in p]
 end
 
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation

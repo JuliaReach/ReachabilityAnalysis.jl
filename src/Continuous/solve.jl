@@ -144,8 +144,8 @@ setrep(::InitialValueProblem{HS,ST}) where {HS,ST} = ST
 LazySets.dim(::IA.Interval) = 1
 LazySets.dim(::IA.IntervalBox{D,N}) where {D,N} = D
 
-# lazy sets (or sets that behave like such -- TODO update once UnionSet <: LazySet)
-_dim(X::Union{<:LazySet,<:IA.Interval,<:IA.IntervalBox,<:UnionSet,<:UnionSetArray}) = dim(X)
+# lazy sets (or sets that behave as such)
+_dim(X::Union{<:LazySet,<:IA.Interval,<:IA.IntervalBox}) = dim(X)
 
 # singleton elements
 _dim(X::Number) = 1
@@ -153,8 +153,7 @@ _dim(X::AbstractVector{N}) where {N<:Number} = length(X)
 
 # vector of sets
 function _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
-                                                      <:IA.Interval,<:IA.IntervalBox,<:UnionSet,
-                                                      <:UnionSetArray}}
+                                                      <:IA.Interval,<:IA.IntervalBox}}
     n = _dim(first(X))
     all(X -> _dim(X) == n, X) || throw(ArgumentError("dimension mismatch between " *
                                                      "the initial sets in this array; expected only sets of dimension $n"))
