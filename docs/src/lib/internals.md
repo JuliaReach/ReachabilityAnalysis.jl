@@ -24,11 +24,3 @@ Depth = 3
 ```@docs
 _default_cpost
 ```
-
-## Documentation fixes
-
-The following duplicated documentation is necessary due to a problem in the `Documenter` package.
-
-```@docs
-basetype
-```

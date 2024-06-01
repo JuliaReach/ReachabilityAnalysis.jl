@@ -38,21 +38,6 @@ const SetOrReachSet = Union{LazySet,UnionSet,UnionSetArray,IA.Interval,IA.Interv
                             AbstractReachSet}
 
 """
-    basetype(T::Type{<:AbstractReachSet})
-
-Return the base type of the given reach-set type (i.e., without type parameters).
-
-### Input
-
-- `T` -- reach-set type, used for dispatch
-
-### Output
-
-The base type of `T`.
-"""
-basetype(T::Type{<:AbstractReachSet}) = Base.typename(T).wrapper
-
-"""
     set(R::AbstractReachSet)
 
 Return the geometric set represented by this reach-set.

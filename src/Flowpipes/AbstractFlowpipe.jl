@@ -13,22 +13,6 @@ A flowpipe is the set union of an array of reach-sets.
 """
 abstract type AbstractFlowpipe end
 
-"""
-    basetype(T::Type{<:AbstractFlowpipe})
-
-Return the base type of the given flowpipe type (i.e., without type parameters).
-
-### Input
-
-- `T` -- flowpipe type, used for dispatch
-
-### Output
-
-The base type of `T`.
-"""
-basetype(T::Type{<:AbstractFlowpipe}) = Base.typename(T).wrapper
-basetype(fp::AbstractFlowpipe) = basetype(typeof(fp))
-
 # LazySets interface: fallback behaves like UnionSetArray
 
 """

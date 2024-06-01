@@ -14,7 +14,6 @@ AbstractFlowpipe
 The following functions are available at the interface level.
 
 ```@docs
-basetype(::Type{<:AbstractFlowpipe})
 LazySets.ρ(::AbstractVector, ::AbstractFlowpipe)
 LazySets.σ(::AbstractVector, ::AbstractFlowpipe)
 LazySets.dim(::AbstractFlowpipe)

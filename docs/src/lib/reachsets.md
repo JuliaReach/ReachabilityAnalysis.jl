@@ -14,7 +14,6 @@ AbstractReachSet
 The functions are available at the interface level.
 
 ```@docs
-basetype(::Type{<:AbstractReachSet})
 set(::AbstractReachSet)
 setrep(::AbstractReachSet)
 tspan(::AbstractReachSet)
