@@ -19,7 +19,6 @@ include("Discretization/discretization.jl")
 include("Flowpipes/setops.jl")
 include("ReachSets/reachsets.jl")
 include("Flowpipes/flowpipes.jl")
-include("Flowpipes/arrayops.jl")
 include("Flowpipes/clustering.jl")
 include("Flowpipes/solutions.jl")
 
