@@ -256,11 +256,6 @@ function ∈(x::AbstractVector{N}, fp::Flowpipe{N,<:AbstractLazyReachSet{N}}) wh
     return any(R -> x ∈ set(R), array(fp))
 end
 
-function ∈(x::AbstractVector{N},
-           fp::VT) where {N,RT<:AbstractLazyReachSet{N},VT<:AbstractVector{RT}}
-    return any(R -> x ∈ set(R), fp)
-end
-
 function LazySets.linear_map(M, fp::Flowpipe)
     out = [linear_map(M, R) for R in fp]
     return Flowpipe(out, fp.ext)
