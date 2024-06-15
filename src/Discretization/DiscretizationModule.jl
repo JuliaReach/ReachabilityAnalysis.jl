@@ -22,7 +22,7 @@ next_set(inputs::AbstractInput, state::Int64) = collect(nextinput(inputs, state)
 
 abstract type AbstractApproximationModel end
 
-function _default_approximation_model(ivp::IVP{<:AbstractContinuousSystem})
+function _default_approximation_model(::IVP{<:AbstractContinuousSystem})
     return Forward()
 end
 
@@ -39,17 +39,13 @@ isinterval(A::IntervalMatrix{N,IT}) where {N,IT<:IA.Interval{N}} = true
 isinterval(A::AbstractMatrix{IT}) where {IT<:IA.Interval} = true
 
 # options for a-posteriori transformation of a discretized set
-# valid options are:
-# AbstractDirections, Val{:lazy}, Val{:concrete}, Val{:vrep}, Val{:zono}, Val{:zonotope}
-# _alias(setops) = setops # no-op
-
 _alias(setops::AbstractDirections) = setops
 _alias(setops::Val{:lazy}) = setops
 _alias(setops::Val{:concrete}) = setops
 _alias(setops::Val{:vrep}) = setops
 _alias(setops::Val{:box}) = setops
 _alias(setops::Val{:zono}) = setops
-_alias(setops::Val{:zonotope}) = Val(:zono)
+_alias(::Val{:zonotope}) = Val(:zono)
 
 """
     discretize(ivp::IVP, δ, alg::AbstractApproximationModel)
