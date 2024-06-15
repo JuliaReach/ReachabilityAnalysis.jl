@@ -8,6 +8,5 @@ import Aqua
                   piracies=(broken=true,))
 
     # do not warn about ambiguities in dependencies
-    # the ambiguities should be resolved in the future
-    Aqua.test_ambiguities(ReachabilityAnalysis; broken=true)
+    Aqua.test_ambiguities(ReachabilityAnalysis)
 end
