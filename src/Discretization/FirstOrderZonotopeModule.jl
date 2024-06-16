@@ -4,7 +4,7 @@
 module FirstOrderZonotopeModule
 
 using ..DiscretizationModule
-using ..Exponentiation: _exp, _alias, BaseExp
+using ..Exponentiation: _exp, BaseExp
 using LinearAlgebra
 using MathematicalSystems
 using LazySets
@@ -123,10 +123,6 @@ end
 # -----------
 
 function _discretize_zonotope(Φ, X0, ::FirstOrderZonotope, δ, norm_A)
-    c = center(X0)
-    G = genmat(X0)
-    n, p = size(G)
-
     # compute X(δ)
     Xδ = linear_map(Φ, X0)
 
