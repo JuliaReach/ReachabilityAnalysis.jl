@@ -5,7 +5,7 @@ include("../Continuous/symbolics.jl")
 
 function Base.convert(::Type{Vector{Tuple{String,String}}}, s::BlackBoxContinuousSystem; params=[],
                       t=nothing)
-    @requires Symbolics
+    require(@__MODULE__, :Symbolics)
 
     n = statedim(s)
     f! = MathematicalSystems.mapping(s)
