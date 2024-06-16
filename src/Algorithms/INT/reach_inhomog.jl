@@ -8,7 +8,7 @@ function reach_inhomog_INT!(F::Vector{ReachSet{N,Interval{N}}},
                             Φ::N,
                             NSTEPS::Integer,
                             δ::Float64,
-                            X::Universe,
+                            ::Universe,
                             U::Interval,
                             Δt0::TimeInterval) where {N}
 

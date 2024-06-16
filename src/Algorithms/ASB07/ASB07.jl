@@ -78,15 +78,15 @@ end
 step_size(alg::ASB07) = alg.δ
 numtype(::ASB07{N}) where {N} = N
 
-function rsetrep(alg::ASB07{N,AM,RM,Val{false}}) where {N,AM,RM}
-    return RT = ReachSet{N,Zonotope{N,Vector{N},Matrix{N}}}
+function rsetrep(::ASB07{N,AM,RM,Val{false}}) where {N,AM,RM}
+    return ReachSet{N,Zonotope{N,Vector{N},Matrix{N}}}
 end
 
-function rsetrep(alg::ASB07{N,AM,RM,S,R,Val{n},Val{p}}) where {N,AM,RM,S,R,n,p}
+function rsetrep(::ASB07{N,AM,RM,S,R,Val{n},Val{p}}) where {N,AM,RM,S,R,n,p}
     VT = SVector{n,N}
     MT = SMatrix{n,p,N,n * p}
     ZT = Zonotope{N,VT,MT}
-    return RT = ReachSet{N,ZT}
+    return ReachSet{N,ZT}
 end
 
 include("post.jl")
