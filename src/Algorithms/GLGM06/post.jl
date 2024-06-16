@@ -58,8 +58,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         end
         =#
 
-        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate, Δt0,
-                            disjointness_method)
+        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, X, preallocate, Δt0, disjointness_method)
     else
         # TODO: implement preallocate option for this scenario
         U = inputset(ivp_discr)
