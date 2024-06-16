@@ -98,27 +98,27 @@ end
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
 
-@inline function setrep(alg::GLGM06{N,AM,Val{false}}) where {N,AM}
-    return ST = Zonotope{N,Vector{N},Matrix{N}}
+@inline function setrep(::GLGM06{N,AM,Val{false}}) where {N,AM}
+    return Zonotope{N,Vector{N},Matrix{N}}
 end
 
 @inline function rsetrep(alg::GLGM06{N,AM,Val{false}}) where {N,AM}
     ST = setrep(alg)
-    return RT = ReachSet{N,ST}
+    return ReachSet{N,ST}
 end
 
-@inline function setrep(alg::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
+@inline function setrep(::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
     VT = SVector{n,N}
     MT = SMatrix{n,p,N,n * p}
-    return ZT = Zonotope{N,VT,MT}
+    return Zonotope{N,VT,MT}
 end
 
 @inline function rsetrep(alg::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
     ZT = setrep(alg)
-    return RT = ReachSet{N,ZT}
+    return ReachSet{N,ZT}
 end
 
-@inline function rsetrep(alg::GLGM06{N,AM,Val{true},Missing,Missing}) where {N,AM}
+@inline function rsetrep(::GLGM06{N,AM,Val{true},Missing,Missing}) where {N,AM}
     throw(ArgumentError("the reach-set representation for a statically sized zonotope " *
                         "that the system's dimension argument has been defined; add `dim=...`" *
                         "to the algorithm constructor"))

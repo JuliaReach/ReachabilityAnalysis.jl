@@ -15,7 +15,7 @@ end
 
 # TODO check if it can be removed
 function _project(sol, vars)
-    return πsol_1n = Flowpipe([ReachSet(set(project(R, vars)), tspan(R)) for R in sol])
+    return Flowpipe([ReachSet(set(project(R, vars)), tspan(R)) for R in sol])
 end
 
 struct CanonicalQuadraticForm{T,MT<:AbstractMatrix{T}} <: AbstractContinuousSystem

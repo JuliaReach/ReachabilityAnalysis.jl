@@ -132,7 +132,7 @@ step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
 setrep(alg::LGG09) = setrep(alg.template)
 
-function rsetrep(alg::LGG09{N,AM,VN,TN}) where {N,AM,VN,TN}
+function rsetrep(::LGG09{N,AM,VN,TN}) where {N,AM,VN,TN}
     SN = SubArray{N,1,Matrix{N},Tuple{Base.Slice{Base.OneTo{Int}},Int},true}
     return TemplateReachSet{N,VN,TN,SN}
 end
