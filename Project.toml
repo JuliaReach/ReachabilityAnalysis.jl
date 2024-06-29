@@ -25,7 +25,7 @@ TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 
 [compat]
-CarlemanLinearization = "0.3"
+CarlemanLinearization = "0.3 - 0.4"
 CommonSolve = "0.2"
 ExprTools = "0.1"
 HybridSystems = "0.4"
