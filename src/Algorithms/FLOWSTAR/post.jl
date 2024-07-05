@@ -11,7 +11,7 @@ function FLOWSTAR(; δ::Union{Float64,Nothing}=nothing,
                   precision=53,
                   verbose=false,
                   scheme=NonPolyODEScheme())
-    @requires Flowstar
+    require(@__MODULE__, :Flowstar)
 
     step_size = !isnothing(δ) ? δ :
                 (!isnothing(step_size) ? step_size :
@@ -28,7 +28,7 @@ end
 
 function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
               Δt0::TimeInterval=zeroI, kwargs...) where {ST,OT,PT,IT}
-    @requires Flowstar
+    require(@__MODULE__, :Flowstar)
 
     @unpack step_size, order, remainder_estimation, precondition, cutoff, precision, verbose, scheme = alg
 
@@ -45,7 +45,7 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
         s, n = system(ivp), statedim(ivp)
 
         # vector field in string form
-        @requires Symbolics
+        require(@__MODULE__, :Symbolics)
         fstr = convert(Vector{Tuple{String,String}}, s)
 
         # initial set
