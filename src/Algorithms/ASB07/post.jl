@@ -30,7 +30,6 @@ function post(alg::ASB07{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     Ω0 = reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
-    #static = haskey(kwargs, :static) ? kwargs[:static] : static # TODO review kwargs vs alg args precedence
     Ω0 = _reconvert(Ω0, static, dim, ngens)
     Φ = _reconvert(Φ, static, dim)
 
