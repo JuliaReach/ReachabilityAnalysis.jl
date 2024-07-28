@@ -35,15 +35,7 @@ end
 function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=interval(0), kwargs...)
     @unpack N, compress, δ, bloat, resets = alg
 
-    # for now we assume there are no resets
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-        T = NSTEPS * δ
-    else
-        # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan; check_zero=true, check_positive=true)
-        NSTEPS = ceil(Int, T / δ)
-    end
+    T = _get_T(tspan; check_zero=true, check_positive=true)
 
     # extract initial states
     X0 = initial_state(ivp)
