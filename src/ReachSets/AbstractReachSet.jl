@@ -67,7 +67,7 @@ Return the type of the set representation of this reach-set.
 
 Type of the set representation of the given reach-set.
 """
-setrep(::AbstractReachSet)
+function setrep(::AbstractReachSet) end
 
 """
     tstart(R::AbstractReachSet)
