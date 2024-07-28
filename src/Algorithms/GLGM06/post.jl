@@ -4,15 +4,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     @unpack δ, approx_model, max_order, static, dim, ngens,
     preallocate, reduction_method, disjointness_method = alg
 
-    # TODO move up to main solve function
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-        T = NSTEPS * δ
-    else
-        # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan; check_zero=true, check_positive=true)
-        NSTEPS = ceil(Int, T / δ)
-    end
+    NSTEPS = _get_nsteps(kwargs, δ, tspan)
 
     # normalize system to canonical form
     # x' = Ax, x in X, or
