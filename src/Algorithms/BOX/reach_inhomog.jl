@@ -10,7 +10,7 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
-                            X::Universe,
+                            ::Universe,
                             U::Hyperrectangle,
                             recursive::Val{false},
                             Δt0::TN) where {N,TN,VNC,VNR}

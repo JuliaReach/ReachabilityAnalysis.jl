@@ -70,17 +70,17 @@ numtype(::BOX{N}) where {N} = N
 
 function setrep(::BOX{N,AM,Val{false},D,R}) where {N,AM,D,R}
     VT = Vector{N}
-    return ST = Hyperrectangle{N,VT,VT}
+    return Hyperrectangle{N,VT,VT}
 end
 
 function rsetrep(::BOX{N,AM,Val{true},Val{n},R}) where {N,AM,n,R}
     VT = SVector{n,N}
-    return ST = Hyperrectangle{N,VT,VT}
+    return Hyperrectangle{N,VT,VT}
 end
 
 function rsetrep(alg::BOX{N}) where {N}
     ST = setrep(alg)
-    return RT = ReachSet{N,ST}
+    return ReachSet{N,ST}
 end
 
 include("post.jl")

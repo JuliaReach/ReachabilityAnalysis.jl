@@ -7,7 +7,7 @@ function reach_homog_VREP!(F::Vector{ReachSet{N,VP}},
                            Φ::AbstractMatrix,
                            NSTEPS::Integer,
                            δ::Float64,
-                           X::Universe,
+                           ::Universe,
                            Δt0::TimeInterval) where {N,VN,VP<:VPOLY{N,VN}}
 
     # initial reach set

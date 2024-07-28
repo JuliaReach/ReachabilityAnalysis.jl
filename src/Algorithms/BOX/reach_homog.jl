@@ -8,7 +8,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
                           Φ::AbstractMatrix,
                           NSTEPS::Integer,
                           δ::N,
-                          X::Universe,
+                          ::Universe,
                           recursive::Val{false},
                           Δt0::TN) where {N,TN,VNC,VNR}
 
@@ -55,7 +55,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
                           Φ::AbstractMatrix,
                           NSTEPS::Integer,
                           δ::Float64,
-                          X::Universe,
+                          ::Universe,
                           recursive::Val{true},
                           Δt0::TN) where {N,TN,VNC,VNR}
 

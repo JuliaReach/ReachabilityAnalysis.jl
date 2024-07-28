@@ -9,7 +9,7 @@ function reach_homog_LGG09!(F::Vector{RT},
                             Φ::AbstractMatrix,
                             NSTEPS::Integer,
                             δ::N,
-                            X::Universe, # no invariant
+                            ::Universe, # no invariant
                             Δt0::TimeInterval,
                             cache,
                             threaded) where {N,VN,TN,SN,RT<:TemplateReachSet{N,VN,TN,SN}}

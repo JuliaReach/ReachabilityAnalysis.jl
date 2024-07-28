@@ -28,7 +28,7 @@ function _initialize(X0::LazySet, orderQ, orderT)
     return _initialize(box_approximation(X0), orderQ, orderT)
 end
 
-# taylor model representations
+# Taylor model representations
 function _initialize(X0::TaylorModelReachSet, orderQ, orderT)
     return set(X0)
 end

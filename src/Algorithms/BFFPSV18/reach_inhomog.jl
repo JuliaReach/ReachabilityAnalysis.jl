@@ -6,7 +6,7 @@
 # Matrix operations: Dense
 # Invariant: No
 function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ,
-                                 X::Universe, U, ST::Type{<:Interval{N}}, vars, block_indices,
+                                 ::Universe, U, ST::Type{<:Interval{N}}, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
                                  Δt0,
@@ -60,7 +60,7 @@ end
 # Matrix operations: Dense
 # Invariant: No
 function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ,
-                                 X::Universe, U, ST, vars, block_indices,
+                                 ::Universe, U, ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
                                  Δt0,
@@ -114,7 +114,7 @@ end
 # Matrix operations: Sparse
 # Invariant: No
 function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ::N,
-                                 X::Universe, U, ST, vars, block_indices,
+                                 ::Universe, U, ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
                                  Δt0,
@@ -168,7 +168,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
 end
 
 function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ::N,
-                                 X::Universe, U, ST, vars, block_indices,
+                                 ::Universe, U, ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj},
                                  Δt0,

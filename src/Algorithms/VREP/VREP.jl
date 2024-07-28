@@ -23,11 +23,11 @@ end
 step_size(alg::VREP) = alg.δ
 numtype(::VREP{N}) where {N} = N
 
-function setrep(alg::VREP{N,AM,Val{false},Missing}) where {N,AM}
+function setrep(::VREP{N,AM,Val{false},Missing}) where {N,AM}
     return VPolytope{N,Vector{N}}
 end
 
-function setrep(alg::VREP{N,AM,Val{false},D}) where {N,AM,D}
+function setrep(::VREP{N,AM,Val{false},D}) where {N,AM,D}
     return VPolygon{N,Vector{N}}
 end
 
@@ -35,17 +35,17 @@ function setrep(alg::VREP{N,AM,Val{true},Missing}) where {N,AM}
     return error("the set representation of this algorithm requires the dimension to be specified, but it is $(alg.dim)")
 end
 
-function setrep(alg::VREP{N,AM,Val{true},Val{2}}) where {N,AM}
+function setrep(::VREP{N,AM,Val{true},Val{2}}) where {N,AM}
     return VPolygon{N,SVector{2,N}}
 end
 
-function setrep(alg::VREP{N,AM,Val{true},Val{n}}) where {N,AM,n}
+function setrep(::VREP{N,AM,Val{true},Val{n}}) where {N,AM,n}
     return VPolytope{N,SVector{n,N}}
 end
 
 function rsetrep(alg::VREP{N}) where {N}
     ST = setrep(alg)
-    return RT = ReachSet{N,ST}
+    return ReachSet{N,ST}
 end
 
 include("post.jl")
