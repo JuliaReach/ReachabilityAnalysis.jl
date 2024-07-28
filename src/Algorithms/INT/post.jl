@@ -20,7 +20,7 @@ function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     ivp_norm = _normalize(ivp)
 
     # homogenize the initial-value problem
-    if haskey(kwargs, :homogenize) && kwargs[:homogenize] == true
+    if get(kwargs, :homogenize, false)
         ivp_norm = homogenize(ivp_norm)
     end
 
