@@ -19,7 +19,7 @@ function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractContinuousSystem}, tspa
     ivp_norm = _normalize(ivp)
 
     # homogenize the initial-value problem
-    if haskey(kwargs, :homogenize) && kwargs[:homogenize] == true
+    if get(kwargs, :homogenize, false)
         ivp_norm = homogenize(ivp_norm)
     end
 

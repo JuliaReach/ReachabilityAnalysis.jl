@@ -94,7 +94,7 @@ function solve(ivp::IVP{AT,VT}, args...;
     X0 = initial_state(ivp)
     S = system(ivp)
 
-    threading = haskey(kwargs, :threading) ? kwargs[:threading] : (Threads.nthreads() > 1)
+    threading = get(kwargs, :threading, Threads.nthreads() > 1)
 
     F = _solve_distributed(cpost, S, X0, tspan, Val(threading); kwargs...)
     return ReachSolution(MixedFlowpipe(F), cpost)
@@ -347,7 +347,7 @@ function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, tspan; kwargs
         if statedim(S) == 1 && !is_second_order(S)
             opC = INT(; δ=δ)
         else
-            static = haskey(kwargs, :static) ? kwargs[:static] : false
+            static = get(kwargs, :static, false)
             if ishybrid || !(X0 isa AbstractZonotope)
                 opC = GLGM06(; δ=δ, static=static, approx_model=Forward())
             else
