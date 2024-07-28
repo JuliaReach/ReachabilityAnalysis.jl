@@ -88,7 +88,7 @@ function GLGM06(; δ::N,
                                                               DM<:AbstractDisjointnessMethod}
 
     # algorithm with "preallocation" is only defined for the non-static case
-    preallocate = !static
+    preallocate = preallocate && !static
     n = ismissing(dim) ? missing : Val(dim)
     p = ismissing(ngens) ? missing : Val(ngens)
     return GLGM06(δ, approx_model, max_order, Val(static), n, p,
