@@ -155,7 +155,7 @@ function _get_e(d, E)
 end
 
 # homogeneous case
-function ω(λ, d, Φᵀ, X0, U::ZeroSet, Eψ, δ, e⁺, e⁻)
+function ω(λ, d, Φᵀ, X0, ::ZeroSet, Eψ, δ, e⁺, e⁻)
     aux1h = (1 - λ) * ρ(d, X0) + λ * ρ(Φᵀ * d, X0)
     aux2 = sum(min(λ * e⁺[i], (1 - λ) * e⁻[i]) * abs(d[i]) for i in eachindex(d))
     return aux1h + aux2
