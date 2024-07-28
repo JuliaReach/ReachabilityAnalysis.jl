@@ -3,13 +3,13 @@ using ..Overapproximate: _convert_or_overapproximate
 """
     GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
 
-Implementation of Girard - Le Guernic - Maler algorithm for reachability of
+Implementation of the Girard–Le Guernic–Maler algorithm for reachability of
 linear systems using zonotopes.
 
 ## Fields
 
 - `δ`                -- step-size of the discretization
-- `approx_model`     -- (optional, default: `FirstOrderZonotope`) approximation
+- `approx_model`     -- (optional, default: `FirstOrderZonotope()`) approximation
                         model; see `Notes` below for possible options
 - `max_order`        -- (optional, default: `5`) maximum zonotope order
 - `static`           -- (optional, default: `false`) if `true`, convert the problem data
@@ -24,31 +24,23 @@ linear systems using zonotopes.
 
 ## Notes
 
-The type fields are:
+The type parameters are:
 
 - `N`  -- number type of the step-size
 - `AM` -- approximation model
-- `S`  -- value type associated to the `static` option
-- `D`  -- value type associated to the dimension of the system
-- `NG` -- value type associated to the number of generators
-- `P`  -- value type associated to the `preallocate` option
-- `RM` -- type associated to the reduction method
+- `S`  -- value type of the `static` option
+- `D`  -- value type of the dimension of the system `dim`
+- `NG` -- value type of the number of generators `ngens`
+- `P`  -- value type of the `preallocate` option
+- `RM` -- type of the reduction method
 
-The sole parameter which doesn't have a default value is the step-size,
-associated to the type parameter `N`. Parameters `D` and `NG` are optionally
-specified (default to `Missing`). These parameters are needed for implementations
+The only parameter that does not have a default value is the step size `δ`,
+associated with the type parameter `N`. Parameters `dim` and `ngens` are optionally
+specified (default to `missing`). These parameters are needed for the cases
 that require the size of the zonotopes to be known (fixed) at compile time, namely
-the `static=true` version of this algorithm. Otherwise, the number of generators
-is not necessarily fixed.
+the `static=true` version of this algorithm.
 
-The default approximation model is
-
-```julia
-approx_model=FirstOrderZonotope()
-```
-Here, `FirstOrderZonotope` refers to the forward-time adaptation of the approximation model
-from Lemma 3 in [[FRE11]](@ref). Some of the options to compute this approximation can be specified,
-see the documentation of `FirstOrderZonotope` for details.
+The default approximation model is [`FirstOrderZonotope`](@ref).
 
 ## References
 
@@ -57,8 +49,6 @@ These methods are discussed at length in the dissertation [[LG09]](@ref).
 
 Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
 [[GIR05]](@ref) and the review article [[YS18]](@ref).
-
-Regarding the approximation model, we use an adaptation of a result in [[FRE11]](@ref).
 """
 struct GLGM06{N,AM,S,D,NG,P,RM,DM} <: AbstractContinuousPost
     δ::N
@@ -72,12 +62,9 @@ struct GLGM06{N,AM,S,D,NG,P,RM,DM} <: AbstractContinuousPost
     disjointness_method::DM
 end
 
-# TODO review setops "zonotope" / "lazy" options, used or ignored
-
 # convenience constructor using symbols
 function GLGM06(; δ::N,
                 approx_model::AM=FirstOrderZonotope(),
-                #CorrectionHull(order=10),
                 max_order::Int=5,
                 static::Bool=false,
                 dim::Union{Int,Missing}=missing,
@@ -127,4 +114,3 @@ end
 include("post.jl")
 include("reach_homog.jl")
 include("reach_inhomog.jl")
-#include("check.jl")
