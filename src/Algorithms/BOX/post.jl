@@ -32,8 +32,6 @@ function post(alg::BOX{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     Ω0 = _overapproximate(Ω0, Hyperrectangle)
 
     # reconvert the set of initial states and state matrix, if needed
-    #static = haskey(kwargs, :static) ? kwargs[:static] : alg.static
-
     Ω0 = _reconvert(Ω0, static, dim)
     Φ = _reconvert(Φ, static, dim)
 
