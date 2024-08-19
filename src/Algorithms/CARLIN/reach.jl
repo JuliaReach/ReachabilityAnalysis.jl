@@ -57,7 +57,7 @@ end
 function _compute_resets(resets::Vector{Float64}, T)
     # assumes initial time is 0
     aux = vcat(0.0, resets, T)
-    return [interval(aux[i], aux[i + 1]) for i in 1:(length(aux) - 1)]
+    return [IA.interval(aux[i], aux[i + 1]) for i in 1:(length(aux) - 1)]
 end
 
 function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress)
