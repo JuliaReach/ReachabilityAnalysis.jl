@@ -86,7 +86,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::CorrectionHull)
 end
 
 function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg, P=nothing)
-    X0z = _convert_or_overapproximate(X0, Zonotope)
+    X0z = _convert_or_overapproximate(Zonotope, X0)
     Y = _overapproximate(Φ * X0z, Zonotope)
     if !isnothing(P)
         Y = minkowski_sum(Y, P)
@@ -107,7 +107,7 @@ function _correction_hull_without_E(A, δ, p)
 end
 
 function _discretize_chull(A, Φ::AbstractMatrix, X0, δ, alg)
-    X0z = _convert_or_overapproximate(X0, Zonotope)
+    X0z = _convert_or_overapproximate(Zonotope, X0)
     Y = linear_map(Φ, X0z)
 
     H = overapproximate(CH(X0z, Y), Zonotope)
