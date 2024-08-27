@@ -1,8 +1,8 @@
 """
 Interface to matrix exponential backends of different kinds.
 
-Includes common integral computations arising in the discretization of linear differential equations
-using matrix methods. For applications see e.g. [1] and references therein.
+Includes common integral computations arising in the discretization of linear differential
+equations using matrix methods. For applications see e.g. [1] and references therein.
 
 [1] Conservative Time Discretization: A Comparative Study.
     Marcelo Forets and Christian Schilling (2022).
@@ -20,8 +20,7 @@ using IntervalArithmetic
 using IntervalMatrices
 using LazySets
 
-export BaseExp, BaseExpAlg, IntervalExpAlg, LazyExpAlg, PadeExpAlg, elementwise_abs, Φ₂, Φ₁, Φ₁_u,
-       interval_matrix
+export BaseExp, BaseExpAlg, IntervalExpAlg, LazyExpAlg, PadeExpAlg, elementwise_abs, Φ₂, Φ₁, Φ₁_u
 
 # -------------------------
 # Exponentiation interface
@@ -43,23 +42,22 @@ _alias(alg::Symbol) = _alias(Val(alg))
 """
     BaseExpAlg <: AbstractExpAlg
 
-Matrix exponential using the scaling and squaring algorithm implemented
-in Julia Base.
+Matrix exponential using the scaling-and-squaring algorithm implemented in Julia
+Base.
 
 ### Notes
 
-If the array is static, the method implemented in `StaticArrays.jl` is applied.
-This algorithm admits the alias `:base`.
+The alias for this algorithm is `:base`.
 """
 struct BaseExpAlg <: AbstractExpAlg end
 
 const BaseExp = BaseExpAlg()
-_alias(alg::Val{:base}) = BaseExp
+_alias(::Val{:base}) = BaseExp
 
 """
     LazyExpAlg <: AbstractExpAlg
 
-Lazy wrapper for the matrix exponential, operations defined in `LazySets.jl`.
+Matrix exponential computed in a lazy fashion.
 
 ### Fields
 
@@ -68,18 +66,20 @@ Lazy wrapper for the matrix exponential, operations defined in `LazySets.jl`.
 
 ### Notes
 
-This algorithm admits the alias `:lazy` and also `:krylov`(using default options).
+The aliases for this algorithm are `:lazy` and `:krylov`.
+
+The operations are defined in the package `LazySets.jl` (`SparseMatrixExp`).
 """
 struct LazyExpAlg <: AbstractExpAlg
-    m::Int        # size of the Krylov subspace
-    tol::Float64  # tolerance
+    m::Int
+    tol::Float64
 end
 
 # default constructor
 LazyExpAlg() = LazyExpAlg(30, 1e-10)
 
 const LazyExp = LazyExpAlg()
-_alias(alg::Union{Val{:lazy},Val{:krylov}}) = LazyExp
+_alias(::Union{Val{:lazy},Val{:krylov}}) = LazyExp
 
 """
     IntervalExpAlg <: AbstractExpAlg
@@ -92,9 +92,10 @@ Matrix exponential using an interval enclosure of the Taylor series remainder.
 
 ### Notes
 
-This method allows to overapproximate ``exp(Aδ)`` with an interval matrix.
-It also accepts an interval matrix ``A`` given as input.
-This method admits the alias `:interval` and `:taylor`.
+The aliases for this algorithm are `:interval` and `:taylor`.
+
+This algorithm allows to overapproximate ``exp(Aδ)`` with an interval matrix.
+It also accepts an interval matrix ``A`` as input.
 """
 struct IntervalExpAlg <: AbstractExpAlg
     order::Int
@@ -104,8 +105,7 @@ end
 IntervalExpAlg() = IntervalExpAlg(10)
 
 const IntervalExp = IntervalExpAlg()
-_alias(alg::Val{:interval}) = IntervalExp
-_alias(alg::Val{:taylor}) = IntervalExp
+_alias(::Union{Val{:interval},Val{:taylor}}) = IntervalExp
 
 """
     PadeExpAlg <: AbstractExpAlg
@@ -114,15 +114,63 @@ Matrix exponential for sparse matrices using Pade approximants.
 
 ### Notes
 
-Requires `Expokit.jl`. This algorithm admits the alias `:pade`.
+The alias for this algorithm is `:pade`.
+
+This algorithm requires to load the package `Expokit.jl`.
 """
 struct PadeExpAlg <: AbstractExpAlg end
 
 const PadeExp = PadeExpAlg()
-_alias(alg::Val{:pade}) = PadeExp
+_alias(::Val{:pade}) = PadeExp
+
+"""
+    _exp(A::AbstractMatrix, δ, [alg]::AbstractExpAlg=BaseExp)
+
+Compute the matrix exponential ``e^{Aδ}``.
+
+### Input
+
+- `A`    -- matrix
+- `δ`    -- step size
+- `alg`  -- (optional, default: `BaseExp`) the algorithm used to take the matrix
+            exponential of `Aδ`, possible options are `BaseExp`, `LazyExp`,
+            `PadeExp` and `IntervalExp` (see details in the *Algorithm* section
+            below)
+
+### Output
+
+A matrix or a lazy wrapper of the matrix exponential, depending on `alg`.
+
+### Algorithm
+
+- `BaseExp` -- (alias: `:base`) use Higham's scaling-and-squaring method implemented
+               in Julia's standard library; see `?exp` for details; if `A` is a static array,
+               uses the implementation in `StaticArrays.jl`
+
+- `LazyExp` -- (alias: `:lazy`) return a lazy wrapper around the matrix exponential
+               using the implementation `LazySets.SparseMatrixExp`
+
+- `PadeExp` -- (alias: `pade`) apply the Padé approximant method to compute the matrix
+               exponential of a sparse matrix (requires `Expokit.jl`)
+
+- `IntervalExp` -- (alias: `interval`, `taylor`) apply the Taylor series expansion of the matrix
+                   exponential with an interval remainder; works if `A` is an interval matrix
+
+### Notes
+
+If the algorithm `LazyExp` is used, actions of the matrix exponential are
+evaluated with an external library such as `ExponentialUtilities.jl` or
+`Expokit.jl`.
+"""
+function _exp(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp)
+    checksquare(A)
+    return _exp(A * δ, alg)
+end
 
 # general case: convert to Matrix
 _exp(A::AbstractMatrix, ::BaseExpAlg) = exp(Matrix(A))
+
+# Base's `exp`
 _exp(A::Matrix, ::BaseExpAlg) = exp(A)
 
 # static arrays have their own exp method
@@ -137,97 +185,30 @@ _exp(A::AbstractMatrix, ::LazyExpAlg) = SparseMatrixExp(A)
 # pade approximants (requires Expokit.jl)
 _exp(::AbstractMatrix, ::PadeExpAlg) = throw(ArgumentError("algorithm requires a sparse matrix"))
 
-function _exp(A::SparseMatrixCSC, alg::PadeExpAlg)
+function _exp(A::SparseMatrixCSC, ::PadeExpAlg)
     require(@__MODULE__, :Expokit)
-    return _exp_pade(A, alg)
+    return _exp_pade(A)
 end
 
 function load_expokit_pade()
     return quote
-        _exp_pade(A::SparseMatrixCSC, ::PadeExpAlg) = Expokit.padm(A)
+        _exp_pade(A::SparseMatrixCSC) = Expokit.padm(A)
     end
 end  # quote / load_expokit_pade
 
-function _exp(A::AbstractMatrix, alg::IntervalExpAlg)
-    return exp_overapproximation(interval_matrix(A), one(eltype(A)), alg.order)
+function _exp(A::AbstractIntervalMatrix, δ, alg::IntervalExpAlg)
+    return exp_overapproximation(A, δ, alg.order)
 end
 
-function _exp(A::AbstractMatrix, δ, alg::IntervalExpAlg)
-    return exp_overapproximation(interval_matrix(A), δ, alg.order)
-end
+# convert to IntervalMatrix
+_exp(A::AbstractMatrix, δ, alg::IntervalExpAlg) = _exp(IntervalMatrix(A), δ, alg)
 
-# TODO Refactor to IntervalMatrices.jl?
-function interval_matrix(A::AbstractIntervalMatrix)
-    return A
-end
-function interval_matrix(A::AbstractMatrix)
-    return IntervalMatrix(A)
-end
+# add δ explicitly
+_exp(A::AbstractMatrix, alg::IntervalExpAlg) = _exp(A, one(eltype(A)), alg)
 
-"""
-    _exp(A::AbstractMatrix, δ, [alg]::AbstractExpAlg=BaseExp)
-
-Compute the matrix exponential ``e^{Aδ}``.
-
-### Input
-
-- `A`    -- matrix
-- `δ`    -- step size
-- `alg`  -- (optional, default: `BaseExp`) the algorithm used to take the matrix
-            exponential of `Aδ`, possible options are `BaseExp`, `LazyExp`, `PadeExp` and `IntervalExp`
-            see details in the *Algorithm* section below
-
-### Output
-
-A matrix or a lazy wrapper of the matrix exponential, depending on `alg`.
-
-### Algorithm
-
-- `BaseExp` -- (alias: `:base`) use Higham's scaling and squaring method implemented
-               in Julia standard library; see `?exp` for details; if `A` is a static array,
-               uses the implementation in `StaticArrays.jl`
-
-- `LazyExp` -- (alias: `:lazy`) return a lazy wrapper type around the matrix exponential
-               using the implementation `LazySets.SparseMatrixExp`
-
-- `PadeExp` -- (alias: `pade`) apply Pade approximant method to compute the matrix
-               exponential of a sparse matrix (requires `Expokit.jl`)
-
-- `IntervalExp` -- (alias: `interval`, `taylor`) apply the Taylor series expansion of the matrix
-                    exponential with an interval remainder; works if `A` is an interval matrix
-
-### Notes
-
-If the algorithm `LazyExp` is used, actions of the matrix exponential are
-evaluated with an external library such as `ExponentialUtilities.jl` or
-`Expokit.jl`.
-"""
-function _exp(A::AbstractMatrix, δ, alg::AbstractExpAlg=BaseExp)
-    n = checksquare(A)
-    return _exp(A * δ, alg)
-end
-
-@inline function _P_2n(A::AbstractMatrix{N}, δ, n) where {N}
-    return [Matrix(A * δ) Matrix(δ * I, n, n);
-            zeros(n, 2 * n)]::Matrix{N}
-end
-
-@inline function _P_2n(A::SparseMatrixCSC{N,M}, δ, n) where {N,M}
-    return [sparse(A * δ) sparse(δ * I, n, n);
-            spzeros(n, 2 * n)]::SparseMatrixCSC{N,M}
-end
-
-@inline function _P_3n(A::AbstractMatrix{N}, δ, n) where {N}
-    return [Matrix(A * δ) Matrix(δ * I, n, n) zeros(n, n);
-            zeros(n, 2 * n) Matrix(δ * I, n, n);
-            zeros(n, 3 * n)]::Matrix{N}
-end
-
-@inline function _P_3n(A::SparseMatrixCSC{N,M}, δ, n) where {N,M}
-    return [sparse(A * δ) sparse(δ * I, n, n) spzeros(n, n);
-            spzeros(n, 2 * n) sparse(δ * I, n, n);
-            spzeros(n, 3 * n)]::SparseMatrixCSC{N,M}
-end
+# ------------------------
+# Discretization functions
+# ------------------------
 
 """
     Φ₁(A::AbstractMatrix, δ, [alg]::AbstractExpAlg=BaseExp, [isinv]::Bool=false, [Φ]=nothing)
@@ -282,13 +263,13 @@ It can be shown that
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₁(A, δ) = P[1:n, (n+1):2*n]`.
 This method can be found in [[FRE11]](@ref).
 """
-function Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
+function Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv::Bool=false, Φ=nothing)
     return Φ₁(A, δ, alg, Val(isinv), Φ)
 end
 
 # dispatch for discretization methods
-Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:false}, Φ) = _Φ₁_blk(A, δ, alg)
-Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:true}, Φ) = _Φ₁_inv(A, δ, alg, Φ)
+Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, ::Val{:false}, Φ) = _Φ₁_blk(A, δ, alg)
+Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, ::Val{:true}, Φ) = _Φ₁_inv(A, δ, alg, Φ)
 
 # evaluate the series Φ₁(A, δ) = ∑_{i=0}^∞ \\dfrac{δ^{i+1}}{(i+1)!}A^i
 # without assuming invertibility of A, by taking the exponential of a 2n x 2n matrix
@@ -297,6 +278,16 @@ function _Φ₁_blk(A, δ, alg)
     P_2n = _P_2n(A, δ, n)
     Q = _exp(P_2n, alg)
     return _P₁_blk(Q, n, alg)
+end
+
+@inline function _P_2n(A::AbstractMatrix{N}, δ, n) where {N}
+    return [Matrix(A * δ) Matrix(δ * I, n, n);
+            zeros(n, 2 * n)]::Matrix{N}
+end
+
+@inline function _P_2n(A::SparseMatrixCSC{N,M}, δ, n) where {N,M}
+    return [sparse(A * δ) sparse(δ * I, n, n);
+            spzeros(n, 2 * n)]::SparseMatrixCSC{N,M}
 end
 
 @inline _P₁_blk(P, n::Int, ::AbstractExpAlg) = P[1:n, (n + 1):(2 * n)]
@@ -324,11 +315,11 @@ function _Φ₁_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
 end
 
 # method to compute Φ₁ * u, where u is a vector
-function Φ₁_u(A, δ, alg, isinv::Val{:true}, u::AbstractVector, Φ=nothing)
+function Φ₁_u(A, δ, alg, ::Val{:true}, u::AbstractVector, Φ=nothing)
     return Φ₁_u(A, δ, alg, Φ, u)
 end
 
-function Φ₁_u(A, δ, alg, isinv::Val{:false}, u::AbstractVector, Φ=nothing)
+function Φ₁_u(A, δ, alg, ::Val{:false}, u::AbstractVector, Φ=nothing)
     M = _Φ₁_blk(A, δ, alg)
     return M * u
 end
@@ -406,16 +397,13 @@ It can be shown that
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₂ = P_{3n}[1:n, (2*n+1):3*n]`.
 This method can be found in [[FRE11]](@ref).
 """
-function Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv=false, Φ=nothing)
+function Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv::Bool=false, Φ=nothing)
     return Φ₂(A, δ, alg, Val(isinv), Φ)
 end
 
 # dispatch for discretization methods
-Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
-Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, isinv::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
-
-@inline _P₂_blk(P, n, ::AbstractExpAlg) = P[1:n, (2 * n + 1):(3 * n)]
-@inline _P₂_blk(P, n, ::LazyExpAlg) = sparse(get_columns(P, (2 * n + 1):(3 * n))[1:n, :])
+Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, ::Val{:false}, Φ) = _Φ₂_blk(A, δ, alg)
+Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg, ::Val{:true}, Φ) = _Φ₂_inv(A, δ, alg, Φ)
 
 # evaluate the series Φ₂(A, δ) = ∑_{i=0}^∞ \\dfrac{δ^{i+2}}{(i+2)!}A^i
 # without assuming invertibility of A, by taking the exponential of a 3n x 3n matrix
@@ -426,9 +414,23 @@ function _Φ₂_blk(A, δ, alg)
     return _P₂_blk(P, n, alg)
 end
 
+@inline function _P_3n(A::AbstractMatrix{N}, δ, n) where {N}
+    return [Matrix(A * δ) Matrix(δ * I, n, n) zeros(n, n);
+            zeros(n, 2 * n) Matrix(δ * I, n, n);
+            zeros(n, 3 * n)]::Matrix{N}
+end
+
+@inline function _P_3n(A::SparseMatrixCSC{N,M}, δ, n) where {N,M}
+    return [sparse(A * δ) sparse(δ * I, n, n) spzeros(n, n);
+            spzeros(n, 2 * n) sparse(δ * I, n, n);
+            spzeros(n, 3 * n)]::SparseMatrixCSC{N,M}
+end
+
+@inline _P₂_blk(P, n, ::AbstractExpAlg) = P[1:n, (2 * n + 1):(3 * n)]
+@inline _P₂_blk(P, n, ::LazyExpAlg) = sparse(get_columns(P, (2 * n + 1):(3 * n))[1:n, :])
+
 # compute the matrix Φ₂ = A^{-2} (exp(A*δ) - I - A*δ) assuming that A is invertible
 # and explicitly computing inv(A); this function optionally receives Φ = exp(Aδ)
-# TODO don't pass algorithm since it is ignored if Φ is given
 # Φ2 = ReachabilityAnalysis._Φ₂_inv(abs.(A), δ, ReachabilityAnalysis.BaseExp, Φ)
 function _Φ₂_inv(A::AbstractMatrix, δ, alg, Φ=nothing)
     Aδ = A * δ
@@ -463,11 +465,12 @@ function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=m
 
     require(@__MODULE__, :ExponentialUtilities)
     Pv = _phiv(Aabs, v, 1, δt; m, tol)
-    return E⁺ = Hyperrectangle(zeros(n), Pv)
+    return Hyperrectangle(zeros(n), Pv)
 end
 
 # ---------------
 # Absolute values
+# ---------------
 
 elementwise_abs(A::AbstractMatrix) = abs.(A)
 function elementwise_abs(A::SparseMatrixCSC)
