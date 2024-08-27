@@ -103,8 +103,8 @@ end
 
     times = 0:0.01:1.9
     values = [[x] for x in (@. 1 - exp(-times))]
-    @test all(vi ∈ H(ti) for (ti, vi) in zip(times, values))
-    @test all(vi ∈ H′(ti) for (ti, vi) in zip(times, values))
+    @test all(any(vi ∈ R for R in H(ti)) for (ti, vi) in zip(times, values))
+    @test all(any(vi ∈ R for R in H′(ti)) for (ti, vi) in zip(times, values))
 end
 
 @testset "Flowpipe clustering" begin
