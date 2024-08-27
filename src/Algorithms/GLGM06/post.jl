@@ -4,7 +4,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     @unpack δ, approx_model, max_order, static, dim, ngens,
     preallocate, reduction_method, disjointness_method = alg
 
-    NSTEPS = _get_nsteps(kwargs, δ, tspan)
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     # x' = Ax, x in X, or

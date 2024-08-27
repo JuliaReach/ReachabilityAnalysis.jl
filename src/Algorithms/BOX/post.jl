@@ -2,7 +2,7 @@ function post(alg::BOX{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
     @unpack δ, approx_model, static, dim, recursive = alg
 
-    NSTEPS = _get_nsteps(kwargs, δ, tspan)
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)

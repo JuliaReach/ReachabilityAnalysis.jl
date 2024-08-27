@@ -6,7 +6,7 @@ function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractContinuousSystem}, tspa
     @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *
                                            "doesn't match the dimension of the template directions, $(dim(template))"
 
-    NSTEPS = _get_nsteps(kwargs, δ, tspan)
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)

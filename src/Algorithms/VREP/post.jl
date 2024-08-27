@@ -7,7 +7,7 @@ function post(alg::VREP{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
     @unpack δ, approx_model, static, dim = alg
 
-    NSTEPS = _get_nsteps(kwargs, δ, tspan)
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     # x' = Ax, x in X, or

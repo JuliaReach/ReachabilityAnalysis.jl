@@ -7,7 +7,7 @@ function post(alg::INT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
 
     @unpack δ, approx_model = alg
 
-    NSTEPS = _get_nsteps(kwargs, δ, tspan)
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)

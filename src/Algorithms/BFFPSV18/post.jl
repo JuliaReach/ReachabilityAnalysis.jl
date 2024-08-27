@@ -3,7 +3,7 @@ function post(alg::BFFPSV18{N,ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     @unpack δ, approx_model, vars, block_indices,
     row_blocks, column_blocks = alg
 
-    NSTEPS = _get_nsteps(kwargs, δ, tspan)
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     # x' = Ax, x in X, or
