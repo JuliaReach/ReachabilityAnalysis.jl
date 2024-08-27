@@ -1,7 +1,6 @@
 module Overapproximate
 
 using LazySets
-import LazySets: _split
 using IntervalMatrices
 using StaticArrays: SVector, SMatrix, MMatrix, StaticArray
 import IntervalArithmetic as IA
@@ -26,10 +25,6 @@ function _convert_or_overapproximate(T::Type{<:AbstractPolytope}, X::LazySet)
         end
     end
     return convert(T, overapproximate(X, Hyperrectangle))
-end
-
-function _convert_or_overapproximate(X::LazySet, T::Type{<:AbstractPolytope})
-    return _convert_or_overapproximate(T, X)
 end
 
 # ================

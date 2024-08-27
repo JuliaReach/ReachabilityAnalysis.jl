@@ -34,7 +34,7 @@ function _post!(U::Union{Nothing,AbstractSingleton}, alg::ORBIT, F, ivp,
     @unpack δ, approx_model = alg
 
     # homogenize the initial-value problem
-    if haskey(kwargs, :homogenize) && kwargs[:homogenize] == true
+    if get(kwargs, :homogenize, false)
         ivp = homogenize(ivp)
     end
 

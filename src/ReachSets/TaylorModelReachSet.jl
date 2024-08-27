@@ -501,7 +501,7 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
     @inbounds for i in 1:n
         pi = c[i] + sum(view(M, i, :) .* x)
         di = abs(D[i, i])
-        rem = interval(-di, di)
+        rem = IA.interval(-di, di)
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
 
@@ -543,7 +543,7 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     @inbounds begin
         pi = mid(Y.dat) + zero(TaylorN(1; order=orderQ))
         d = diam(Y.dat) / 2
-        rem = interval(-d, d)
+        rem = IA.interval(-d, d)
         vTM[n] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
     return TaylorModelReachSet(vTM, Δt)
@@ -574,7 +574,7 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
     @inbounds for i in 1:n
         pi = c[i] + sum(view(G, i, 1:(n + 1)) .* x) + zero(TaylorN(n + 1; order=orderQ))
         d = abs(G[i, n + 1 + i])
-        rem = interval(-d, d)
+        rem = IA.interval(-d, d)
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
 
@@ -582,7 +582,7 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
     I = Zcp.Y.dat
     pi = mid(I) + zero(TaylorN(n + 1; order=orderQ))
     d = diam(I) / 2
-    rem = interval(-d, d)
+    rem = IA.interval(-d, d)
     @inbounds vTM[n + 1] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
 
     return TaylorModelReachSet(vTM, Δt)

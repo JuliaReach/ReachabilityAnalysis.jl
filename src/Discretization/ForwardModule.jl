@@ -94,7 +94,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::Forward)
     return InitialValueProblem(Sdis, Ω0)
 end
 
-function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, alg::Forward) where {N}
+function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, ::Forward) where {N}
     A = state_matrix(ivp)
     @assert size(A, 1) == 1
     X0 = initial_state(ivp)
@@ -102,19 +102,19 @@ function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, alg::Forward) where {N}
     a = A[1, 1]
     aδ = a * δ
     Φ = exp(aδ)
-    A_abs = abs(a)
 
     # use inverse method
     @assert !iszero(a) "the given matrix should be invertible"
 
+    # A_abs = abs(a)
     # a_sqr = a * a
     #P2A_abs = (1/a_sqr) * (Φ - one(N) - aδ)
-    #Einit = (P2A_abs * a_sqr) * RA._symmetric_interval_hull(X0).dat
+    #E⁺ = (P2A_abs * a_sqr) * RA._symmetric_interval_hull(X0).dat
 
     #P2A_abs = (1/a_sqr) * (Φ - one(N) - aδ)
-    Einit = (Φ - one(N) - aδ) * convert(Interval, symmetric_interval_hull(X0)).dat
+    E⁺ = (Φ - one(N) - aδ) * convert(Interval, symmetric_interval_hull(X0)).dat
 
-    Ω0 = Interval(hull(X0.dat, Φ * X0.dat + Einit))
+    Ω0 = Interval(hull(X0.dat, Φ * X0.dat + E⁺))
     X = stateset(ivp)
     # the system constructor creates a matrix
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
@@ -135,7 +135,8 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
     P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
-    Einit = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+    # TODO outsource to Exponentiation module and merge with _Eplus
+    E⁺ = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
 
     U = next_set(inputset(ivp), 1)
     Eψ0 = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
@@ -143,7 +144,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     Ud = δ * U ⊕ Eψ0
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
 
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ Einit)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ E⁺)
     Ω0 = _apply_setops(Ω0, alg.setops)
     X = stateset(ivp)
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)

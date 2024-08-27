@@ -125,15 +125,25 @@ end
 # for Taylor model flowpipes we preprocess it with a zonotopic overapproximation
 function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx,
                  method::LazyClustering{P,Val{true}}) where {N,P}
-    Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
-    return cluster(Fz, 1:length(idx), method) # Fx is now indexed from 1 ... length(idx)
+    return _cluster_TM(F, idx, method)
 end
-
-# ambiguity fix
+# disambiguations
+function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx,
+                 method::LazyClustering{Missing,Val{true}}) where {N}
+    return _cluster_TM(F, idx, method)
+end
 function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx,
                  method::LazyClustering{P,Val{false}}) where {N,P}
+    return _cluster_TM(F, idx, method)
+end
+function cluster(F::Flowpipe{N,TaylorModelReachSet{N}}, idx,
+                 method::LazyClustering{Missing,Val{false}}) where {N}
+    return _cluster_TM(F, idx, method)
+end
+
+function _cluster_TM(F, idx, method)
     Fz = overapproximate(Flowpipe(view(F, idx)), Zonotope)
-    return cluster(Fz, 1:length(idx), method)
+    return cluster(Fz, 1:length(idx), method) # Fx is now indexed from 1 ... length(idx)
 end
 
 # =====================================

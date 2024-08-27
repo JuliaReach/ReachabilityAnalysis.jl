@@ -5,13 +5,11 @@
 # X is the universal set => it is ignored
 # in this case order reduction only has to be applied to the
 # initial set because the loop does not create new generators
-# it is assumed that order(Ω0) <= max_order
 function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                              Ω0::Zonotope{N,VN,MN},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             max_order::Integer,
                              ::Universe,
                              preallocate::Val{false},
                              Δt0::TimeInterval,
@@ -37,7 +35,6 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             max_order::Integer,
                              ::Universe,
                              preallocate::Val{true},
                              Δt0::TimeInterval,
@@ -81,7 +78,6 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             max_order::Integer,
                              X::LazySet,
                              preallocate::Val{false},
                              Δt0::TimeInterval,
@@ -110,7 +106,6 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             max_order::Integer,
                              X::LazySet,
                              preallocate::Val{true},
                              Δt0::TimeInterval,
@@ -153,13 +148,11 @@ end
 
 #= O L D
 # homogeneous case using StaticArrays
-# it is assumed that the order of Ω0 is at most max_order
 function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              Ω0::Zonotope{N, VN, MN},
                              Φ::SMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             max_order::Integer,
                              X::Universe) where {N, VN<:SVector, MN<:SMatrix}
 
     # initial reach set
@@ -198,7 +191,6 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
                              Φ::SMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             max_order::Integer,
                              X::Universe) where {N, VN<:SVector, MN<:SMatrix}
 
     # initial reach set
