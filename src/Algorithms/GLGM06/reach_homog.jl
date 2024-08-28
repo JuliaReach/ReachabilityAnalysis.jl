@@ -10,7 +10,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             X::Universe,
+                             ::Universe,
                              preallocate::Val{false},
                              Δt0::TimeInterval,
                              disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
@@ -35,7 +35,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::Float64,
-                             X::Universe,
+                             ::Universe,
                              preallocate::Val{true},
                              Δt0::TimeInterval,
                              disjointness_method::AbstractDisjointnessMethod) where {N}

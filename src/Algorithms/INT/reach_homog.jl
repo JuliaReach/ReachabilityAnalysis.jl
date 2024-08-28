@@ -8,7 +8,7 @@ function reach_homog_INT!(F::Vector{ReachSet{N,Interval{N}}},
                           Φ::N,
                           NSTEPS::Integer,
                           δ::Float64,
-                          X::Universe,
+                          ::Universe,
                           Δt0::TimeInterval) where {N}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0

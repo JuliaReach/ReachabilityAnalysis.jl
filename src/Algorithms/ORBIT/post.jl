@@ -104,7 +104,7 @@ end
 # Φ^2*Ω0 + Φ*V + V
 # ....
 # Φ^(NSTEPS)*Ω0 + Φ^(NSTEPS-1)*V + ... + Φ*V + V
-function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, X::Universe, Δt0) where {N}
+function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, ::Universe, Δt0) where {N}
     # preallocate output sequence
     n = size(Φ, 1)
     VT = vector_type(typeof(Φ))
