@@ -31,10 +31,15 @@ end
 # _overapproximate
 # ================
 
-function _overapproximate(X::Hyperrectangle, T::Type{HPolytope{N,VT}}) where {N,VT}
-    # TODO create overapproximation using VT directly
-    Y = overapproximate(X, BoxDirections(dim(X)))
-    return convert(T, Y)
+function _overapproximate(X::AbstractPolytope, T::Type{<:HPolytope})
+    P = HPolytope(constraints_list(X))
+    return convert(T, P)
+end
+
+# overapproximate a hyperrectangular set with a polytope with `Vector` directions
+# (by default it uses `SingleEntryVector` directions)
+function _overapproximate(H::AbstractHyperrectangle, ::Type{<:HPolytope})
+    return HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
 function _overapproximate(lm::LinearMap{N,<:AbstractZonotope{N},NM,<:AbstractIntervalMatrix{NM}},
@@ -105,17 +110,6 @@ function _overapproximate(S::LazySet{N}, ::Type{<:Hyperrectangle}) where {N}
     #    return EmptySet{N}(dim(S))
     #end
     return Hyperrectangle(c, r)
-end
-
-# overapproximate a hyperrectangular set with a polytope
-# TODO clean-up
-function _overapproximate(H::AbstractHyperrectangle, T::Type{<:HPolytope})
-    return _overapproximate_hyperrectangle(H, T)
-end
-_overapproximate(H::Hyperrectangle, T::Type{<:HPolytope}) = _overapproximate_hyperrectangle(H, T)
-function _overapproximate_hyperrectangle(H, ::Type{<:HPolytope})
-    P = overapproximate(H, Hyperrectangle)
-    return HPolytope([HalfSpace(Vector(c.a), c.b) for c in constraints_list(H)])
 end
 
 # compared to LazySets.Approximations._overapproximate_hparallelotope,
