@@ -2,6 +2,7 @@ module Overapproximate
 
 using LazySets
 using IntervalMatrices
+using LazySets: matrix
 using StaticArrays: SVector, SMatrix, MMatrix, StaticArray
 import IntervalArithmetic as IA
 

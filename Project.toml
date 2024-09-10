@@ -30,7 +30,7 @@ CommonSolve = "0.2"
 ExprTools = "0.1"
 HybridSystems = "0.4"
 IntervalArithmetic = "0.16 - 0.20, =0.20.9"  # new versions require updates and are incompatible with dependencies
-IntervalMatrices = "0.6 - 0.10"
+IntervalMatrices = "0.11"
 LazySets = "2.14"
 LinearAlgebra = "<0.0.1, 1.6"
 MathematicalSystems = "0.11 - 0.13"
