@@ -170,7 +170,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
 
     got_ensemble = get(kwargs, :ensemble, false)
     if got_ensemble
-        @requires OrdinaryDiffEq
+        @required OrdinaryDiffEq
         ensemble_sol = _solve_ensemble(ivp, args...; kwargs...)
         dict = Dict{Symbol,Any}(:ensemble => ensemble_sol)
         sol = ReachSolution(HFout, cpost, dict)

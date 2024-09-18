@@ -27,7 +27,7 @@ canonical_form(s::CanonicalQuadraticForm) = s.F1, s.F2
 
 # TODO generalize to AbstractContinuousSystem using vector_field
 function canonical_form(s::BlackBoxContinuousSystem)
-    @requires Symbolics
+    @required Symbolics
     return f = s.f
     # differentiate
 end
