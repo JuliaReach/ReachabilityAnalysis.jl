@@ -30,6 +30,7 @@ using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
                                isinvertible, vector_type
 using ReachabilityBase.Comparison: _leq, _geq
+using ReachabilityBase.Require: @required
 using LazySets.Approximations: AbstractDirections
 using LazySets: @commutative, AbstractReductionMethod, linear_map!
 
@@ -129,39 +130,4 @@ function __init__()
     # tools for symbolic computation
     #@require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" include("init_ModelingToolkit.jl")
     @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" include("init_Symbolics.jl")
-end
-
-# ===========================
-# Utility macros
-# ===========================
-
-"""
-    @requires(module_name)
-
-Convenience macro to annotate that a package is required to use a certain function.
-
-### Input
-
-- `module_name` -- name of the required package
-
-### Output
-
-The macro expands to an assertion that checks whether the module `module_name` is
-known in the calling scope.
-
-### Notes
-
-Usage:
-
-```julia
-function foo(...)
-    @require MyPackage
-    ... # functionality that requires MyPackage to be loaded
-end
-```
-"""
-macro requires(module_name)
-    m = Meta.quot(Symbol(module_name))
-    return esc(:(@assert isdefined(@__MODULE__, $m) "package `$($m)` is required " *
-                                                    "for this function; do `using $($m)` and try again"))
 end

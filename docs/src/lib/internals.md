@@ -13,12 +13,6 @@ Pages = ["internals.md"]
 Depth = 3
 ```
 
-## Function annotations
-
-```@docs
-@requires
-```
-
 ## Algorithm defaults
 
 ```@docs
