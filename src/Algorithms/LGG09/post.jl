@@ -6,14 +6,7 @@ function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractContinuousSystem}, tspa
     @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *
                                            "doesn't match the dimension of the template directions, $(dim(template))"
 
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-        T = NSTEPS * δ
-    else
-        # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan; check_zero=true, check_positive=true)
-        NSTEPS = ceil(Int, T / δ)
-    end
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)

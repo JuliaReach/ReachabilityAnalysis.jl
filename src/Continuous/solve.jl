@@ -288,6 +288,13 @@ function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool
     return T
 end
 
+function compute_nsteps(δ, tspan)
+    isempty(tspan) && return zero(δ)
+    # Get time horizon from the time span imposing that it is of the form (0, T).
+    T = _get_T(tspan; check_zero=true, check_positive=true)
+    return NSTEPS = ceil(Int, T / δ)
+end
+
 tstart(Δt::TimeInterval) = inf(Δt)
 tend(Δt::TimeInterval) = sup(Δt)
 tspan(Δt::TimeInterval) = Δt

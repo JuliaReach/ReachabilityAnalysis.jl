@@ -2,15 +2,7 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
     @unpack δ, max_order = alg
 
-    # TODO move up to main solve function
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-        T = NSTEPS * δ
-    else
-        # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan; check_zero=true, check_positive=true)
-        NSTEPS = ceil(Int, T / δ)
-    end
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     # x' = Ax, x in X, or

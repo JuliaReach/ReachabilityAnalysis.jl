@@ -2,14 +2,7 @@ function post(alg::ORBIT{N,VT,AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N,VT,AM}
     @unpack δ, approx_model = alg
 
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-        T = NSTEPS * δ
-    else
-        # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan; check_zero=true, check_positive=true)
-        NSTEPS = ceil(Int, T / δ)
-    end
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     U = inputset(ivp)
 

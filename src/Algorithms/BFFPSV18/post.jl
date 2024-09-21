@@ -3,14 +3,7 @@ function post(alg::BFFPSV18{N,ST}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     @unpack δ, approx_model, vars, block_indices,
     row_blocks, column_blocks = alg
 
-    if haskey(kwargs, :NSTEPS)
-        NSTEPS = kwargs[:NSTEPS]
-        T = NSTEPS * δ
-    else
-        # get time horizon from the time span imposing that it is of the form (0, T)
-        T = _get_T(tspan; check_zero=true, check_positive=true)
-        NSTEPS = ceil(Int, T / δ)
-    end
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
     # x' = Ax, x in X, or
