@@ -17,7 +17,7 @@ TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-Aqua = "0.8"
+Aqua = "0.8.9"
 CDDLib = "0.5 - 0.9"
 Expokit = "0.2"
 Flowstar = "0.2.4"
