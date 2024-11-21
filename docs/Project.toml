@@ -20,7 +20,7 @@ ExponentialUtilities = "1"
 IntervalArithmetic = "=0.20.9"  # new versions require updates and are incompatible with dependencies
 JLD2 = "0.4 - 0.5"
 LaTeXStrings = "1"
-LazySets = "2.14"
+LazySets = "2.14, 3"
 Literate = "2"
 MathematicalSystems = "0.11 - 0.13"
 OrdinaryDiffEq = "6"
