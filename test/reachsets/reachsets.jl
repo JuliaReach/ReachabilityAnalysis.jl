@@ -69,7 +69,7 @@ end
     @test all(x -> isequivalent(Bt, overapproximate(set(x), Hyperrectangle)), [p1, p2, p3, p4])
 end
 
-@testset "Conversion of Taylor model reach-sets" begin
+@ts @testset "Conversion of Taylor model reach-sets" begin
     H = Hyperrectangle(ones(2), [0.2, 0.4])
     a = overapproximate(H, TaylorModelReachSet)
     b = convert(TaylorModelReachSet, H)
