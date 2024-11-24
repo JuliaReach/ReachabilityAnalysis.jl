@@ -1,4 +1,4 @@
-using ..Exponentiation: IntervalExpAlg
+using ReachabilityAnalysis.Exponentiation: IntervalExpAlg
 
 @testset "ASB07 algorithm: homogeneous case" begin
     # Example 1 from
