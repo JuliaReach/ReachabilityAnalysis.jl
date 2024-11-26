@@ -14,9 +14,11 @@
     @test dim(sol) == 5
 
     # static option
-    sol = solve(prob; T=5.0, alg=GLGM06(; δ=0.01, static=true))
-    ZS = Zonotope{Float64,SVector{5,Float64},SMatrix{5,16,Float64,80}}
-    @test setrep(sol) == ZS
+    @ts begin
+        sol = solve(prob; T=5.0, alg=GLGM06(; δ=0.01, static=true))
+        ZS = Zonotope{Float64,SVector{5,Float64},SMatrix{5,16,Float64,80}}
+        @test setrep(sol) == ZS
+    end
 
     # use approx model for "discrete-time" reachability
     sol = solve(prob; T=5.0, alg=GLGM06(; δ=0.01, approx_model=NoBloating()))
@@ -42,8 +44,10 @@ end
     @test rsetrep(sol) == RT
 
     # static case
-    alg = GLGM06(; δ=1e-2, static=true, dim=8, max_order=1, ngens=8)
-    sol = solve(prob; T=20.0, alg=alg)
-    RT = ReachSet{Float64,Zonotope{Float64,SVector{8,Float64},SMatrix{8,8,Float64,64}}}
-    @test rsetrep(sol) == RT
+    @ts begin
+        alg = GLGM06(; δ=1e-2, static=true, dim=8, max_order=1, ngens=8)
+        sol = solve(prob; T=20.0, alg=alg)
+        RT = ReachSet{Float64,Zonotope{Float64,SVector{8,Float64},SMatrix{8,8,Float64,64}}}
+        @test rsetrep(sol) == RT
+    end
 end

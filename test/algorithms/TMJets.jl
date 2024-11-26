@@ -33,7 +33,7 @@
     @test flowpipe(sols) isa MixedFlowpipe
 end
 
-@testset "TMJets algorithm (TMJets21b): linear IVPs" begin
+@ts @testset "TMJets algorithm (TMJets21b): linear IVPs" begin
     prob, dt = exponential_1d()
     sol = solve(prob; tspan=dt, alg=TMJets())
     @test sol.alg isa TMJets
@@ -87,7 +87,7 @@ end
     @test [0.3] ∉ overapproximate(sol[m + 1], Zonotope)
 end
 
-@testset "1D Burgers equation (TMJets21b)" begin
+@ts @testset "1D Burgers equation (TMJets21b)" begin
     L0 = 1.0 # domain length
     U0 = 1.0 # Re = 20.
     x = range(-0.5 * L0, 0.5 * L0; length=4)

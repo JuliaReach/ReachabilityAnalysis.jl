@@ -168,7 +168,7 @@ end
     # tested in test/algorithms/ASB07.jl
 end
 
-@testset "Thermostat simulations" begin
+@ts @testset "Thermostat simulations" begin
     S = thermostat()
     T = 5.0
 
