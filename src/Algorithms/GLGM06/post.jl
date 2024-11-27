@@ -1,8 +1,7 @@
 # continuous post for GLGM06 using Zonotope set representation
 function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-    @unpack δ, approx_model, max_order, static, dim, ngens,
-    preallocate, reduction_method, disjointness_method = alg
+    δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
@@ -17,13 +16,30 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     end
 
     # discretize system
-    ivp_discr = discretize(ivp_norm, δ, approx_model)
-    Φ = state_matrix(ivp_discr)
-    Ω0 = initial_state(ivp_discr)
-    X = stateset(ivp_discr)
+    ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
+
+    return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
+end
+
+function post(alg::GLGM06{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+    @unpack δ, approx_model, max_order, static, dim, ngens,
+    preallocate, reduction_method, disjointness_method = alg
+
+    if isnothing(NSTEPS)
+        if haskey(kwargs, :NSTEPS)
+            NSTEPS = kwargs[:NSTEPS]
+        else
+            throw(ArgumentError("`NSTEPS` not specified"))
+        end
+    end
+
+    Φ = state_matrix(ivp)
+    Ω0 = initial_state(ivp)
+    X = stateset(ivp)
 
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
-    got_homogeneous = !hasinput(ivp_discr)
+    got_homogeneous = !hasinput(ivp)
 
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
@@ -53,7 +69,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
         reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, X, preallocate, Δt0, disjointness_method)
     else
         # TODO: implement preallocate option for this scenario
-        U = inputset(ivp_discr)
+        U = inputset(ivp)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
         U = _reconvert(U, static, dim, ngens)
