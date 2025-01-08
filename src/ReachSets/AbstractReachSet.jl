@@ -260,7 +260,15 @@ end
 
 function intersection(R::AbstractReachSet, S::AbstractReachSet,
                       method::AbstractIntersectionMethod=FallbackIntersection())
-    return _intersection(set(R), set(S), method)
+    T1 = tspan(R)
+    T2 = tspan(S)
+    T = T1 ∩ T2
+    if isempty(T)
+        throw(ArgumentError("cannot intersect reach sets with disjoint time intervals"))
+    end
+
+    cap = _intersection(set(R), set(S), method)
+    return ReachSet(cap, T)
 end
 
 # fallback methods for reach-sets
