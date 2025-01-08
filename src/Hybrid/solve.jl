@@ -407,7 +407,7 @@ end
 
 # initial set is given as a tuple (location, set)
 # initial set is a vector of tuples [(loc_1, set_1), ..., (loc_n, set_n)]
-# optionally it is checked that each set has a non-empty intersction with loc_i's invariant
+# optionally it is checked that each set has a non-empty intersection with loc_i's invariant
 function _distribute(ivp::InitialValueProblem{HS, VQT};
                      check_invariant=false) where {HS<:HybridSystem,
                      ST, QT<:Tuple{Int}, ST}, VQT<:AbstractVector{QT}}

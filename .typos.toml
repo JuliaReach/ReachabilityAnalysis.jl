@@ -9,6 +9,8 @@ GIR = "GIR"
 AKS = "AKS"
 FRE = "FRE"
 Ein = "Ein"
+# `indexin` is a function name
+indexin = "indexin"
 
 [files]
 # do not check the following files:
