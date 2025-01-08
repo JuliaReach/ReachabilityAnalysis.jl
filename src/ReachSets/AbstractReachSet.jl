@@ -258,16 +258,14 @@ end
 # Concrete intersection methods
 # ------------------------------
 
-function intersection(R::AbstractReachSet, S::AbstractReachSet)
-    return _intersection(set(R), set(S), FallbackIntersection())
-end
-function _intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod)
+function intersection(R::AbstractReachSet, S::AbstractReachSet,
+                      method::AbstractIntersectionMethod=FallbackIntersection())
     return _intersection(set(R), set(S), method)
 end
 
 # fallback methods for reach-sets
 @commutative function _intersection(R::AbstractReachSet, X::LazySet,
-                                    method::AbstractIntersectionMethod)
+                                    method::AbstractIntersectionMethod=FallbackIntersection())
     return _intersection(set(R), X, method)
 end
 
