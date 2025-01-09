@@ -1,12 +1,11 @@
-function post(alg::A20{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
-    @unpack δ, max_order = alg
+# continuous post
+function post(alg::A20, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...)
+    δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
-    # x' = Ax, x in X, or
-    # x' = Ax + u, x in X, u in U
     ivp_norm = _normalize(ivp)
 
     # homogenize the initial-value problem
@@ -15,13 +14,30 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     end
 
     # discretize system
-    ivp_discr = discretize(ivp_norm, δ, approx_model)
-    Φ = state_matrix(ivp_discr)
-    Ω0 = initial_state(ivp_discr)
-    X = stateset(ivp_discr)
+    ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
+
+    return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
+end
+
+# discrete post
+function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+    @unpack δ, max_order = alg
+
+    if isnothing(NSTEPS)
+        if haskey(kwargs, :NSTEPS)
+            NSTEPS = kwargs[:NSTEPS]
+        else
+            throw(ArgumentError("`NSTEPS` not specified"))
+        end
+    end
+
+    Φ = state_matrix(ivp)
+    Ω0 = initial_state(ivp)
+    X = stateset(ivp)
 
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
-    got_homogeneous = !hasinput(ivp_discr)
+    got_homogeneous = !hasinput(ivp)
 
     # this algorithm requires Ω0 to be a zonotope
     Ω0 = _convert_or_overapproximate(Zonotope, Ω0)
@@ -53,7 +69,7 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
                             disjointness_method)
     else
         # TODO: implement preallocate option for this scenario
-        U = inputset(ivp_discr)
+        U = inputset(ivp)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
         reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0,
