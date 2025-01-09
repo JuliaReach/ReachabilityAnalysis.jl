@@ -1,12 +1,19 @@
 @testset "GLGM06 algorithm: homogeneous" begin
 
     # one-dimensional
-    prob, _ = exponential_1d()
-    sol = solve(prob; T=5.0, alg=GLGM06(; δ=0.01))
+    ivp, _ = exponential_1d()
+    alg = GLGM06(; δ=0.01)
+    # continuous algorithm
+    sol = solve(ivp; T=5.0, alg=alg)
     @test isa(sol.alg, GLGM06)
     @test setrep(sol) <: Zonotope
     @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
     @test dim(sol) == 1
+    # discrete algorithm
+    ivp_norm = ReachabilityAnalysis._normalize(ivp)
+    ivp_discr = discretize(ivp_norm, alg.δ, alg.approx_model)
+    NSTEPS = 500
+    fp_d = ReachabilityAnalysis.post(alg, ivp_discr, NSTEPS)
 
     # higher-dimensional homogeneous
     prob, _ = linear5D_homog()
