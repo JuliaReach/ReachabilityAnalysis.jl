@@ -4,6 +4,7 @@ using Test, ReachabilityAnalysis
 begin
     __test_short = haskey(ENV, "JULIA_PKGEVAL")
 
+   "Use the macro `ts` for tests which are deemed too slow and make the pipeline fail when running PkgEval."
     macro ts(arg)
         if !__test_short
             quote
