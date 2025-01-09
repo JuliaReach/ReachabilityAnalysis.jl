@@ -258,16 +258,22 @@ end
 # Concrete intersection methods
 # ------------------------------
 
-function intersection(R::AbstractReachSet, S::AbstractReachSet)
-    return _intersection(set(R), set(S), FallbackIntersection())
-end
-function _intersection(R::AbstractReachSet, S::AbstractReachSet, method::AbstractIntersectionMethod)
-    return _intersection(set(R), set(S), method)
+function intersection(R::AbstractReachSet, S::AbstractReachSet,
+                      method::AbstractIntersectionMethod=FallbackIntersection())
+    T1 = tspan(R)
+    T2 = tspan(S)
+    T = T1 ∩ T2
+    if isempty(T)
+        throw(ArgumentError("cannot intersect reach sets with disjoint time intervals"))
+    end
+
+    cap = _intersection(set(R), set(S), method)
+    return ReachSet(cap, T)
 end
 
 # fallback methods for reach-sets
 @commutative function _intersection(R::AbstractReachSet, X::LazySet,
-                                    method::AbstractIntersectionMethod)
+                                    method::AbstractIntersectionMethod=FallbackIntersection())
     return _intersection(set(R), X, method)
 end
 

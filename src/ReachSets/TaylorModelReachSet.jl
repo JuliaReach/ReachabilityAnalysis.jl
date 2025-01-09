@@ -69,10 +69,6 @@ end
 # ======================
 
 # for TMs, we overapproximate with a zonotope
-function _intersection(R::TaylorModelReachSet, Y::LazySet)
-    return _intersection(R, Y, FallbackIntersection())
-end
-
 function _intersection(R::TaylorModelReachSet, Y::LazySet, ::FallbackIntersection)
     X = set(overapproximate(R, Zonotope))
     return intersection(X, Y)
