@@ -124,9 +124,9 @@ function _solve_ensemble(ivp::InitialValueProblem{<:AbstractHybridSystem},
                 condition = (u, t, integrator) -> u ∉ I⁻ ? -1 : 1
                 callback = ODE.ContinuousCallback(condition, termination_action)
             end
-            trajectory = _solve_ensemble(ivp_loc, args...; initial_states=[x0],
-                                         callback=callback, tspan=t0 .. T,
-                                         kwargs_sim...)[1]
+            res_ens = _solve_ensemble(ivp_loc, args...; initial_states=[x0],
+                                      callback=callback, tspan=t0 .. T, kwargs_sim...)
+            trajectory = getindex(res_ens, :, 1)
 
             # remove states from trajectory if they violate invariant
             # observation: this only concerns the last two steps
