@@ -34,20 +34,27 @@ end
 
 @testset "LGG09 algorithm: 1d" begin
     # one-dimensional
-    prob, dt = exponential_1d()
+    ivp, tspan = exponential_1d()
     box1d = CustomDirections([[1.0], [-1.0]])
-    sol = solve(prob; tspan=dt, alg=LGG09(; δ=0.01, template=box1d))
+    alg = LGG09(; δ=0.01, template=box1d)
+    # continuous algorithm
+    sol = solve(ivp; tspan=tspan, alg=alg)
     @test isa(sol.alg, LGG09)
     @test setrep(sol) <: HPolyhedron
     @test setrep(sol) == HPolyhedron{Float64,Vector{Float64}}
     @test dim(sol) == 1
+    # discrete algorithm
+    ivp_norm = ReachabilityAnalysis._normalize(ivp)
+    ivp_discr = discretize(ivp_norm, alg.δ, alg.approx_model)
+    NSTEPS = 500
+    fp_d = ReachabilityAnalysis.post(alg, ivp_discr, NSTEPS)
 end
 
 @testset "LGG09 algorithm: 5d" begin
     # higher-dimensional
-    prob, dt = linear5D()
+    ivp, tspan = linear5D()
     box5d = BoxDirections{Float64,Vector{Float64}}(5)
-    sol = solve(prob; tspan=dt, alg=LGG09(; δ=0.01, template=box5d))
+    sol = solve(ivp; tspan=tspan, alg=LGG09(; δ=0.01, template=box5d))
     @test setrep(sol) == HPolyhedron{Float64,Vector{Float64}}
     @test dim(sol) == 5
 
@@ -70,17 +77,17 @@ end
     X0 = BallInf([1.0, 1.0], 0.1)
     function foo()
         A = [0.0 1.0; -1.0 0.0]
-        prob = @ivp(x' = Ax, x(0) ∈ X0)
+        ivp = @ivp(x' = Ax, x(0) ∈ X0)
         tspan = (0.0, 20.0)
-        return prob, tspan
+        return ivp, tspan
     end
-    prob, dt = foo()
+    ivp, tspan = foo()
     δ = 2e-1
 
     approx_model = SecondOrderddt()
-    sol = solve(prob; tspan=(0.0, 20.0),
+    sol = solve(ivp; tspan=tspan,
                 alg=LGG09(; δ=δ, template=PolarDirections(40), approx_model=approx_model))
     approx_model = SecondOrderddt(; oa=false)
-    sol_ua = solve(prob; tspan=(0.0, 20.0),
+    sol_ua = solve(ivp; tspan=tspan,
                    alg=LGG09(; δ=δ, template=PolarDirections(40), approx_model=approx_model))
 end
