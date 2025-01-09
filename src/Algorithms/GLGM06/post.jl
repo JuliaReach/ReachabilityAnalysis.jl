@@ -1,13 +1,11 @@
-# continuous post for GLGM06 using Zonotope set representation
-function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+# continuous post
+function post(alg::GLGM06, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...)
     δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
-    # x' = Ax, x in X, or
-    # x' = Ax + u, x in X, u in U
     ivp_norm = _normalize(ivp)
 
     # homogenize the initial-value problem
@@ -21,6 +19,7 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
 end
 
+# discrete post
 function post(alg::GLGM06{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
     @unpack δ, approx_model, max_order, static, dim, ngens,
