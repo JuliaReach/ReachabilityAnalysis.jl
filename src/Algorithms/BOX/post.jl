@@ -1,6 +1,7 @@
-function post(alg::BOX{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
-    @unpack δ, approx_model, static, dim, recursive = alg
+# continuous post
+function post(alg::BOX, ivp::IVP{<:AbstractContinuousSystem}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...)
+    δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
@@ -13,13 +14,30 @@ function post(alg::BOX{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     end
 
     # discretize system
-    ivp_discr = discretize(ivp_norm, δ, approx_model)
-    Φ = state_matrix(ivp_discr)
-    Ω0 = initial_state(ivp_discr)
-    X = stateset(ivp_discr)
+    ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
+
+    return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
+end
+
+# discrete post
+function post(alg::BOX{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+    @unpack δ, approx_model, static, dim, recursive = alg
+
+    if isnothing(NSTEPS)
+        if haskey(kwargs, :NSTEPS)
+            NSTEPS = kwargs[:NSTEPS]
+        else
+            throw(ArgumentError("`NSTEPS` not specified"))
+        end
+    end
+
+    Φ = state_matrix(ivp)
+    Ω0 = initial_state(ivp)
+    X = stateset(ivp)
 
     # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
-    got_homogeneous = !hasinput(ivp_discr)
+    got_homogeneous = !hasinput(ivp)
 
     # this algorithm requires Ω0 to be hyperrectangle
     Ω0 = _overapproximate(Ω0, Hyperrectangle)
@@ -36,7 +54,7 @@ function post(alg::BOX{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     if got_homogeneous
         reach_homog_BOX!(F, Ω0, Φ, NSTEPS, δ, X, recursive, Δt0)
     else
-        U = inputset(ivp_discr)
+        U = inputset(ivp)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         # TODO: can we use support function evaluations for the input set?
         U = overapproximate(U, Hyperrectangle)

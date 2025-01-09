@@ -41,12 +41,19 @@ end
     A = [0 1.0
          -1 0]
     X0 = VPolygon([[1.0, 0.0], [1.2, 0.0], [1.1, 0.2]])
-    prob = @ivp(x' = A * x, x(0) ∈ X0)
-    sol = solve(prob; tspan=(0.0, 2.0), alg=VREP(; δ=1e-2))
+    ivp = @ivp(x' = A * x, x(0) ∈ X0)
+    alg = VREP(; δ=1e-2)
+    # continuous algorithm
+    sol = solve(ivp; tspan=(0.0, 2.0), alg=alg)
     @test setrep(sol) == VPolygon{Float64,Vector{Float64}}
+    # discrete algorithm
+    ivp_norm = ReachabilityAnalysis._normalize(ivp)
+    ivp_discr = discretize(ivp_norm, alg.δ, alg.approx_model)
+    NSTEPS = 500
+    fp_d = ReachabilityAnalysis.post(alg, ivp_discr, NSTEPS)
 
     # statically sized array
-    sol = solve(prob; tspan=(0.0, 2.0), alg=VREP(; δ=1e-2, static=true, dim=2))
+    sol = solve(ivp; tspan=(0.0, 2.0), alg=VREP(; δ=1e-2, static=true, dim=2))
     @test setrep(sol) == VPolygon{Float64,SVector{2,Float64}}
 end
 
@@ -62,21 +69,21 @@ end
 
     # default Polyhedra backend works, but shows warning messages of this sort:
     # glp_simplex: unable to recover undefined or non-optimal solution
-    #prob = @ivp(x' = A*x, x(0) ∈ X0)
-    #sol = solve(prob, tspan=(0.0, 1.0), alg=VREP(δ=1e-3, static=true, dim=4))
+    #ivp = @ivp(x' = A*x, x(0) ∈ X0)
+    #sol = solve(ivp, tspan=(0.0, 1.0), alg=VREP(δ=1e-3, static=true, dim=4))
 
     # change the backend
-    prob = @ivp(x' = A * x, x(0) ∈ X0)
-    sol = solve(prob; tspan=(0.0, 1.0),
+    ivp = @ivp(x' = A * x, x(0) ∈ X0)
+    sol = solve(ivp; tspan=(0.0, 1.0),
                 alg=VREP(; δ=1e-3, static=true, dim=4, backend=CDDLib.Library()))
 end
 
 @testset "VREP for sdof with distinct approximations" begin
-    prob, _ = harmonic_oscillator()
+    ivp, _ = harmonic_oscillator()
     tmax = 2.0
 
-    a = solve(prob; tspan=(0.0, tmax), alg=VREP(; δ=0.1, approx_model=Forward(; setops=:concrete)))
-    b = solve(prob; tspan=(0.0, tmax),
+    a = solve(ivp; tspan=(0.0, tmax), alg=VREP(; δ=0.1, approx_model=Forward(; setops=:concrete)))
+    b = solve(ivp; tspan=(0.0, tmax),
               alg=VREP(; δ=0.1, approx_model=StepIntersect(; setops=:concrete)))
-    c = solve(prob; tspan=(0.0, tmax), alg=VREP(; δ=0.1, approx_model=CorrectionHull(; exp=:base)))
+    c = solve(ivp; tspan=(0.0, tmax), alg=VREP(; δ=0.1, approx_model=CorrectionHull(; exp=:base)))
 end
