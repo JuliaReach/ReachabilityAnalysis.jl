@@ -8,6 +8,8 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan;
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)
 
+    # homogenization for interval matrices is not available yet
+
     # discretize system
     ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
 
