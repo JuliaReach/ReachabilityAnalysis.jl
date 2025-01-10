@@ -1,23 +1,4 @@
-# continuous post
-function post(alg::VREP, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...)
-    δ = alg.δ
-
-    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
-
-    # normalize system to canonical form
-    ivp_norm = _normalize(ivp)
-
-    # homogenize the initial-value problem
-    if get(kwargs, :homogenize, false)
-        ivp_norm = homogenize(ivp_norm)
-    end
-
-    # discretize system
-    ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
-
-    return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
-end
+# default continuous post
 
 # discrete post
 function post(alg::VREP{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
