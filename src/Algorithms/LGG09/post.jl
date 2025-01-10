@@ -3,11 +3,6 @@ function post(alg::LGG09, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...)
     δ = alg.δ
 
-    # dimension check
-    template = alg.template
-    @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *
-                                           "doesn't match the dimension of the template directions, $(dim(template))"
-
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
 
     # normalize system to canonical form
@@ -27,6 +22,11 @@ end
 # discrete post
 function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N,AM,VN,TN}
+    # dimension check
+    template = alg.template
+    @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *
+                                           "doesn't match the dimension of the template directions, $(dim(template))"
+
     @unpack δ, approx_model, template, static, threaded, vars = alg
 
     if isnothing(NSTEPS)
