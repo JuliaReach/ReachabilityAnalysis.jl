@@ -24,7 +24,7 @@ normalize(::InitialValueProblem)
 ReachabilityAnalysis.add_dimension
 ```
 
-## Homogeneization
+## Homogenization
 
 ```@docs
 homogenize

@@ -1,5 +1,5 @@
 # ====================================================
-# Homogeneization of linear systems
+# Homogenization of linear systems
 # ====================================================
 
 # no-op
@@ -9,7 +9,7 @@ homogenize(sys::LCS{N,MT}) where {N,MT<:AbstractMatrix{N}} = sys
 """
     homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
 
-Transform an inhomogeneous linear initial-value problem into an homogeneous one
+Transform an inhomogeneous linear initial-value problem into a homogeneous one
 by introducing auxiliary state variables.
 
 ### Input
@@ -23,7 +23,7 @@ Homogeneous initial-value problem.
 ### Notes
 
 This function transforms the canonical initial-value problem ``x' = Ax + u``,
-``x ∈ X`` with ``u(0) ∈ U = {u}`` (a singleton) into an homogeneous problem
+``x ∈ X`` with ``u(0) ∈ U = {u}`` (a singleton) into a homogeneous problem
 without inputs ``y' = Â * y``, ``y ∈ Y``.
 """
 function homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N,
@@ -49,7 +49,7 @@ end
 """
     homogenize(sys::SOACS)
 
-Transform an inhomogeneous second order system into an homogeneous one
+Transform an inhomogeneous second order system into a homogeneous one
 by introducing auxiliary state variables.
 
 ### Input

@@ -74,7 +74,7 @@ in `MathematicalSystems.jl` for additional details in second order ODEs types.
 
 ## Normalization
 
-## Homogeneization
+## Homogenization
 
 ## Nonlinear systems
 
