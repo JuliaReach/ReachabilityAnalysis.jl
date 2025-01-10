@@ -1,10 +1,6 @@
 # continuous post
 function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...)
-    n = statedim(ivp)
-    n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
-                                  "systems, but this initial-value problem is $n-dimensional"))
-
     δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
@@ -26,6 +22,10 @@ end
 # discrete post
 function post(alg::INT{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
+    n = statedim(ivp)
+    n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
+                                  "systems, but this initial-value problem is $n-dimensional"))
+
     @unpack δ, approx_model = alg
 
     if isnothing(NSTEPS)
