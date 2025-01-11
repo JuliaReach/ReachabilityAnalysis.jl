@@ -6,7 +6,6 @@
     # continuous algorithm
     sol = solve(ivp; tspan=tspan, alg=alg)
     @test isa(sol.alg, BOX)
-    @test setrep(sol) <: Hyperrectangle
     @test setrep(sol) == Hyperrectangle{Float64,Array{Float64,1},Array{Float64,1}}
     @test dim(sol) == 1
     # discrete algorithm
@@ -14,6 +13,18 @@
     ivp_discr = discretize(ivp_norm, alg.δ, alg.approx_model)
     NSTEPS = 500
     fp_d = ReachabilityAnalysis.post(alg, ivp_discr, NSTEPS)
+
+    # homogenization
+    A = hcat(state_matrix(ivp))
+    X = stateset(ivp)
+    X0 = initial_state(ivp)
+    B = Id(1, 1.0)  # TODO implement for different multiple
+    U = ConstantInput(Singleton([0.0]))
+    ivp2 = @ivp(ConstrainedLinearControlContinuousSystem(A, B, X, U), X(0) ∈ X0)
+    sol2 = solve(ivp2; tspan=(0.0, 1.0), alg=alg, homogenize=true)
+    @test isa(sol2.alg, BOX)
+    @test setrep(sol2) == Hyperrectangle{Float64,Array{Float64,1},Array{Float64,1}}
+    @test dim(sol2) == 2
 
     # higher-dimensional homogeneous
     ivp, tspan = linear5D_homog()
