@@ -45,6 +45,7 @@ include("Algorithms/ASB07/ASB07.jl")
 include("Algorithms/ORBIT/ORBIT.jl")
 include("Algorithms/VREP/VREP.jl")
 include("Algorithms/FLOWSTAR/FLOWSTAR.jl")
+include("Algorithms/linear_post.jl")
 
 # Nonlinear
 include("Algorithms/CARLIN/CARLIN.jl")

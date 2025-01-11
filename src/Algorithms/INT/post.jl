@@ -1,31 +1,12 @@
-# continuous post
-function post(alg::INT, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...)
-    n = statedim(ivp)
-    n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
-                                  "systems, but this initial-value problem is $n-dimensional"))
-
-    δ = alg.δ
-
-    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
-
-    # normalize system to canonical form
-    ivp_norm = _normalize(ivp)
-
-    # homogenize the initial-value problem
-    if get(kwargs, :homogenize, false)
-        ivp_norm = homogenize(ivp_norm)
-    end
-
-    # discretize system
-    ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
-
-    return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
-end
+# default continuous post
 
 # discrete post
 function post(alg::INT{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
+    n = statedim(ivp)
+    n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
+                                  "systems, but this initial-value problem is $n-dimensional"))
+
     @unpack δ, approx_model = alg
 
     if isnothing(NSTEPS)
