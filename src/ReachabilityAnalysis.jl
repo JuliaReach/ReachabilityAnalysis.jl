@@ -27,7 +27,7 @@ include("Flowpipes/solutions.jl")
 # ===========================================================
 include("Continuous/fields.jl")
 include("Continuous/normalization.jl")
-include("Continuous/homogeneization.jl")
+include("Continuous/homogenization.jl")
 include("Continuous/linearization.jl")
 
 # ===========================================================
