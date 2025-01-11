@@ -85,6 +85,8 @@ end
 @inline Base.lastindex(fp::AbstractFlowpipe) = length(array(fp))
 @inline Base.eachindex(fp::AbstractFlowpipe) = eachindex(array(fp))
 
+Base.:(==)(fp1::AbstractFlowpipe, fp2::AbstractFlowpipe) = array(fp1) == array(fp2)
+
 # fallback implementations of set getter functions
 
 """

@@ -14,6 +14,12 @@ using ReachabilityAnalysis: _isapprox
     @test setrep(FT) == ZT
     @test rsetrep(fp) == ReachSet{N,ZT}
 
+    # equality
+    sol2 = solve(prob; tspan=dt)
+    fp2 = flowpipe(sol2)
+    @test fp == fp2
+    @test sol == sol2
+
     # ambient dimension
     @test dim(fp) == 2
 
