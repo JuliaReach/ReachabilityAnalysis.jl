@@ -17,6 +17,10 @@ using TaylorModels: set_variables,
     # if the time is an integer, it is converted to a float
     R = ReachSet(X, 1)
     @test tspan(R) == interval(1.0)
+
+    # equality
+    R2 = ReachSet(X, 1)
+    @test R == R2
 end
 
 @testset "Reach-set projections" begin
