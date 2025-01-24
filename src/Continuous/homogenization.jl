@@ -1,15 +1,18 @@
 # ====================================================
-# Homogeneization of linear systems
+# Homogenization of linear systems
 # ====================================================
+
+using ..DiscretizationModule: next_set
 
 # no-op
 homogenize(ivp::IVP{LCS{N,MT},ST}) where {N,MT<:AbstractMatrix{N},ST} = ivp
 homogenize(sys::LCS{N,MT}) where {N,MT<:AbstractMatrix{N}} = sys
 
 """
-    homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N, MT<:AbstractMatrix{N}, XT<:LazySet{N}, SI<:Singleton{N}, ST<:LazySet{N}}
+    homogenize(ivp::IVP{<:CLCCS{N,MTA,MTB,XT,UT},ST}) where {N, MTA<:AbstractMatrix{N},
+        MTB<:IdentityMultiple{N}, XT<:LazySet{N}, UT<:ConstantInput{<:Singleton{N}}, ST<:LazySet{N}}
 
-Transform an inhomogeneous linear initial-value problem into an homogeneous one
+Transform an inhomogeneous linear initial-value problem into a homogeneous one
 by introducing auxiliary state variables.
 
 ### Input
@@ -23,25 +26,30 @@ Homogeneous initial-value problem.
 ### Notes
 
 This function transforms the canonical initial-value problem ``x' = Ax + u``,
-``x ∈ X`` with ``u(0) ∈ U = {u}`` (a singleton) into an homogeneous problem
+``x ∈ X`` with ``u(0) ∈ U = {u}`` (a singleton) into a homogeneous problem
 without inputs ``y' = Â * y``, ``y ∈ Y``.
 """
-function homogenize(ivp::IVP{CLCCS{N,MT,IdentityMultiple{N},XT,ConstantInput{SI}},ST}) where {N,
-                                                                                              MT<:AbstractMatrix{N},
-                                                                                              XT<:LazySet{N},
-                                                                                              SI<:Singleton{N},
-                                                                                              ST<:LazySet{N}}
+function homogenize(ivp::IVP{<:CLCCS{N,MTA,MTB,XT,UT},ST}) where {N,
+                                                                  MTA<:AbstractMatrix{N},
+                                                                  MTB<:IdentityMultiple{N},
+                                                                  XT<:LazySet{N},
+                                                                  UT<:ConstantInput{<:Singleton{N}},
+                                                                  ST<:LazySet{N}}
     # homogenized state matrix
+    B = input_matrix(ivp)
+    @assert isone(B.M.λ) "input matrix should be normalized"
     U = ReachabilityAnalysis.next_set(inputset(ivp))
     A = state_matrix(ivp)
     Â = _homogenize_state_matrix(A, U)
 
-    # homogenized input set
+    # homogenized initial set
     X0 = initial_state(ivp)
     Y0 = _homogenize_initial_state(X0)
 
+    # homogenized state constraint
     X = stateset(ivp)
     Y = _homogenize_stateset(X)
+
     ivph = IVP(CLCS(Â, Y), Y0)
     return ivph
 end
@@ -49,7 +57,7 @@ end
 """
     homogenize(sys::SOACS)
 
-Transform an inhomogeneous second order system into an homogeneous one
+Transform an inhomogeneous second order system into a homogeneous one
 by introducing auxiliary state variables.
 
 ### Input
