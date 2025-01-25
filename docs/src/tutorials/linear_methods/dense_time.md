@@ -103,7 +103,8 @@ ylims!(0.8, 1.2)
             margin: 10px;
             font-family: helvetica;">
 
-<b>Proposition 1.</b> Conservative time discretization for linear homogeneous systems [[LGG09]](@ref).
+<b>Proposition 1.</b> Conservative time discretization for linear homogeneous systems
+[LeGuernicG09](@cite).
 
 Let ``x' = Ax`` with initial states ``x(0) ∈ X_0``. Then the convex set
 

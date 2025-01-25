@@ -29,12 +29,12 @@ optimizations.
 
 ## References
 
-This algorithm is essentially a non-decomposed version of the method in [[BFFPSV18]](@ref),
+This algorithm is essentially a non-decomposed version of the method in [BogomolovFFVPS18](@citet),
 using intervals as set representation. For a general introduction we refer
-to the dissertation [[LG09]](@ref).
+to the dissertation [LeGuernicG09](@cite).
 
 Regarding the approximation model, by default we use an adaptation of the method
-presented in [[FRE11]](@ref).
+presented in [FrehseGDCRLRGDM11](@citet).
 
 Interval arithmetic operations are performed using the `IntervalArithmetic.jl`
 package. Hence, the results are guaranteed to comply to the IEE754 standard with

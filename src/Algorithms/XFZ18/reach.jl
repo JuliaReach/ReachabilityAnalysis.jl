@@ -23,12 +23,7 @@ hierarchy of semidefinite programs that are solved using an SDP solver.
 
 ### Algorithm
 
-We refer to [1] for technical details.
-
-- [1] *Xue, B., Fränzle, M., & Zhan, N. (2018, April). Under-Approximating Reach
-Sets for Polynomial Continuous Systems. In [Proceedings of the 21st International
-Conference on Hybrid Systems: Computation and Control (part of CPS Week)
-(pp. 51-60). ACM.](https://dl.acm.org/citation.cfm?id=3178133)*
+We refer to [XueFZ18](@citet) for technical details.
 """
 struct XFZ18 <: ContinuousPost
     options::Options

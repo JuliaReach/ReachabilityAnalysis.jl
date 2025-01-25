@@ -39,9 +39,9 @@ the number of threads.
 
 ## References
 
-This is an implementation of the algorithm from [[LGG09]](@ref).
+This is an implementation of the algorithm from [LeGuernicG09](@citet).
 
-These methods are described at length in the dissertation [[LG09]](@ref).
+These methods are described at length in the dissertation [LeGuernicG09](@cite).
 """
 struct LGG09{N,AM,VN,TN<:AbstractDirections{N,VN},S,VA} <: AbstractContinuousPost
     δ::N

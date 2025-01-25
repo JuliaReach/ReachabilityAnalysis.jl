@@ -7,7 +7,7 @@
 
 # ## Model description
 
-# The Laub-Loomis model is presented in [^LL98] for studying a class of
+# The Laub-Loomis model is presented in [LaubL98](@citet) for studying a class of
 # enzymatic activities. The dynamics can be defined by the following
 # seven-dimensional system of differential equations.
 
@@ -28,7 +28,7 @@ end
 
 # ## Specification
 
-# The initial conditions are defined according to the ones used in [^TD13]. They
+# The initial conditions are defined according to the ones used in [TestylierD13](@citet). They
 # are boxes centered at ``x_1(0) = 1.2``, ``x_2(0) = 1.05``, ``x_3(0) = 1.5``,
 # ``x_4(0) = 2.4``, ``x_5(0) = 1``, ``x_6(0) = 0.1``, ``x_7 (0) = 0.45``. The
 # range of the box in the i-th dimension is defined by the interval
@@ -129,13 +129,3 @@ plot!(fig, x -> x, x -> 4.5, 0.0, 20.0; line=2, color="red", linestyle=:dash, la
 plot!(fig, x -> x, x -> 5.0, 0.0, 20.0; line=2, color="red", linestyle=:dash, lab="")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
-
-# ## References
-
-# [^LL98]: M. T. Laub and W. F. Loomis. *A molecular network that produces
-#          spontaneous oscillations in excitable cells of dictyostelium*.
-#          Molecular Biology of the Cell, 9:3521–3532, 1998.
-#
-# [^TD13]: R. Testylier and T. Dang. *NLTOOLBOX: A library for reachability
-#          computation of nonlinear dynamical systems*. ATVA, volume 8172 of
-#          LNCS, pages 469–473. Springer, 2013.

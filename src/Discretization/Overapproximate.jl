@@ -218,14 +218,7 @@ If ``x = [x_L, x_H]``` and ``xref = [xref_L, xref_H]``, the output is the interv
 
 This function measures the relative error between an interval `x` and a reference
 interval `x_ref` accounting for it the lower and the upper range bounds separately
-(see  Eq. (20) in [1]).
-
-### References
-
-- [1] Althoff, Matthias, Dmitry Grebenyuk, and Niklas Kochdumper.
-      "Implementation of Taylor models in CORA 2018."
-      Proc. of the 5th International Workshop on Applied Verification for Continuous
-      and Hybrid Systems. 2018. [pdf](https://easychair.org/publications/paper/9Tz3)
+(see [AlthoffGK18; Eq. (20)](@citet)).
 """
 function relative_error(x, x_ref)
     x_low, x_high = inf(x), sup(x)

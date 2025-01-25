@@ -1,10 +1,12 @@
-using Documenter, ReachabilityAnalysis
+using Documenter, ReachabilityAnalysis, DocumenterCitations
 
 # load optional packages for complete documentation
 import ExponentialUtilities
 
 DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                     :(using ReachabilityAnalysis); recursive=true)
+
+bib = CitationBibliography(joinpath(@__DIR__, "src", "refs.bib"); style=:alpha)
 
 # pass --fast as an argument to skip rebuilding the examples and running doctests
 const _FAST = findfirst(==("--fast"), ARGS) !== nothing
@@ -155,14 +157,13 @@ NONLINEAR_SOLVERS_API = [
 # Docs contents
 # ========================
 
-makedocs(;
-         format=Documenter.HTML(; prettyurls=haskey(ENV, "GITHUB_ACTIONS"),
-                                collapselevel=1,
-                                assets=["assets/aligned.css"]),
-         sitename="ReachabilityAnalysis.jl",
+makedocs(; sitename="ReachabilityAnalysis.jl",
          modules=[ReachabilityAnalysis],
-         #doctest=false,
+         format=Documenter.HTML(; prettyurls=get(ENV, "CI", nothing) == "true",
+                                collapselevel=1,
+                                assets=["assets/aligned.css", "assets/citations.css"]),
          pagesonly=true,
+         plugins=[bib],
          pages=[
                 #
                 "Overview" => "index.md",
@@ -230,10 +231,10 @@ makedocs(;
                                     #
                                     ],
                 "Frequently Asked Questions (FAQ)" => "man/faq.md",
-                "Bibliography" => "references.md", "How to contribute" => "about.md"
+                "Bibliography" => "bibliography.md",
+                "How to contribute" => "about.md"
                 #
                 ])
 
-# Deploy built documentation from Travis.
 deploydocs(; repo="github.com/JuliaReach/ReachabilityAnalysis.jl.git",
            push_preview=true)

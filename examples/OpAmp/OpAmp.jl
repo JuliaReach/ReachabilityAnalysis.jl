@@ -29,7 +29,7 @@
 
 # ![](opamp_c.png)
 
-# It is not hard to show [^KLU15] that the output satisfies the following
+# It is not hard to show [Kluever20](@cite) that the output satisfies the following
 # differential equation:
 #
 # ```math
@@ -276,8 +276,3 @@ fig = plot(sol_exp; vars=(0, 1), xlab=L"t", ylab=L"e_{out}(t)",  #!jl
            title="Solution for exponential input", lw=0.2)  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
-
-# ## References
-
-# [^KLU15]: Kluever, C. A. *Dynamic systems: modeling, simulation, and control*.
-#           John Wiley & Sons. 2015.

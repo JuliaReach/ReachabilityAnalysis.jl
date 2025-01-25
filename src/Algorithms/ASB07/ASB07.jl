@@ -39,16 +39,16 @@ The default approximation model is
 approx_model=CorrectionHull(order=10, exp=:base)
 ```
 Here, `CorrectionHull` refers to an implementation of the interval matrix
-approximation method described in [[ASB07]](@ref). For technicalities on
+approximation method described in [AlthoffSB07](@citet). For technicalities on
 interval matrix operations, we refer to the package `IntervalMatrices.jl`.
 
 ## References
 
-The main ideas behind this algorithm can be found in [[ASB07]](@ref).
-These methods are discussed at length in the dissertation [[ALT10]](@ref).
+The main ideas behind this algorithm can be found in [AlthoffSB07](@citet).
+These methods are discussed at length in the dissertation [Althoff10](@cite).
 
-Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
-[[GIR05]](@ref) and the review article [[YS18]](@ref).
+Regarding the zonotope order reduction methods, we refer to [Combastel03, Girard05](@citet)
+and the review article [YangS18](@cite).
 """
 struct ASB07{N,AM,RM,S,R,D,NG} <: AbstractContinuousPost
     δ::N

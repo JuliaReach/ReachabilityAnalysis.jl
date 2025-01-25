@@ -1,8 +1,7 @@
 using ReachabilityAnalysis.Exponentiation: IntervalExpAlg
 
 @testset "ASB07 algorithm: homogeneous case" begin
-    # Example 1 from
-    # "Reachability analysis of linear systems with uncertain parameters and inputs"
+    # [AlthoffSB07; Example 1](@citet)
 
     # linear ODE: x' = Ax
     A = IntervalMatrix([-1.0±0.05 -4.0±0.05;

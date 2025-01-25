@@ -19,7 +19,7 @@ and safe machine learning.
 Below we briefly comment on a few remarkable problems where reachability is being
 applied. We refer to the technical literature for further applications;
 see [Bibliography](@ref all_ref) for a selection of papers to get you started!
-An up-to-date review with relevant references can be found in [[AFG20]](@ref).
+An up-to-date review with relevant references can be found in [AlthoffFG21](@citet).
 
 **Formal verification.** Determining whether a system is safe, i.e. to verify
 if it does not enter into a region of unsafe sets. Typical applications are

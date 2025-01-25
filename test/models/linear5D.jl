@@ -1,17 +1,14 @@
 # ==============================================================================
 # Five-dimensional system
 #
-# Example from Althoff's thesis, Section 3.2.3
+# Example from [Althoff10; Section 3.2.3](@citet)
 #
 #
 # system type: continuous LTI system
 # state dimension: 5
 # input dimension: 1
 #
-# This five-dimensional system is taken from Example 4.1 in [1].
-#
-# [1] Colas Le Guernic: Reachability analysis of hybrid systems with linear
-#     continuous dynamics. PhD thesis, 2009.
+# This five-dimensional system is taken from [LeGuernic09; Example 4.1](@citet).
 # ==============================================================================
 
 function linear5D_homog()

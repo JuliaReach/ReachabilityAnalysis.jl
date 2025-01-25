@@ -5,7 +5,7 @@
 #md #     State dimension: parametric, typically between 4 to 40\
 #md #     Application domain: Power systems stability
 
-# We consider the transmission line model used in [^AKS11]. The RLC circuit of
+# We consider the transmission line model used in [AlthoffKS11](@citet). The RLC circuit of
 # the transmission line is shown below. In the circuit, ``U_{in}`` is the
 # voltage at the sending end, and ``U_{out}`` is the voltage at the receiving
 # end.
@@ -16,7 +16,7 @@
 
 # For reference to understand this model, we refer to standard textbooks on
 # electrical circuits. The electrical elements law for resistors (R), inductors
-# (L), and capacitors (C) are studied, for instance, in Chapter 3 of [^K15].
+# (L), and capacitors (C) are studied, for instance, in [Kluever20; Chapter 3](@citet).
 #
 # Let's assume that the circuit consists of ``η > 2`` nodes. There are ``η``
 # dynamic equations for the capacitor voltages and ``η`` dynamic equations for
@@ -115,7 +115,7 @@
 # simplify building matrices with special shape, as in our case, such as
 # diagonal and band matrices, with the types `Diagonal` and `Bidiagonal`.
 #
-# We consider the case of ``η = 20`` nodes as in [^AKS11], such that the system
+# We consider the case of ``η = 20`` nodes as in [AlthoffKS11](@citet), such that the system
 # has ``n = 40`` state variables.
 
 using ReachabilityAnalysis, LinearAlgebra, SparseArrays
@@ -230,26 +230,9 @@ fig = plot(Uout_vs_t; vars=(0, η), c=:blue, xlab="t", ylab="Uout", alpha=0.5, l
 
 #md # !!! tip "Technical note"
 #md #     Since we are only interested in the behavior of ``U_{out}``, we could
-#md #     use an algorithm based on the support function (see e.g. [^GLG08],
+#md #     use an algorithm based on the support function (see, e.g., [GirardL08](@citet),
 #md #     which can be used as [`LGG09`](@ref) in this library), or the
 #md #     decomposition-based algorithm [`BFFPSV18`](@ref) with the options
 #md #     `alg=BFFPSV18(δ=1e-3, dim=statedim(P), vars=[η]))`. These options will
 #md #     use an interval (1D) decomposition of the state space and only compute
 #md #     the flowpipe associated with variable ``η``.
-
-# ## References
-
-# [^AKS11]: Althoff, Matthias, Bruce H. Krogh, and Olaf Stursberg. *[Analyzing
-#           reachability of linear dynamic systems with parametric
-#           uncertainties](https://mediatum.ub.tum.de/doc/1287218/358815.pdf)*.
-#           Modeling, Design, and Simulation of Systems with Uncertainties.
-#           Springer 2011.
-#
-# [^K15]: Kluever, Craig A. *[Dynamic systems: modeling, simulation, and
-#         control](https://www.wiley.com/en-us/Dynamic+Systems%3A+Modeling%2C+Simulation%2C+and+Control-p-9781118289457)*.
-#         John Wiley & Sons 2015.
-#
-# [^GLG08]: Girard, Antoine, and Colas Le Guernic. *[Efficient reachability
-#           analysis for linear systems using support
-#           functions](https://www.sciencedirect.com/science/article/pii/S1474667016403939)*.
-#           IFAC Proceedings Volumes 41.2 (2008).

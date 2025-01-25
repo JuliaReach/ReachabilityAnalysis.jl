@@ -1,13 +1,9 @@
 """
 Interface to matrix exponential backends of different kinds.
 
-Includes common integral computations arising in the discretization of linear differential
-equations using matrix methods. For applications see e.g. [1] and references therein.
-
-[1] Conservative Time Discretization: A Comparative Study.
-    Marcelo Forets and Christian Schilling (2022).
-    Proceedings of the 17th International Conference on integrated Formal Methods (iFM),
-    LNCS, vol. 13274, pp. 149-167. doi: 10.1007/978-3-031-07727-2_9, arXiv: 2111.01454.
+Includes common integral computations arising in the discretization of linear
+differential equations using matrix methods. For applications see, e.g.,
+[ForetsS22](@citet) and references therein.
 """
 module Exponentiation
 
@@ -261,7 +257,7 @@ It can be shown that
 \\end{pmatrix}.
 ```
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₁(A, δ) = P[1:n, (n+1):2*n]`.
-This method can be found in [[FRE11]](@ref).
+This method can be found in [FrehseGDCRLRGDM11](@citet).
 """
 function Φ₁(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv::Bool=false, Φ=nothing)
     return Φ₁(A, δ, alg, Val(isinv), Φ)
@@ -395,7 +391,7 @@ It can be shown that
 \\end{pmatrix}.
 ```
 where ``Φ(A, δ) = e^{Aδ}``. In particular, `Φ₂ = P_{3n}[1:n, (2*n+1):3*n]`.
-This method can be found in [[FRE11]](@ref).
+This method can be found in [FrehseGDCRLRGDM11](@citet).
 """
 function Φ₂(A::AbstractMatrix, δ::Real, alg::AbstractExpAlg=BaseExp, isinv::Bool=false, Φ=nothing)
     return Φ₂(A, δ, alg, Val(isinv), Φ)

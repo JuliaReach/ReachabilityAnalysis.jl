@@ -28,7 +28,7 @@ See the `Examples` section below for some concrete examples of these options.
 ## Notes
 
 This algorithm solves the set-based recurrence equation ``X_{k+1} = ΦX_k ⊕ V_k``
-by using block decompositions. The algorithm was introduced in [[BFFPSV18]](@ref).
+by using block decompositions. The algorithm was introduced in [BogomolovFFVPS18](@citet).
 
 Comments about some fields:
 
@@ -52,14 +52,14 @@ TODO:
 
 ### References
 
-This algorithm is essentially an extension of the method in [[BFFPSV18]](@ref).
+This algorithm is essentially an extension of the method in [BogomolovFFVPS18](@citet).
 Blocks can have different dimensions and the set representation can be different
 for each block.
 
-For a general introduction we refer to the dissertation [[SCHI18]](@ref).
+For a general introduction we refer to the dissertation [Schilling18](@cite).
 
 Regarding the approximation model, by default we use an adaptation of the method
-presented in [[FRE11]](@ref).
+presented in [FrehseGDCRLRGDM11](@citet).
 """
 struct BFFPSV18{N,ST,AM,IDX,BLK,RBLK,CBLK} <: AbstractContinuousPost
     δ::N

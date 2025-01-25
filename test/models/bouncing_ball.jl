@@ -2,8 +2,7 @@
 # Bouncing-ball model
 #
 # We model the bouncing ball as a hybrid automaton with one location and a self-loop.
-# See for example [[LG09]](@ref) pp. 79-83.
-#
+# See for example [LeGuernicG09; pp. 79-83](@citet).
 
 function bouncing_ball(; X0=Hyperrectangle(; low=[10.0, 0.0], high=[10.2, 0.0]))
 

@@ -13,7 +13,7 @@
 # This particular family of systems is often used to test the stability of
 # integration schemes.
 #
-# As proposed by **Michaelis-Menten** theory [^KM18], a model for three
+# As proposed by **Michaelis-Menten** theory [KopeczM18](@cite), a model for three
 # quantities can be defined as follows:
 #
 # ```math
@@ -49,7 +49,7 @@
 #   both uncertainties are present.
 #
 # The reachability settings considered above are a variation of those in
-# [^ARCHCOMP20_NLN]. Note that variables ``x`` and ``y`` converge towards zero,
+# [GerettiSABCCCFF20](@citet). Note that variables ``x`` and ``y`` converge towards zero,
 # so the final volume can be used as a quality measure of the overapproximation.
 #
 # We consider two measures of quality of the approximation: the volume of the
@@ -220,16 +220,3 @@ vol  #!jl
 fig = plot(sol; vars=(0, 3), lc=:red, c=:red, alpha=0.3, lab="I & P", xlab="t", ylab="z")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
-
-# ## References
-
-# [^ARCHCOMP20_NLN]: Luca Geretti, Julien Alexandre dit Sandretto, Matthias
-#                    Althoff, Luis Benet, Alexandre Chapoutot, Xin Chen, Pieter
-#                    Collins, Marcelo Forets, Daniel Freire, Fabian Immler,
-#                    Niklas Kochdumper, David P. Sanders and Christian
-#                    Schilling. *ARCH-COMP20 Category Report: Continuous and
-#                    Hybrid Systems with Nonlinear Dynamics*. ARCH 2020.
-#
-# [^KM18]: Kopecz, Stefan, and Andreas Meister. *On order conditions for
-#          modified Patankar–Runge–Kutta schemes*. Applied Numerical Mathematics
-#          123 (2018).

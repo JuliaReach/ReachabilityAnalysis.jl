@@ -44,11 +44,11 @@ The default approximation model is [`FirstOrderZonotope`](@ref).
 
 ## References
 
-The main ideas behind this algorithm can be found in [[GIR05]](@ref) and [[GLGM06]](@ref).
-These methods are discussed at length in the dissertation [[LG09]](@ref).
+The main ideas behind this algorithm can be found in [Girard05](@citet) and [GirardGM06](@citet).
+These methods are discussed at length in the dissertation [LeGuernicG09](@cite).
 
-Regarding the zonotope order reduction methods, we refer to [[COMB03]](@ref),
-[[GIR05]](@ref) and the review article [[YS18]](@ref).
+Regarding the zonotope order reduction methods, we refer to [Combastel03, Girard05](@citet)
+and the review article [YangS18](@cite).
 """
 struct GLGM06{N,AM,S,D,NG,P,RM,DM} <: AbstractContinuousPost
     δ::N

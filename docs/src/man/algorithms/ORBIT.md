@@ -58,7 +58,7 @@ of ``Φ_1(u, δ)`` is available through the function
 
 (1) If the coefficients matrix ``A`` is invertible, then the integral is equivalent to computing ``A^{-1}(e^{Aδ} - I)``.
 
-(2) In general, ``Φ_1(u, δ)`` can be obtained as a sub-block of a larger matrix. See [[FRE11]](@ref) for details.
+(2) In general, ``Φ_1(u, δ)`` can be obtained as a sub-block of a larger matrix. See [FrehseGDCRLRGDM11](@citet) for details.
 
 Method (2) is the default method, although there are cases in which method (1) is more convenient.
 For example, if we are only interested in singleton inputs and ``A`` is invertible,

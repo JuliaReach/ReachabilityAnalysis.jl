@@ -4,7 +4,7 @@ using ..Overapproximate: _convert_or_overapproximate
     A20{N} <: AbstractContinuousPost
 
 Implementation of the reachability method for large linear systems with uncertain
-inputs in the Krylov subspace from [[A20]](@ref).
+inputs in the Krylov subspace from [Althoff20](@citet).
 
 ### Fields
 
@@ -13,7 +13,7 @@ inputs in the Krylov subspace from [[A20]](@ref).
 
 ### References
 
-See [[A20]](@ref) and references therein.
+See [Althoff20](@citet) and references therein.
 """
 struct A20{N} <: AbstractContinuousPost
     δ::N

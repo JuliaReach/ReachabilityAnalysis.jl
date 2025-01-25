@@ -9,8 +9,8 @@
 
 # Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid
 # systems with nonlinear dynamics since mission failure can cost lives and is
-# extremely expensive. This benchmark is taken from [^CM17] but adapted to the
-# settings of ARCH-COMP [^ARCHCOMP].
+# extremely expensive. This benchmark is taken from [ChanM17](@citet) but adapted to the
+# settings of ARCH-COMP [GerettiSABCCCFF20](@cite).
 
 # The nonlinear differential equations describe the two-dimensional, planar
 # motion of the space-craft on an orbital plane towards a space station:
@@ -254,7 +254,7 @@ end;
 #   to stay below ``3.3`` [m/min]: ``\sqrt{v^2_x + v^2_y} ≤ 3.3`` [m/min].
 #
 # !!! note "Remark on velocity constraint"
-#     In the original benchmark [^CM17], the constraint on the velocity was set
+#     In the original benchmark [ChanM17](@cite), the constraint on the velocity was set
 #     to 0.05 m/s, but it can be shown (by a counterexample) that this
 #     constraint cannot be satisﬁed. We therefore use the relaxed constraint to
 #     ``0.055`` [m/s] ``= 3.3`` [m/min].
@@ -389,10 +389,3 @@ end  #!jl
 fig  #!jl
 
 #!jl fig = DisplayAs.Text(DisplayAs.PNG(fig))  #hide
-
-# ## References
-
-# [^CM17]: N. Chan and S. Mitra. *Verifying safety of an autonomous spacecraft
-#          rendezvous mission*. ARCH 2017.
-# [^ARCHCOMP]: L. Geretti et al. *ARCH-COMP20 Category Report: Continuous and
-#              Hybrid Systems with Nonlinear Dynamics*. In ARCH 2020.

@@ -33,7 +33,7 @@ The transformations are:
 
 Here we allow ``U`` to be a sequence of time varying non-deterministic input sets.
 
-For the definition of the sets ``E_ψ`` and ``E^-`` see [[FRE11]](@ref).
+For the definition of the sets ``E_ψ`` and ``E^-`` see [FrehseGDCRLRGDM11](@cite).
 The `Forward` method uses ``E^+``.
 """
 struct Backward{EM,SO,SI,IT,BT} <: AbstractApproximationModel

@@ -28,17 +28,12 @@ First-order approximation model.
 
 ### Algorithm
 
-The transformations are:
+The transformations are [LeGuernicG10](@cite):
 
 - ``Φ ← \\exp(Aδ)``,
 - ``Ω_0 ← CH(\\mathcal{X}_0, Φ\\mathcal{X}_0 ⊕ δU ⊕ B_ε)``
 
 where ``B_ε`` is the input ball of radius ``ε`` centered in the origin.
-
-### Reference
-
-C. Le Guernic and A. Girard: Reachability analysis of linear systems using
-support functions. NAHS 2010.
 """
 struct FirstOrder{EM} <: AbstractApproximationModel
     exp::EM

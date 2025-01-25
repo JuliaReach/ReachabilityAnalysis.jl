@@ -9,7 +9,7 @@
 
 # The model corresponds to a building (the Los Angeles University Hospital) with
 # 8 floors, each having 3 degrees of freedom, namely displacements in ``x`` and
-# ``y`` directions, and rotation [^ASG00]. These 24 variables evolve according
+# ``y`` directions, and rotation [AntoulasSG01](@cite). These 24 variables evolve according
 # to
 # ```math
 #     M\ddot{q}(t) + C\dot{q}(t) + Kq(t) = vu(t),
@@ -41,7 +41,7 @@
 #    constant over time: ``u(0) ∈ \mathcal{U}``, ``\dot{u}(t)= 0.``
 #
 # In both cases, the input set ``\mathcal{U}`` is the interval ``[0.8, 1.0]``,
-# and the initial states are taken from Table 2.2 in [^TLT16].
+# and the initial states are taken from [TranNJ16; Table 2.2](@citet).
 
 using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 using ReachabilityBase.Arrays: SingleEntryVector
@@ -207,13 +207,3 @@ fig = plot(sol_BLDC01_discrete; vars=(0, 25), linecolor=:blue, color=:blue,  #!j
 
 @assert !(ρ(x25e, sol_BLDC01_discrete(20.0)) <= -0.78e-3) "the property should not be proven" # BLDC01 - BDU02
 ρ(x25e, sol_BLDC01_discrete(20.0))  #!jl
-
-# ## References
-
-# [^ASG00]: Antoulas, Athanasios C., Danny C. Sorensen, and Serkan Gugercin. *A
-#           survey of model reduction methods for large-scale systems*. 2000.
-#
-# [^TLT16]: Tran, Hoang-Dung, Luan Viet Nguyen, and Taylor T. Johnson.
-#           *Large-scale linear systems from order-reduction (benchmark
-#           proposal).* 3rd Applied Verification for Continuous and Hybrid
-#           Systems Workshop (ARCH). 2016.

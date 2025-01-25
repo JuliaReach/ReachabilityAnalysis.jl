@@ -37,7 +37,7 @@ The state transition matrix of the linear ODE ``x'(t) = Ax(t) + u(t)`` at time
 ``δ > 0`` is ``Φ = e^{Aδ}``, hence the algorithms usually require to
 compute exponential matrices. There are distinct ways to compute the matrix
 exponential ``e^{Aδ}`` depending on the type of ``A``
-(see e.g. [^HIH08]). The available methods can be used through the (unexported) function `_exp`.
+(see, e.g., [Higham08](@cite)). The available methods can be used through the (unexported) function `_exp`.
 
 For high dimensional systems (typically `n > 2000`), computing the matrix exponential
 is expensive hence it is preferable to compute the action of the matrix exponential
@@ -55,7 +55,3 @@ ReachabilityAnalysis.Exponentiation.LazyExpAlg
 ReachabilityAnalysis.Exponentiation.IntervalExpAlg
 ReachabilityAnalysis.Exponentiation.PadeExpAlg
 ```
-
-## References
-
-[^HIH08]: Higham, Nicholas J. Functions of matrices: theory and computation. Society for Industrial and Applied Mathematics, 2008.

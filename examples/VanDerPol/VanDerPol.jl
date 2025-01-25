@@ -15,7 +15,7 @@
 #
 # Here we compute the evolution of the limit cycle in the phase plane for a set
 # of initial conditions. For this set, we consider a safety property, originally
-# from [^ARCHCOMP], that there is no solution starting from the initial set that
+# from [AlthoffBFFK0SS19](@citet), that there is no solution starting from the initial set that
 # exceeds a prescribed upper bound on the velocity ``y(t) := x'(t)`` at all
 # times in the given time span. Moreover, we also illustrate the computation of
 # an invariant set using the obtained flowipe. Finally, we study the limit cycle
@@ -201,8 +201,3 @@ plot!(ilast; lw=5.0, alpha=1.0, label="Last subset")  #!jl
 # As we can see, the cross section of the last reach set is a subset of the
 # first 13 reach sets. Thus, the cycle will continue, presumably getting smaller
 # each revolution.
-
-# ## References
-
-# [^ARCHCOMP]: Althoff, M., et al. *ARCH-COMP19 Category Report: Continuous and
-#              Hybrid Systems with Linear Continuous Dynamics*. In ARCH 2019.

@@ -149,7 +149,7 @@ function load_krylov_LGG09_homog()
         Using Krylov subspace approximations to compute the action of Φ := exp(Aδ) over
         the direction ℓ.
 
-        The method is (see [1]):
+        The method is (see [BogomolovFFVPS18](@cite)):
 
         ```julia
         out[1] <- ρ(ℓ, Ω₀)
@@ -161,14 +161,6 @@ function load_krylov_LGG09_homog()
         out[4] <- ρ(ℓ, Φ^3 Ω₀) = ρ((Φᵀ)^3 ℓ, Ω₀)
         ```
          and so on.
-
-        ### References
-
-        [1] Reach Set Approximation through Decomposition with Low-dimensional Sets and
-            High-dimensional Matrices. Sergiy Bogomolov, Marcelo Forets, Goran Frehse,
-            Frédéric Viry, Andreas Podelski and Christian Schilling (2018) HSCC'18
-            Proceedings of the 21st International Conference on Hybrid Systems: Computation
-            and Control: 41–50.
         """
         function reach_homog_krylov_LGG09!(out, Ω₀::LazySet, Aᵀδ::AbstractMatrix,
                                            ℓ::AbstractVector, NSTEPS;
