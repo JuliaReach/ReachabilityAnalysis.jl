@@ -1,6 +1,5 @@
 # ============================================================================
-# Example 1 from *Reachability analysis of linear systems with uncertain
-# parameters and inputs*. TODO: Agregar referencia completa.
+# [AlthoffSB07; Example 1](@citet) TODO: Agregar referencia completa
 # ============================================================================
 
 # initial set

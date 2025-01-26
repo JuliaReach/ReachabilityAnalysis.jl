@@ -7,7 +7,7 @@ CurrentModule = ReachabilityAnalysis
 
 ## Method
 
-In the following subsections we outline the method of [[LGG09]](@ref) to solve
+In the following subsections we outline the method of [LeGuernicG09](@citet) to solve
 linear set-based recurrences using support functions, first the homogeneous case
 and then the inhomogeneous case without wrapping effect.
 We also discuss the special case of real eigenvalues.
@@ -106,7 +106,7 @@ values. Hence each thread computes a subset of distinct rows of `ρℓ`.
 
 If the spectrum of the state matrix only has real eigenvalues, the sequence of
 support functions can be computed efficiently if we work with a template
-consisting of eigenvectors of ``Φ^T``. This idea is described in [[LGG09]](@ref)
+consisting of eigenvectors of ``Φ^T``. This idea is described in [LeGuernicG09](@citet)
 and we recall it here for convenience.
 
 The method stems from the fact that if ``(λ, d)`` is an eigenvalue-eigenvector

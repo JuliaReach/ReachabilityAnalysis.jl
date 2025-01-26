@@ -8,7 +8,7 @@
 # ## Model description
 
 # This is a model of component 1r (Russian service module) of the International
-# Space Station [^ASG00]. It has 270 states, 3 inputs and 3 outputs. The model
+# Space Station [AntoulasSG01](@cite). It has 270 states, 3 inputs and 3 outputs. The model
 # consists of a continuous linear time-invariant system
 #
 # ```math
@@ -17,7 +17,7 @@
 #     y(t) &= Cx(t)
 # \end{aligned}
 # ```
-# It was proposed as a benchmark in ARCH 2016 [^TLT16]. The matrix dimensions
+# It was proposed as a benchmark in [TranNJ16](@citet). The matrix dimensions
 # are ``A ∈ \mathbb{R}^{270 × 270}``, ``B ∈ \mathbb{R}^{270 × 3}``, and
 # ``C ∈ \mathbb{R}^{3 × 270}``.
 #
@@ -105,7 +105,7 @@ end;
 # directly, without the need of actually computing the full 270-dimensional
 # flowpipe associated with all state variables. The flowpipe associated with a
 # linear combination of state variables can be computed efficiently using the
-# support-function based algorithm [[LGG09]](@ref). The idea is to define a
+# support-function based algorithm [LeGuernicG09](@cite). The idea is to define a
 # template polyhedron with only two supporting directions, namely ``C_3`` and
 # ``-C_3``.
 #
@@ -179,12 +179,3 @@ fig = plot(πsol_ISSC01; vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8,  
 #-
 
 LazySets.set_ztol(Float64, old_ztol);  # reset precision #!jl
-
-# ## References
-
-# [^ASG00]: Antoulas, Athanasios C., Danny C. Sorensen, and Serkan Gugercin. *A
-#           survey of model reduction methods for large-scale systems*. 2000.
-#
-# [^TLT16]: Tran, Hoang-Dung, Luan Viet Nguyen, and Taylor T. Johnson.
-#           *Large-scale linear systems from order-reduction (benchmark
-#           proposal).* ARCH 2016.

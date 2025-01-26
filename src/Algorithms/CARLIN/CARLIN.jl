@@ -3,10 +3,7 @@ using CarlemanLinearization
 """
     CARLIN <: AbstractContinuousPost
 
-Implementation of the reachability method using Carleman linearization from [1].
-
-[1] Forets, Marcelo, and Christian Schilling. "Reachability of weakly nonlinear systems using Carleman linearization."
-    International Conference on Reachability Problems. Springer, Cham, 2021.
+Implementation of the reachability method using Carleman linearization from [ForetsS21](@citet).
 """
 Base.@kwdef struct CARLIN <: AbstractContinuousPost
     N::Int = 2 # order of the algorithm

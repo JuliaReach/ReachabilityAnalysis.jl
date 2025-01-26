@@ -36,16 +36,16 @@ step ``k ∈ \\mathbb{N}``. The recursive implementation uses the previously com
 set ``X_k`` to compute ``X_{k+1}``. However, it is known that this method incurs
 wrapping effects. The non-recursive implementation instead computes ``X_{k+1}``
 by unwrapping the discrete recurrence until ``X_0 = Ω₀``, at the expense of computing
-powers of the matrix ``Φ``. These ideas are discussed in [[BFFPSV18]](@ref).
+powers of the matrix ``Φ``. These ideas are discussed in [BogomolovFFVPS18](@citet).
 
 ### References
 
-This algorithm is essentially a non-decomposed version of the method in [[BFFPSV18]](@ref),
+This algorithm is essentially a non-decomposed version of the method in [BogomolovFFVPS18](@citet),
 using hyperrectangles as set representation. For a general introduction we refer
-to the dissertation [[LG09]](@ref).
+to the dissertation [LeGuernicG09](@cite).
 
 Regarding the approximation model, by default we use an adaptation of the method
-presented in [[FRE11]](@ref).
+presented in [FrehseGDCRLRGDM11](@citet).
 """
 struct BOX{N,AM,S,D,R} <: AbstractContinuousPost
     δ::N

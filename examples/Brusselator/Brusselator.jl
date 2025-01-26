@@ -47,7 +47,7 @@ end
 # ## Specification
 
 # The initial set is ``x ∈ [0.8, 1]``, ``y ∈ [0, 0.2]``. The time horizon is
-# ``18``. These settings are taken from [^CAS13].
+# ``18``. These settings are taken from [ChenAS13](@citet).
 
 U₀ = (0.8 .. 1.0) × (0.0 .. 0.2)
 prob = @ivp(u' = brusselator!(u), u(0) ∈ U₀, dim:2)
@@ -84,7 +84,7 @@ plot!(fig, sol; vars=(0, 2), lw=0.2, color=:red, lab="y(t)")  #!jl
 
 # ## Changing the initial volume
 
-# The model was considered in [^GCLISG20], but using a different set of initial
+# The model was considered in [GruenbacherCLIS20](@citet), but using a different set of initial
 # states and a time horizon ``30``. Let us parametrize the initial states as a
 # square centered at ``x = y = 1`` and radius ``r > 0``:
 
@@ -136,14 +136,3 @@ vol_01 = volume(set(overapproximate(sol_01(9.0), Hyperrectangle)))  #!jl
 #-
 
 vol_1 = volume(set(overapproximate(sol_1(9.0), Hyperrectangle)))  #!jl
-
-# ## References
-
-# [^CAS13]: X. Chen, E. Abraham, S. Sankaranarayanan. *Flow*\*: *An Analyzer for
-#           Non-Linear Hybrid Systems*. In Proceedings of the 25th International
-#           Conference on Computer Aided Verification (CAV'13). Volume 8044 of
-#           LNCS, pages 258-263, Springer, 2013.
-#
-# [^GCLISG20]: S. Gruenbacher, J. Cyranka, M. Lechner, Md. Ariful Islam, Scott
-#              A. Smolka, R. Grosu *Lagrangian Reachtubes: The Next Generation*.
-#              CDC 2020.

@@ -17,7 +17,7 @@ we recommend the lecture notes of [Prof. Goran Frehse](https://sites.google.com/
 (DigiCosme Spring School, Paris, May 2016). Most up-to-date material related to reachability
 analysis can be found in journals, conference articles or in PhD theses.
 For a comprehensive review of different set propagation techniques for linear, nonlinear
-and hybrid systems see [[AFG20]](@ref). The article also contains a discussion of
+and hybrid systems see [AlthoffFG21](@citet). The article also contains a discussion of
 successful applications of reachability analysis to real-world problems.
 We refer to the [References](@ref all_ref) section of this manual for further links
 to the relevant literature.
@@ -27,7 +27,7 @@ to the relevant literature.
 The wiki [Related Tools](https://github.com/JuliaReach/ReachabilityAnalysis.jl/wiki/Related-Tools)
 contains an extensive list of pointers related to reachability analysis tools for
 dynamical systems. Languages and tools for hybrid systems design are described in the review article
-[[CPPSV06]](@ref) (a bit outdated with respect to the tools since it is of 2006).
+[CarloniPPS06](@cite) (a bit outdated with respect to the tools since it is of 2006).
 
 A subset of such tools has participated in recent editions of the Friendly Competition for Applied Reachability of Continuous and Hybrid Systems,
 [ARCH-COMP](https://cps-vo.org/group/ARCH). In alphabetic order: [Ariadne](http://www.ariadne-cps.org/), [CORA](https://tumcps.github.io/CORA/),
@@ -59,7 +59,7 @@ In our case, we began to develop the JuliaReach stack in 2017 and quickly adopte
 v0.5 [^v1]. Julia is a general-purpose programming language but it was conceived with high-performance scientific
 computing in mind, and it reconciles the two advantages of compiled and interpreted languages described above,
 as it comes with an interactive read-evaluate-print loop (REPL) front-end, but is JIT compiled to achieve performance
-that is competitive with compiled languages such as C [^BEKS17]. A distinctive feature of Julia is multiple dispatch
+that is competitive with compiled languages such as C [BezansonEKS17](@cite). A distinctive feature of Julia is multiple dispatch
 (i.e., the function to execute is chosen based on each argument type), which allows to write efficient machine code
 based on a given type, e.g., of the set. As additional features, Julia is platform independent,
 has an efficient interface to C and FORTRAN, is supported in Jupyter notebooks (the "Ju" in Jupyter is for *Ju*lia)
@@ -69,7 +69,7 @@ All this makes Julia an interesting programming language for writing a library f
 
 ### What is the wrapping effect?
 
-Quoting a famous paper by R. E. Moore [[M65]](@ref):
+Quoting the famous paper [Moore65](@citet):
 
 > Under the flow itself a box is carried after certain time into a set of points
 > which will in general not remain a box excepted for a few simple flows.
@@ -308,5 +308,3 @@ choice that intervals should belong to the `LazySets` type hierarchy.
 ## References
 
 [^v1]: Version 1.0 of the language was released in August 2018; see [this blog post](https://julialang.org/blog/2018/08/one-point-zero/).
-
-[^BEKS17]: Bezanson, J., Edelman, A., Karpinski, S., & Shah, V. B. (2017). Julia: A fresh approach to numerical computing. SIAM review, 59(1), 65-98.

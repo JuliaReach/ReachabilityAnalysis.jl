@@ -8,7 +8,7 @@ CurrentModule = ReachabilityAnalysis
 Scalability is very important in the applicability of a tool. For illustration
 purposes, in this section we consider the scalability of the hybrid reachability
 solver, using different algorithm choices, for the filtered switched oscillator
-model from [[FRE11]](@ref). The model consists of a two-dimensional switched oscillator
+model from [FrehseGDCRLRGDM11](@citet). The model consists of a two-dimensional switched oscillator
 and a parametric number of filters which are used to *smooth* the oscilllator's state.
 An interesting aspect of the model is that it is scalable: the total number of continuous
 variables can be made arbitrarily large. Moreover, this is a challenging benchmark
@@ -20,7 +20,7 @@ In this evaluation we consider that the number of filters ranges from 64 to 1024
 To measure the quality of the approximations, we consider the safety property given
 by ``y(t) < 0.5`` for all ``t ∈ [0, T]``.
 
-The filtered oscillator was also studied in [[BFFPS19]](@ref) to test the scalability
+The filtered oscillator was also studied in [BogomolovFFVPS18](@citet) to test the scalability
 of a new scheme that exploits the sparsity of the hybrid automaton to efficiently
 compute flowpipe-guard intersections. Such scheme is not considered in this section.
 

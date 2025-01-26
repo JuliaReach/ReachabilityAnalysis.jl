@@ -6,9 +6,8 @@ Childs = "Childs"
 OT = "OT"
 ND = "ND"
 GIR = "GIR"
-AKS = "AKS"
-FRE = "FRE"
 Ein = "Ein"
+normale = "normale"
 # `indexin` is a function name
 indexin = "indexin"
 

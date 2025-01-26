@@ -40,7 +40,7 @@ The transformations are:
 The function ``Φ₁(A, δ)`` is defined in [`Φ₁`](@ref).
 We allow ``U`` to be a sequence of time varying non-deterministic input sets.
 
-See also Eqs.(14) in [[BFFPSV18]](@ref).
+See also [BogomolovFFVPS18; Eq. (14)](@citet).
 """
 struct NoBloating{EM,SO,IT} <: AbstractApproximationModel
     exp::EM

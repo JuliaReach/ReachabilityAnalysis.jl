@@ -82,7 +82,7 @@ end;
 # ## Parameter variation
 
 # The model with parameter variation described below consists of changing only
-# one coefficient, which corresponds to the Flow\* settings in [^SO15].
+# one coefficient, which corresponds to the Flow\* settings in [StrathmannO15](@citet).
 
 function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
     ## model's constants
@@ -106,7 +106,7 @@ end;
 
 # ## Extended parameter variation
 
-# In the following model, considered in [^SO15], we vary all constants by χ%
+# In the following model, considered in [StrathmannO15](@citet), we vary all constants by χ%
 # with respect to their nominal values. The variation percentage defaults to 5%.
 
 function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
@@ -128,8 +128,3 @@ function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
 
     return embrake_common(; A=A, Tsample=Tsample, ζ=ζ, x0=x0)
 end;
-
-# ## References
-
-# [^SO15]: Strathmann, Thomas, and Jens Oehlerking. *Verifying Properties of an
-#          Electro-Mechanical Braking System*. ARCH. 2015.
