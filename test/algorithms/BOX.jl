@@ -18,13 +18,20 @@
     A = hcat(state_matrix(ivp))
     X = stateset(ivp)
     X0 = initial_state(ivp)
-    B = Id(1, 1.0)  # TODO implement for different multiple
-    U = ConstantInput(Singleton([0.0]))
+    B = Id(1, 1.0)
+    U = ConstantInput(Singleton([1.0]))
     ivp2 = @ivp(ConstrainedLinearControlContinuousSystem(A, B, X, U), X(0) ∈ X0)
     sol2 = solve(ivp2; tspan=(0.0, 1.0), alg=alg, homogenize=true)
     @test isa(sol2.alg, BOX)
     @test setrep(sol2) == Hyperrectangle{Float64,Array{Float64,1},Array{Float64,1}}
     @test dim(sol2) == 2
+    # multiple of identity
+    B = Id(1, 2.0)
+    ivp3 = @ivp(ConstrainedLinearControlContinuousSystem(A, B, X, U), X(0) ∈ X0)
+    sol3 = solve(ivp3; tspan=(0.0, 1.0), alg=alg, homogenize=true)
+    @test isa(sol3.alg, BOX)
+    @test setrep(sol3) == Hyperrectangle{Float64,Array{Float64,1},Array{Float64,1}}
+    @test dim(sol3) == 2
 
     # higher-dimensional homogeneous
     ivp, tspan = linear5D_homog()
