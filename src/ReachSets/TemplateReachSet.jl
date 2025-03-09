@@ -93,3 +93,23 @@ end
 function overapproximate(R::AbstractLazyReachSet, dirs::Vector{VN}) where {VN}
     return TemplateReachSet(CustomDirections(dirs), R)
 end
+
+function LazySets.ρ(d::AbstractVector, R::TemplateReachSet)
+    # efficient implementation when direction is identical with some template direction
+    for (i, di) in enumerate(R.dirs)
+        if d == di
+            return support_functions(R, i)
+        end
+    end
+
+    # efficient implementation when direction is multiple of some template direction
+    for (i, di) in enumerate(R.dirs)
+        issamedir, factor = samedir(d, di)
+        if issamedir
+            return support_functions(R, i) * factor
+        end
+    end
+
+    # fall back to polyhedral support function
+    return ρ(d, set(R))
+end

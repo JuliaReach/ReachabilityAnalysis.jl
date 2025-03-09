@@ -28,7 +28,7 @@ using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
 
 # JuliaReach internal functions
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
-                               isinvertible, vector_type
+                               isinvertible, samedir, vector_type
 using ReachabilityBase.Comparison: _leq, _geq
 using ReachabilityBase.Require: @required
 using LazySets.Approximations: AbstractDirections

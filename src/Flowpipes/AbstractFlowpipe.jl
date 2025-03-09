@@ -33,7 +33,7 @@ In this fallback implementation, the flowpipe behaves like the union of the
 reach-sets, i.e. the implementation is analogue to that of a `LazySet.UnionSetArray`.
 """
 function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
-    return maximum(map(Ri -> ρ(d, set(Ri)), array(fp)))
+    return maximum(ρ(d, Ri) for Ri in array(fp))
 end
 
 """

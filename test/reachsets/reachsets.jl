@@ -1,4 +1,4 @@
-using ReachabilityAnalysis: zeroI
+using ReachabilityAnalysis: zeroI, TimeInterval
 using TaylorModels: set_variables,
                     Taylor1,
                     TaylorModel1
@@ -17,6 +17,17 @@ using TaylorModels: set_variables,
     # if the time is an integer, it is converted to a float
     R = ReachSet(X, 1)
     @test tspan(R) == interval(1.0)
+end
+
+@testset "Reach-set support function" begin
+    dirs = CustomDirections([[1.0, 0.0]])
+    sf = [2.0]
+    Δt = TimeInterval(0.0, 1.0)
+    R = TemplateReachSet(dirs, sf, Δt)
+    d = [1.0, 0.0]
+    @test ρ(d, R) == 2.0
+    d = 2 * d
+    @test ρ(d, R) == 4.0
 end
 
 @testset "Reach-set projections" begin
