@@ -167,6 +167,10 @@ function LazySets.dim(::AbstractReachSet) end
 # for internal use (dimensional checks in solve)
 _dim(X::AbstractReachSet) = dim(X)
 
+function Base.:(==)(R1::AbstractReachSet, R2::AbstractReachSet)
+    return tspan(R1) == tspan(R2) && set(R1) == set(R2)
+end
+
 """
     copy(R::AbstractReachSet)
 

@@ -87,6 +87,8 @@ rsetrep(sol::ReachSolution{FT,ST}) where {FT,ST} = rsetrep(FT)
 vars(sol::ReachSolution) = vars(sol.F)
 numrsets(sol::ReachSolution) = numrsets(sol.F)
 
+Base.:(==)(sol1::ReachSolution, sol2::ReachSolution) = flowpipe(sol1) == flowpipe(sol2)
+
 # iteration and indexing iterator interface
 array(sol::ReachSolution) = array(sol.F)
 Base.iterate(sol::ReachSolution) = iterate(sol.F)
