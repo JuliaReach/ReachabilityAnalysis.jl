@@ -9,6 +9,7 @@ using LinearAlgebra
 using MathematicalSystems
 using LazySets
 using Reexport
+using ReachabilityBase.Comparison: isapproxzero
 
 export FirstOrderZonotope
 
@@ -103,7 +104,9 @@ function discretize(ivp::IVP{<:CLCCS,<:AbstractZonotope}, δ, alg::FirstOrderZon
     # compute bloating factor β
     U = next_set(inputset(ivp), 1)
     μ = norm(U, Inf)
-    β = ((exp(norm_A * δ) - 1) * μ) / norm_A
+
+
+    β = norm_A == isapproxzero(norm_A) ? δ * μ : ((exp(norm_A * δ) - 1) / norm_A) * μ
 
     # compute bloating of Z
     Ω0 = minkowski_sum(Z, BallInf(zeros(n), α + β))
