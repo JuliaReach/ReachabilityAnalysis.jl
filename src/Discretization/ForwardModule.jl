@@ -141,13 +141,16 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     U = next_set(inputset(ivp), 1)
     Eψ0 = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
 
-    Ud = δ * U ⊕ Eψ0
-    In = IdentityMultiple(one(eltype(A)), size(A, 1))
+    # discretize inputs
+    V = δ * U ⊕ Eψ0
 
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ E⁺)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ V ⊕ E⁺)
     Ω0 = _apply_setops(Ω0, alg.setops)
+
+    # create result
+    B = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
-    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, V)
     return InitialValueProblem(Sdis, Ω0)
 end
 
