@@ -87,8 +87,10 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::Forward)
     Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
     P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
     E₊ = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+
     Ω0 = ConvexHull(X0, Φ * X0 ⊕ E₊)
     Ω0 = _apply_setops(Ω0, alg)
+
     X = stateset(ivp)
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
     return InitialValueProblem(Sdis, Ω0)
@@ -115,6 +117,7 @@ function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, ::Forward) where {N}
     E⁺ = (Φ - one(N) - aδ) * convert(Interval, symmetric_interval_hull(X0)).dat
 
     Ω0 = Interval(hull(X0.dat, Φ * X0.dat + E⁺))
+
     X = stateset(ivp)
     # the system constructor creates a matrix
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
@@ -141,13 +144,17 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     U = next_set(inputset(ivp), 1)
     Eψ0 = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
 
-    Ud = δ * U ⊕ Eψ0
-    In = IdentityMultiple(one(eltype(A)), size(A, 1))
+    # discretize inputs
+    V = δ * U ⊕ Eψ0
+    V = _apply_setops(V, alg.setops)
 
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ Ud ⊕ E⁺)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ V ⊕ E⁺)
     Ω0 = _apply_setops(Ω0, alg.setops)
+
+    # create result
+    B = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
-    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
+    Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, V)
     return InitialValueProblem(Sdis, Ω0)
 end
 
