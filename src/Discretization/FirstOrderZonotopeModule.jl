@@ -105,8 +105,7 @@ function discretize(ivp::IVP{<:CLCCS,<:AbstractZonotope}, δ, alg::FirstOrderZon
     U = next_set(inputset(ivp), 1)
     μ = norm(U, Inf)
 
-
-    β = norm_A == isapproxzero(norm_A) ? δ * μ : ((exp(norm_A * δ) - 1) / norm_A) * μ
+    β = isapproxzero(norm_A) ? μ * δ : ((exp(norm_A * δ) - 1) * μ) / norm_A
 
     # compute bloating of Z
     Ω0 = minkowski_sum(Z, BallInf(zeros(n), α + β))
