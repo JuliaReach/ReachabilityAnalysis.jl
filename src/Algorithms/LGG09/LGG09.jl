@@ -11,9 +11,6 @@ using support functions.
                     see `Notes` below for possible options
 - `template`     -- (alias: `dirs`) struct that holds the directions (either lazily or concretely)
                     for each support function evaluation defining the template
-- `vars`         -- (optional, default: all variables are computed) an integer or a vector of integers
-                    specifying the variables of interest to automatically construct a template
-                    using canonical directions; requires that `n` (or `dim`) is specified as well
 - `static`       -- (optional, default: `false`) if `true`, use statically sized arrays
 - `threaded`     -- (optional, default: `false`) if `true`, use multi-threading
                     to compute different template directions in parallel
@@ -21,8 +18,9 @@ using support functions.
                     obtained after discretization to a sparse matrix
 - `cache`        -- (optional, default: `true`) if `true`, use a cache for intermediate
                     computations in the set recurrence loop
-- `vars`         -- (optional, default: `missing`) used to specify the variables instead
-                    of passing the template
+- `vars`         -- (optional, default: `missing`) an integer or a vector of integers
+                    specifying the variables of interest to automatically construct a template
+                    using canonical directions; requires that `n` (or `dim`) is specified as well
 
 ## Notes
 
