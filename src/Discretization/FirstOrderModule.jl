@@ -9,6 +9,7 @@ using LinearAlgebra
 using MathematicalSystems
 using LazySets
 using Reexport
+using ReachabilityBase.Comparison: isapproxzero
 
 export FirstOrder
 
@@ -93,7 +94,7 @@ function discretize(ivp::IVP{<:CLCCS,<:AbstractZonotope}, δ, alg::FirstOrder)
     Xδ = Φ * X0
     U = next_set(inputset(ivp), 1)
     factor = (exp(norm_A * δ) - 1 - norm_A * δ)
-    norm_U_over_A = norm(U, Inf) / norm_A
+    norm_U_over_A = isapproxzero(norm_A) ? 0 : norm(U, Inf) / norm_A
     α = factor * (norm(X0, Inf) + norm_U_over_A)
     Ω0 = ConvexHull(X0, Xδ + δ * U + BallInf(zeros(n), α))
 
