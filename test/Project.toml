@@ -22,7 +22,7 @@ CDDLib = "0.5 - 0.10"
 Expokit = "0.2"
 Flowstar = "0.2.4"
 IntervalArithmetic = "0.16 - 0.20, =0.20.9"  # new versions require updates and are incompatible with dependencies
-LazySets = "2.14, 3"
+LazySets = "2.14, 3, 4"
 Optim = "0.15 - 0.22, 1"
 OrdinaryDiffEq = "6"
 Polyhedra = "0.5 - 0.8"
