@@ -8,9 +8,6 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       Parameters,                  # structs with kwargs
       StaticArrays                 # statically sized arrays
 
-# manipulate function definition expressions
-using ExprTools: splitdef, combinedef
-
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
 @reexport using HybridSystems,
