@@ -1,0 +1,47 @@
+# continuous post
+function post(alg::HLBS25, ivp::IVP{<:LinearUncertainParametricContinuous}, tspan;
+              Δt0::TimeInterval=zeroI, kwargs...)
+    δ = alg.δ
+
+    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
+
+    # normalize system to canonical form
+    ivp_norm = _normalize(ivp)
+
+    # discretize system
+    ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
+
+    return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
+end
+
+function post(alg::HLBS25{N}, ivp::IVP{<:LinearUncertainParametricDiscrete}, NSTEPS=nothing;
+              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+    @unpack δ, approx_model, max_order, taylor_order, reduction_method, recursive = alg
+    
+    if isnothing(NSTEPS)
+        if haskey(kwargs, :NSTEPS)
+            NSTEPS = kwargs[:NSTEPS]
+        else
+            throw(ArgumentError("`NSTEPS` not specified"))
+        end
+    end
+
+    Φ = state_matrix(ivp)
+    Ω0 = initial_state(ivp)
+    X = stateset(ivp)
+
+    # true <=> there is no input, i.e. the system is of the form x' = Ax, x ∈ X
+    got_homogeneous = !hasinput(ivp)
+
+    # preallocate output reachset 
+    F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
+
+    if got_homogeneous
+        reach_homog_ASB07!(F, Ω0, Φ, NSTEPS, δ, max_order, taylor_order, X, recursive,
+                           reduction_method, Δt0)
+    else
+        error(" inhomogenous algorithm not implemented yet")
+    end
+    
+    return Flowpipe(F)
+end
