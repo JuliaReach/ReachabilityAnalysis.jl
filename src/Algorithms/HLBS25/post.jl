@@ -1,12 +1,9 @@
 # continuous post
-function post(alg::HLBS25, ivp::IVP{<:LinearUncertainParametricContinuous}, tspan;
+function post(alg::HLBS25, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...)
     δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
-
-    # normalize system to canonical form
-    ivp_norm = _normalize(ivp)
 
     # discretize system
     ivp_discr = discretize(ivp_norm, δ, alg.approx_model)
@@ -14,7 +11,7 @@ function post(alg::HLBS25, ivp::IVP{<:LinearUncertainParametricContinuous}, tspa
     return post(alg, ivp_discr, NSTEPS; Δt0=Δt0, kwargs...)
 end
 
-function post(alg::HLBS25{N}, ivp::IVP{<:LinearUncertainParametricDiscrete}, NSTEPS=nothing;
+function post(alg::HLBS25{N}, ivp::IVP{<:AbstractContinuousSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
     @unpack δ, approx_model, max_order, taylor_order, reduction_method, recursive = alg
     
