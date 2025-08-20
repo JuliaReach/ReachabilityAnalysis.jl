@@ -53,23 +53,10 @@ function HLBS25(; δ::N,
                                           reduction_method, Val(recursive))
 end
 
-HLBS25(δ::N; kwargs...) where {N} = HLBS25(; δ=δ, kwargs...)
-
 step_size(alg::HLBS25) = alg.δ
 numtype(::HLBS25{N}) where {N} = N
 
-# Reach-set representation; specialize on the recursive flag if needed
-function rsetrep(::HLBS25{N,AM,RM,Val{false}}) where {N,AM,RM}
-    return ReachSet{N,
-                    SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},
-                                             Vector{Int}}}
-end
-
-function rsetrep(::HLBS25{N,AM,RM,Val{true}}) where {N,AM,RM}
-    return ReachSet{N,
-                    SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},
-                                             Vector{Int}}}
-end
+rsetrep(::HLBS25{N}) where {N} = ReachSet{N,SPZ{N}}
 
 include("post.jl")
 include("reach_homog.jl")

@@ -1,25 +1,24 @@
-function reach_homog_HLBS25!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
-                             Ω0::Zonotope{N,VN,MN},
+function reach_homog_HLBS25!(F::Vector{ReachSet{N,SparsePolynomialZonotope{N}}},
+                             Ω0::SparsePolynomialZonotope{N},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::N,
                              max_order::Integer,
                              taylor_order::Integer,
-                             recursive::Val{false},
+                             ::Val{false},
                              reduction_method::AbstractReductionMethod,
-                             Δt0::TN) where {N,TN,VN,MN}
+                             Δt0::TimeInterval) where {N}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     expΦδ = MatrixZonotopeExp(scale(δ, Φ))
-    expΦδ = overapproximate(expΦδ, MatrixZonotope, taylor_order)
+    expΦδ_approx = overapproximate(expΦδ, MatrixZonotope, taylor_order)
 
-    j = 2
-    @inbounds while j ≤ NSTEPS
-        # current set
-        Zⱼ = set(F[j - 1])
-        Zⱼ₊₁ = overapproximate(expΦδ * Zⱼ, Zonotope)
+    j = 1
+    @inbounds while j < NSTEPS
+        Zⱼ = set(F[j])
+        Zⱼ₊₁ = overapproximate(expΦδ_approx * Zⱼ, SparsePolynomialZonotope)
         Zⱼ₊₁ʳ = reduce_order(Zⱼ₊₁, max_order, reduction_method)
 
         j += 1
@@ -29,28 +28,29 @@ function reach_homog_HLBS25!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     return F
 end
 
-function reach_homog_HLBS25!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
-                             Ω0::Zonotope{N,VN,MN},
+function reach_homog_HLBS25!(F::Vector{ReachSet{N,SparsePolynomialZonotope{N}}},
+                             Ω0::SparsePolynomialZonotope{N},
                              Φ::AbstractMatrix,
                              NSTEPS::Integer,
                              δ::N,
                              max_order::Integer,
                              taylor_order::Integer,
-                             recursive::Val{true},
+                             ::Val{true},
                              reduction_method::AbstractReductionMethod,
-                             Δt0::TN) where {N,TN,VN,MN}
+                             Δt0::TimeInterval) where {N}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
-    j = 2
-    @inbounds while j ≤ NSTEPS
-        Zⱼ = set(F[j - 1])
+    expΦδ = MatrixZonotopeExp(scale(δ, Φ))
 
-        expΦδ = MatrixZonotopeExp(scale(δ, Φ))
+    j = 1
+    @inbounds while j < NSTEPS
+        Zⱼ = set(F[j])
+
         em = ExponentialMap(expΦδ, Zⱼ)
 
-        Zⱼ₊₁ = overapproximate(em, Zonotope, taylor_order)
+        Zⱼ₊₁ = overapproximate(em, SparsePolynomialZonotope, taylor_order)
         Zⱼ₊₁ʳ = reduce_order(Zⱼ₊₁, max_order, reduction_method)
 
         j += 1

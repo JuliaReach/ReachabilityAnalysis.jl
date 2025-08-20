@@ -7,25 +7,22 @@ export CorrectionHullMatrixZonotope
 
 @reexport import ..DiscretizationModule: discretize
 
-struct CorrectionHullMatrixZonotope{RM,R} <: AbstractApproximationModel
+struct CorrectionHullMatrixZonotope{R} <: AbstractApproximationModel
     taylor_order::Int
-    max_order::Int
-    reduction_method::RM
     recursive::R
 end
 
-function CorrectionHullMatrixZonotope(; taylor_order::Int=5,
-                                      max_order::Int=5,
-                                      recursive::Bool=false)
-    return CorrectionHullMatrixZonotope{Val{recursive}}(taylor_order, max_order, Val(recursive))
+function CorrectionHullMatrixZonotope(; taylor_order::Int=5, recursive::Bool=false)
+    return CorrectionHullMatrixZonotope(taylor_order, Val(recursive))
 end
 
 function discretize(ivp::IVP{<:AbstractContinuousSystem}, δ,
                     alg::CorrectionHullMatrixZonotope{Val{true}})
-    @unpack taylor_order, max_order = alg
+    @unpack taylor_order = alg
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     n = dim(X0)
+    N = eltype(ivp)
 
     IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
@@ -43,11 +40,12 @@ end
 
 function discretize(ivp::IVP{<:AbstractContinuousSystem}, δ,
                     alg::CorrectionHullMatrixZonotope{Val{false}})
-    @unpack taylor_order, max_order = alg
+    @unpack taylor_order = alg
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)
     n = dim(X0)
+    N = eltype(ivp)
 
     IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
