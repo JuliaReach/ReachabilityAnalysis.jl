@@ -6,7 +6,7 @@
 
 [dev-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [dev-url]: https://juliareach.github.io/ReachabilityAnalysis.jl/dev/
-[ci-img]: https://github.com/JuliaReach/ReachabilityAnalysis.jl/workflows/CI/badge.svg
+[ci-img]: https://github.com/JuliaReach/ReachabilityAnalysis.jl/actions/workflows/test-master.yml/badge.svg
 [ci-url]: https://github.com/JuliaReach/ReachabilityAnalysis.jl/actions/workflows/test-master.yml
 [cov-img]: https://codecov.io/github/JuliaReach/ReachabilityAnalysis.jl/coverage.svg
 [cov-url]: https://app.codecov.io/github/JuliaReach/ReachabilityAnalysis.jl

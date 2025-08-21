@@ -507,7 +507,9 @@ end
 _wrap_invariant(X::LazySet, ::Int) = X
 _wrap_invariant(::Nothing, n::Int) = Universe(n)
 
-_wrap_inputs(U::AbstractInput, B::IdentityMultiple) = isidentity(B) ? U : map(u -> B * u, U)
+function _wrap_inputs(U::AbstractInput, B::IdentityMultiple)
+    return isidentity(B) ? U : map(u -> scale(B.M.λ, u), U)
+end
 _wrap_inputs(U::AbstractInput, B::AbstractMatrix) = map(u -> B * u, U)
 
 function _wrap_inputs(U::LazySet, B::IdentityMultiple)

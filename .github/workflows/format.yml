@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Cache artifacts
         uses: julia-actions/cache@v2
       - name: Install JuliaFormatter and format
-        run: julia -e 'import Pkg; Pkg.add("JuliaFormatter"); using JuliaFormatter; format(".")'
+        run: julia -e 'import Pkg; Pkg.add(name="JuliaFormatter", version=v"1.0.62"); using JuliaFormatter; format(".")'
       - name: Create pull request
         id: cpr
         uses: peter-evans/create-pull-request@v7

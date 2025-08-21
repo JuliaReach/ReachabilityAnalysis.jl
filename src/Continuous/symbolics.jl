@@ -45,7 +45,7 @@ end
 # ------------------------------------------
 
 # given an ODE right-hand-side, compute the Jacobian function symbolically,
-# then compile a Julia function for that symbolic exprsesion
+# then compile a Julia function for that symbolic expression
 function _jacobian_function(f::AbstractVector{Num}, var::Vector{Num})
 
     # compute the symbolic jacobian
