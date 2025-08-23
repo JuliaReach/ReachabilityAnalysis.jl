@@ -1,7 +1,7 @@
 module CorrectionHullMatrixZonotopeModule
 
-using LazySets
-using Reexport
+using LazySets, Reexport, MathematicalSystems
+using ..DiscretizationModule
 
 export CorrectionHullMatrixZonotope
 
@@ -16,9 +16,9 @@ function CorrectionHullMatrixZonotope(; taylor_order::Int=5, recursive::Bool=fal
     return CorrectionHullMatrixZonotope(taylor_order, Val(recursive))
 end
 
-function discretize(ivp::IVP{<:AbstractContinuousSystem}, δ,
+function discretize(ivp::IVP{<:LinearParametricContnuousSystem, <:SparsePolynomialZonotope}, δ,
                     alg::CorrectionHullMatrixZonotope{Val{true}})
-    @unpack taylor_order = alg
+    taylor_order = alg.taylor_order
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     n = dim(X0)
@@ -38,9 +38,9 @@ function discretize(ivp::IVP{<:AbstractContinuousSystem}, δ,
     return InitialValueProblem(Sdis, Ω0)
 end
 
-function discretize(ivp::IVP{<:AbstractContinuousSystem}, δ,
+function discretize(ivp::IVP{<:LinearParametricContnuousSystem, <:SparsePolynomialZonotope}, δ,
                     alg::CorrectionHullMatrixZonotope{Val{false}})
-    @unpack taylor_order = alg
+    taylor_order = alg.taylor_order
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
     X = stateset(ivp)

@@ -44,7 +44,7 @@ struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
 end
 
 function HLBS25(; δ::N,
-                approx_model::AM=CorrectionHullMatrixZonotope(; order=5),
+                approx_model::AM=CorrectionHullMatrixZonotope(),
                 max_order::Int=5,
                 taylor_order::Int=5,
                 reduction_method::RM=LazySets.GIR05(),
