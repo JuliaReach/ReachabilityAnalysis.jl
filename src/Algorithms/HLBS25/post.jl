@@ -30,12 +30,10 @@ function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
     got_homogeneous = !hasinput(ivp)
 
     # preallocate output flowpipe
-    ZT = SPZ{N}
+    ZT = typeof(Ω0)
     F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-        # initial state should be convertible to the chosen set representation
-        Ω0 = _convert_or_overapproximate(ZT, Ω0)
         reach_homog_HLBS25!(F, Ω0, Φ, NSTEPS, δ, max_order, taylor_order, recursive,
                             reduction_method, Δt0)
     else

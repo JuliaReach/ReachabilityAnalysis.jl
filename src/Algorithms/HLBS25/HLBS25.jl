@@ -1,4 +1,5 @@
 using LazySets
+import IntervalArithmetic as IA
 
 """
     HLBS25{N, AM, RM, R} <: AbstractContinuousPost
@@ -23,16 +24,14 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
 
 ### Notes
 
-The type parameter `N` is the numeric type, `AM` is the type of the approximation model,
-`RM` is the type of the reduction method, and `R` is a `Val{Bool}` indicating if the
-recursive method is used.
+The `recursive` option is used to compute the Taylor expansion of the matrix zonotope exponential map.
+If `recursive == true`, each term of the Taylor expansion is computed recursively (e.g., ``A^2 P = A (A P)``), 
+which is more accurate but computationally expensive.
 
-The `recursive` option is used to compute the Taylor expansion of the matrix
-zonotope exponential map. If `recursive == true`, each term of the Taylor expansion
-is computed recursively, e.g., ``A^2 P = A (A P)``. If `recursive == false`, the
-Taylor expansion is computed by overapproximating the matrix zonotope exponential
-map, returning a single matrix that represents the exponential. For more details,
-we refer to the documentation of `LazySets.jl`.
+If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential 
+map, producing a single matrix that represents the exponential. This approach is less computationally expensive,
+but as a drawback, the quality of the result heavily depends on the initial choice of the Taylor order `k`;
+choosing too small a `k`` can lead to coarse overapproximations, while a large `k`` increases computation time.
 """
 struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
     δ::N
@@ -54,10 +53,11 @@ function HLBS25(; δ::N,
 end
 
 step_size(alg::HLBS25) = alg.δ
-numtype(::HLBS25{N}) where {N} = N
+numtype(::HLBS25{N,AM,RM,R}) where {N,AM,RM,R} = N
 
-rsetrep(::HLBS25{N}) where {N} = ReachSet{N,SPZ{N}}
+function rsetrep(::HLBS25{N,AM,RM,R}) where {N,AM,RM,R}
+    return ReachSet{N,SPZ{N,Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}}
+end
 
 include("post.jl")
 include("reach_homog.jl")
-include("reach_inhomog.jl")
