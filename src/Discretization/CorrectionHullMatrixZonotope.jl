@@ -16,7 +16,7 @@ function CorrectionHullMatrixZonotope(; taylor_order::Int=5, recursive::Bool=fal
     return CorrectionHullMatrixZonotope(taylor_order, Val(recursive))
 end
 
-function discretize(ivp::IVP{<:LinearParametricContnuousSystem, <:SparsePolynomialZonotope}, δ,
+function discretize(ivp::IVP{<:LinearParametricContinuousSystem, <:SparsePolynomialZonotope}, δ,
                     alg::CorrectionHullMatrixZonotope{Val{true}})
     taylor_order = alg.taylor_order
     A = state_matrix(ivp)
