@@ -47,6 +47,7 @@ TEST_ALGORITHMS = fn(["algorithms/INT.jl",
                       "algorithms/TMJets.jl",
                       "algorithms/ORBIT.jl",
                       "algorithms/QINT.jl",
+                      "algorithms/HLBS25.jl",
                       @ts("algorithms/VREP.jl"),
                       @ts("algorithms/FLOWSTAR.jl")])
 
