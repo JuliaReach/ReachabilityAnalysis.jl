@@ -21,6 +21,9 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
 - `recursive`        -- (optional, default: `false`) if `true`, compute the
                         Taylor series expansion of the matrix zonotope
                         exponential map recursively
+- `tol`              -- (optional, default: `0``) tolerance below which
+                        generators are removed
+- `norm`             -- (optional, default: `Inf`) p-norm used to remove generators
 
 ### Notes
 
@@ -32,6 +35,11 @@ If `recursive == false`, the Taylor expansion is computed by overapproximating t
 map, producing a single matrix that represents the exponential. This approach is less computationally expensive,
 but as a drawback, the quality of the result heavily depends on the initial choice of the Taylor order `k`;
 choosing too small a `k`` can lead to coarse overapproximations, while a large `k`` increases computation time.
+
+Due to floating point errors and repeated multiplications in Taylor expansions, some generators
+may become very small but remain nonzero. Over time these small spurious generators accumulate,
+increasing the size of the reachable set representation and causing bloating. The `tol` parameter
+allows removing such generators below a specified threshold to control this effect.
 """
 struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
     δ::N
@@ -40,6 +48,8 @@ struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
     taylor_order::Int
     reduction_method::RM
     recursive::R
+    tol::Real
+    norm::Real
 end
 
 function HLBS25(; δ::N,
@@ -47,9 +57,11 @@ function HLBS25(; δ::N,
                 max_order::Int=5,
                 taylor_order::Int=5,
                 reduction_method::RM=LazySets.GIR05(),
-                recursive::Bool=false) where {N,AM,RM}
+                recursive::Bool=false,
+                tol::Real= zero(N),
+                norm::Real = Inf) where {N,AM,RM}
     return HLBS25{N,AM,RM,Val{recursive}}(δ, approx_model, max_order, taylor_order,
-                                          reduction_method, Val(recursive))
+                                          reduction_method, Val(recursive), tol, norm)
 end
 
 step_size(alg::HLBS25) = alg.δ

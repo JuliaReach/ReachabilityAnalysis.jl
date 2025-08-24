@@ -1,37 +1,55 @@
-using ReachabilityAnalysis, LazySets, Plots
+using ReachabilityAnalysis, LazySets, Plots, IntervalMatrices
 
 const N = Float64
 
-AS = MatrixZonotope(N[0 -1; 1 0], [zeros(N, 2, 2)], [5])
+# System matrix with uncertainty
+AS = MatrixZonotope(N[-1 -5; 1 -1], [N[0 0; 0.1 0]], [6])
 
-X0 = SparsePolynomialZonotope(N[1.0, 1.0],         # center
-                              N(0.1) * N[2.0 0.0 1.0; 1.0 2.0 1.0],  # generators
-                              N(0.1) * reshape(N[1.0, 0.5], 2, 1), # dependent generators
-                              [1 0 1; 0 1 3])      # exponents
+# Initial set as a box, converted to SparsePolynomialZonotope
+X0 = Zonotope(N[1.0, 1.0], [0.2 0; 0 0.2])
+X0 = convert(SparsePolynomialZonotope, X0)
 
-prob = @ivp(x' = A * x, x(0) ∈ X0, A ∈ AS)
+# Time step
 δ = N(2π) / 200
+T = 2 * N(π)
 
-# Instantiate the HLBS25 algorithm.
-# - δ: Step size.
-# - approx_model: Discretization model. CorrectionHullMatrixZonotope is suitable for matrix zonotopes.
-# - max_order: Maximum order for the Taylor series expansion of the matrix exponential.
-# - taylor_order: Taylor series order for each step.
-# - reduction_method: Method for reducing the order of matrix zonotopes.
-# - recursive: Specifies whether to use a recursive method for the Taylor expansion.
-alg = HLBS25(δ=δ,
-             approx_model=CorrectionHullMatrixZonotope(),
-             max_order=5,
-             taylor_order=5,
-             reduction_method=LazySets.GIR05(),
-             recursive=false)
-T = N(π)
-sol = solve(prob, alg; T=T)
+# Parameters to vary
+tols = [1e-2, 1e-12]
+recursives = [true, false]
 
-plot(sol, vars=(1, 2), lw=0.5, color=:blue, alpha=0.8,
-     xlab="x₁", ylab="x₂",
-     title="Flowpipe of the parametric linear system using HLBS25",
-     lab="Flowpipe", legend=:bottomright)
+# Prepare 2x2 layout
+plot_layout = @layout [a b; c d]
+p = plot(layout=plot_layout, size=(900,800))
 
-# Plot the initial set X0 for context.
-plot!(X0, vars=(1, 2), color=:red, alpha=0.5, lab="X₀")
+# Iterate over parameter combinations
+for (i_tol, tol) in enumerate(tols)
+    for (i_rec, recursive) in enumerate(recursives)
+        alg = HLBS25(
+            δ = δ,
+            approx_model = CorrectionHullMatrixZonotope(),
+            max_order = 4,
+            taylor_order = 10,
+            reduction_method = LazySets.GIR05(),
+            recursive = recursive,
+            tol = tol,
+            norm = Inf
+        )
+        prob = @ivp(x' = A * x, x(0) ∈ X0, A ∈ AS)
+        sol = solve(prob, alg; T=T)
+        
+        # Plot every 5th step for clarity
+        subplot = (i_tol-1)*2 + i_rec
+        plot!(p[subplot], X0, vars=(1,2), color=:red, alpha=0.3, lab="X₀")
+        for (j, rset) in enumerate(sol)
+            if j % 5 == 0
+                plot!(p[subplot], set(rset), vars=(1,2),
+                      lw=0.5, color=:blue, alpha=0.8, lab="")
+            end
+        end
+        title!(p[subplot], "tol=$tol, recursive=$recursive")
+        xlabel!(p[subplot], "x₁")
+        ylabel!(p[subplot], "x₂")
+    end
+end
+
+display(p)

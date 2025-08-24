@@ -13,7 +13,7 @@ end
 # discrete post
 function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-    @unpack δ, approx_model, max_order, taylor_order, reduction_method, recursive = alg
+    @unpack δ, approx_model, max_order, taylor_order, reduction_method, recursive, tol, norm = alg
 
     if isnothing(NSTEPS)
         if haskey(kwargs, :NSTEPS)
@@ -35,7 +35,7 @@ function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
 
     if got_homogeneous
         reach_homog_HLBS25!(F, Ω0, Φ, NSTEPS, δ, max_order, taylor_order, recursive,
-                            reduction_method, Δt0)
+                            reduction_method, Δt0, tol, norm)
     else
         error("inhomogeneous algorithm not implemented yet")
     end
