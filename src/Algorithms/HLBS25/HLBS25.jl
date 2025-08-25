@@ -28,13 +28,10 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
 ### Notes
 
 The `recursive` option is used to compute the Taylor expansion of the matrix zonotope exponential map.
-If `recursive == true`, each term of the Taylor expansion is computed recursively (e.g., ``A^2 P = A (A P)``), 
-which is more accurate but computationally expensive.
+If `recursive == true`, each term of the Taylor expansion is computed recursively (e.g., ``A^2 P = A (A P)``).
 
 If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential 
-map, producing a single matrix that represents the exponential. This approach is less computationally expensive,
-but as a drawback, the quality of the result heavily depends on the initial choice of the Taylor order `k`;
-choosing too small a `k`` can lead to coarse overapproximations, while a large `k`` increases computation time.
+map, producing a single matrix that represents the exponential.
 
 Due to floating point errors and repeated multiplications in Taylor expansions, some generators
 may become very small but remain nonzero. Over time these small spurious generators accumulate,
