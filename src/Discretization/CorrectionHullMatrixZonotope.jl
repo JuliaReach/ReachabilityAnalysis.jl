@@ -38,8 +38,6 @@ map, producing a single matrix that represents the exponential.
 struct CorrectionHullMatrixZonotope{N,R} <: AbstractApproximationModel
     taylor_order::Int
     recursive::R
-    tol::Real
-    norm::Real
 end
 
 function CorrectionHullMatrixZonotope(N::Type=Float64; taylor_order::Int=5, recursive::Bool=true)

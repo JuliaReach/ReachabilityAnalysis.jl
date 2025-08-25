@@ -1,4 +1,3 @@
-using ReachabilityAnalysis
 using LazySets
 
 @testset "HLBS25 algorithm: homogeneous case" begin
@@ -8,7 +7,7 @@ using LazySets
         AS = MatrixZonotope(N[-1 -5; 1 -1], [N[0 0; 0.1 0]], [6])
 
         # initial set: box -> zonotope -> sparse polynomial zonotope
-        X0 = Zonotope(N[1.0, 1.0], [0.2 0; 0 0.2])
+        X0 = Zonotope(N[1.0, 1.0], N[0.2 0; 0 0.2])
         X0 = convert(SparsePolynomialZonotope, X0)
 
         # problem definition
