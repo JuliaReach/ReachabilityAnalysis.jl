@@ -73,6 +73,7 @@ julia> subtypes(ReachabilityAnalysis.DiscretizationModule.AbstractApproximationM
 9-element Vector{Any}:
  Backward
  CorrectionHull
+ CorrectionHullMatrixZonotope
  FirstOrder
  FirstOrderZonotope
  Forward

@@ -19,7 +19,7 @@ using LazySets
         # recursive false
         alg = HLBS25(
             δ = δ,
-            approx_model = CorrectionHullMatrixZonotope(),
+            approx_model = CorrectionHullMatrixZonotope(N),
             max_order = 5,
             taylor_order = 5,
             reduction_method = LazySets.GIR05(),
@@ -33,17 +33,17 @@ using LazySets
 
         @test isa(sol1.alg, HLBS25)
         @test sol1.alg.δ == δ
-        @test sol1.alg.max_order == 4
-        @test sol1.alg.taylor_order == 10
-        @test typeof(sol1.alg.approx_model) == CorrectionHullMatrixZonotope
+        @test sol1.alg.max_order == 5
+        @test sol1.alg.taylor_order == 5
+        @test sol1.alg.approx_model isa CorrectionHullMatrixZonotope
         @test setrep(sol1) <: SparsePolynomialZonotope
 
         # recursive true
         alg2 = HLBS25(
-            δ = δ/2,
-            approx_model = CorrectionHullMatrixZonotope(),
-            max_order = 5,
-            taylor_order = 5,
+            δ = δ,
+            approx_model = CorrectionHullMatrixZonotope(N),
+            max_order = 4,
+            taylor_order = 4,
             reduction_method = LazySets.GIR05(),
             recursive = true,
             tol = 1e-2,
@@ -52,10 +52,10 @@ using LazySets
         sol2 = solve(prob, alg2; T=T)
 
         @test isa(sol2.alg, HLBS25)
-        @test sol2.alg.δ == δ/2
-        @test sol2.alg.max_order == 6
-        @test sol2.alg.taylor_order == 12
-        @test sol2.alg.tol == 1e-10
+        @test sol2.alg.δ == δ
+        @test sol2.alg.max_order == 4
+        @test sol2.alg.taylor_order == 4
+        @test sol2.alg.tol == 1e-2
         @test setrep(sol2) <: SparsePolynomialZonotope
 
     end
