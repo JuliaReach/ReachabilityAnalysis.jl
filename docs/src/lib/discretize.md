@@ -29,6 +29,7 @@ FirstOrderZonotope
 SecondOrderddt
 CorrectionHull
 StepIntersect
+CorrectionHullMatrixZonotope
 ```
 
 ## Exponentiation

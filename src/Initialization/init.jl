@@ -94,6 +94,8 @@ const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
 const SOCACCS = SecondOrderConstrainedAffineControlContinuousSystem
 const SecondOrderSystem = Union{SOLCS,SOACS,SOCLCCS,SOCACCS}
 const NonlinearSystem = Union{BBCS,CBBCS,CBBCCS}
+const LPCS = LinearParametricContinuousSystem
+const LPDS = LinearParametricDiscreteSystem
 
 @inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
     return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))

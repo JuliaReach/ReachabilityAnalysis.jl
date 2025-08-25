@@ -21,6 +21,7 @@ export
       TMJets21a,
       TMJets21b,
       VREP,
+      HLBS25,
 # XFZ18,
 
 # Flowpipes
