@@ -107,15 +107,15 @@ function _remove_small_generators(P::SparsePolynomialZonotope, tol::Real, p::Rea
     nd = count(keep_dep)
     ni = count(keep_ind)
 
-    Gnew = Matrix{eltype(P.G)}(undef, dim(P), nd)
-    Enew = Matrix{eltype(P.E)}(undef, nparams(P), nd)
-    GInew = Matrix{eltype(P.GI)}(undef, dim(P), ni)
+    G_new = Matrix{eltype(P.G)}(undef, dim(P), nd)
+    E_new = Matrix{eltype(P.E)}(undef, nparams(P), nd)
+    GI_new = Matrix{eltype(P.GI)}(undef, dim(P), ni)
 
     idg = 1
     @inbounds for j in 1:ng_dep
         if keep_dep[j]
-            Gnew[:, idg] = G[:, j]
-            Enew[:, idg] = E[:, j]
+            G_new[:, idg] = G[:, j]
+            E_new[:, idg] = E[:, j]
             idg += 1
         end
     end
@@ -123,9 +123,9 @@ function _remove_small_generators(P::SparsePolynomialZonotope, tol::Real, p::Rea
     idi = 1
     @inbounds for j in 1:ng_ind
         if keep_ind[j]
-            GInew[:, idi] = GI[:, j]
+            GI_new[:, idi] = GI[:, j]
             idi += 1
         end
     end
-    return SparsePolynomialZonotope(center(P), Gnew, GInew, Enew, indexvector(P))
+    return SparsePolynomialZonotope(center(P), G_new, GI_new, E_new, indexvector(P))
 end
