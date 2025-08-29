@@ -31,7 +31,7 @@ IntervalArithmetic = "0.16 - 0.20, =0.20.9"  # new versions require updates and 
 IntervalMatrices = "0.11"
 LazySets = "2.14, 3, 4, 5"
 LinearAlgebra = "<0.0.1, 1.6"
-MathematicalSystems = "0.11 - 0.14"
+MathematicalSystems = "0.14.1 - 0.14"
 Parameters = "0.10 - 0.12"
 Random = "<0.0.1, 1.6"
 ReachabilityBase = "0.3.1"
