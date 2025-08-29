@@ -23,9 +23,7 @@ using LazySets
             max_order = 5,
             taylor_order = 5,
             reduction_method = LazySets.GIR05(),
-            recursive = true,
-            tol = 1e-2,
-            norm = Inf,
+            recursive = false
         )
         sol1 = solve(prob, alg; T=T)
 
@@ -45,9 +43,7 @@ using LazySets
             max_order = 4,
             taylor_order = 4,
             reduction_method = LazySets.GIR05(),
-            recursive = true,
-            tol = 1e-2,
-            norm = Inf,
+            recursive = true
         )
         sol2 = solve(prob, alg2; T=T)
 
@@ -55,7 +51,6 @@ using LazySets
         @test sol2.alg.δ == δ
         @test sol2.alg.max_order == 4
         @test sol2.alg.taylor_order == 4
-        @test sol2.alg.tol == 1e-2
         @test setrep(sol2) <: SparsePolynomialZonotope
 
     end
