@@ -17,7 +17,7 @@
         # recursive false
         alg = HLBS25(
             δ = δ,
-            approx_model = CorrectionHullMatrixZonotope(N),
+            approx_model = CorrectionHullMatrixZonotope(),
             max_order = 5,
             taylor_order = 5,
             reduction_method = LazySets.GIR05(),
@@ -37,7 +37,7 @@
         # recursive true
         alg2 = HLBS25(
             δ = δ,
-            approx_model = CorrectionHullMatrixZonotope(N),
+            approx_model = CorrectionHullMatrixZonotope(recursive = true),
             max_order = 4,
             taylor_order = 4,
             reduction_method = LazySets.GIR05(),
