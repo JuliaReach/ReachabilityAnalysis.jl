@@ -1,5 +1,3 @@
-using LazySets
-
 @testset "HLBS25 algorithm: homogeneous case" begin
     for N in (Float32, Float64)
 
@@ -13,8 +11,8 @@ using LazySets
         # problem definition
         prob = @ivp(x' = A * x, x(0) ∈ X0, A ∈ AS)
 
-        δ = N(2π) / 200
         T = 2 * N(π)
+        δ = T / 400
 
         # recursive false
         alg = HLBS25(

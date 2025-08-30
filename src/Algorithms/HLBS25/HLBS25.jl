@@ -1,4 +1,3 @@
-using LazySets
 import IntervalArithmetic as IA
 
 """
@@ -50,10 +49,10 @@ function HLBS25(; δ::N,
 end
 
 step_size(alg::HLBS25) = alg.δ
-numtype(::HLBS25{N,AM,RM,R}) where {N,AM,RM,R} = N
+numtype(::HLBS25{N}) where {N} = N
 
-function rsetrep(::HLBS25{N,AM,RM,R}) where {N,AM,RM,R}
-    return ReachSet{N,SPZ{N,Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}}
+function rsetrep(::HLBS25{N}) where {N}
+    return ReachSet{N,SparsePolynomialZonotope{N,Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}}
 end
 
 include("post.jl")

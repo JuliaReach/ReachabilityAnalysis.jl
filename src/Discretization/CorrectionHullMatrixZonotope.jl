@@ -40,7 +40,7 @@ struct CorrectionHullMatrixZonotope{N,R} <: AbstractApproximationModel
     recursive::R
 end
 
-function CorrectionHullMatrixZonotope(N::Type=Float64; taylor_order::Int=5, recursive::Bool=true)
+function CorrectionHullMatrixZonotope(N::Type=Float64; taylor_order::Int=5, recursive::Bool=false)
     return CorrectionHullMatrixZonotope{N,Val{recursive}}(taylor_order, Val(recursive))
 end
 
@@ -69,7 +69,6 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     taylor_order = alg.taylor_order
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
-    X = stateset(ivp)
     n = dim(X0)
 
     IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
