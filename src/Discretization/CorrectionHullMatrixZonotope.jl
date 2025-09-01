@@ -45,7 +45,7 @@ function CorrectionHullMatrixZonotope(; taylor_order::Int=5, recursive::Bool=fal
 end
 
 function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
-                    alg::CorrectionHullMatrixZonotope{<:Any,R}) where {R}
+                    alg::CorrectionHullMatrixZonotope)
     taylor_order = alg.taylor_order
     A = state_matrix(ivp)
     X0 = initial_state(ivp)
@@ -58,7 +58,7 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     T = MatrixZonotope(Tₜ, [Tₜ], [IDₜ])
     expAT = MatrixZonotopeExp(A * T)
 
-    Ω0 = _discretize_CHMZ(expAT, X0, taylor_order, algN.recursive)
+    Ω0 = _discretize_CHMZ(expAT, X0, taylor_order, alg.recursive)
 
     Sdis = LPDS(A)
     return InitialValueProblem(Sdis, Ω0)
