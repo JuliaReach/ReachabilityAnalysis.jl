@@ -77,6 +77,12 @@ TAYLOR_METHODS = ["Taylor methods" => [
 #                                                             #
 #                                                             ]]
 
+PARAMETRIC_SYSTEMS = ["Parametric systems" => [
+                                                #
+                                                "Parametric reachability" => "man/parametric.md"
+                                                #
+                                                ]]
+
 HYBRID_SYSTEMS = ["Hybrid systems" => [
                                        #
                                        #"Introduction"           => "tutorials/hybrid_systems/introduction.md",
@@ -153,6 +159,18 @@ NONLINEAR_SOLVERS_API = [
                          #
                          ]
 
+PARAMETRIC_SOLVERS = [
+                      #
+                      "HLBS25" => "man/algorithms/HLBS25.md"
+                      #
+                      ]
+
+PARAMETRIC_SOLVERS_API = [
+                          #
+                          "HLBS25" => "lib/algorithms/HLBS25.md"
+                          #
+                          ]
+
 # ========================
 # Docs contents
 # ========================
@@ -173,7 +191,7 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                                     LINEAR_METHODS,
                                     UNCERTAIN_INPUTS,
                                     TAYLOR_METHODS,
-                                    #UNCERTAIN_PARAMETERS,
+                                    PARAMETRIC_SYSTEMS,
                                     #LINEAR_PDE,
                                     HYBRID_SYSTEMS,
                                     CLOCKED_SYSTEMS
@@ -184,7 +202,8 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                              "Systems" => "man/systems.md",
                              #"Reach-sets"        => "man/reachsets.md",
                              #"Flowpipes"         => "man/flowpipes.md",
-                             "Linear solvers" => LINEAR_SOLVERS
+                             "Linear solvers" => LINEAR_SOLVERS,
+                             "Parametric solvers" => PARAMETRIC_SOLVERS
                              #"Nonlinear solvers" => NONLINEAR_SOLVERS,
                              #"Solutions"         => "man/solutions.md",
                              #"Invariants"        => "man/invariants.md",
@@ -221,6 +240,7 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                                     "Flowpipes"                     => "lib/flowpipes.md",
                                     "Linear solvers"                => LINEAR_SOLVERS_API,
                                     "Nonlinear solvers"             => NONLINEAR_SOLVERS_API,
+                                     "Parametric solvers"            => PARAMETRIC_SOLVERS_API,
                                     "Solutions"                     => "lib/solutions.md",
                                     "Discretization"                => "lib/discretize.md",
                                     "Projections"                   => "lib/projections.md",

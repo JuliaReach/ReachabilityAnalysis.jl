@@ -46,3 +46,7 @@ include("FirstOrderModule.jl")
 # Forward-Backward discretization using continuous convex hull
 include("ForwardBackwardModule.jl")
 @reexport using ..ForwardBackwardModule
+
+# Discretize using the correction hull of the matrix zonotope exponential
+include("CorrectionHullMatrixZonotope.jl")
+@reexport using  ..CorrectionHullMatrixZonotopeModule
