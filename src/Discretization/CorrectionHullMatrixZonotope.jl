@@ -56,22 +56,24 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
     T = MatrixZonotope(Tₜ, [Tₜ], [IDₜ])
-    expAT = MatrixZonotopeExp(A * T)
 
-    Ω0 = _discretize_CHMZ(expAT, X0, taylor_order, alg.recursive)
+    Ω0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive)
 
     Sdis = LPDS(A)
     return InitialValueProblem(Sdis, Ω0)
 end
 
 # Recursive case
-function _discretize_CHMZ(expAT, X0, taylor_order, ::Val{true})
+function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{true})
+    expAT = MatrixZonotopeExp(A * T)
     em = ExponentialMap(expAT, X0)
     return overapproximate(em, SparsePolynomialZonotope, taylor_order)
 end
 
 # Non-recursive case
-function _discretize_CHMZ(expAT, X0, taylor_order, ::Val{false})
+function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{false})
+    AT = overapproximate(A * T, MatrixZonotope)
+    expAT = MatrixZonotopeExp(AT)
     expAT_approx = overapproximate(expAT, MatrixZonotope, taylor_order)
     return overapproximate(expAT_approx * X0, SparsePolynomialZonotope)
 end
