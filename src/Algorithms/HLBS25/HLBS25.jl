@@ -10,11 +10,11 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
 
 - `δ`                -- step-size of the discretization
 - `approx_model`     -- (optional, default: `CorrectionHullMatrixZonotope`)
+                        model for the discretization of the initial value problem
 - `taylor_order`     -- (optional, default: `5`) order of the Taylor series
                         expansion of the matrix exponential for each step
-                        model for the discretization of the initial value problem
 - `max_order`        -- (optional, default: `5`) maximum order of the reach set
-- `reduction_method` -- (optional, default: `LazySets.GIR05()`zonotope
+- `reduction_method` -- (optional, default: `LazySets.GIR05()` zonotope
                         order reduction method used
 - `recursive`        -- (optional, default: `false`) if `true`, compute the
                         Taylor series expansion of the matrix zonotope
