@@ -21,6 +21,8 @@ using LazySets: plot_recipe,
                 isapproxzero,
                 _plot_singleton_list
 
+DEFAULT_COLOR_FLOWPIPE = :blue
+
 # heuristics for projecting a reach-set either concretely or lazily to the space
 # spanned by vars; the returned set is concrete when the exact projection can be done
 # efficiently; in all other cases a lazy set is returned
@@ -159,9 +161,9 @@ end
         aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
     seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
+    seriescolor --> DEFAULT_COLOR_FLOWPIPE
 
-    if !(0 ∈ vars) && (setrep(list) <: AbstractSingleton)
+    @series if !(0 ∈ vars) && (setrep(list) <: AbstractSingleton)
         seriestype --> :scatter
         _plot_singleton_list(list)
     else
@@ -181,14 +183,16 @@ end
         aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
     seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
+    seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :shape
 
-    Xs = LazySet{N}[]
-    for F in fp
-        append!(Xs, _plot_reachset_list(F, vars))
+    @series begin
+        Xs = LazySet{N}[]
+        for F in fp
+            append!(Xs, _plot_reachset_list(F, vars))
+        end
+        Xs
     end
-    return Xs
 end
 
 # ========================
@@ -205,10 +209,10 @@ end
         aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
     seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
+    seriescolor --> DEFAULT_COLOR_FLOWPIPE
 
     fp = flowpipe(sol)
-    if !(0 ∈ vars) && (setrep(fp) <: AbstractSingleton)
+    @series if !(0 ∈ vars) && (setrep(fp) <: AbstractSingleton)
         seriestype --> :scatter
         _plot_singleton_list(fp)
     else
@@ -229,15 +233,17 @@ end
         aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
     seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
+    seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :shape
 
-    fp = flowpipe(sol)
-    Xs = LazySet{N}[]
-    for F in fp
-        append!(Xs, _plot_reachset_list(F, vars))
+    @series begin
+        fp = flowpipe(sol)
+        Xs = LazySet{N}[]
+        for F in fp
+            append!(Xs, _plot_reachset_list(F, vars))
+        end
+        Xs
     end
-    return Xs
 end
 
 # TODO new plot recipe to dispatch on ShiftedFlowpipe
@@ -257,7 +263,7 @@ end
         aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
     seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
+    seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :shape
 
     first = true
@@ -328,7 +334,7 @@ end
         aspect_ratio --> DEFAULT_ASPECT_RATIO
     end
     seriesalpha --> DEFAULT_ALPHA
-    seriescolor --> DEFAULT_COLOR
+    seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :scatter
     markershape --> :circle
 
