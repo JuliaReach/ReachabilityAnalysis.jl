@@ -78,10 +78,10 @@ TAYLOR_METHODS = ["Taylor methods" => [
 #                                                             ]]
 
 PARAMETRIC_SYSTEMS = ["Parametric systems" => [
-                                                #
-                                                "Parametric reachability" => "man/parametric.md"
-                                                #
-                                                ]]
+                                               #
+                                               "Parametric reachability" => "man/parametric.md"
+                                               #
+                                               ]]
 
 HYBRID_SYSTEMS = ["Hybrid systems" => [
                                        #
@@ -240,7 +240,7 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                                     "Flowpipes"                     => "lib/flowpipes.md",
                                     "Linear solvers"                => LINEAR_SOLVERS_API,
                                     "Nonlinear solvers"             => NONLINEAR_SOLVERS_API,
-                                     "Parametric solvers"            => PARAMETRIC_SOLVERS_API,
+                                    "Parametric solvers"            => PARAMETRIC_SOLVERS_API,
                                     "Solutions"                     => "lib/solutions.md",
                                     "Discretization"                => "lib/discretize.md",
                                     "Projections"                   => "lib/projections.md",
