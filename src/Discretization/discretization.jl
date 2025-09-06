@@ -49,4 +49,4 @@ include("ForwardBackwardModule.jl")
 
 # Discretize using the correction hull of the matrix zonotope exponential
 include("CorrectionHullMatrixZonotope.jl")
-@reexport using  ..CorrectionHullMatrixZonotopeModule
+@reexport using ..CorrectionHullMatrixZonotopeModule

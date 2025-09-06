@@ -51,7 +51,7 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     X0 = initial_state(ivp)
     n = dim(X0)
 
-    N = eltype(X0) 
+    N = eltype(X0)
 
     IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)

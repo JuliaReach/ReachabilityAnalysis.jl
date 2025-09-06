@@ -15,14 +15,12 @@
         δ = T / 400
 
         # recursive false
-        alg = HLBS25(
-            δ = δ,
-            approx_model = CorrectionHullMatrixZonotope(),
-            taylor_order = 5,
-            max_order = 5,
-            reduction_method = LazySets.GIR05(),
-            recursive = false
-        )
+        alg = HLBS25(; δ=δ,
+                     approx_model=CorrectionHullMatrixZonotope(),
+                     taylor_order=5,
+                     max_order=5,
+                     reduction_method=LazySets.GIR05(),
+                     recursive=false)
         sol1 = solve(prob, alg; T=T)
 
         @test_broken X0 ⊆ set(sol[1]) #TODO add inclusion check for SPZ
@@ -35,14 +33,12 @@
         @test setrep(sol1) <: SparsePolynomialZonotope
 
         # recursive true
-        alg2 = HLBS25(
-            δ = δ,
-            approx_model = CorrectionHullMatrixZonotope(recursive = true),
-            taylor_order = 4,
-            max_order = 4,
-            reduction_method = LazySets.GIR05(),
-            recursive = true
-        )
+        alg2 = HLBS25(; δ=δ,
+                      approx_model=CorrectionHullMatrixZonotope(; recursive=true),
+                      taylor_order=4,
+                      max_order=4,
+                      reduction_method=LazySets.GIR05(),
+                      recursive=true)
         sol2 = solve(prob, alg2; T=T)
 
         @test isa(sol2.alg, HLBS25)
@@ -50,6 +46,5 @@
         @test sol2.alg.max_order == 4
         @test sol2.alg.taylor_order == 4
         @test setrep(sol2) <: SparsePolynomialZonotope
-
     end
 end
