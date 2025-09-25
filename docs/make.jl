@@ -1,7 +1,7 @@
 using Documenter, ReachabilityAnalysis, DocumenterCitations
 
 # load optional packages for complete documentation
-import ExponentialUtilities
+import ExponentialUtilities, Optim
 
 DocMeta.setdocmeta!(ReachabilityAnalysis, :DocTestSetup,
                     :(using ReachabilityAnalysis); recursive=true)

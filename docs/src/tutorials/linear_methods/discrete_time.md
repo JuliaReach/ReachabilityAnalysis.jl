@@ -26,6 +26,7 @@ To gain some intuition, let's build the matrix and apply it to some points.
 ```@example discrete_propagation
 using ReachabilityAnalysis, Plots
 using ReachabilityAnalysis: center
+import Optim
 
 # initial set
 X0 = BallInf(ones(2), 0.2)
