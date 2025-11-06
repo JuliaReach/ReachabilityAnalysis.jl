@@ -133,7 +133,7 @@ end
     # sol[NLOW] |> set
     # however, it may happen that NHIGH = NLOW + 1 if Tsample is a multiple of δ
     if NLOW == NHIGH
-        # TODO: can we use dispach and remove this branch?
+        # TODO: can we use dispatch and remove this branch?
         set(sol[NLOW])
     else
         set(convexify(Flowpipe(view(array(sol), NLOW:NHIGH))))

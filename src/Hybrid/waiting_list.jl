@@ -137,7 +137,7 @@ end
 function Base.convert(::Type{TW},
                       Q::Vector{Tuple{Int,ST}}) where {TW<:WaitingList,ST<:AdmissibleSet}
     waiting_list = TW()
-    for Qi in Q # no intersection chcks
+    for Qi in Q # no intersection checks
         q, Xi = Qi
         push!(waiting_list, StateInLocation(Xi, q))
     end
@@ -148,7 +148,7 @@ end
 function Base.convert(::Type{TW},
                       Q::Vector{Tuple{ST,Int}}) where {TW<:WaitingList,ST<:AdmissibleSet}
     waiting_list = TW()
-    for Qi in Q # no intersection chcks
+    for Qi in Q # no intersection checks
         Xi, q = Qi
         push!(waiting_list, StateInLocation(Xi, q))
     end
