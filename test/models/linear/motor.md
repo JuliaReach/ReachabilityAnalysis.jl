@@ -31,7 +31,7 @@ U = Hyperrectangle([0.23, 0.3], [0.07, 0.1])
 Next, we instantiate the continuous LTI system,
 
 ```@example motor
-S = @system(x' = Ax + Bu, u ∈ U, x ∈ Universe(8))
+S = @system(x' = A * x + Bu, u ∈ U, x ∈ Universe(8))
 
 S = ConstrainedLinearControlContinuousSystem(A, B, nothing, U);
 nothing #hide

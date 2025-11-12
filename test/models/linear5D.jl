@@ -18,7 +18,7 @@ function linear5D_homog()
                 0 0 -1 -3 0;
                 0 0 0 0 -2]
     X0 = Hyperrectangle(; low=fill(0.9, 5), high=fill(1.1, 5))
-    prob = @ivp(x' = Ax, x(0) ∈ X0)
+    prob = @ivp(x' = A * x, x(0) ∈ X0)
     tspan = (0.0, 5.0)
     return prob, tspan
 end
@@ -40,7 +40,7 @@ function linear5D()
     U = Ball2(zeros(5), 0.01) # input domain
 
     X0 = BallInf([1.0, 0.0, 0.0, 0.0, 0.0], 0.1)
-    prob = @ivp(x' = Ax + u, x ∈ X, u ∈ U, x(0) ∈ X0) # continuous LTI system
+    prob = @ivp(x' = A * x + u, x ∈ X, u ∈ U, x(0) ∈ X0) # continuous LTI system
     tspan = (0.0, 5.0)
     return prob, tspan
 end

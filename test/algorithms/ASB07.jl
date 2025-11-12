@@ -7,7 +7,7 @@ using ReachabilityAnalysis.Exponentiation: IntervalExpAlg
     A = IntervalMatrix([-1.0±0.05 -4.0±0.05;
                         4.0±0.05 -1.0±0.05])
     X0 = BallInf([1.0, 1.0], 0.1)
-    ivp = @ivp(x' = Ax, x(0) ∈ X0)
+    ivp = @ivp(x' = A * x, x(0) ∈ X0)
     alg = ASB07(; δ=0.04)
 
     # continuous algorithm
@@ -53,7 +53,7 @@ using ReachabilityAnalysis.Exponentiation: IntervalExpAlg
     # TODO test without IntervalMatrix wrapper
     #A = [-1.0 ± 0.05 -4.0 ± 0.05;
     #     4.0 ± 0.05 -1.0 ± 0.05]
-    #ivp = @ivp(x' = Ax, x(0) ∈ X0)
+    #ivp = @ivp(x' = A * x, x(0) ∈ X0)
     #sol1 = solve(ivp, tspan=(0.0, 1.0), alg=ASB07(δ=0.04));
 end
 
@@ -64,7 +64,7 @@ end
     B = hcat([1.0 ± 0.01; 1.0 ± 0.0])
     U = Interval(-0.05, 0.05)
     X0 = BallInf([1.0, 1.0], 0.1)
-    ivp = @ivp(x' = Ax + Bu, x(0) ∈ X0, u ∈ U, x ∈ Universe(2))
+    ivp = @ivp(x' = A * x + Bu, x(0) ∈ X0, u ∈ U, x ∈ Universe(2))
     sol1 = solve(ivp; tspan=(0.0, 1.0), alg=ASB07(; δ=0.04))
 end
 

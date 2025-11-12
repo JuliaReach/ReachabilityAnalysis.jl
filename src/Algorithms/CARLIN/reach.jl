@@ -21,7 +21,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
     if isnothing(A)
         A = build_matrix(F1, F2, N; compress)
     end
-    prob = @ivp(ŷ' = Aŷ, ŷ(0) ∈ ŷ0)
+    prob = @ivp(ŷ' = A * ŷ, ŷ(0) ∈ ŷ0)
     sol = solve(prob; T=T, alg=alg, Δt0=Δt)
 
     # projection onto the first n variables
