@@ -19,7 +19,7 @@ function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
                 0 0 0 0;
                 0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
+    EMbrake = @system(x' = A * x)
 
     # initial conditions
     I₀  = Singleton([0.0])
@@ -57,7 +57,7 @@ function embrake_pv_1(; Tsample=1.E-4, ζ=1e-6, Δ=3.0, x0=0.05)
                         0 0 0 0;
                         0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
+    EMbrake = @system(x' = A * x)
 
     # initial conditions
     I₀  = Singleton([0.0])
@@ -95,7 +95,7 @@ function embrake_pv_2(; Tsample=1.E-4, ζ=1e-6, x0=0.05, χ=5.0)
                         0 0 0 0;
                         0 0 0 0])
 
-    EMbrake = @system(x' = Ax)
+    EMbrake = @system(x' = A * x)
 
     # initial conditions
     I₀  = Singleton([0.0])

@@ -31,7 +31,7 @@ function motor_homog()
     A = state_matrix_motor()
     X0 = initial_state_motor()
 
-    prob = @ivp(x' = Ax, x(0) ∈ X0) # continuous LTI system
+    prob = @ivp(x' = A * x, x(0) ∈ X0) # continuous LTI system
     tspan = (0.0, 20.0)
     return prob, tspan
 end
@@ -43,7 +43,7 @@ function motor()
     U = Hyperrectangle([0.23, 0.3], [0.07, 0.1]) # input domain
     X0 = initial_state_motor()
 
-    prob = @ivp(x' = Ax + Bu, x ∈ X, u ∈ U, x(0) ∈ X0) # continuous LTI system
+    prob = @ivp(x' = A * x + Bu, x ∈ X, u ∈ U, x(0) ∈ X0) # continuous LTI system
     tspan = (0.0, 20.0)
     return prob, tspan
 end

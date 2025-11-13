@@ -171,7 +171,7 @@ position, `x(t)`, and the second coordinate to velocity, `x'(t)`.
 !!! note
     Usual Julia vectors such as `X0 = [1.0, 0.0]` are also valid input, and are
     treated as a singleton. It is also valid to use tuples in second order systems,
-    e.g. `prob = @ivp(X' = AX, X(0) ∈ ([1.0], [0.0]))`.
+    e.g. `prob = @ivp(X' = A * X, X(0) ∈ ([1.0], [0.0]))`.
 
 Below we plot the flowpipe for the same initial condition and different step
 sizes.
@@ -183,7 +183,7 @@ using ReachabilityAnalysis, Plots
 # v' = -4x
 A = [0 1; -4. 0]
 X0 = Singleton([1.0, 0.0])
-prob = @ivp(X' = AX, X(0) ∈ X0)
+prob = @ivp(X' = A * X, X(0) ∈ X0)
 
 f(ΔT) = solve(prob, tspan=(0.0, 5.0), alg=GLGM06(δ=ΔT))
 
@@ -258,7 +258,7 @@ using ReachabilityAnalysis, Plots
 A = [0.0 1.0; -1.0 0.0]
 
 B = [BallInf([0,0.] .+ k, 0.1) for k in 1:5]
-prob = @ivp(x' = Ax, x(0) ∈ B)
+prob = @ivp(x' = A * x, x(0) ∈ B)
 
 # multi-threaded solve
 sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02));
@@ -272,7 +272,7 @@ a single integration the flowpipe corresponding to the convex hull of the elemen
 in the array `B`.
 
 ```@example parallel
-prob = @ivp(x' = Ax, x(0) ∈ ConvexHullArray(B))
+prob = @ivp(x' = A * x, x(0) ∈ ConvexHullArray(B))
 sol = solve(prob, T=12.0, alg=GLGM06(δ=0.02, approx_model=Forward()));
 plot!(sol, vars=(0, 2), c=:lightgreen, alpha=.5, lw=0.2, xlab="t", ylab="y")
 

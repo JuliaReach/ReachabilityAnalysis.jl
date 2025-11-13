@@ -77,7 +77,7 @@ end
     X0 = BallInf([1.0, 1.0], 0.1)
     function foo()
         A = [0.0 1.0; -1.0 0.0]
-        ivp = @ivp(x' = Ax, x(0) ∈ X0)
+        ivp = @ivp(x' = A * x, x(0) ∈ X0)
         tspan = (0.0, 20.0)
         return ivp, tspan
     end

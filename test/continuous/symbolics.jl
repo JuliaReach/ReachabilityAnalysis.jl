@@ -5,7 +5,7 @@ using ReachabilityAnalysis: _jacobian_function,
                             _hessian_expression
 using StaticArrays: SVector, SMatrix, SA, StaticArray
 
-@testset "Symbolic-Numeric utils: Jacobian" begin
+@testset "Symbolic-numeric utils: Jacobian" begin
     # Brusselator model as a vector of symbolic expressions
     var = @variables x y
     f = [1 + x^2 * y - 2.5x, 1.5x - x^2 * y]
@@ -50,7 +50,7 @@ using StaticArrays: SVector, SMatrix, SA, StaticArray
 
     # linear systems
     A = [1 3; 2 -2.0]
-    sys = @system(x' = Ax)
+    sys = @system(x' = A * x)
     J = _jacobian_function(sys, var)
     aux = [1.0, 1.0] # can be any vector
     @test J(aux) == A

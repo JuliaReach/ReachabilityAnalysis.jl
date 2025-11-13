@@ -37,9 +37,9 @@ function opamp_with_saturation(; X0=Singleton(zeros(2)),
     # modes
     A = [α β; 0 γ]
     b = [0; δ]
-    mode1 = @system(x' = Ax + b, x ∈ HalfSpace(ein <= Es, var))
+    mode1 = @system(x' = A * x + b, x ∈ HalfSpace(ein <= Es, var))
     A = [α β; 0 0]
-    mode2 = @system(x' = Ax, x ∈ Universe(2))
+    mode2 = @system(x' = A * x, x ∈ Universe(2))
     modes = [mode1, mode2]
 
     # transition mode1 -> mode2 (saturation)
