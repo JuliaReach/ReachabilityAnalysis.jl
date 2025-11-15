@@ -5,11 +5,29 @@
 # Set representation: Interval
 # Matrix operations: Dense
 # Invariant: No
-function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::AbstractMatrix{NM}, NSTEPS, δ,
-                               ::Universe, ST::Type{<:Interval{N}}, vars, block_indices,
-                               row_blocks, column_blocks, Δt0,
-                               viewval::Val{true}) where {NM,N}
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::AbstractMatrix, NSTEPS, δ,
+                               X::Universe, ST::Type{<:Interval{N}}, vars, block_indices,
+                               row_blocks::AbstractVector, column_blocks::AbstractVector, Δt0,
+                               viewval::Val{true}) where {N}
+    return _reach_homog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, ST, vars, block_indices, row_blocks,
+                                  column_blocks, Δt0, viewval)
+end
 
+# Set representation: Interval
+# Matrix operations: Sparse  (TODO currently not exploited; only defined for disambiguation)
+# Invariant: No
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::SparseMatrixCSC, NSTEPS, δ,
+                               X::Universe, ST::Type{<:Interval{N}}, vars, block_indices,
+                               row_blocks::AbstractVector, column_blocks::AbstractVector, Δt0,
+                               viewval::Val{true}) where {N}
+    return _reach_homog_BFFPSV18!(F, Xhat0, Φ, NSTEPS, δ, X, ST, vars, block_indices, row_blocks,
+                                  column_blocks, Δt0, viewval)
+end
+
+function _reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ, NSTEPS, δ, ::Universe,
+                                ST::Type{<:Interval{N}}, vars, block_indices,
+                                row_blocks::AbstractVector, column_blocks::AbstractVector, Δt0,
+                                viewval::Val{true}) where {N}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
@@ -44,11 +62,10 @@ end
 # Set representation: Generic
 # Matrix operations: Dense
 # Invariant: No
-function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ::N,
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ,
                                ::Universe, ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
-                               column_blocks::AbstractVector{<:CBLKj},
-                               Δt0,
+                               column_blocks::AbstractVector{<:CBLKj}, Δt0,
                                viewval::Val{true}) where {NM,MT<:AbstractMatrix{NM},N,RBLKi,CBLKj}
 
     # initial reach-set
@@ -86,13 +103,11 @@ end
 # Set representation: Generic
 # Matrix operations: Sparse
 # Invariant: No
-function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ::N,
+function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEPS, δ,
                                ::Universe, ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
-                               column_blocks::AbstractVector{<:CBLKj},
-                               Δt0,
-                               viewval::Val{true}) where {NM,IM,MT<:SparseMatrixCSC{NM,IM},N,RBLKi,
-                                                          CBLKj}
+                               column_blocks::AbstractVector{<:CBLKj}, Δt0,
+                               viewval::Val{true}) where {NM,MT<:SparseMatrixCSC{NM},N,RBLKi,CBLKj}
 
     # store first element
     Δt = (zero(N) .. δ) + Δt0
