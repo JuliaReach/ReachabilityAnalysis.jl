@@ -59,7 +59,7 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     X0 = initial_state(ivp)
     ha = system(ivp)
     @unpack sys, rmap, Tsample, ζ, switching = ha
-    t0 = isempty(tsp) ? 0.0 : tstart(tsp)
+    t0 = IA.isempty_interval(tsp) ? 0.0 : tstart(tsp)
     δ = step_size(alg)
 
     # get maximum number of jumps

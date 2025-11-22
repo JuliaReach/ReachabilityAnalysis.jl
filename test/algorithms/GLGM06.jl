@@ -1,5 +1,6 @@
-@testset "GLGM06 algorithm: homogeneous" begin
+using StaticArrays: SVector, SMatrix
 
+@testset "GLGM06 algorithm: homogeneous" begin
     # one-dimensional
     ivp, _ = exponential_1d()
     alg = GLGM06(; δ=0.01)
@@ -36,7 +37,7 @@ end
     ivp, _ = linear5D()
     sol = solve(ivp; T=5.0, alg=GLGM06(; δ=0.01))
     @test dim(sol) == 5
-    @test tspan(shift(sol, 1.0)) == tspan(sol) + 1.0
+    @test IA.isequal_interval(tspan(shift(sol, 1.0)), tspan(sol) + 1.0)
 
     # use approx model for "discrete-time" reachability
     sol = solve(ivp; T=5.0, alg=GLGM06(; δ=0.01, approx_model=NoBloating()))
