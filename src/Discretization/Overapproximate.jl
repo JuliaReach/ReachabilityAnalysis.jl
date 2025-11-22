@@ -5,6 +5,7 @@ using IntervalMatrices
 using LazySets: matrix
 using StaticArrays: SVector, SMatrix, MMatrix, StaticArray
 import IntervalArithmetic as IA
+using IntervalBoxes
 
 export _convert_or_overapproximate, _overapproximate, _split, relative_error,
        _overapproximate_hparallelotope
@@ -173,7 +174,7 @@ function LazySets.Approximations.box_approximation(x::IA.Interval)
 end
 
 # TEMP
-function LazySets.Approximations.box_approximation(x::IA.IntervalBox)
+function LazySets.Approximations.box_approximation(x::IntervalBox)
     return convert(Hyperrectangle, x)
 end
 

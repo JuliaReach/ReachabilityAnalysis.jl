@@ -21,9 +21,9 @@ end
 
 E₀ = 1e-4
 x₀ = [1 - E₀, E₀, 0, 0]
-α = 0.2 ± 0.01
-β = 1.0 ± 0.0
-γ = 0.5 ± 0.01
+α = interval(0.19, 0.21)
+β = interval(1.0)
+γ = interval(0.49, 0.51)
 p = [α, β, γ]
 X0 = IntervalBox(vcat(x₀, p));
 prob = @ivp(x' = seir!(x), dim:7, x(0) ∈ X0);

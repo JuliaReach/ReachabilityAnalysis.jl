@@ -16,17 +16,20 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+[sources]
+Flowstar = {path = "/home/christian/.julia/dev/Flowstar"}
+
 [compat]
 Aqua = "0.8.9"
 CDDLib = "0.5 - 0.10"
 Expokit = "0.2"
-Flowstar = "0.2.4"
-IntervalArithmetic = "0.16 - 0.20, =0.20.9"  # new versions require updates and are incompatible with dependencies
-LazySets = "2.14, 3, 4, 5"
+Flowstar = "0.3"
+IntervalArithmetic = "0.22 - 1"
+LazySets = "5"
 Optim = "0.15 - 0.22, 1"
 OrdinaryDiffEq = "6"
 Polyhedra = "0.5 - 0.8"
 StaticArrays = "0.12, 1"
 Suppressor = "0.2"
 Symbolics = "4 - 6"
-TaylorModels = "0.7 - 0.8"
+TaylorModels = "0.9"
