@@ -131,13 +131,13 @@ end
     # jitter is a number => symmetric jitter, [-ζ, ζ]
     A = HACLD1(idsys, idmap, Ts, 1e-8)
     @test_broken @inferred HACLD1(idsys, idmap, Ts, 1e-8)
-    @test jitter(A) == interval(-1e-8,  1e-8)
+    @test IA.isequal_interval(jitter(A), interval(-1e-8,  1e-8))
     @test switching(A) == NonDeterministicSwitching
 
     # jitter is an interval [ζ⁻, ζ⁺]
     A = HACLD1(idsys, idmap, Ts, interval(-1e-8,  1e-7))
     @inferred HACLD1(idsys, idmap, Ts, interval(-1e-8,  1e-7))
-    @test jitter(A) == interval(-1e-8,  1e-7)
+    @test IA.isequal_interval(jitter(A), interval(-1e-8,  1e-7))
     @test switching(A) == NonDeterministicSwitching
 
     # jitter is a vector [ζ⁻, ζ⁺], it is converted to an interval

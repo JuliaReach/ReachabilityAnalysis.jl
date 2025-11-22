@@ -115,5 +115,5 @@ end
     @test dim(sol) == 4
     @test flowpipe(sol) isa HybridFlowpipe
 
-    @test tspan(shift(sol[1], 1.0)) == tspan(sol[1]) + 1.0
+    @test IA.isequal_interval(tspan(shift(sol[1], 1.0)), tspan(sol[1]) + 1.0)
 end

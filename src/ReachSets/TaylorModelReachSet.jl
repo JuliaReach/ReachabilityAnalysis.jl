@@ -164,10 +164,10 @@ end
 function _taylor_shift(X::Vector{TaylorN{S}}, dom) where {S}
     x = get_variables()
     n = length(x) # number of variables
-    @assert n == length(X) == dim(dom)
-    (dom == symBox(n)) && return X
+    @assert n == length(X) == length(dom)
+    all(IA.isequal_interval.(dom, symBox(n))) && return X
 
-    a, b = low(dom), high(dom)
+    a, b = inf.(dom), sup.(dom)
     transf = [(a[i] + b[i]) / 2 + (b[i] - a[i]) / 2 * x[i] for i in 1:n]
     return [evaluate(X[i], transf) for i in 1:n]
 end
@@ -179,7 +179,7 @@ end
 function evaluate(R::TaylorModelReachSet, Δt::TimeInterval)
     n = dim(R)
     X = set(R)
-    Δtn = (Δt - tstart(R)) ∩ domain(R)
+    Δtn = IA.intersect_interval(Δt - tstart(R), domain(R))
     return [fp_rpa(TaylorModelN(evaluate(X[i], Δtn), zeroI, zeroBox(n), symBox(n))) for i in 1:n]
 end
 
@@ -213,17 +213,17 @@ function _overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet};
     n = dim(R)
 
     # consistency checks
-    n == dim(dom) ||
+    n == length(dom) ||
         throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
-                            "but they are $(dim(R)) and $(dim(dom)) respectively"))
-    dom ⊆ symBox(dim(R)) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
-    Δt ⊆ tspan(R) || throw(ArgumentError("the given time range $Δt does not belong to the " *
-                                         "reach-set's time span, $(tspan(R))"))
+                            "but they are $(dim(R)) and $(length(dom)) respectively"))
+    all(IA.issubset_interval.(dom, symBox(dim(R)))) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
+    IA.issubset_interval(Δt, tspan(R)) || throw(ArgumentError("the given time range $Δt does not belong to the " *
+                                                              "reach-set's time span, $(tspan(R))"))
 
     # evaluate the Taylor model in time
     X = set(R)
     tdom = Δt - tstart(R)  # normalize time (to TM-internal time)
-    tdom = tdom ∩ domain(R)  # intersection handles round-off errors
+    tdom = IA.intersect_interval(tdom, domain(R))  # intersection handles round-off errors
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
     X_Δt = evaluate(X, tdom)
 
@@ -286,8 +286,8 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
 
     n = dim(R)
     S = symBox(n)
-    @assert Δt == tspan(R) "time subdomain not implemented"
-    @assert dom == S "spatial subdomain not implemented"
+    @assert IA.isequal_interval(Δt, tspan(R)) "time subdomain not implemented"
+    @assert IA.isequal_interval(dom, S) "spatial subdomain not implemented"
 
     X = set(R)
 
@@ -330,7 +330,7 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
         for j in 1:nparts
             Bj = partition[j]
             Xk = X_Δt[k]
-            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:n])
+            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:n]...)
 
             idx = j + (k - 1) * nparts
             X̂out = convert(T, convert(Hyperrectangle, X̂ib))
@@ -367,7 +367,10 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope},
     part = _split_symmetric_box(D, partition)
     fX̂ = Vector{Vector{TaylorModelN{length(X_Δt),N,N}}}(undef, length(part))
     @inbounds for (i, Bi) in enumerate(part)
-        x0 = IntervalBox(IA.mid.(Bi))
+        x0 = interval.(IA.mid.(Bi))
+        if Bi isa IntervalBox
+            Bi = [Bi[i] for i in 1:length(Bi)]
+        end
         X̂ib = [TaylorModelN(X_Δt[j], zeroI, x0, Bi) for j in 1:D]
         fX̂[i] = fp_rpa.(X̂ib)
     end
@@ -378,7 +381,7 @@ end
 
 # evaluate at a given time point and overapproximate the resulting set
 function overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet}, t::AbstractFloat; kwargs...)
-    return overapproximate(R, T; Δt=TimeInterval(t, t), kwargs...)
+    return overapproximate(R, T; Δt=TimeIntervalC(t, t), kwargs...)
 end
 
 # convert a hyperrectangular set to a taylor model reachset
@@ -391,7 +394,7 @@ function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = TimeIntervalC(zero(N), diam(Δt))
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of H
@@ -435,7 +438,7 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = TimeIntervalC(zero(N), diam(Δt))
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of Z
@@ -490,7 +493,7 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = TimeIntervalC(zero(N), diam(Δt))
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of Z
@@ -527,7 +530,7 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = TimeIntervalC(zero(N), diam(Δt))
 
     xstate = x[1:(n - 1)]
     @inbounds for i in 1:(n - 1)
@@ -564,7 +567,7 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n + 1)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = TimeIntervalC(zero(N), diam(Δt))
 
     # fill rows corresponding to the "zonotope" variables: 1 to nth-variables
     @inbounds for i in 1:n

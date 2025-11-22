@@ -1,5 +1,4 @@
 ```@meta
-DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
@@ -20,11 +19,11 @@ x'(t) = -x(t) ~ \sin(t),\qquad t ≥ 0.
 Standard integration schemes fail to produce helpful solutions if the initial state is an interval. We illustrate this point
 by solving the given differential equation with the `Tsit5` algorithm from [OrdinaryDiffEq.jl](https://github.com/SciML/OrdinaryDiffEq.jl) suite.
 
-```@example nonlinear_univariate
+```@example nonlinear_univariate_bland
 using OrdinaryDiffEq, IntervalArithmetic
 
 # initial condition
-x₀ = [interval(-1, 1)]
+X0 = [interval(-1, 1)]
 
 # define the problem
 function f(dx, x, p, t)
@@ -32,17 +31,17 @@ function f(dx, x, p, t)
 end
 
 # pass to solvers
-prob = ODEProblem(f, x₀, (0.0, 2.0))
+prob = ODEProblem(f, X0, (0.0, 2.0))
 sol = solve(prob, Tsit5(), adaptive=false, dt=0.05, reltol=1e-6)
 nothing # hide
 ```
-There is no plot recipe readily available so we create it by hand using [`LazySets.jl`](https://github.com/JuliaReach/LazySets.jl).
 
-```@example nonlinear_univariate
-using LazySets, Plots
-using LazySets: Interval
+Now we plot the result.
 
-out = [Interval(sol.t[i]) × Interval(sol.u[i][1]) for i in 1:20]
+```@example nonlinear_univariate_bland
+using Plots
+
+out = [[interval(sol.t[i]), interval(sol.u[i][1])] for i in 1:20]
 
 fig = plot(out, xlab="t", ylab="x(t)", lw=3.0, alpha=1., c=:black, marker=:none, lab="", title="Standard integrator with an interval initial condition")
 
@@ -63,7 +62,7 @@ function f(dx, x, p, t)
 end
 
 # define the set of initial states
-X0 = interval(-1, 1)
+X0 = Interval(-1, 1)
 
 # define the initial-value problem
 prob = @ivp(x' = f(x), x(0) ∈ X0, dim=1)
@@ -139,7 +138,7 @@ Filtering by the time span also works with time intervals; in the following exam
 `[1.0, 3.0]` is non-empty:
 
 ```@example nonlinear_univariate
-length(sol(interval(1.0, 3.0)))
+length(sol((1.0, 3.0)))
 ```
 
 On the other hand, evaluating over a given time point or time interval can be achieved using the `evaluate` function:

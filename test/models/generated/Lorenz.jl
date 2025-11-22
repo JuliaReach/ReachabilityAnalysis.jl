@@ -19,4 +19,4 @@ alg = TMJets(; abstol=1e-15, orderT=10, orderQ=2, maxsteps=50_000)
 sol = solve(prob; T=10.0, alg=alg)
 solz = overapproximate(sol, Zonotope);
 
-@assert ρ([1.0, 0, 0], solz(interval(0, 1.5))) < 20 "the property should be proven"
+@assert ρ([1.0, 0, 0], solz((0, 1.5))) < 20 "the property should be proven"

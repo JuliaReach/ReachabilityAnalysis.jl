@@ -79,7 +79,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
         X0 = state(elem)
         S = mode(H, q)
         ivp_current = IVP(S, X0)
-        time_span = TimeInterval(t0, T - tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
+        time_span = TimeIntervalC(t0, T - tprev) # TODO generalization for t0 ≠ 0.. T-tprev+t0 ?
         F = post(cpost, ivp_current, time_span; Δt0=Δt0, kwargs...)
 
         # assign location q to this flowpipe
@@ -151,7 +151,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                     add_to_waiting_list = !(Xr ⊆ explored_list)
                 else
                     # We only push the set Xci if it intersects with time_span
-                    add_to_waiting_list = !Base.isdisjoint(tspan(Xci), time_span0)
+                    add_to_waiting_list = !IA.isdisjoint_interval(tspan(Xci), time_span0)
                 end
 
                 if add_to_waiting_list
@@ -217,7 +217,7 @@ end
                 intersection_method::AbstractIntersectionMethod=nothing,
                 check_invariant=false,
                 intersect_invariant=false,
-                ) where {HS<:HybridSystem, ST<:AdmissibleSet}
+                ) where {HS<:HybridSystem, ST<:LazySet}
 
 Distribute the set of initial states to each mode of a hybrid system.
 
@@ -239,7 +239,7 @@ states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 function _distribute(ivp::IVP{HS,ST};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:LazySet}
     H = system(ivp)
     X0 = initial_state(ivp)
     N = eltype(X0)
@@ -291,12 +291,12 @@ end
 function _distribute_mixed(ivp::IVP{HS,ST};
                            intersection_method=nothing, # not used
                            check_invariant=false,
-                           intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
+                           intersect_invariant=false) where {HS<:HybridSystem,ST<:LazySet}
     H = system(ivp)
     X0 = initial_state(ivp)
     N = eltype(X0)
 
-    waiting_list = MixedWaitingList{TimeInterval,Vector{<:AdmissibleSet}}()
+    waiting_list = MixedWaitingList{TimeInterval,Vector{<:LazySet}}()
 
     if !check_invariant
         for loc in states(H)
@@ -330,7 +330,7 @@ end
 function _distribute(ivp::IVP{<:HybridSystem,Vector{Tuple{Int,ST}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {ST<:AdmissibleSet}
+                     intersect_invariant=false) where {ST<:LazySet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
@@ -357,7 +357,7 @@ end
 function _distribute(ivp::IVP{HS,Vector{Tuple{ST,Int}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:LazySet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 

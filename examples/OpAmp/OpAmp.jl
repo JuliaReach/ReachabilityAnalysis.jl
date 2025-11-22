@@ -110,7 +110,7 @@ fig = plot(sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",  #!jl
 # we solve for three different initial conditions of increasing width, for a
 # shorter time horizon.
 
-Δt = interval(0, 0.04)  #!jl
+Δt = (0, 0.04)  #!jl
 
 fig = plot(; xlab=L"t", ylab=L"e_{out}(t)", title="Solution for nondeterministic input")  #!jl
 

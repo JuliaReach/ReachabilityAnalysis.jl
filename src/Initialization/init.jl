@@ -21,7 +21,7 @@ using StaticArrays: MMatrix, SMatrix, SVector
 using LazySets: AffineMap, LinearMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
-using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
+using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
 
 # JuliaReach internal functions
 import ReachabilityBase
@@ -38,17 +38,21 @@ const IM = IntervalMatrices
 import IntervalArithmetic as IA
 using IntervalArithmetic: diam
 const TimeInterval = IA.Interval{Float64}
-import TaylorModels as TM
-using TaylorModels: TaylorModel1, TaylorN, fp_rpa, shrink_wrapping!
+# TimeInterval constructor (IA does not allow to use `Interval` as a function anymore)
+TimeIntervalC(a) = IA.interval(Float64, a)
+TimeIntervalC(a, b) = IA.interval(Float64, a, b)
+..(x, y) = IA.interval(x, y)  # TODO replace all occurrences eventually
+using IntervalBoxes: IntervalBox
+using LazySets: ×  # resolve conflict
+import TaylorModels
+using TaylorModels: TaylorModel1, TaylorN, fp_rpa
+using TaylorModels.ValidatedInteg: shrink_wrapping!
 
 # method extensions for Taylor model reach-sets
 import TaylorModels: domain, remainder, polynomial, get_order, evaluate
 
 # aliases for set types
 const CPA = CartesianProductArray
-
-# convenience union for dispatch on structs that are admissible as initial sets or inputs
-const AdmissibleSet = Union{LazySet,IA.Interval,IA.IntervalBox}
 
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
@@ -67,11 +71,9 @@ import CommonSolve: solve # common solve name
 # Useful constants
 # ======================
 
-@inline zeroBox(m) = IntervalBox(zeroI, m)
-@inline unitBox(m) = IntervalBox(IA.interval(0.0, 1.0), m)
-@inline symBox(n::Integer) = IntervalBox(symI, n)
+@inline zeroBox(n::Integer) = fill(zeroI, n)
+@inline symBox(n::Integer) = fill(symI, n)
 const zeroI = IA.interval(0.0) # TODO use number type
-const oneI = IA.interval(1.0)
 const symI = IA.interval(-1.0, 1.0)
 
 # common aliases for system's names

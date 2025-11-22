@@ -134,10 +134,10 @@ reset_map(hs::HACLD1) = hs.rmap
 sampling_time(hs::HACLD1) = hs.Tsample
 statedim(hs::HACLD1) = statedim(hs.sys)
 initial_state(hs::HACLD1) = initial_state(hs.sys)
-jitter(hs::HACLD1{T,MT,N,Missing}) where {T,MT,N} = TimeInterval(zero(N), zero(N))
+jitter(hs::HACLD1{T,MT,N,Missing}) where {T,MT,N} = TimeIntervalC(zero(N), zero(N))
 jitter(hs::HACLD1{T,MT,N,J}) where {T,MT,N,J} = hs.ζ
 # TODO cleanup
-#jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J<:Real} = TimeInterval(-ζ, ζ)
+#jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J<:Real} = TimeIntervalC(-ζ, ζ)
 #jitter(hs::HACLD1{T, MT, N, J}) where {T, MT, N, J}  = _promote_tspan(hs.ζ)
 switching(::HACLD1{T,MT,N,J,S}) where {T,MT,N,J,S} = S
 
@@ -150,10 +150,10 @@ end
 function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T,MT,N,J<:Real}
     if iszero(ζ)
         switching = DeterministicSwitching()
-        ζint = TimeInterval(ζ, ζ)
+        ζint = TimeIntervalC(ζ, ζ)
     else
         switching = NonDeterministicSwitching()
-        ζint = TimeInterval(-ζ, ζ)
+        ζint = TimeIntervalC(-ζ, ζ)
     end
     return HACLD1(sys, rmap, Tsample, ζint, switching)
 end

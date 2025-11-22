@@ -21,7 +21,7 @@ using ReachabilityAnalysis: _isapprox
 end
 
 @testset "Flowpipe interface" begin
-    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
+    p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
     δ = 0.1
     sol = solve(p; tspan=(0.0, 1.0), alg=GLGM06(; δ=δ))
     F = flowpipe(sol)
@@ -42,15 +42,15 @@ end
     # time span for flowpipe slices
     @test tstart(F[1:3]) ≈ 0.0
     @test tend(F[1:3]) ≈ 3δ
-    @test tspan(F[1:3]) ≈ 0.0 .. 3δ
+    @test IA.isequal_interval(tspan(F[1:3]), 0.0 .. 3δ)
 
     @test tstart(F, 1:3) ≈ 0.0  # same, more efficient
     @test tend(F, 1:3) ≈ 3δ
-    @test tspan(F, 1:3) ≈ 0.0 .. 3δ
+    @test IA.isequal_interval(tspan(F, 1:3), 0.0 .. 3δ)
 
     @test tstart(sol[1:3]) ≈ 0.0
     @test tend(sol[1:3]) ≈ 3δ
-    @test tspan(sol[1:3]) ≈ 0.0 .. 3δ
+    @test IA.isequal_interval(tspan(sol[1:3]), 0.0 .. 3δ)
 
     # set representation
     @test setrep(F) <: Zonotope
@@ -66,7 +66,7 @@ end
     @test F(0.05 .. 0.15) == F[1:2]
 
     # time interval *not* strictly contained in flowpipe returns a subset
-    @test tspan(F(0.05 .. 1.05)) == tspan(F)
+    @test IA.isequal_interval(tspan(F(0.05 .. 1.05)), tspan(F))
 
     # time interval totally outside the flowpipe returns an error
     @test_throws ArgumentError F(2 .. 3)
@@ -89,7 +89,7 @@ end
 
 @testset "Solution interface: initial states" begin
     # interval initial condition
-    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
+    p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
     solve(p; T=1.0)
 
     # interval initial condition
@@ -97,16 +97,16 @@ end
     solve(p; T=1.0)
 
     # deterministic initial condition, scalar for one-dimensional matrix (TODO)
-    p = InitialValueProblem(@system(x' = -x), 0.5)
+    p = InitialValueProblem(@system(x' = -x), Singleton([0.5]))
     solve(p; T=1.0)
 
     # deterministic initial condition, vector
-    p = InitialValueProblem(@system(x' = -x), [0.5])
+    p = InitialValueProblem(@system(x' = -x), Singleton([0.5]))
     solve(p; T=1.0)
 end
 
 @testset "Solution interface: time span" begin
-    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
+    p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
     Δt = 0.0 .. 2.0
 
     # only time horizon given

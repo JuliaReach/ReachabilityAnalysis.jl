@@ -54,11 +54,7 @@ end
 
 E₀ = 1e-4
 x₀ = [1 - E₀, E₀, 0, 0]
-α = 0.2 ± 0.01
-β = 1.0 ± 0.0
-γ = 0.5 ± 0.01
-p = [α, β, γ]
-X0 = IntervalBox(vcat(x₀, p));
+X0 = Hyperrectangle(vcat(x₀, [0.2, 1, 0.5]), vcat(zeros(4), [0.01, 0, 0.01]))
 prob = @ivp(x' = seir!(x), dim:7, x(0) ∈ X0);
 
 # ## Analysis

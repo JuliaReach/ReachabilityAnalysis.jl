@@ -52,7 +52,7 @@ Base.getindex(fp::HybridFlowpipe, I::Int...) = getindex(fp.Fk, I...)
 function tspan(fp::HybridFlowpipe)
     ti = minimum(tstart, fp)
     tf = maximum(tend, fp)
-    return TimeInterval(ti, tf)
+    return TimeIntervalC(ti, tf)
 end
 
 function Base.similar(fp::HybridFlowpipe{N,RT,FT}) where {N,RT,FT}
@@ -81,15 +81,15 @@ Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp
 
 # evaluation for scalars
 function (fp::HybridFlowpipe{N,RT})(t::Number) where {N,RT<:AbstractReachSet{N}}
-    if t ∉ tspan(fp)
+    if !IA.in_interval(t, tspan(fp))
         throw(ArgumentError("time $t does not belong to the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
     vec = Vector{RT}()
     for (k, fk) in enumerate(array(fp)) # loop over flowpipes
-        if t ∈ tspan(fk)
+        if IA.in_interval(t, tspan(fk))
             for Ri in fk  # loop over reach-sets for this flowpipe
-                if t ∈ tspan(Ri)
+                if IA.in_interval(t, tspan(Ri))
                     push!(vec, Ri)
                 end
             end
@@ -106,8 +106,8 @@ function (fp::HybridFlowpipe{N,RT})(dt::TimeInterval) where {N,RT<:AbstractReach
     end
     vec = Vector{RT}()
     for (k, fk) in enumerate(array(fp)) # loop over flowpipes
-        dtint = dt ∩ tspan(fk)
-        if !isempty(dtint)
+        dtint = IA.intersect_interval(dt, tspan(fk))
+        if !IA.isempty_interval(dtint)
             for R in fk(dtint)  # loop over reach-sets for this flowpipe
                 push!(vec, R)
             end

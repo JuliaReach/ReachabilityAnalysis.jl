@@ -229,14 +229,14 @@ We can also pick, or filter, those reach-sets whose intersection is non-empty wi
 a given time interval.
 
 ```@example discrete_propagation
-F(2.5 .. 3.0) # returns a view
+F((2.5, 3.0)) # returns a view
 ```
 
 We can also filter by a condition on the time span using `tstart` and `tend`:
 
 ```@example discrete_propagation
 # get all reach-sets from time t = 4 onwards
-aux = F(4 .. tend(F));
+aux = F((4, tend(F)));
 
 length(aux)
 ```

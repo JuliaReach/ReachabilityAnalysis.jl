@@ -1,4 +1,6 @@
 using Test, ReachabilityAnalysis
+using ReachabilityAnalysis: (..)  # TODO replace all occurrences eventually
+import IntervalArithmetic as IA
 
 # optional dependencies
 import ExponentialUtilities

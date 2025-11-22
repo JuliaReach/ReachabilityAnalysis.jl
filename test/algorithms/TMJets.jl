@@ -21,7 +21,8 @@
     sol = solve(prob; T=0.2, abstol=1e-11)
     @test sol.alg isa TMJets && sol.alg.abstol == 1e-11
 
-    @test ReachabilityAnalysis.tspan(shift(sol, 1.0)) == ReachabilityAnalysis.tspan(sol) + 1.0
+    @test IA.isequal_interval(ReachabilityAnalysis.tspan(shift(sol, 1.0)),
+                              ReachabilityAnalysis.tspan(sol) + 1.0)
 
     # split initial conditions
     X0, S = initial_state(prob), system(prob)
@@ -41,7 +42,7 @@ end
 
         # getter functions for a taylor model reach-set
         R = sol[1]
-        @test domain(R) == tspan(R)
+        @test IA.isequal_interval(domain(R), tspan(R))
         @test diam(remainder(R)[1]) < (alg == TMJets21a ? 1e-13 : 1e-9)
         @test get_order(R) == [8]
         @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
