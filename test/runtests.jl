@@ -1,4 +1,6 @@
 using Test, ReachabilityAnalysis
+using ReachabilityAnalysis: (..)  # TODO replace all occurrences eventually
+import IntervalArithmetic as IA
 
 # auxiliary code to skip expensive tests
 begin
@@ -16,7 +18,9 @@ begin
     fn(vec) = [e for e in vec if !isnothing(e)]
 end
 
-TEST_MODELS = fn(["models/harmonic_oscillator.jl",
+TEST_MODELS = fn([
+                  #
+                  "models/harmonic_oscillator.jl",
                   "models/forced_oscillator.jl",
                   "models/exponential1D.jl",
                   "models/motor.jl",
@@ -26,18 +30,26 @@ TEST_MODELS = fn(["models/harmonic_oscillator.jl",
                   "models/bouncing_ball.jl",
                   @ts("models/burgers.jl"),
                   @ts("models/generated/Brusselator.jl"),
-                  @ts("models/hybrid/thermostat.jl")])
+                  @ts("models/hybrid/thermostat.jl")
+                  #
+                  ])
 
-TEST_FILES = fn(["continuous/solve.jl",
+TEST_FILES = fn([
+                 #
+                 "continuous/solve.jl",
                  @ts("continuous/symbolics.jl"),
                  @ts("continuous/traces.jl"),
                  @ts("discretization/exponentiation.jl"),
                  "flowpipes/flowpipes.jl",
                  @ts("flowpipes/setops.jl"),
                  "reachsets/reachsets.jl",
-                 "hybrid/hybrid.jl"])
+                 "hybrid/hybrid.jl"
+                 #
+                 ])
 
-TEST_ALGORITHMS = fn(["algorithms/INT.jl",
+TEST_ALGORITHMS = fn([
+                      #
+                      "algorithms/INT.jl",
                       "algorithms/BOX.jl",
                       @ts("algorithms/CARLIN.jl"),
                       "algorithms/GLGM06.jl",
@@ -49,7 +61,9 @@ TEST_ALGORITHMS = fn(["algorithms/INT.jl",
                       "algorithms/QINT.jl",
                       "algorithms/HLBS25.jl",
                       @ts("algorithms/VREP.jl"),
-                      @ts("algorithms/FLOWSTAR.jl")])
+                      @ts("algorithms/FLOWSTAR.jl")
+                      #
+                      ])
 
 foreach(include, TEST_MODELS)
 foreach(include, TEST_FILES)
