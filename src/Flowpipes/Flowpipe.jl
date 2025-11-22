@@ -97,8 +97,8 @@ end
 function (fp::Flowpipe)(t::Number)
     Xk = array(fp)
     @inbounds for (i, X) in enumerate(Xk)
-        if t ∈ tspan(X) # exit on the first occurrence
-            if i < length(Xk) && t ∈ tspan(Xk[i + 1])
+        if IA.in_interval(t, tspan(X)) # exit on the first occurrence
+            if i < length(Xk) && IA.in_interval(t, tspan(Xk[i + 1]))
                 return view(Xk, i:(i + 1))
             else
                 return X
@@ -117,7 +117,7 @@ function (fp::Flowpipe)(dt::TimeInterval)
     β = sup(dt)
     Xk = array(fp)
     for (i, X) in enumerate(Xk)
-        if !isempty(tspan(X) ∩ dt)
+        if !IA.isempty_interval(IA.intersect_interval(tspan(X), dt))
             push!(idx, i)
         end
     end
@@ -128,6 +128,9 @@ function (fp::Flowpipe)(dt::TimeInterval)
     end
     return view(Xk, idx)
 end
+
+(fp::Flowpipe)(dt::Interval) = fp(TimeIntervalC(low(dt, 1), high(dt, 1)))
+(fp::Flowpipe)(dt::Tuple{<:Number,<:Number}) = fp(TimeIntervalC(dt[1], dt[2]))
 
 # concrete projection of a flowpipe along variables `vars`
 function project(fp::Flowpipe, vars::NTuple{D,Int}) where {D}
@@ -220,7 +223,7 @@ function convexify(fp::AbstractVector{<:AbstractLazyReachSet{N}}) where {N}
     Y = ConvexHullArray([set(X) for X in fp])
     ti = minimum(tstart, fp)
     tf = maximum(tend, fp)
-    return ReachSet(Y, TimeInterval(ti, tf))
+    return ReachSet(Y, TimeIntervalC(ti, tf))
 end
 
 # the dimension of sparse flowpipes is known in the type

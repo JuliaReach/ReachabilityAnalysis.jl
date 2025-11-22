@@ -34,6 +34,7 @@
 #    constant over time: ``u(0) ∈ \mathcal{U}``, ``\dot{u}(t) = 0.``
 
 using ReachabilityAnalysis, SparseArrays
+using IntervalArithmetic: interval
 
 # ## Common functionality between model variants
 

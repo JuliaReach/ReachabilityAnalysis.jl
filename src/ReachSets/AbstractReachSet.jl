@@ -34,7 +34,7 @@ following methods:
 abstract type AbstractReachSet{N} end
 
 # convenience union for dispatch on structs that behave like a set
-const SetOrReachSet = Union{LazySet,IA.Interval,IA.IntervalBox,AbstractReachSet}
+const SetOrReachSet = Union{LazySet,IA.Interval,IntervalBox,AbstractReachSet}
 
 """
     set(R::AbstractReachSet)
@@ -146,7 +146,7 @@ function tspan(F::VRT; contiguous=false) where {RT<:AbstractReachSet,VRT<:Abstra
         t0 = minimum(tstart, F)
         tf = maximum(tend, F)
     end
-    return TimeInterval(t0, tf)
+    return TimeIntervalC(t0, tf)
 end
 
 """
@@ -262,8 +262,8 @@ function intersection(R::AbstractReachSet, S::AbstractReachSet,
                       method::AbstractIntersectionMethod=FallbackIntersection())
     T1 = tspan(R)
     T2 = tspan(S)
-    T = T1 ∩ T2
-    if isempty(T)
+    T = IA.intersect_interval(T1, T2)
+    if IA.isempty_interval(T)
         throw(ArgumentError("cannot intersect reach sets with disjoint time intervals"))
     end
 

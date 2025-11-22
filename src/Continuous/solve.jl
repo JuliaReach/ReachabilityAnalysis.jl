@@ -148,10 +148,10 @@ function step_size end
 
 # extend dimension for common IntervalArithmetic types
 LazySets.dim(::IA.Interval) = 1
-LazySets.dim(::IA.IntervalBox{D,N}) where {D,N} = D
+LazySets.dim(::IntervalBox{D,N}) where {D,N} = D
 
 # lazy sets (or sets that behave as such)
-_dim(X::Union{<:LazySet,<:IA.Interval,<:IA.IntervalBox}) = dim(X)
+_dim(X::Union{<:LazySet,<:IA.Interval,<:IntervalBox}) = dim(X)
 
 # singleton elements
 _dim(X::Number) = 1
@@ -159,7 +159,7 @@ _dim(X::AbstractVector{N}) where {N<:Number} = length(X)
 
 # vector of sets
 function _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
-                                                      <:IA.Interval,<:IA.IntervalBox}}
+                                                      <:IA.Interval,<:IntervalBox}}
     n = _dim(first(X))
     all(X -> _dim(X) == n, X) || throw(ArgumentError("dimension mismatch between " *
                                                      "the initial sets in this array; expected only sets of dimension $n"))
@@ -208,8 +208,8 @@ function _check_dim(ivp::IVP{<:AbstractContinuousSystem}; throw_error::Bool=true
 end
 
 # promotion from tuple-like arguments
-@inline _promote_tspan((t1, t2)::Tuple{T,T}) where {T} = TimeInterval(t1, t2)
-@inline _promote_tspan((t1, t2)::Tuple{T,S}) where {T,S} = TimeInterval(promote(t1, t2))
+@inline _promote_tspan((t1, t2)::Tuple{T,T}) where {T} = TimeIntervalC(t1, t2)
+@inline _promote_tspan((t1, t2)::Tuple{T,S}) where {T,S} = TimeIntervalC(promote(t1, t2))
 
 # no-op, corresponds to (inf(tspan), sup(tspan))
 @inline _promote_tspan(tspan::IA.Interval) = tspan
@@ -218,13 +218,13 @@ end
 @inline _promote_tspan(tspan::Interval) = tspan.dat
 
 # number T defaults to a time interval of the form [0, T]
-@inline _promote_tspan(tspan::Number) = TimeInterval(zero(tspan), tspan)
+@inline _promote_tspan(tspan::Number) = TimeIntervalC(zero(tspan), tspan)
 
 # catch-all array like tspan
 @inline function _promote_tspan(tspan::AbstractArray)
     @assert length(tspan) == 2 throw(ArgumentError("the length of `tspan` must be two, but " *
                                                    "it is of length $(length(tspan))"))
-    return TimeInterval(tspan[1], tspan[2])
+    return TimeIntervalC(tspan[1], tspan[2])
 end
 
 function _get_tspan(args...; kwargs...)
@@ -295,7 +295,7 @@ function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool
 end
 
 function compute_nsteps(δ, tspan)
-    isempty(tspan) && return zero(δ)
+    IA.isempty_interval(tspan) && return zero(δ)
     # Get time horizon from the time span imposing that it is of the form (0, T).
     T = _get_T(tspan; check_zero=true, check_positive=true)
     return NSTEPS = ceil(Int, T / δ)

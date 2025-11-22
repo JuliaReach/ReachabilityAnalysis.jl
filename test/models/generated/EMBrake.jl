@@ -1,4 +1,5 @@
 using ReachabilityAnalysis, SparseArrays
+using IntervalArithmetic: interval
 
 function embrake_common(; A, Tsample, ζ, x0)
     # continuous system

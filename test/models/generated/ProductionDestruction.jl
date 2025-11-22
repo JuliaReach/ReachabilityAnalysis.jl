@@ -16,8 +16,8 @@ function prod_dest_verif(sol; T=100.0, target=10.0)
 
     # check that the target belongs to the Minkowski sum of the projections
     # onto each coordinate
-    B = convert(IntervalBox, X) # get a product-of-intervals representation
-    contains_target = target ∈ sum(B)
+    S = concretize(MinkowskiSumArray([project(set(X), [i]) for i in 1:3]))
+    contains_target = [target] ∈ S
 
     return nonnegative && contains_target, vol
 end;
