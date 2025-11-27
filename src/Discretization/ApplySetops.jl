@@ -67,4 +67,25 @@ function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:zono},
     return overapproximate(CH(A, concretize(B)), Zonotope)
 end
 
+function _apply_setops(X::ConvexHull{N,AT1,MS1}, ::Val{:zono},
+                       backend=nothing) where {N,
+                                               AT4<:AbstractZonotope{N},
+                                               AT3<:AbstractZonotope{N},
+                                               AT2<:AbstractZonotope{N},
+                                               AT1<:AbstractZonotope{N},
+                                               LM<:LinearMap{N,AT4,N},
+                                               MS2<:MinkowskiSum{N,LM,AT3},
+                                               MS1<:MinkowskiSum{N,MS2,AT2}}
+    A = X.X
+    B = X.Y
+    return overapproximate(CH(A, concretize(B)), Zonotope)
+end
+
+function _apply_setops(X::MinkowskiSum{N,LM,AT}, ::Val{:zono},
+                       backend=nothing) where {N,
+                                               LM<:LinearMap{N,<:AbstractZonotope{N}},
+                                               AT<:AbstractZonotope{N}}
+    return convert(Zonotope, concretize(X))
+end
+
 end  # module
