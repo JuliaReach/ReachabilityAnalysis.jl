@@ -23,7 +23,7 @@ function post(alg::BFFPSV18{N,ST}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=no
 
     # decompose the initial states into a cartesian product
     # TODO add option to do the lazy decomposition
-    Xhat0 = _decompose(Ω0, column_blocks, ST)
+    Xhat0 = decompose(Ω0, column_blocks, ST)
 
     # force using sparse type for the matrix exponential
     if alg.sparse
