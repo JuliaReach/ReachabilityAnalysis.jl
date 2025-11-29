@@ -2,9 +2,6 @@
 # Kronecker powers
 # ======================================
 
-# TODO refactor to CarlemanLinearization.jl
-lift_vector(X0::IA.Interval, N) = lift_vector(Interval(X0), N)
-
 """
     kron_pow(x::IA.Interval, pow::Int)
 
@@ -109,24 +106,6 @@ function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
     low_r = inf.(r)
     high_r = sup.(r)
     return Hyperrectangle(; low=low_r, high=high_r)
-end
-
-"""
-    kron_pow_stack(x::IA.Interval, pow::Int)
-
-Return a hyperrectangle with the interval powers `[x, x^2, …, x^pow]`.
-
-### Input
-
-- `x`   -- interval
-- `pow` -- integer power
-
-### Output
-
-A hyperrectangle such that the `i`-th dimension is the interval `x^i`.
-"""
-function kron_pow_stack(x::IA.Interval, pow::Int)
-    return convert(Hyperrectangle, IntervalBox([kron_pow(x, i) for i in 1:pow]...))
 end
 
 """

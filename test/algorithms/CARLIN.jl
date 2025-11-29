@@ -16,20 +16,11 @@ import Symbolics
     @test_broken rsetrep(alg) <: ReachSet  # TODO this should be supported
 end
 
-@testset "CARLIN lift_vector" begin
-    x = IA.interval(0, 1)
-    H = RA.CARLINModule.lift_vector(x, 2)
-    H2 = RA.CARLINModule.lift_vector(Interval(x), 2)
-    @test H == H2 == Hyperrectangle([0.5, 0.5], [0.5, 0.5])
-end
-
 @testset "CARLIN kron_pow" begin
     # Interval
     X0 = Interval(0.47, 0.53)
     for N in (1, 2)
         I1 = RA.CARLINModule.kron_pow(X0, N)
-        I2 = RA.CARLINModule.kron_pow(X0.dat, N)  # IA.Interval
-        @test I1 == Interval(I2)
 
         if N == 1
             @test RA.CARLINModule.kron_pow(X0, N, "invalid") == X0
@@ -57,9 +48,7 @@ end
     # Interval
     X0 = Interval(0.47, 0.53)
     N = 2
-    H1 = RA.CARLINModule.kron_pow_stack(X0, N)
-    H2 = RA.CARLINModule.kron_pow_stack(X0.dat, N)  # IA.Interval
-    @test H1 == H2
+    RA.CARLINModule.kron_pow_stack(X0, N)
 
     # Hyperrectangle
     X0 = Hyperrectangle([1.0, 1, 1], [0.1, 0.1, 0.1])
