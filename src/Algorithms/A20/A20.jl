@@ -8,21 +8,24 @@ inputs in the Krylov subspace from [Althoff20](@citet).
 
 ### Fields
 
-- `δ`          -- step-size of the discretization
-- `max_order`  -- (optional, default: `5`) maximum zonotope order
+- `δ`            -- step-size of the discretization
+- `approx_model` -- (optional, default: `FirstOrderZonotope()`) approximation model
+- `max_order`    -- (optional, default: `5`) maximum zonotope order
 
 ### References
 
 See [Althoff20](@citet) and references therein.
 """
-struct A20{N} <: AbstractContinuousPost
+struct A20{N,AM} <: AbstractContinuousPost
     δ::N
+    approx_model::AM
     max_order::Int
 end
 
 # convenience constructor using keywords
-function A20(; δ::N, max_order::Int=5) where {N}
-    return A20(δ, max_order)
+# TODO change `FirstOrderZonotope` default
+function A20(; δ::N, approx_model::AM=FirstOrderZonotope(), max_order::Int=5) where {N,AM}
+    return A20(δ, approx_model, max_order)
 end
 
 step_size(alg::A20) = alg.δ
