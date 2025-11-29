@@ -3,7 +3,14 @@
 # discrete post
 function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-    @unpack δ, max_order = alg
+    @unpack δ, approx_model, max_order = alg
+    # TODO define these options in the algorithm struct
+    static = Val(get(kwargs, :static, false))
+    reduction_method = LazySets.GIR05()
+    dim = missing
+    ngens = missing
+    preallocate = Val(get(kwargs, :preallocate, true))
+    disjointness_method = NoEnclosure()
 
     if isnothing(NSTEPS)
         if haskey(kwargs, :NSTEPS)
@@ -25,7 +32,6 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
     Ω0 = reduce_order(Ω0, max_order, reduction_method)
 
     # reconvert the set of initial states and state matrix, if needed
-    static = get(kwargs, :static, false)
     Ω0 = _reconvert(Ω0, static, dim, ngens)
     Φ = _reconvert(Φ, static, dim)
 
@@ -34,6 +40,7 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
+    # TODO currently uses GLGM06 algorithm
     if got_homogeneous
 
         #=
@@ -46,8 +53,7 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
         end
         =#
 
-        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, preallocate, Δt0,
-                            disjointness_method)
+        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, X, preallocate, Δt0, disjointness_method)
     else
         # TODO: implement preallocate option for this scenario
         U = inputset(ivp)
