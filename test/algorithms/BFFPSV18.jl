@@ -1,9 +1,9 @@
 @testset "BFFPSV18 algorithm: type constructors" begin
     A = rand(5, 5)
-    X0 = rand(Hyperrectangle, dim=5)
+    X0 = rand(Hyperrectangle; dim=5)
     B = rand(5, 1)
     X = Universe(5)
-    U = rand(Hyperrectangle, dim=1)
+    U = rand(Hyperrectangle; dim=1)
     ivp = @ivp(x' = A * x, x(0) ∈ X0)
     ivpI = @ivp(x' = A * x + B * u, x(0) ∈ X0, x ∈ X, u ∈ U)
     δ = 1e-3
