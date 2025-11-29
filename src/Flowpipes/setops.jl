@@ -126,22 +126,6 @@ function LazySets.sample(X::AbstractVector{<:Real}, d::Integer; kwargs...)
     return sample(Singleton(X), d; kwargs...)
 end
 
-LazySets.low(dom::IntervalBox) = inf.(dom.v)
-LazySets.low(dom::IntervalBox, i::Int) = inf(dom.v[i])
-LazySets.high(dom::IntervalBox) = sup.(dom.v)
-LazySets.high(dom::IntervalBox, i::Int) = sup(dom.v[i])
-
-LazySets.low(dom::IA.Interval) = inf(dom)
-function LazySets.low(dom::IA.Interval, i::Int)
-    @assert i == 1
-    return inf(dom)
-end
-LazySets.high(dom::IA.Interval) = sup(dom)
-function LazySets.high(dom::IA.Interval, i::Int)
-    @assert i == 1
-    return sup(dom)
-end
-
 # ------------------------------------------------
 # Functions to handle splitting of IntervalBoxes
 # TODO refactor to LazySets
