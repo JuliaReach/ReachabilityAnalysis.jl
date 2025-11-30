@@ -224,13 +224,13 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                 "Further examples" => [
                                        #
                                        "Overview"               => "man/examples_overview.md",
-                                       "Duffing oscillator"     => "generated_examples/DuffingOscillator.md",
+                                    #    "Duffing oscillator"     => "generated_examples/DuffingOscillator.md",  # TODO temporarily deactivated
                                        "Laub-Loomis"            => "generated_examples/LaubLoomis.md",
                                        "Production-Destruction" => "generated_examples/ProductionDestruction.md",
                                        "Brusselator"            => "generated_examples/Brusselator.md",
                                        "Quadrotor"              => "generated_examples/Quadrotor.md",
                                        "Epidemic (SEIR) model"  => "generated_examples/SEIR.md",
-                                       "Spacecraft"             => "generated_examples/Spacecraft.md"
+                                    #    "Spacecraft"             => "generated_examples/Spacecraft.md"  # TODO temporarily deactivated
                                        #
                                        ],
                 "API Reference" => [
