@@ -29,7 +29,7 @@ CommonSolve = "0.2"
 HybridSystems = "0.4"
 IntervalArithmetic = "0.16 - 0.20, =0.20.9"  # new versions require updates and are incompatible with dependencies
 IntervalMatrices = "0.11 - 0.12"
-LazySets = "2.14, 3, 4, 5"
+LazySets = "5"
 LinearAlgebra = "<0.0.1, 1.6"
 MathematicalSystems = "0.14.1"
 Parameters = "0.10 - 0.12"
