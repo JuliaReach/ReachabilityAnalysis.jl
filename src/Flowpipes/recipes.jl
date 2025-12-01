@@ -162,6 +162,7 @@ end
     end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR_FLOWPIPE
+    same_recipe --> true  # LazySets flag; use to show only one label
 
     @series if !(0 ∈ vars) && (setrep(list) <: AbstractSingleton)
         seriestype --> :scatter
@@ -185,6 +186,7 @@ end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :shape
+    same_recipe --> true  # LazySets flag; use to show only one label
 
     @series begin
         Xs = LazySet{N}[]
@@ -210,6 +212,7 @@ end
     end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR_FLOWPIPE
+    same_recipe --> true  # LazySets flag; use to show only one label
 
     fp = flowpipe(sol)
     @series if !(0 ∈ vars) && (setrep(fp) <: AbstractSingleton)
@@ -235,6 +238,7 @@ end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :shape
+    same_recipe --> true  # LazySets flag; use to show only one label
 
     @series begin
         fp = flowpipe(sol)
@@ -265,6 +269,7 @@ end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR_FLOWPIPE
     seriestype --> :shape
+    same_recipe --> true  # LazySets flag; use to show only one label
 
     first = true
     x = Vector{N}()
