@@ -40,15 +40,15 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     end
 
     # call external solver
-    TMSol = TM.validated_integ2(f!, X0tm, t0, T, orderQ, orderT,
-                                abstol, params;
-                                parse_eqs=parse_eqs,
-                                maxsteps=maxsteps,
-                                absorb=absorb,
-                                adaptive=adaptive,
-                                minabstol=minabstol,
-                                validatesteps=validatesteps,
-                                ε=ε, δ=ε, absorb_steps=absorb_steps)
+    TMSol = validated_integ2(f!, X0tm, t0, T, orderQ, orderT,
+                             abstol, params;
+                             parse_eqs=parse_eqs,
+                             maxsteps=maxsteps,
+                             absorb=absorb,
+                             adaptive=adaptive,
+                             minabstol=minabstol,
+                             validatesteps=validatesteps,
+                             ε=ε, δ=ε, absorb_steps=absorb_steps)
     tv = TMSol.time
     xv = TMSol.fp
     xTM1v = TMSol.xTM
@@ -61,7 +61,7 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     @inbounds for i in 2:length(tv)
 
         # create Taylor model reach-set
-        δt = TimeInterval(tv[i] + domain(xTM1v[1, i]))
+        δt = TimeIntervalC(tv[i] + domain(xTM1v[1, i]))
         Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
 
         # check intersection with invariant

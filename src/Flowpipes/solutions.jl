@@ -107,9 +107,10 @@ Base.keys(sol::ReachSolution) = keys(sol.F)
 
 # evaluation interface
 Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
-(sol::ReachSolution)(t::Float64) = sol.F(t)
 (sol::ReachSolution)(t::Number) = sol.F(t)
-(sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
+(sol::ReachSolution)(dt::TimeInterval) = sol.F(dt)
+(sol::ReachSolution)(dt::Interval) = sol(TimeIntervalC(low(dt, 1), high(dt, 1)))
+(sol::ReachSolution)(dt::Tuple{<:Number,<:Number}) = sol(TimeIntervalC(dt[1], dt[2]))
 
 function overapproximate(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
     return ReachSolution(overapproximate(sol.F, args...), sol.alg, sol.ext)
