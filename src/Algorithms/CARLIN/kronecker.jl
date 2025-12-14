@@ -107,11 +107,11 @@ function kron_pow(H::AbstractHyperrectangle, pow::Int, algorithm=nothing)
 end
 
 function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
-    x = [Interval(low(H, j), high(H, j)) for j in 1:dim(H)]
+    x = [interval(low(H, j), high(H, j)) for j in 1:dim(H)]
     r = reduce(kron, fill(x, pow))
 
-    low_r = min.(r)
-    high_r = max.(r)
+    low_r = inf.(r)
+    high_r = sup.(r)
     return Hyperrectangle(; low=low_r, high=high_r)
 end
 
