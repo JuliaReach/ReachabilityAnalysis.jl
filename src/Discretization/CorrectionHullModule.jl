@@ -182,7 +182,7 @@ end
 # convert a vector of intervals to a hyperrectangle with normal vector type
 function _convert_intervals_to_box_with_vectors(intervals)
     # convert to Hyperrectangle
-    H = convert(Hyperrectangle, IntervalBox(intervals))
+    H = Hyperrectangle(low=IA.inf.(intervals), high=IA.sup.(intervals))
     # remove static vectors (they scale poorly)
     H = Hyperrectangle(Vector(center(H)), Vector(radius_hyperrectangle(H)))
     return H
