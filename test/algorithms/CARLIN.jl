@@ -18,6 +18,21 @@
     sol = solve(prob; T=10.0, alg=CARLIN(; N=3, bloat=false, compress=true))
     @test dim(sol) == 1
     @test ρ([1.0], sol(10.0)) < 0.01
+
+    # `kron_pow` with `IA.Interval`
+    for N in (1, 2)
+        I1 = ReachabilityAnalysis.kron_pow(X0, N)
+        I2 = ReachabilityAnalysis.kron_pow(X0.dat, N)
+        @test I1 == Interval(I2)
+
+        # TODO "explicit" algorithm cannot be passed to `Interval` method,
+        # so it chooses the `Hyperrectangle` method
+        I2 = ReachabilityAnalysis.kron_pow(X0, N, "explicit")
+        if N == 2
+            @test_broken I2 isa Interval
+        end
+        @test isequivalent(I2, I1)
+    end
 end
 
 @testset "CARLIN algorithm: SEIR model" begin
@@ -34,4 +49,8 @@ end
 
     sol = solve(prob; T=1.0, alg=CARLIN(; N=2, bloat=true))
     @test dim(sol) == 3
+
+    # explicit `kron_pow` (TODO refactor code so that this can be chosen by the user)
+    H = ReachabilityAnalysis.kron_pow(X0, 2, "explicit")
+    @test H ≈ Hyperrectangle(fill(1.01, 9), fill(0.2, 9))
 end
