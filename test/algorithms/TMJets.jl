@@ -33,26 +33,28 @@
     @test flowpipe(sols) isa MixedFlowpipe
 end
 
-@ts @testset "TMJets algorithm (TMJets21b): linear IVPs" begin
-    prob, dt = exponential_1d()
-    sol = solve(prob; tspan=dt, alg=TMJets())
-    @test sol.alg isa TMJets
+@ts @testset "TMJets algorithms (TMJets21a/TMJets21b): linear IVPs" begin
+    for alg in (TMJets21a, TMJets21b)
+        prob, dt = exponential_1d()
+        sol = solve(prob; tspan=dt, alg=alg())
+        @test sol.alg isa alg
 
-    # getter functions for a taylor model reach-set
-    R = sol[1]
-    @test domain(R) == tspan(R)
-    @test diam(remainder(R)[1]) < 1e-9
-    @test get_order(R) == [8]
-    @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
-    @test expansion_point(R) ≈ [IntervalArithmetic.interval(0.0)]
+        # getter functions for a taylor model reach-set
+        R = sol[1]
+        @test domain(R) == tspan(R)
+        @test diam(remainder(R)[1]) < (alg == TMJets21a ? 1e-13 : 1e-9)
+        @test get_order(R) == [8]
+        @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
+        @test expansion_point(R) ≈ [IntervalArithmetic.interval(0.0)]
 
-    # test intersection with invariant
-    prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
-    sol_inv = solve(prob; tspan=dt, alg=TMJets())
-    @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
-    m = length(sol_inv)
-    # check that the following reach-set escapes the invariant
-    @test [0.3] ∉ overapproximate(sol[m + 1], Zonotope)
+        # test intersection with invariant
+        prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
+        sol_inv = solve(prob; tspan=dt, alg=alg())
+        @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
+        m = length(sol_inv)
+        # check that the following reach-set escapes the invariant
+        @test [0.3] ∉ overapproximate(sol[m + 1], Zonotope)
+    end
 
     # TODO test higher order system
     #    prob, tspan = linear5D_homog()
@@ -63,28 +65,6 @@ end
     #    prob, tspan = linear5D()
     #    sol = solve(prob, tspan=tspan, alg=TMJets())
     #    @test sol.alg isa TMJets
-end
-
-@testset "TMJets algorithm (TMJets21a): linear IVPs" begin
-    prob, dt = exponential_1d()
-    sol = solve(prob; tspan=dt, alg=TMJets21a())
-    @test sol.alg isa TMJets21a
-
-    # getter functions for a taylor model reach-set
-    R = sol[1]
-    @test domain(R) == tspan(R)
-    @test diam(remainder(R)[1]) < 1e-13
-    @test get_order(R) == [8]
-    @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
-    @test expansion_point(R) ≈ [IntervalArithmetic.interval(0.0)]
-
-    # test intersection with invariant
-    prob, dt = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
-    sol_inv = solve(prob; tspan=dt, alg=TMJets21a())
-    @test [0.3] ∈ overapproximate(sol_inv[end], Zonotope)
-    m = length(sol_inv)
-    # check that the following reach-set escapes the invariant
-    @test [0.3] ∉ overapproximate(sol[m + 1], Zonotope)
 end
 
 @ts @testset "1D Burgers equation (TMJets21b)" begin
