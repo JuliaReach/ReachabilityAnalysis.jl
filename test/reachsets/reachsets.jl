@@ -178,6 +178,8 @@ end
 
     overapproximate(T, Zonotope; Δt=0.5 .. 1.0)
     overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Zonotope, 2)
+    overapproximate(T, Zonotope, [2, 2])
 
     overapproximate(T, Hyperrectangle)
     overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0)
@@ -193,6 +195,8 @@ end
     overapproximate(T, Zonotope; Δt=0.5 .. 1.0)
     overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
     overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=0.9 .. 1.0)
+    overapproximate(T, Zonotope, 2)
+    overapproximate(T, Zonotope, [2])
 
     overapproximate(T, Hyperrectangle)
     overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0)
