@@ -3,7 +3,7 @@
     K = 0.8
     F1 = hcat(r)
     F2 = hcat(-r / K)
-    X0 = 0.47 .. 0.53
+    X0 = Interval(0.47, 0.53)
     prob = @ivp(CanonicalQuadraticForm(F1, F2), x(0) ∈ X0)
 
     sol = solve(prob; T=10.0, alg=CARLIN(; N=3, bloat=true))
