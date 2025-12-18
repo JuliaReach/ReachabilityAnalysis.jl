@@ -4,11 +4,6 @@
 
 using LinearAlgebra: checksquare
 
-# TODO refactor to CarlemanLinearization.jl
-import CarlemanLinearization: lift_vector
-
-lift_vector(X0::IA.Interval, N) = lift_vector(Interval(X0), N)
-
 """
     kron_pow(x::IA.Interval, pow::Int)
 
@@ -107,30 +102,12 @@ function kron_pow(H::AbstractHyperrectangle, pow::Int, algorithm=nothing)
 end
 
 function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
-    x = [Interval(low(H, j), high(H, j)) for j in 1:dim(H)]
+    x = [interval(low(H, j), high(H, j)) for j in 1:dim(H)]
     r = reduce(kron, fill(x, pow))
 
-    low_r = min.(r)
-    high_r = max.(r)
+    low_r = inf.(r)
+    high_r = sup.(r)
     return Hyperrectangle(; low=low_r, high=high_r)
-end
-
-"""
-    kron_pow_stack(x::IA.Interval, pow::Int)
-
-Return a hyperrectangle with the interval powers `[x, x^2, …, x^pow]`.
-
-### Input
-
-- `x`   -- interval
-- `pow` -- integer power
-
-### Output
-
-A hyperrectangle such that the `i`-th dimension is the interval `x^i`.
-"""
-function kron_pow_stack(x::IA.Interval, pow::Int)
-    return convert(Hyperrectangle, IntervalBox([kron_pow(x, i) for i in 1:pow]))
 end
 
 """
@@ -192,7 +169,7 @@ function load_kron_dynamicpolynomials()
                 end
                 out[i] = aux
             end
-            Bpow = IntervalBox(out)
+            Bpow = IntervalBox(out...)
             Hpow = convert(Hyperrectangle, Bpow)
             return Hpow
         end
