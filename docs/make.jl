@@ -1,5 +1,7 @@
-using Documenter, ReachabilityAnalysis, DocumenterCitations
+ENV["GKSwstype"] = "100"  # prevent plots from opening interactively
 
+using Documenter, ReachabilityAnalysis, DocumenterCitations
+import Plots
 # load optional packages for complete documentation
 import ExponentialUtilities, Optim
 
