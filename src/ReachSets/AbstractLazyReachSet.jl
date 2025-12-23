@@ -133,8 +133,8 @@ function project(R::AbstractLazyReachSet, variables::NTuple{D,Int};
     vRvec = collect(vR)
 
     if check_vars && !(setdiff(variables, 0) ⊆ vR)
-        throw(ArgumentError("the variables $vars do not belong to the variables " *
-                            " of this reach-set, $(vR)"))
+        throw(ArgumentError("the variables $variables do not belong to the variables " *
+                            "of this reach-set, $vR"))
     end
 
     if 0 ∈ variables  # the projection involves "time"
@@ -182,7 +182,7 @@ function Projection(R::AbstractLazyReachSet, variables::NTuple{D,Int},
     # TODO: make vars check faster, specific for ReachSets and number of vars D
     if check_vars && !(setdiff(variables, 0) ⊆ vR)
         throw(ArgumentError("the variables $variables do not belong to the variables " *
-                            " of this reach-set, $(vR)"))
+                            "of this reach-set, $vR"))
     end
 
     if 0 ∈ variables  # the projection involves "time"
