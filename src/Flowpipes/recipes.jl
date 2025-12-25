@@ -26,9 +26,13 @@ DEFAULT_COLOR_FLOWPIPE = :blue
 # heuristics for projecting a reach-set either concretely or lazily to the space
 # spanned by vars; the returned set is concrete when the exact projection can be done
 # efficiently; in all other cases a lazy set is returned
-function _project_reachset(R::AbstractLazyReachSet, vars)
+function _project_reachset(R::AbstractLazyReachSet, vars, ε)
     ST = setrep(R)
-    return _project_reachset(ST, R, vars)
+    πR = _project_reachset(ST, R, vars)
+    if !(πR isa AbstractPolytope) && !isnothing(ε)
+        πR = overapproximate(πR, ε)
+    end
+    return πR
 end
 
 # zonotopes are projected concretely unless they have too many generators
@@ -106,9 +110,9 @@ end
 # Specialization for Taylor model reach-sets
 # --------------------------------------------
 
-function _project_reachset(T::TaylorModelReachSet, vars)
+function _project_reachset(T::TaylorModelReachSet, vars, ε)
     R = overapproximate(T, Zonotope)
-    return _project_reachset(R, vars)
+    return _project_reachset(R, vars, ε)
 end
 
 function _check_vars(vars)
@@ -139,12 +143,11 @@ end
     seriesalpha --> DEFAULT_ALPHA
     seriescolor --> DEFAULT_COLOR
 
-    X = _project_reachset(R, vars)
-    return X
+    return _project_reachset(R, vars, ε)
 end
 
-function _plot_reachset_list(list, vars)
-    return [_project_reachset(Ri, vars) for Ri in list]
+function _plot_reachset_list(list, vars, ε)
+    return [_project_reachset(Ri, vars, ε) for Ri in list]
 end
 
 # ========================
@@ -152,7 +155,7 @@ end
 # ========================
 
 @recipe function plot_list(list::Union{Flowpipe{N},AbstractVector{<:AbstractReachSet{N}}};
-                           vars=nothing) where {N}
+                           vars=nothing, ε=N(PLOT_PRECISION)) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -168,13 +171,13 @@ end
         _plot_singleton_list(list)
     else
         seriestype --> :shape
-        _plot_reachset_list(list, vars)
+        _plot_reachset_list(list, vars, ε)
     end
 end
 
 # composite flowpipes
 @recipe function plot_list(fp::Union{<:HybridFlowpipe{N},<:MixedFlowpipe{N}};
-                           vars=nothing) where {N}
+                           vars=nothing, ε=N(PLOT_PRECISION)) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -189,7 +192,7 @@ end
     @series begin
         Xs = LazySet{N}[]
         for F in fp
-            append!(Xs, _plot_reachset_list(F, vars))
+            append!(Xs, _plot_reachset_list(F, vars, ε))
         end
         Xs
     end
@@ -200,7 +203,7 @@ end
 # ========================
 
 @recipe function plot_list(sol::ReachSolution{<:Flowpipe{N}};
-                           vars=nothing) where {N}
+                           vars=nothing, ε=N(PLOT_PRECISION)) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -217,14 +220,14 @@ end
         _plot_singleton_list(fp)
     else
         seriestype --> :shape
-        _plot_reachset_list(fp, vars)
+        _plot_reachset_list(fp, vars, ε)
     end
 end
 
 # compound solution flowpipes
 @recipe function plot_list(sol::Union{ReachSolution{<:MixedFlowpipe{N}},
                                       ReachSolution{<:HybridFlowpipe{N}}};
-                           vars=nothing) where {N}
+                           vars=nothing, ε=N(PLOT_PRECISION)) where {N}
     _check_vars(vars)
 
     label --> DEFAULT_LABEL
@@ -237,10 +240,9 @@ end
     seriestype --> :shape
 
     @series begin
-        fp = flowpipe(sol)
         Xs = LazySet{N}[]
-        for F in fp
-            append!(Xs, _plot_reachset_list(F, vars))
+        for F in flowpipe(sol)
+            append!(Xs, _plot_reachset_list(F, vars, ε))
         end
         Xs
     end
@@ -278,7 +280,7 @@ end
         else
             # hard-code overapproximation here to avoid individual
             # compilations for mixed sets
-            Pi = isa(Xi, AbstractPolygon) ? Xi : overapproximate(Xi, ε)
+            Pi = isa(Xi, AbstractPolytope) ? Xi : overapproximate(Xi, ε)
             vlist = transpose(hcat(convex_hull(vertices_list(Pi))...))
             if isempty(vlist)
                 @warn "overapproximation during plotting was empty"
