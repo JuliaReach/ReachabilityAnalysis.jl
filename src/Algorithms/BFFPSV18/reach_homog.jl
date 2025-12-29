@@ -54,7 +54,7 @@ function _reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ, NSTEPS, 
         F[k] = SparseReachSet(Xk, Δt, vars)
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end
@@ -95,7 +95,7 @@ function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEP
         F[k] = SparseReachSet(Xk, Δt, vars)
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end
@@ -139,7 +139,7 @@ function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEP
         F[k] = SparseReachSet(Xk, Δt, vars)
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end

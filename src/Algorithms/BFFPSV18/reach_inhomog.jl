@@ -67,7 +67,7 @@ function _reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ, NSTEPS
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end
@@ -120,7 +120,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end
@@ -175,7 +175,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end
@@ -230,7 +230,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
     end
     return F
 end
@@ -287,7 +287,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
         end
 
         mul!(Φpowerk_cache, Φpowerk, Φ)
-        copyto!(Φpowerk, Φpowerk_cache)
+        Φpowerk, Φpowerk_cache = Φpowerk_cache, Φpowerk
 
         k += 1
     end

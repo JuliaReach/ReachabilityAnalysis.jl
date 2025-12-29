@@ -178,7 +178,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}},
         F[k] = ReachSet(Zk, Δt)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
     end
     return F
 end
@@ -249,7 +249,7 @@ function reach_homog_GLGM06_inplace!(F::Vector{ReachSet{N, Zonotope{N, VN, MN}}}
         Rₖ = Zonotope(cvec[k], Gvec[k])
         Δt += δ
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
         k += 1
         F[k] = ReachSet(Rₖ, Δt)
     end
