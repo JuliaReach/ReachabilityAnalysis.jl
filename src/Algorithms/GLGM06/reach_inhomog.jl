@@ -26,13 +26,13 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊)
+        Rₖ = linear_map_minkowski_sum(Φ_power_k, Ω0, Wk₊)
         Rₖ = reduce_order(Rₖ, max_order, reduction_method)
 
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
-        Wk₊ = minkowski_sum(Wk₊, linear_map(Φ_power_k, U))
+        Wk₊ = linear_map_minkowski_sum(Φ_power_k, U, Wk₊)
         Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
@@ -66,13 +66,13 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     k = 2
     @inbounds while k <= NSTEPS
-        Rₖ = minkowski_sum(linear_map(Φ_power_k, Ω0), Wk₊)
+        Rₖ = linear_map_minkowski_sum(Φ_power_k, Ω0, Wk₊)
         Rₖ = reduce_order(Rₖ, max_order, reduction_method)
         _is_intersection_empty(X, Rₖ, disjointness_method) && break
         Δt += δ
         F[k] = ReachSet(Rₖ, Δt)
 
-        Wk₊ = minkowski_sum(Wk₊, linear_map(Φ_power_k, U))
+        Wk₊ = linear_map_minkowski_sum(Φ_power_k, U, Wk₊)
         Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
