@@ -2,7 +2,7 @@
 # Taylor model reach set
 # ================================================================
 
-import ..Overapproximate: _overapproximate, _overapproximate_hparallelotope
+import .Overapproximate: _overapproximate, _overapproximate_hparallelotope
 
 """
     TaylorModelReachSet{N, S} <: AbstractTaylorModelReachSet{N}
