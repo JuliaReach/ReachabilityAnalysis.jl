@@ -307,7 +307,7 @@ end
 # it is assumed that rows = (idx_pos_dir, idx_neg_dir) is such that each integer
 # idx_pos_dir and idx_neg_dir refers to the row of the support function matrix
 # corresponding to a positive (resp. negative) direction
-function flatten(fp::Flowpipe{N,<:TemplateReachSet}, rows=(1, 2)) where {N}
+function to_intervals(fp::Flowpipe{N,<:TemplateReachSet}, rows=(1, 2)) where {N}
     # get the matrix of support function evaluations
     mat = support_function_matrix(fp)
 

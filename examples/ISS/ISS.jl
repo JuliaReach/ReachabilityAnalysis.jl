@@ -125,9 +125,9 @@ dim(sol_ISSF01)  #!jl
 
 # For visualization, it is necessary to specify that we want to plot "time" vs.
 # ``y_3(t)``. We can transform the flowpipe on the output ``y_3(t)`` by
-# "flattening" the flowpipe along directions `dirs`.
+# converting the support function bounds to intervals along directions `dirs`.
 
-πsol_ISSF01 = flatten(sol_ISSF01);  #!jl
+πsol_ISSF01 = to_intervals(sol_ISSF01);  #!jl
 
 # Now `πsol_ISSF01` is a one-dimensional flowpipe.
 
@@ -137,7 +137,7 @@ dim(πsol_ISSF01)  #!jl
 #md #     Note that projecting the solution along direction ``C_3`` corresponds
 #md #     to computing the min and max bounds for each reach set `X`, i.e.,
 #md #     `(-ρ(-C3, X), ρ(C3, X))`. However, the method
-#md #     `flatten(sol_ISSF01, rows=(1, 2))` is more efficient since it uses the
+#md #     `to_intervals(sol_ISSF01, rows=(1, 2))` is more efficient since it uses the
 #md #     matrix of support-function evaluations obtained by `LGG09` along
 #md #     directions ``C_3`` and ``-C_3``.
 #
@@ -163,9 +163,9 @@ prob_ISSC01 = ISSC01()
 sol_ISSC01 = solve(prob_ISSC01; T=20.0,
                    alg=LGG09(; δ=0.01, template=dirs, sparse=true, cache=false));
 
-# We can flatten the flowpipe to the output ``y_3(t)`` as before:
+# We can convert the flowpipe to intervals for the output ``y_3(t)`` as before:
 
-πsol_ISSC01 = flatten(sol_ISSC01);  #!jl
+πsol_ISSC01 = to_intervals(sol_ISSC01);  #!jl
 
 #-
 

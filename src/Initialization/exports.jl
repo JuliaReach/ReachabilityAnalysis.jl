@@ -61,7 +61,7 @@ export
       complement,
       convexify,
       cluster,
-      flatten,
+      to_intervals,
 
 # Lazy operations on flowpipes
       Projection,
