@@ -176,6 +176,6 @@ function support_function_matrix(sol::ReachSolution{<:Flowpipe{N,<:TemplateReach
     return support_function_matrix(flowpipe(sol))
 end
 
-function flatten(sol::ReachSolution{<:Flowpipe{N,<:TemplateReachSet}}, rows=(1, 2)) where {N}
-    return flatten(flowpipe(sol), rows)
+function to_intervals(sol::ReachSolution{<:Flowpipe{N,<:TemplateReachSet}}, rows=(1, 2)) where {N}
+    return to_intervals(flowpipe(sol), rows)
 end
