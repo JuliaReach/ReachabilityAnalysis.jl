@@ -28,7 +28,8 @@ TEST_MODELS = fn(["models/harmonic_oscillator.jl",
                   @ts("models/generated/Brusselator.jl"),
                   @ts("models/hybrid/thermostat.jl")])
 
-TEST_FILES = fn(["continuous/solve.jl",
+TEST_FILES = fn(["continuous/setops.jl",
+                 "continuous/solve.jl",
                  @ts("continuous/symbolics.jl"),
                  @ts("continuous/traces.jl"),
                  @ts("discretization/exponentiation.jl"),

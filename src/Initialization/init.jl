@@ -7,6 +7,7 @@ using LinearAlgebra, SparseArrays, # modules from the Julia standard library
       RecipesBase,                 # plotting
       Parameters,                  # structs with kwargs
       StaticArrays                 # statically sized arrays
+using LinearAlgebra: checksquare
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis

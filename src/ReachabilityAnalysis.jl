@@ -29,6 +29,7 @@ include("Continuous/fields.jl")
 include("Continuous/normalization.jl")
 include("Continuous/homogenization.jl")
 include("Continuous/linearization.jl")
+include("Continuous/setops.jl")
 
 # ===========================================================
 # Reachability solver algorithms
