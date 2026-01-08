@@ -36,7 +36,7 @@ and `TaylorSeries.jl` is used to work with truncated Taylor series.
     maxsteps::Int = DEFAULT_MAX_STEPS_TMJETS
     absorb::Bool = false
     adaptive::Bool = true
-    minabstol::N = Float64(TM._DEF_MINABSTOL)
+    minabstol::N = Float64(_DEF_MINABSTOL)
     validatesteps::Int = 30
     ε::N = 1e-10
     δ::N = 1e-6

@@ -139,7 +139,7 @@ with the `trajectories` keyword argument.
 using ReachabilityAnalysis, OrdinaryDiffEq
 
 # formulate initial-value problem
-prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 0.5)
+prob = @ivp(x' = 1.01x, x(0) ∈ Interval(0, 0.5))
 
 # solve the flowpipe using a default algorithm, and also compute trajectories
 sol = solve(prob, tspan=(0.0, 1.0), ensemble=true, trajectories=250)
@@ -223,7 +223,7 @@ boxes intersecting the time point `3.0` decrease by a factor 2.5x.
 ```@example cosine
 fig = plot(f(0.1)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.1", color=:lightblue)
 
-I(Δt, t) = -ρ([-1.0, 0.0], f(Δt)(t)) .. ρ([1.0, 0.0], f(Δt)(t)) |> Interval
+I(Δt, t) = Interval(-ρ([-1.0, 0.0], f(Δt)(t)), ρ([1.0, 0.0], f(Δt)(t)))
 
 I01 = I(0.1, 3.0)
 plot!(y -> max(I01), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:lightblue, lab="Δx = $(I01.dat)")
@@ -306,20 +306,6 @@ sampling-based approaches as they provide guaranteed enclosures of all possible 
 
 The section [Some common gotchas](@ref) of the user manual details do's and dont's
 for the `@taylorize` macro to speedup reachability computations using Taylor models.
-
-### A note on interval types
-
-When using intervals as set representation, `ReachabilityAnalysis.jl` relies on
-rigorous floating-point arithmetic implemented in pure Julia in the library [IntervalArithmetic.jl](https://github.com/JuliaIntervals/IntervalArithmetic.jl) (we often use `const IA = IntervalArithmetic` as an abbreviation).
-The main struct defined in the library is `IA.Interval` (and the corresponding
-multi-dimensional interval is `IA.IntervalBox`). Internally, the set `LazySets.Interval`
-is **wrapper-type** of `IA.Interval` and these two types should not be confused,
-although our user APIs extensively use [duck typing](https://en.wikipedia.org/wiki/Duck_typing),
-in the sense that `x(0) ∈ 0 .. 1` (`IA.Interval` type) and `x(0) ∈ Interval(0, 1)` are valid.
-
-On a technical level, the reason to have `LazySets.Interval` as a wrapper type
-of `IA.Interval` is that Julia doesn't allow multiple inheritance, but it was a design
-choice that intervals should belong to the `LazySets` type hierarchy.
 
 ## References
 

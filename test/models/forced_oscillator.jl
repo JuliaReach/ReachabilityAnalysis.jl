@@ -1,5 +1,5 @@
 # See [Chapter 9, in Finite Element Procedures, K-J Bathe].
-function forced_oscillator(; X0=(zeros(2), zeros(2)), X=Universe(2))
+function forced_oscillator(; X0=Singleton(zeros(4)), X=Universe(2))
     # Mx'' + Kx = R
     M = [2 0; 0 1.0]
     K = [6 -2; -2 4.0]
