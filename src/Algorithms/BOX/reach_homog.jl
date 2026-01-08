@@ -42,7 +42,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
         F[k] = ReachSet(Hₖ, Δt)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
         k += 1
     end
     return F
@@ -114,7 +114,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
         F[k] = ReachSet(Hₖ, Δt)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
         k += 1
     end
     if k < NSTEPS + 1

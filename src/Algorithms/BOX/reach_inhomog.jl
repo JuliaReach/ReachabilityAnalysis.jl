@@ -53,7 +53,7 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
         #gemv!('N', 1.0, abs_Φ_power_k, U.radius, 1.0, Wk₊.radius)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
         k += 1
     end
     return F
@@ -108,7 +108,7 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
         Wk₊.radius .+= abs_Φ_power_k * U.radius
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        copyto!(Φ_power_k, Φ_power_k_cache)
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
         k += 1
     end
     if k < NSTEPS + 1
