@@ -284,7 +284,23 @@ DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 
 ### Can I use ODE solvers with interval initial conditions?
 
-Although it is in principle possible to  ODE solvers for
+Although it is in principle possible to use ODE solvers for interval initial conditions,
+standard ODE solvers from packages like `OrdinaryDiffEq.jl` are designed to work with
+point-valued (deterministic) initial conditions. To handle sets of initial conditions,
+you have several options:
+
+1. **Ensemble simulations**: Use the ensemble capabilities (see *How can I visualize trajectories?*)
+   to simulate multiple trajectories from points sampled within the interval. This gives you
+   trajectory-based approximations but not rigorous set enclosures.
+
+2. **Reachability analysis**: Use the reachability algorithms provided by this package
+   (e.g., `GLGM06`, `TMJets`, `LGG09`) which are specifically designed to propagate sets
+   of initial conditions and compute rigorous enclosures of all reachable states. Taylor
+   model-based methods like `TMJets` employ rigorous interval arithmetic to handle interval
+   initial conditions directly while controlling the wrapping effect.
+
+For rigorous verification and safety analysis, reachability methods are preferred over
+sampling-based approaches as they provide guaranteed enclosures of all possible behaviors.
 
 ### How do I use the `@taylorize` macro?
 
