@@ -87,7 +87,7 @@ PARAMETRIC_SYSTEMS = ["Parametric systems" => [
 
 HYBRID_SYSTEMS = ["Hybrid systems" => [
                                        #
-                                       "Introduction"           => "man/hybrid.md",
+                                       "Introduction" => "man/hybrid.md",
                                        #"Thermostat model"       => "tutorials/hybrid_systems/thermostat.md",
                                        "Square wave oscillator" => "generated_examples/SquareWaveOscillator.md"
                                        #
