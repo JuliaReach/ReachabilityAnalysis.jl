@@ -1,6 +1,7 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 CDDLib = "3391f64e-dcde-5f30-b752-e11513730f60"
+ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
 Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4"
 Flowstar = "a8054ddd-9dca-4d20-8ffe-ae96ec1541f1"
 IntervalArithmetic = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
@@ -19,6 +20,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 Aqua = "0.8.9"
 CDDLib = "0.5 - 0.10"
+ExplicitImports = "1"
 Expokit = "0.2"
 Flowstar = "0.2.4"
 IntervalArithmetic = "0.16 - 0.20, =0.20.9"
