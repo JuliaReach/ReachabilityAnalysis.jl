@@ -30,7 +30,7 @@ struct DiscreteTransition{RT,WT,GT,IT⁻,IT⁺} <: AbstractTransition
     I⁺::IT⁺
 end
 
-HybridSystems.guard(tr::DiscreteTransition) = tr.G
+guard(tr::DiscreteTransition) = tr.G
 source_invariant(tr::DiscreteTransition) = tr.I⁻
 target_invariant(tr::DiscreteTransition) = tr.I⁺
 
@@ -42,7 +42,7 @@ function DiscreteTransition(; guard::GT, source_invariant::IT⁻,
 end
 
 # constructor from hybrid system given the transition
-function DiscreteTransition(H::HybridSystems.HybridSystem, transition)
+function DiscreteTransition(H::HybridSystem, transition)
     assignment = resetmap(H, transition)
     R = _state_matrix(assignment)
     W = _affine_term(assignment)

@@ -24,7 +24,7 @@ end
     return V.field([x], args...)
 end
 
-VectorField(sys::InitialValueProblem) = VectorField(system(sys))
+VectorField(sys::IVP) = VectorField(system(sys))
 
 function VectorField(sys::AbstractContinuousSystem)
     if islinear(sys)
@@ -53,7 +53,7 @@ function vector_field(sys::AbstractSystem, args...)
 end
 
 # (x, p, t) -> du
-function outofplace_field(ivp::InitialValueProblem)
+function outofplace_field(ivp::IVP)
     vf = VectorField(ivp)
 
     # function closure over the initial-value problem
@@ -64,7 +64,7 @@ function outofplace_field(ivp::InitialValueProblem)
 end
 
 # f!(dx, x, p, t)
-function inplace_field!(ivp::InitialValueProblem)
+function inplace_field!(ivp::IVP)
     vf = VectorField(ivp)
 
     # function closure over the initial-value problem

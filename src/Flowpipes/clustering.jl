@@ -324,7 +324,7 @@ function _cluster_decompose_zono(fpz::AbstractVector{RT}, blocks,
             Yi = reduce_order(Yi, 2)
 
         elseif dim_blk == 1
-            Yi = overapproximate(Vch, LazySets.Interval)
+            Yi = overapproximate(Vch, Interval)
             Yi = convert(Zonotope, Yi)
         end
 

@@ -1,5 +1,5 @@
 function _expansion_point(a, b, c, X0::Interval, Δ)
-    c₀ = mid(X0.dat)
+    c₀ = IA.mid(X0.dat)
     f_c₀ = c₀ * (a * c₀ + b) + c
     x̃ = c₀ + Δ / 2 * f_c₀
     return x̃

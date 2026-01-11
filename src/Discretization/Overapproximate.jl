@@ -1,8 +1,11 @@
 module Overapproximate
 
-using LazySets
-using IntervalMatrices
-using LazySets: matrix
+using LazySets: LazySets, AbstractHyperrectangle, AbstractPolytope,
+                AbstractZonotope, HPolytope, HalfSpace, Hyperrectangle, LazySet,
+                LinearMap, Zonotope, box_approximation, center,
+                constraints_list, dim, genmat, linear_map, matrix, ngens, order,
+                overapproximate, set
+using IntervalMatrices: AbstractIntervalMatrix, IntervalMatrix
 using StaticArrays: SVector, SMatrix, MMatrix, StaticArray
 import IntervalArithmetic as IA
 
@@ -46,7 +49,7 @@ end
 function _overapproximate(lm::LinearMap{N,<:AbstractZonotope{N},NM,<:AbstractIntervalMatrix{NM}},
                           ::Type{<:Zonotope}) where {N<:Real,NM}
     Mc, Ms = _split(matrix(lm))
-    Z = LazySets.set(lm)
+    Z = set(lm)
     c = center(Z)
     G = genmat(Z)
     return _overapproximate_interval_linear_map(Mc, Ms, c, G)
@@ -138,8 +141,8 @@ function _split_fallback!(A::IntervalMatrix{T}, C, S) where {T}
     @inbounds for j in 1:n
         for i in 1:m
             itv = A[i, j]
-            radius = (sup(itv) - inf(itv)) / T(2)
-            C[i, j] = inf(itv) + radius
+            radius = (IA.sup(itv) - IA.inf(itv)) / T(2)
+            C[i, j] = IA.inf(itv) + radius
             S[i, j] = radius
         end
     end
@@ -221,8 +224,8 @@ interval `x_ref` accounting for it the lower and the upper range bounds separate
 (see [AlthoffGK18; Eq. (20)](@citet)).
 """
 function relative_error(x, x_ref)
-    x_low, x_high = inf(x), sup(x)
-    x_ref_low, x_ref_high = inf(x_ref), sup(x_ref)
+    x_low, x_high = IA.inf(x), IA.sup(x)
+    x_ref_low, x_ref_high = IA.inf(x_ref), IA.sup(x_ref)
     denom = x_ref_high - x_ref_low
     rel_low = -(x_low - x_ref_low) / denom
     rel_high = (x_high - x_ref_high) / denom

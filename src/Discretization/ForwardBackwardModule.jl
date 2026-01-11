@@ -6,11 +6,16 @@ module ForwardBackwardModule
 using ..DiscretizationModule
 using ..Exponentiation: _exp, _alias, BaseExp, elementwise_abs, Φ₂
 using ..ApplySetops: _apply_setops
-using MathematicalSystems
-using LazySets
-using Parameters
-using Requires
-using Reexport
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearControlContinuousSystem,
+                           ConstrainedLinearControlDiscreteSystem,
+                           ConstrainedLinearDiscreteSystem, IVP,
+                           IdentityMultiple, initial_state, inputset,
+                           state_matrix, stateset
+using LazySets: LazySets, LazySet, ZeroSet, dim, ρ, σ, ⊕
+using Parameters: @unpack
+using Requires: @require
+using Reexport: @reexport
 
 export ForwardBackward
 
@@ -81,7 +86,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::ForwardBackward)
 
     X = stateset(ivp)
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # ------------------------------------------------------------
@@ -113,7 +118,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::ForwardBackward)
     X = stateset(ivp)
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, Ud)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # struct to hold the set obtained with ForwardBackward discretization
@@ -172,7 +177,7 @@ end
 function load_forwardbackward_discretization()
     return quote
         import .JuMP
-        using .JuMP: MOI, Model, set_silent, register, optimize!, objective_value
+        using .JuMP: Model, set_silent, register, optimize!, objective_value
 
         function LazySets.ρ(d::AbstractVector, X::ContCH)
             @unpack δ, Φᵀ, X0, U, E₊, E₋, Eψ, solver = X

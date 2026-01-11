@@ -6,14 +6,20 @@ module CorrectionHullModule
 using ..DiscretizationModule
 using ..Exponentiation: _exp, _alias, IntervalExpAlg
 using ..Overapproximate: _convert_or_overapproximate, _overapproximate
+using LinearAlgebra: Diagonal, I
 using IntervalMatrices: AbstractIntervalMatrix, IntervalMatrix, correction_hull,
                         input_correction, _exp_remainder
-using MathematicalSystems
-using LazySets
-using LazySets: LinearMap
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearControlContinuousSystem,
+                           ConstrainedLinearControlDiscreteSystem,
+                           ConstrainedLinearDiscreteSystem, IVP,
+                           IdentityMultiple, initial_state, inputset,
+                           state_matrix, stateset
+using LazySets: ConvexHull, Hyperrectangle, LazySet, LinearMap, Zonotope,
+                center, dim, genmat, linear_map, matrix, minkowski_sum,
+                overapproximate, radius_hyperrectangle, set
 import IntervalArithmetic as IA
-using LinearAlgebra
-using Reexport
+using Reexport: @reexport
 
 export CorrectionHull
 
@@ -82,7 +88,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::CorrectionHull)
     Ω0 = _discretize_chull(A, Φ, X0, δ, alg)
 
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg, P=nothing)
@@ -92,7 +98,7 @@ function _discretize_chull(A, Φ::IntervalMatrix, X0, δ, alg, P=nothing)
         Y = minkowski_sum(Y, P)
     end
 
-    H = overapproximate(CH(X0z, Y), Zonotope)
+    H = overapproximate(ConvexHull(X0z, Y), Zonotope)
     F = correction_hull(A, δ, alg.order)
     R = _overapproximate(F * X0z, Zonotope)
     Ω0 = minkowski_sum(H, R)
@@ -110,7 +116,7 @@ function _discretize_chull(A, Φ::AbstractMatrix, X0, δ, alg)
     X0z = _convert_or_overapproximate(Zonotope, X0)
     Y = linear_map(Φ, X0z)
 
-    H = overapproximate(CH(X0z, Y), Zonotope)
+    H = overapproximate(ConvexHull(X0z, Y), Zonotope)
     F = _correction_hull_without_E(A, δ, alg.order)
     R = _overapproximate(F * X0z, Zonotope)
 
@@ -129,7 +135,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::CorrectionHull)
 
     # here U is an interval matrix map of a lazyset, TODO refactor / dispatch
     if isa(U, LinearMap)
-        Uz = _convert_or_overapproximate(Zonotope, LazySets.set(U))
+        Uz = _convert_or_overapproximate(Zonotope, set(U))
         B = matrix(U) # TODO remove this case, since preprocessing normalize(ivp) would make B the identity
         Uz = isinterval(B) ? _overapproximate(B * Uz, Zonotope) : linear_map(B, Uz)
     else # LazySet
@@ -176,7 +182,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::CorrectionHull)
 
     B = Matrix(IdentityMultiple(one(eltype(A)), size(A, 1)))
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, Ud)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # convert a vector of intervals to a hyperrectangle with normal vector type

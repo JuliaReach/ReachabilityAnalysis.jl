@@ -158,7 +158,7 @@ julia> A = sprandn(3, 3, 0.5);
 
 julia> X0 = BallInf(zeros(3), 1.0);
 
-julia> s = InitialValueProblem(LinearContinuousSystem(A), X0);
+julia> s = IVP(LinearContinuousSystem(A), X0);
 
 julia> sext = add_dimension(s);
 
@@ -175,7 +175,7 @@ julia> using ReachabilityAnalysis.DiscretizationModule: next_set
 
 julia> U = ConstantInput(Ball2(ones(3), 0.1));
 
-julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
+julia> s = IVP(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
 
 julia> sext = add_dimension(s);
 
@@ -193,7 +193,7 @@ If there is an input set, it is also extended:
 ```jldoctest add_dimension_cont_sys
 julia> U = VaryingInput([Ball2(ones(3), 0.1 * i) for i in 1:3]);
 
-julia> s = InitialValueProblem(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
+julia> s = IVP(ConstrainedLinearControlContinuousSystem(A, Matrix(1.0I, size(A)), nothing, U), X0);
 
 julia> sext = add_dimension(s);
 
@@ -310,7 +310,7 @@ or a new one otherwise.
 This function extends [`normalize`](@ref normalize(::AbstractSystem)) for
 initial-value problems.
 """
-function normalize(ivp::InitialValueProblem)
+function normalize(ivp::MathematicalSystems.InitialValueProblem)
     return IVP(normalize(system(ivp)), initial_state(ivp))
 end
 

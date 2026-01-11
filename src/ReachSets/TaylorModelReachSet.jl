@@ -307,12 +307,12 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
         else
             # TODO (also below) may use IA.mince directly
             partition = fill(nsdiv, D)
-            Sdiv = LazySets.split(convert(T, S), partition)
+            Sdiv = Base.split(convert(T, S), partition)
             partition = convert.(IntervalBox, Sdiv)
         end
 
     else
-        Sdiv = LazySets.split(convert(T, S), partition)
+        Sdiv = Base.split(convert(T, S), partition)
         partition = convert.(IntervalBox, Sdiv)
     end
     nparts = length(partition)
@@ -367,7 +367,7 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope},
     part = _split_symmetric_box(D, partition)
     fX̂ = Vector{Vector{TaylorModelN{length(X_Δt),N,N}}}(undef, length(part))
     @inbounds for (i, Bi) in enumerate(part)
-        x0 = IntervalBox(mid.(Bi))
+        x0 = IntervalBox(IA.mid.(Bi))
         X̂ib = [TaylorModelN(X_Δt[j], zeroI, x0, Bi) for j in 1:D]
         fX̂[i] = fp_rpa.(X̂ib)
     end
@@ -537,7 +537,7 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     end
     # diagonal part
     @inbounds begin
-        pi = mid(Y.dat) + zero(TaylorN(1; order=orderQ))
+        pi = IA.mid(Y.dat) + zero(TaylorN(1; order=orderQ))
         d = diam(Y.dat) / 2
         rem = IA.interval(-d, d)
         vTM[n] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
@@ -576,7 +576,7 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
 
     # fill the final row, which correspponds to the "interval" variable: (n+1)-th
     I = Zcp.Y.dat
-    pi = mid(I) + zero(TaylorN(n + 1; order=orderQ))
+    pi = IA.mid(I) + zero(TaylorN(n + 1; order=orderQ))
     d = diam(I) / 2
     rem = IA.interval(-d, d)
     @inbounds vTM[n + 1] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)

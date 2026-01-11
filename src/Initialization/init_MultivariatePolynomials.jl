@@ -1,4 +1,3 @@
-using .MultivariatePolynomials: AbstractVariable, AbstractMonomialLike,
-                                exponents, variables, powers
+using .MultivariatePolynomials: AbstractVariable, variables, powers
 
 eval(load_kron_multivariate())

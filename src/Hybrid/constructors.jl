@@ -6,14 +6,14 @@
 function HybridSystem(mode::AbstractContinuousSystem, reset_map::AbstractMap)
     automaton = GraphAutomaton(1)
     add_transition!(automaton, 1, 1, 1)
-    return HybridSystems.HybridSystem(automaton, [mode], [reset_map], [AutonomousSwitching()])
+    return HybridSystem(automaton, [mode], [reset_map], [AutonomousSwitching()])
 end
 
 # hybrid automaton constructors with default switchings
 function HybridSystem(automaton, modes, resetmaps)
     m = nmodes(automaton)
     switchings = fill(AutonomousSwitching(), m)
-    return HybridSystems.HybridSystem(automaton, modes, resetmaps, switchings)
+    return HybridSystem(automaton, modes, resetmaps, switchings)
 end
 
 function HybridSystem(; automaton, modes, resetmaps)
@@ -36,7 +36,7 @@ end
 =#
 
 # TODO refactor => MathematicalSystems (?)
-HybridSystems.mode(ivp::InitialValueProblem{<:HybridSystem}, i::Integer) = mode(system(ivp), i)
+mode(ivp::IVP{<:HybridSystem}, i::Integer) = mode(system(ivp), i)
 
 # ===============================================
 # Hybrid systems with time-triggered transitions
@@ -171,7 +171,7 @@ function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T,MT,N,J}
     return HACLD1(sys, rmap, Tsample, ζint, switching)
 end
 
-function _check_dim(ivp::InitialValueProblem{<:HACLD1}; throw_error::Bool=true)
+function _check_dim(ivp::IVP{<:HACLD1}; throw_error::Bool=true)
     S = system(ivp)
     X0 = initial_state(ivp)
     return _check_dim(S, X0; throw_error=throw_error)

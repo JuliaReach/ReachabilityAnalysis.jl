@@ -7,14 +7,15 @@ differential equations using matrix methods. For applications see, e.g.,
 """
 module Exponentiation
 
-using StaticArrays
-using MathematicalSystems
-using ReachabilityBase.Require
-using LinearAlgebra: checksquare, I, Diagonal
-using SparseArrays
-using IntervalArithmetic
-using IntervalMatrices
-using LazySets
+using StaticArrays: StaticArray
+using MathematicalSystems: IdentityMultiple
+using ReachabilityBase.Require: require
+using LinearAlgebra: checksquare, I
+using SparseArrays: SparseMatrixCSC, nonzeros, sparse, spzeros
+using IntervalMatrices: AbstractIntervalMatrix, IntervalMatrix,
+                        exp_overapproximation
+using LazySets: AbstractHyperrectangle, Hyperrectangle, SparseMatrixExp, dim,
+                get_columns, symmetric_interval_hull, _expmv
 
 export BaseExp, BaseExpAlg, IntervalExpAlg, LazyExpAlg, PadeExpAlg, elementwise_abs, Φ₂, Φ₁, Φ₁_u
 
@@ -334,7 +335,7 @@ end
 # compute Φ₁(A, δ)u = A^{-1}(exp(Aδ) - I) u without explicitly computing exp(Aδ)
 # and assuming that A is invertible
 function Φ₁_u(A, δ, alg::LazyExpAlg, u::AbstractVector, ::Nothing)
-    w = LazySets._expmv(δ, A, u; m=alg.m, tol=alg.tol)
+    w = _expmv(δ, A, u; m=alg.m, tol=alg.tol)
     x = w - u
     return A \ x
 end
@@ -478,7 +479,7 @@ elementwise_abs(A::IdentityMultiple) = IdentityMultiple(abs(A.M.λ), size(A, 1))
 # Optional dependencies
 # =====================
 
-using Requires
+using Requires: @require
 
 function __init__()
     @require Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4" eval(load_expokit_pade())

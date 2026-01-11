@@ -1,5 +1,3 @@
-using RecipesBase
-
 #=
 The plotting functions in this file are adapted from those in LazySets.jl.
 See the relevant docstrings in LazySets for the description of the available options.
@@ -13,12 +11,6 @@ using LazySets: plot_recipe,
                 DEFAULT_ASPECT_RATIO,
                 DEFAULT_ALPHA,
                 DEFAULT_COLOR,
-                _extract_limits,
-                _extract_extrema,
-                _set_auto_limits_to_extrema!,
-                _bounding_hyperrectangle,
-                _update_plot_limits!,
-                isapproxzero,
                 _plot_singleton_list
 
 DEFAULT_COLOR_FLOWPIPE = :blue

@@ -2,12 +2,12 @@
 # Dependencies
 # ======================
 
-using LinearAlgebra, SparseArrays, # modules from the Julia standard library
-      Reexport,                    # see @reexport macro below
-      RecipesBase,                 # plotting
-      Parameters,                  # structs with kwargs
-      StaticArrays                 # statically sized arrays
-using LinearAlgebra: checksquare
+using LinearAlgebra: Diagonal, I, dot, isdiag, mul!, tr
+using Parameters: @unpack, @with_kw
+using RecipesBase: @recipe, @series
+using Reexport: @reexport
+using SparseArrays: SparseMatrixCSC, SparseVector, sparse, sparsevec, spzeros
+using StaticArrays: MMatrix, SMatrix, SVector
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis
@@ -19,7 +19,7 @@ using LinearAlgebra: checksquare
                 TaylorIntegration
 
 # required to avoid conflicts with MathematicalSystems
-using LazySets: AffineMap, ResetMap
+using LazySets: AffineMap, LinearMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
@@ -27,14 +27,16 @@ using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
 # JuliaReach internal functions
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
                                isinvertible, samedir, vector_type
+using ReachabilityBase.Commutative: @commutative
 using ReachabilityBase.Comparison: _leq, _geq
 using ReachabilityBase.Require: @required
 using LazySets.Approximations: AbstractDirections
-using LazySets: @commutative, AbstractReductionMethod, linear_map!
+using LazySets: AbstractReductionMethod, linear_map!
 
 # aliases for intervals
 const IM = IntervalMatrices
 import IntervalArithmetic as IA
+using IntervalArithmetic: diam
 const TimeInterval = IA.Interval{Float64}
 import TaylorModels as TM
 using TaylorModels: TaylorModel1, TaylorN, fp_rpa, shrink_wrapping!
@@ -50,15 +52,13 @@ const AdmissibleSet = Union{LazySet,IA.Interval,IA.IntervalBox}
 
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
-                 intersection, directions, linear_map, LinearMap, split!,
-                 set, array, _isapprox,
-                 _plot_singleton_list_1D, _plot_singleton_list_2D
-
+                 intersection, directions, linear_map, split!, set, array
+import ReachabilityBase.Comparison: _isapprox
 import Base: ∈, ∩, convert, isdisjoint
 import LinearAlgebra: normalize
 
 import MathematicalSystems: system, statedim, initial_state
-import HybridSystems: HybridSystem
+import HybridSystems: HybridSystem, guard, mode
 
 import CommonSolve: solve # common solve name
 
@@ -109,7 +109,7 @@ const VecOrTupleOrInt = Union{<:AbstractVector{Int},NTuple{D,Int},Int} where {D}
 # Optional dependencies
 # ======================
 
-using Requires
+using Requires: @require
 
 function __init__()
     # numerical differential equations suite

@@ -110,7 +110,7 @@ function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...
     sol_tot = Vector{FT}(undef, nsets)
 
     Threads.@threads for i in eachindex(X0)
-        sol_i = ReachabilityAnalysis.post(cpost, IVP(S, X0[i]), tspan; kwargs...)
+        sol_i = post(cpost, IVP(S, X0[i]), tspan; kwargs...)
         sol_tot[i] = sol_i
     end
     return sol_tot
@@ -134,7 +134,7 @@ Abstract supertype of all continuous post operators.
 """
 abstract type AbstractContinuousPost <: AbstractPost end
 
-setrep(::InitialValueProblem{HS,ST}) where {HS,ST} = ST
+setrep(::IVP{HS,ST}) where {HS,ST} = ST
 
 # ==================
 # Argument handling
@@ -195,7 +195,7 @@ function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
     return false
 end
 
-function _check_dim(ivp::InitialValueProblem{<:AbstractContinuousSystem}; throw_error::Bool=true)
+function _check_dim(ivp::IVP{<:AbstractContinuousSystem}; throw_error::Bool=true)
     S = system(ivp)
     X0 = initial_state(ivp)
     return _check_dim(S, X0; throw_error=throw_error)

@@ -4,12 +4,14 @@
 module SecondOrderddtModule
 
 using ..DiscretizationModule
-using ..Exponentiation: _exp, _alias, BaseExp, Φ₂
+using ..Exponentiation: _exp, _alias, BaseExp
 using ..ApplySetops: _apply_setops
-using LinearAlgebra
-using MathematicalSystems
-using LazySets
-using Reexport
+using LinearAlgebra: norm, opnorm
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearDiscreteSystem, IVP, initial_state,
+                           state_matrix, stateset
+using LazySets: Bloating, ConvexHull, HPolytope, LazySet, tosimplehrep
+using Reexport: @reexport
 
 export SecondOrderddt
 
@@ -104,7 +106,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::SecondOrderddt)
 
     X = stateset(ivp)
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 function _estimate_bloating_value_ddt(A, X0, δ)

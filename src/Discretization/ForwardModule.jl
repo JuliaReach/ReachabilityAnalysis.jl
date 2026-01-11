@@ -7,9 +7,14 @@ using ..DiscretizationModule
 using ..Exponentiation: _exp, _alias, BaseExp, elementwise_abs, Φ₂
 using ..ApplySetops: _apply_setops
 using IntervalArithmetic: hull
-using MathematicalSystems
-using LazySets
-using Reexport
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearControlContinuousSystem,
+                           ConstrainedLinearControlDiscreteSystem,
+                           ConstrainedLinearDiscreteSystem, IVP,
+                           IdentityMultiple, initial_state, inputset,
+                           state_matrix, stateset
+using LazySets: ConvexHull, Interval, LazySet, symmetric_interval_hull, ⊕
+using Reexport: @reexport
 
 export Forward
 
@@ -93,7 +98,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::Forward)
 
     X = stateset(ivp)
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, ::Forward) where {N}
@@ -121,7 +126,7 @@ function discretize(ivp::IVP{<:CLCS,Interval{N}}, δ, ::Forward) where {N}
     X = stateset(ivp)
     # the system constructor creates a matrix
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # ------------------------------------------------------------
@@ -155,7 +160,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
     B = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, V)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 end  # module

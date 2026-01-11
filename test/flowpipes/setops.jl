@@ -1,3 +1,5 @@
+using ReachabilityAnalysis.ReachabilityBase.Arrays: SingleEntryVector
+
 @testset "Intersection methods: TemplateHullIntersection" begin
 
     # default constructor without types
@@ -15,6 +17,6 @@
 
     # constructor with a given template
     td = TemplateHullIntersection(BoxDirections(2))
-    @test setrep(td) == Union{HPolytope{Float64,LazySets.Arrays.SingleEntryVector{Float64}},
+    @test setrep(td) == Union{HPolytope{Float64,SingleEntryVector{Float64}},
                               HPolytope{Float64,Vector{Float64}}}
 end

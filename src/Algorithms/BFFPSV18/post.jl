@@ -27,7 +27,7 @@ function post(alg::BFFPSV18{N,ST}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=no
 
     # force using sparse type for the matrix exponential
     if alg.sparse
-        Φ = SparseArrays.sparse(Φ)
+        Φ = sparse(Φ)
     end
 
     # variables that are actually computed

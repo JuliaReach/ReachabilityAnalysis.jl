@@ -51,7 +51,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
 end
 
 function _compute_resets(resets::Int, T)
-    return mince(0 .. T, resets + 1)
+    return IA.mince(0 .. T, resets + 1)
 end
 
 function _compute_resets(resets::Vector{Float64}, T)

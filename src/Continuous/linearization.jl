@@ -33,7 +33,7 @@ end
 
 _new_variables(n) = [Symbolics.variable(:x, i; T=Real) for i in 1:n]
 
-function _linearize(ivp::InitialValueProblem,
+function _linearize(ivp::IVP,
                     alg::AbstractRangeEnclosureMethod=IntervalArithmeticEnclosure())
     n = statedim(ivp)
     var = _new_variables(n)  # @variables x[1:n]
