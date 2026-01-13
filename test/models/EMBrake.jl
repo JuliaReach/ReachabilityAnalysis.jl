@@ -1,6 +1,3 @@
-ReachabilityBase.Comparison.set_rtol(Float64, 1e-12)
-ReachabilityBase.Comparison.set_ztol(Float64, 1e-13)
-
 # Fixed parameters
 
 function embrake_no_pv(; Tsample=1.E-4, ζ=1e-6, x0=0.05)
