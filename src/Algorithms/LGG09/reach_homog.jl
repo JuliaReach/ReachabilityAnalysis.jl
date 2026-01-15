@@ -412,7 +412,7 @@ function reach_homog_LGG09!(F::Vector{RT},
         copy!(rᵢ, rᵢ₊₁)
 
         F[k] = TemplateReachSet(dirs, view(ρmat, :, k), Δt)
-        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        _isdisjoint(X, set(F[k])) && break  # TODO pass disjointness method
         Δt += δ
         k += 1
     end

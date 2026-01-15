@@ -120,7 +120,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
             # find reach-sets that may take the jump
             jump_rset_idx = Vector{Int}()
             for (i, X) in enumerate(F)
-                _is_intersection_empty(X, G, disjointness_method) && continue
+                _isdisjoint(X, G, disjointness_method) && continue
                 push!(jump_rset_idx, i)
             end
 
@@ -268,7 +268,7 @@ function _distribute(ivp::IVP{HS,ST};
         for loc in states(H)
             Sloc = mode(H, loc)
             Y = stateset(Sloc)
-            if !_is_intersection_empty(X0, Y)
+            if !_isdisjoint(X0, Y)
                 push!(waiting_list, StateInLocation(X0, loc))
             end
         end
@@ -277,7 +277,7 @@ function _distribute(ivp::IVP{HS,ST};
         for loc in states(H)
             Sloc = mode(H, loc)
             Y = stateset(Sloc)
-            if !_is_intersection_empty(X0, Y)
+            if !_isdisjoint(X0, Y)
                 X0cut = intersection(X0, Y)
                 X0cut_oa = overapproximate(X0cut, ST)
                 push!(waiting_list, StateInLocation(X0cut_oa, loc))
@@ -307,7 +307,7 @@ function _distribute_mixed(ivp::IVP{HS,ST};
         for loc in states(H)
             Sloc = mode(H, loc)
             Y = stateset(Sloc)
-            if !_is_intersection_empty(X0, Y)
+            if !_isdisjoint(X0, Y)
                 push!(waiting_list, StateInLocation(X0, loc))
             end
         end
@@ -316,7 +316,7 @@ function _distribute_mixed(ivp::IVP{HS,ST};
         for loc in states(H)
             Sloc = mode(H, loc)
             Y = stateset(Sloc)
-            if !_is_intersection_empty(X0, Y)
+            if !_isdisjoint(X0, Y)
                 X0cut = intersection(X0, Y)
                 push!(waiting_list, StateInLocation(X0cut, loc))
             end
@@ -390,7 +390,7 @@ function _distribute(ivp::IVP{HS, WL},
         initial_states = WaitingList{ST, Int}()
         for loc in states(S)
             Sloc = mode(S, loc)
-            if !_is_intersection_empty(X0, stateset(Sloc))
+            if !_isdisjoint(X0, stateset(Sloc))
                 push!(initial_states, StateInLocation(X0, loc))
             end
         end
@@ -414,7 +414,7 @@ function _distribute(ivp::IVP{HS, VQT};
     initial_states = WaitingList{Int, ST}()
     for loc in states(S)
         if check_invariant
-            if !_is_intersection_empty(X0, stateset(loc))
+            if !_isdisjoint(X0, stateset(loc))
                     push!(initial_states, StateInLocation(loc, X0))
                 end
             end
