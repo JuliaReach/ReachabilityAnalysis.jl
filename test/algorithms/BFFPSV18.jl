@@ -1,4 +1,6 @@
-@testset "BFFPSV18 algorithm: type constructors" begin
+using ReachabilityAnalysis, Test
+
+@testset "BFFPSV18 algorithm" begin
     A = rand(5, 5)
     X0 = rand(Hyperrectangle; dim=5)
     B = rand(5, 1)

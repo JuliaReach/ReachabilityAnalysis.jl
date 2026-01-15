@@ -40,7 +40,8 @@ include("Algorithms/A20/A20.jl")
 
 include("Algorithms/ASB07/ASB07.jl")
 
-include("Algorithms/BFFPSV18/BFFPSV18.jl")
+include("Algorithms/BFFPSV18/BFFPSV18Module.jl")
+using ..BFFPSV18Module: BFFPSV18
 
 include("Algorithms/BOX/BOX.jl")
 
