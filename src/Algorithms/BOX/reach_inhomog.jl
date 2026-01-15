@@ -97,7 +97,7 @@ function reach_inhomog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
         r[k] = abs.(Φ_power_k) * r[1] + Wk₊.radius
         Hₖ = Hyperrectangle(c[k], r[k]; check_bounds=false)
 
-        _is_intersection_empty(X, Hₖ) && break
+        _isdisjoint(X, Hₖ) && break
 
         Δt += δ
         F[k] = ReachSet(Hₖ, Δt)

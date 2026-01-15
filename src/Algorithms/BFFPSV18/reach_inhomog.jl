@@ -277,7 +277,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
             Xhatk[i] = overapproximate(MinkowskiSumArray(buffer) ⊕ Whatk[i], ST)
         end
         Xk = CartesianProductArray(copy(Xhatk))
-        _is_intersection_empty(X, Xk) && break
+        _isdisjoint(X, Xk) && break
         Δt += δ
         F[k] = SparseReachSet(Xk, Δt, vars)
 

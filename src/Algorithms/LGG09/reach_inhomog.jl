@@ -190,7 +190,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
         copy!(rᵢ, rᵢ₊₁)
 
         F[k] = TemplateReachSet(dirs, view(ρmat, :, k), Δt)
-        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        _isdisjoint(X, set(F[k])) && break  # TODO pass disjointness method
         Δt += δ
         k += 1
     end
@@ -254,7 +254,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
         end
 
         F[k] = TemplateReachSet(dirs, view(ρmat, :, k), Δt)
-        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        _isdisjoint(X, set(F[k])) && break  # TODO pass disjointness method
         Δt += δ
         k += 1
     end
@@ -295,7 +295,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     k = 1
     @inbounds while k <= NSTEPS
         F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)
-        _is_intersection_empty(X, set(F[k])) && break  # TODO pass disjointness method
+        _isdisjoint(X, set(F[k])) && break  # TODO pass disjointness method
         Δt += δ
         k += 1
     end

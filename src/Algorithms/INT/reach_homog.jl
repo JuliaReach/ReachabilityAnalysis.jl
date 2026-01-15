@@ -40,7 +40,7 @@ function reach_homog_INT!(F::Vector{ReachSet{N,Interval{N}}},
     k = 2
     @inbounds while k <= NSTEPS
         Iₖ = Interval(Φ * set(F[k - 1]).dat)
-        _is_intersection_empty(X, Iₖ) && break
+        _isdisjoint(X, Iₖ) && break
         Δt += δ
         F[k] = ReachSet(Iₖ, Δt)
         k += 1

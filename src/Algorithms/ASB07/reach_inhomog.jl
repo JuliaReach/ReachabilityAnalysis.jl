@@ -70,7 +70,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
         Zₖ = minkowski_sum(Wk₊, Zₖ)
         Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
-        _is_intersection_empty(X, Zₖʳ) && break
+        _isdisjoint(X, Zₖʳ) && break
 
         Δt += δ
         F[k] = ReachSet(Zₖʳ, Δt)

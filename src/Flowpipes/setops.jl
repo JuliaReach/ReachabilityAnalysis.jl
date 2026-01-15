@@ -219,15 +219,15 @@ struct Dummy <: AbstractDisjointnessMethod end
 # --------------------------------------------------------------------
 
 # fallbacks
-_is_intersection_empty(X::LazySet, Y::LazySet, ::FallbackDisjointness) = isdisjoint(X, Y)
-_is_intersection_empty(X, Y) = _is_intersection_empty(X, Y, FallbackDisjointness())
+_isdisjoint(X::LazySet, Y::LazySet, ::FallbackDisjointness) = isdisjoint(X, Y)
+_isdisjoint(X, Y) = _isdisjoint(X, Y, FallbackDisjointness())
 
 # -----------------------------------------------
 # Disjointness checks between specific set types
 # -----------------------------------------------
 
 # H : {x : ax <= b}, one-dimensional with a != 0
-@commutative function _is_intersection_empty(X::Interval, H::HalfSpace)
+@commutative function _isdisjoint(X::Interval, H::HalfSpace)
     a = H.a[1]
     b = H.b
     N = promote_type(eltype(X), eltype(H))
@@ -239,7 +239,7 @@ _is_intersection_empty(X, Y) = _is_intersection_empty(X, Y, FallbackDisjointness
 end
 
 # H : {x : ax = b}, one-dimensional with a != 0
-@commutative function _is_intersection_empty(X::Interval, H::Hyperplane)
+@commutative function _isdisjoint(X::Interval, H::Hyperplane)
     q = H.b / H.a[1]
     return !_geq(q, min(X)) || !_leq(q, max(X))
 end

@@ -203,54 +203,54 @@ function shift(R::AbstractReachSet, t0::Number) end
 # Methods to check disjointness
 # ------------------------------
 
-# fallback uses  internal function _is_intersection_empty, which admit a pre-processing
+# fallback uses  internal function _isdisjoint, which admit a pre-processing
 # step for the reach-set / algorithm choice
 @commutative function isdisjoint(R::AbstractReachSet, Y::SetOrReachSet,
                                  method::AbstractDisjointnessMethod=FallbackDisjointness())
-    return _is_intersection_empty(R, Y, method)
+    return _isdisjoint(R, Y, method)
 end
 
 # disambiguations
 function isdisjoint(R1::AbstractReachSet, R2::AbstractReachSet,
                     method::AbstractDisjointnessMethod=FallbackDisjointness())
-    return _is_intersection_empty(R1, R2, method)
+    return _isdisjoint(R1, R2, method)
 end
 
 # vector of reach-sets
 @commutative function isdisjoint(R::AbstractVector{<:AbstractReachSet}, Y::SetOrReachSet,
                                  method::AbstractDisjointnessMethod=FallbackDisjointness())
-    return all(Ri -> _is_intersection_empty(Ri, Y, method), R)
+    return all(Ri -> _isdisjoint(Ri, Y, method), R)
 end
 
 # internal implementation
-function _is_intersection_empty(R::AbstractReachSet, Y::AbstractReachSet,
+function _isdisjoint(R::AbstractReachSet, Y::AbstractReachSet,
                                 ::FallbackDisjointness)
     return isdisjoint(set(R), set(Y))
 end
 
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet,
+@commutative function _isdisjoint(R::AbstractReachSet, Y::LazySet,
                                              ::FallbackDisjointness)
     return isdisjoint(set(R), Y)
 end
 
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet,
+@commutative function _isdisjoint(R::AbstractReachSet, Y::LazySet,
                                              ::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end
 
-@commutative function _is_intersection_empty(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
+@commutative function _isdisjoint(R::AbstractReachSet, Y::LazySet, ::BoxEnclosure)
     H = overapproximate(R, Hyperrectangle)
     return isdisjoint(set(H), Y)
 end
 
 # used for disjointness check in continuous post-operators
-function _is_intersection_empty(P::HPolyhedron, Z::Zonotope, ::BoxEnclosure)
+function _isdisjoint(P::HPolyhedron, Z::Zonotope, ::BoxEnclosure)
     return isdisjoint(P, box_approximation(Z))
 end
 
 # in this method we assume that the intersection is non-empty
-@commutative function _is_intersection_empty(::AbstractReachSet, ::LazySet, ::Dummy)
+@commutative function _isdisjoint(::AbstractReachSet, ::LazySet, ::Dummy)
     return false
 end
 

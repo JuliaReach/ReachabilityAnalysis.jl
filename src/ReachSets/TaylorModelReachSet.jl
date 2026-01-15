@@ -94,20 +94,20 @@ end
 # Disjointness checks
 # ======================
 
-function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet, ::FallbackDisjointness)
+function _isdisjoint(R::TaylorModelReachSet, Y::LazySet, ::FallbackDisjointness)
     return isdisjoint(set(overapproximate(R, Zonotope)), Y)
 end
 
-function _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
+function _isdisjoint(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
                                 ::FallbackDisjointness)
     return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 end
-function _is_intersection_empty(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
+function _isdisjoint(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
                                 ::ZonotopeEnclosure)
     return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 end
 
-@commutative function _is_intersection_empty(R::TaylorModelReachSet, Y::LazySet,
+@commutative function _isdisjoint(R::TaylorModelReachSet, Y::LazySet,
                                              ::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
@@ -116,7 +116,7 @@ end
 for T in
     (:AbstractDisjointnessMethod, :FallbackDisjointness, :ZonotopeEnclosure, :BoxEnclosure, :Dummy)
     @eval begin
-        @commutative function _is_intersection_empty(::TaylorModelReachSet, ::Universe,
+        @commutative function _isdisjoint(::TaylorModelReachSet, ::Universe,
                                                      method::$T)
             return false
         end
