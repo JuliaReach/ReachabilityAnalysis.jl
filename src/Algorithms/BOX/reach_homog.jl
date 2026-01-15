@@ -27,6 +27,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
     # cache for powers of Φ
     Φ_power_k = similar(Φ)
     copyto!(Φ_power_k, Φ)
+    # `similar` & `copyto!` == `copy` for normal vectors, but `copy` fails for static vectors
     Φ_power_k_cache = similar(Φ_power_k)
     Φ_power_k_abs = similar(Φ_power_k)
 

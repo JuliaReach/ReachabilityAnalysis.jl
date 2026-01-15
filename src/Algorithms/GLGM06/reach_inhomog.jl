@@ -36,7 +36,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
 
         mul!(Φ_power_k_cache, Φ_power_k, Φ)
-        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k
+        Φ_power_k, Φ_power_k_cache = Φ_power_k_cache, Φ_power_k  # swap pointers
         k += 1
     end
     return F
