@@ -151,7 +151,7 @@ function solve(ivp::IVP{<:AbstractHybridSystem}, args...;
                     add_to_waiting_list = !(Xr ⊆ explored_list)
                 else
                     # We only push the set Xci if it intersects with time_span
-                    add_to_waiting_list = !IA.isdisjoint(tspan(Xci), time_span0)
+                    add_to_waiting_list = !Base.isdisjoint(tspan(Xci), time_span0)
                 end
 
                 if add_to_waiting_list
@@ -185,7 +185,7 @@ end
 
 # use the first_mode_representative flag to only check dimension of the first
 # element in the waiting list
-function _check_dim(ivp::InitialValueProblem{<:HybridSystem,<:AbstractWaitingList};
+function _check_dim(ivp::IVP{<:HybridSystem,<:AbstractWaitingList};
                     throw_error::Bool=true,
                     first_mode_representative=false)
     H = system(ivp)
@@ -213,7 +213,7 @@ function _distribute(ivp::IVP, WLtype::Type{<:MixedWaitingList}; kwargs...)
 end
 
 """
-    _distribute(ivp::InitialValueProblem{HS, ST};
+    _distribute(ivp::IVP{HS, ST};
                 intersection_method::AbstractIntersectionMethod=nothing,
                 check_invariant=false,
                 intersect_invariant=false,
@@ -236,7 +236,7 @@ Distribute the set of initial states to each mode of a hybrid system.
 A new initial value problem with the same hybrid system but where the set of initial
 states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 """
-function _distribute(ivp::InitialValueProblem{HS,ST};
+function _distribute(ivp::IVP{HS,ST};
                      intersection_method=nothing,
                      check_invariant=false,
                      intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
@@ -284,11 +284,11 @@ function _distribute(ivp::InitialValueProblem{HS,ST};
             end
         end
     end
-    return InitialValueProblem(H, waiting_list)
+    return IVP(H, waiting_list)
 end
 
 # in this implementation we use mixed waiting lists
-function _distribute_mixed(ivp::InitialValueProblem{HS,ST};
+function _distribute_mixed(ivp::IVP{HS,ST};
                            intersection_method=nothing, # not used
                            check_invariant=false,
                            intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
@@ -322,12 +322,12 @@ function _distribute_mixed(ivp::InitialValueProblem{HS,ST};
             end
         end
     end
-    return InitialValueProblem(H, waiting_list)
+    return IVP(H, waiting_list)
 end
 
 # the initial states are passed as a vector-of-tuples, each tuple being of the form
 # (loc, X) where loc is an integer that corresponds to the mode and X is a set
-function _distribute(ivp::InitialValueProblem{<:HybridSystem,Vector{Tuple{Int,ST}}};
+function _distribute(ivp::IVP{<:HybridSystem,Vector{Tuple{Int,ST}}};
                      intersection_method=nothing,
                      check_invariant=false,
                      intersect_invariant=false) where {ST<:AdmissibleSet}
@@ -349,12 +349,12 @@ function _distribute(ivp::InitialValueProblem{<:HybridSystem,Vector{Tuple{Int,ST
         error("not implemented")
     end
 
-    return InitialValueProblem(H, waiting_list)
+    return IVP(H, waiting_list)
 end
 
 # "duck-typing" the initial states passed as a vector-of-tuples, each tuple being
 # of the form (X, loc) where loc is an integer that corresponds to the mode and X is a set
-function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{ST,Int}}};
+function _distribute(ivp::IVP{HS,Vector{Tuple{ST,Int}}};
                      intersection_method=nothing,
                      check_invariant=false,
                      intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
@@ -376,11 +376,11 @@ function _distribute(ivp::InitialValueProblem{HS,Vector{Tuple{ST,Int}}};
         error("not implemented")
     end
 
-    return InitialValueProblem(H, waiting_list)
+    return IVP(H, waiting_list)
 end
 
 #=
-function _distribute(ivp::InitialValueProblem{HS, WL},
+function _distribute(ivp::IVP{HS, WL},
                      check_invariant=false) where {HS<:HybridSystem, ST<:WaitingList}
     S = system(ivp)
     X0 = initial_state(ivp)
@@ -395,7 +395,7 @@ function _distribute(ivp::InitialValueProblem{HS, WL},
             end
         end
     end
-    return InitialValueProblem(S, initial_states)
+    return IVP(S, initial_states)
 end
 =#
 
@@ -408,7 +408,7 @@ end
 # initial set is given as a tuple (location, set)
 # initial set is a vector of tuples [(loc_1, set_1), ..., (loc_n, set_n)]
 # optionally it is checked that each set has a non-empty intersection with loc_i's invariant
-function _distribute(ivp::InitialValueProblem{HS, VQT};
+function _distribute(ivp::IVP{HS, VQT};
                      check_invariant=false) where {HS<:HybridSystem,
                      ST, QT<:Tuple{Int}, ST}, VQT<:AbstractVector{QT}}
     initial_states = WaitingList{Int, ST}()
@@ -438,7 +438,7 @@ or the guard of any outgoing transition.
 A dictionary mapping (`::Dict{Int,Vector{Int}}`) the index of each location
 ``ℓ`` to the dimension indices that are constrained in ``ℓ``.
 """
-function constrained_dimensions(HS::HybridSystems.HybridSystem)
+function constrained_dimensions(HS::HybridSystem)
     result = Dict{Int,Vector{Int}}()
     sizehint!(result, nstates(HS))
     for mode in states(HS)

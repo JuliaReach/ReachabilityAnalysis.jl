@@ -2,8 +2,6 @@
 # Kronecker powers
 # ======================================
 
-using LinearAlgebra: checksquare
-
 # TODO refactor to CarlemanLinearization.jl
 import CarlemanLinearization: lift_vector
 

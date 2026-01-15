@@ -4,7 +4,10 @@
 module ApplySetops
 
 using ..DiscretizationModule: AbstractApproximationModel, hasbackend
-using LazySets
+using LazySets: LazySets, AbstractPolytope, AbstractZonotope, ConvexHull,
+                LazySet, LinearMap, MinkowskiSum, VPolygon, VPolytope, Zonotope,
+                box_approximation, concretize, convex_hull, dim, linear_map,
+                minkowski_sum, overapproximate, vertices_list
 using LazySets.Approximations: AbstractDirections
 
 export _apply_setops
@@ -64,7 +67,7 @@ function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:zono},
     # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
     A = X.X
     B = X.Y
-    return overapproximate(CH(A, concretize(B)), Zonotope)
+    return overapproximate(ConvexHull(A, concretize(B)), Zonotope)
 end
 
 function _apply_setops(X::ConvexHull{N,AT1,MS1}, ::Val{:zono},
@@ -78,7 +81,7 @@ function _apply_setops(X::ConvexHull{N,AT1,MS1}, ::Val{:zono},
                                                MS1<:MinkowskiSum{N,MS2,AT2}}
     A = X.X
     B = X.Y
-    return overapproximate(CH(A, concretize(B)), Zonotope)
+    return overapproximate(ConvexHull(A, concretize(B)), Zonotope)
 end
 
 function _apply_setops(X::MinkowskiSum{N,LM,AT}, ::Val{:zono},

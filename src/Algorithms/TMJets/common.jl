@@ -1,7 +1,7 @@
 # shared functionality among TMJets implementations
 
 using TaylorModels: TaylorModelN
-using TaylorModels: fp_rpa, remainder, initialize!
+using TaylorModels: fp_rpa, remainder
 
 # =================================
 # Default values for the parameters

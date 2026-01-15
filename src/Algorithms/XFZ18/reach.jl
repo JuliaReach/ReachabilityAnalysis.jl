@@ -6,7 +6,7 @@ using MultivariatePolynomials,
       MathOptInterfaceMosek,
       SemialgebraicSets
 using Reachability
-using MathematicalSystems: PolynomialContinuousSystem, InitialValueProblem
+using MathematicalSystems: PolynomialContinuousSystem, IVP
 const ∂ = differentiate
 
 """

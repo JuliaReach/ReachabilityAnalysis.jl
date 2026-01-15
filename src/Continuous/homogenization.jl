@@ -38,7 +38,7 @@ function homogenize(ivp::IVP{<:CLCCS{N,MTA,MTB,XT,UT},ST}) where {N,
     # homogenized state matrix
     B = input_matrix(ivp)
     @assert isone(B.M.λ) "input matrix should be normalized"
-    U = ReachabilityAnalysis.next_set(inputset(ivp))
+    U = next_set(inputset(ivp))
     A = state_matrix(ivp)
     Â = _homogenize_state_matrix(A, U)
 

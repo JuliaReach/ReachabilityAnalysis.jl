@@ -3,12 +3,13 @@ Interface for conservative time discretization methods.
 """
 module DiscretizationModule
 
-using MathematicalSystems
+using MathematicalSystems: AbstractContinuousSystem, AbstractInput,
+                           ConstantInput, IVP, nextinput
 import IntervalArithmetic as IA
-using IntervalMatrices
-using LazySets
-using LazySets.Approximations: AbstractDirections
-using Reexport
+using IntervalMatrices: IntervalMatrix
+using LazySets: SymmetricIntervalHull
+using LazySets.Approximations: AbstractDirections, symmetric_interval_hull
+using Reexport: @reexport
 
 using ..Exponentiation
 import ..Exponentiation: _alias
@@ -31,7 +32,7 @@ hasbackend(alg::AbstractApproximationModel) = false
 
 # symmetric interval hull options
 sih(X, ::Val{:lazy}) = SymmetricIntervalHull(X)
-sih(X, ::Val{:concrete}) = LazySets.symmetric_interval_hull(X)
+sih(X, ::Val{:concrete}) = symmetric_interval_hull(X)
 
 # interval matrix functions
 isinterval(A::AbstractMatrix{N}) where {N<:Number} = false
@@ -91,7 +92,7 @@ x' = Ax(t) + u(t),\\qquad x(0) ∈ \\mathcal{X}_0,\\qquad (1)
 and where ``u(t) ∈ U(k)`` add where ``\\{U(k)\\}_k`` is a sequence of sets of
 non-deterministic inputs and ``\\mathcal{X}_0`` is the set of initial
 states. Other problems, e.g. ``x' = Ax(t) + Bu(t)`` can be brought
-to the canonical form with the function [`normalize`](@ref).
+to the canonical form with the function `normalize`.
 
 For references to the original papers introducing each algorithm, see the docstrings,
 e.g. `?Forward`.

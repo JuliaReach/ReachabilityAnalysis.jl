@@ -57,4 +57,4 @@ foreach(include, TEST_MODELS)
 foreach(include, TEST_FILES)
 foreach(include, TEST_ALGORITHMS)
 
-@ts include("Aqua.jl")
+@ts include("quality_assurance.jl")

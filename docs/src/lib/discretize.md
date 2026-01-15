@@ -14,7 +14,6 @@ Depth = 3
 
 ```@docs
 ReachabilityAnalysis.DiscretizationModule
-normalize
 discretize
 ```
 

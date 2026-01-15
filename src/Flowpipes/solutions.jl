@@ -159,8 +159,8 @@ end
 # ------------------------------
 
 # inclusion checks
-Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, X::LazySet) = ⊆(sol.F, X)
-Base.:⊆(sol::ReachabilityAnalysis.ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
+Base.:⊆(sol::ReachSolution, X::LazySet) = ⊆(sol.F, X)
+Base.:⊆(sol::ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
 
 # -------------------------------------
 # Methods for concrete set operations

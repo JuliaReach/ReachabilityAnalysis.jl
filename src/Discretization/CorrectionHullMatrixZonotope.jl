@@ -1,7 +1,12 @@
 module CorrectionHullMatrixZonotopeModule
 
-using LazySets, Reexport
-using MathematicalSystems
+using LazySets: ExponentialMap, MatrixZonotope, MatrixZonotopeExp,
+                SparsePolynomialZonotope, dim, indexvector, ngens,
+                overapproximate
+using Reexport: @reexport
+using MathematicalSystems: IVP, LinearParametricContinuousSystem,
+                           LinearParametricDiscreteSystem, initial_state,
+                           state_matrix
 using ..DiscretizationModule
 using LinearAlgebra: I
 
@@ -31,7 +36,7 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
 The `recursive` option is used to compute the Taylor expansion of the matrix zonotope exponential map.
 If `recursive == true`, each term of the Taylor expansion is computed recursively (e.g., ``A^2 P = A (A P)``).
 
-If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential 
+If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential
 map, producing a single matrix that represents the exponential.
 
 """
@@ -60,7 +65,7 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     Ω0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive)
 
     Sdis = LPDS(A)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # Recursive case

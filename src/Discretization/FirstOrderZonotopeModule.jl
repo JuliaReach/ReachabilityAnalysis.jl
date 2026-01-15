@@ -5,10 +5,16 @@ module FirstOrderZonotopeModule
 
 using ..DiscretizationModule
 using ..Exponentiation: _exp, BaseExp
-using LinearAlgebra
-using MathematicalSystems
-using LazySets
-using Reexport
+using LinearAlgebra: norm, opnorm
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearControlContinuousSystem,
+                           ConstrainedLinearControlDiscreteSystem,
+                           ConstrainedLinearDiscreteSystem, IVP,
+                           IdentityMultiple, initial_state, inputset,
+                           state_matrix, stateset
+using LazySets: AbstractZonotope, BallInf, ConvexHull, Zonotope, dim,
+                linear_map, minkowski_sum, overapproximate
+using Reexport: @reexport
 using ReachabilityBase.Comparison: isapproxzero
 
 export FirstOrderZonotope
@@ -82,7 +88,7 @@ function discretize(ivp::IVP{<:CLCS,<:AbstractZonotope}, δ, alg::FirstOrderZono
     # create result
     X = stateset(ivp)
     Sdis = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # -------------------------------------------------
@@ -117,7 +123,7 @@ function discretize(ivp::IVP{<:CLCCS,<:AbstractZonotope}, δ, alg::FirstOrderZon
     B = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, B, X, V)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # -----------
@@ -129,7 +135,7 @@ function _discretize_zonotope(Φ, X0, ::FirstOrderZonotope, δ, norm_A)
     Xδ = linear_map(Φ, X0)
 
     # compute zonotope covering convex hull CH(X(0) ∪ X(δ))
-    Z = overapproximate(CH(X0, Xδ), Zonotope)
+    Z = overapproximate(ConvexHull(X0, Xδ), Zonotope)
 
     # compute bloating factor α
     α = (exp(norm_A * δ) - 1 - norm_A * δ) * norm(X0, Inf)

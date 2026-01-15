@@ -36,7 +36,7 @@ function _jacobian_expression(sys::AbstractContinuousSystem, var)
     return _jacobian_expression(expr, var)
 end
 
-function _jacobian_expression(ivp::InitialValueProblem, var)
+function _jacobian_expression(ivp::IVP, var)
     return _jacobian_expression(ivp.s, var)
 end
 
@@ -81,7 +81,7 @@ function _jacobian_function(sys::AbstractContinuousSystem, var)
     return _jacobian_function(expr, var)
 end
 
-function _jacobian_function(ivp::InitialValueProblem, var)
+function _jacobian_function(ivp::IVP, var)
     return _jacobian_function(ivp.s, var)
 end
 
@@ -125,7 +125,7 @@ function _hessian_expression(sys::AbstractContinuousSystem, var)
     return _hessian_expression(expr, var)
 end
 
-function _hessian_expression(ivp::InitialValueProblem, var)
+function _hessian_expression(ivp::IVP, var)
     return _hessian_expression(ivp.s, var)
 end
 
@@ -173,6 +173,6 @@ function _hessian_function(sys::AbstractContinuousSystem, var)
     return _hessian_function(expr, var)
 end
 
-function _hessian_function(ivp::InitialValueProblem, var)
+function _hessian_function(ivp::IVP, var)
     return _hessian_function(ivp.s, var)
 end

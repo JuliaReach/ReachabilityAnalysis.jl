@@ -2,7 +2,7 @@
 # Conservative time discretization methods
 # =========================================
 
-using Reexport
+using Reexport: @reexport
 
 include("DiscretizationModule.jl")
 

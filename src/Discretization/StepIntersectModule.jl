@@ -5,12 +5,14 @@
 module StepIntersectModule
 
 using ..DiscretizationModule
-using ..Exponentiation: _exp, _alias
+using ..Exponentiation: _alias
 using ..ApplySetops: _apply_setops
 using ..ForwardModule: Forward
-using MathematicalSystems
-using LazySets
-using Reexport
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearDiscreteSystem, IVP, initial_state,
+                           state_matrix, stateset
+using LazySets: LazySet
+using Reexport: @reexport
 
 export StepIntersect
 

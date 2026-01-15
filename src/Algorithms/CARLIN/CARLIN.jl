@@ -1,4 +1,4 @@
-using CarlemanLinearization
+using CarlemanLinearization: build_matrix, error_bound_specabs
 
 """
     CARLIN <: AbstractContinuousPost

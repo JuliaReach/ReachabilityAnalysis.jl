@@ -16,7 +16,7 @@ abstract type AbstractFlowpipe end
 # LazySets interface: fallback behaves like UnionSetArray
 
 """
-    LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
+    ρ(d::AbstractVector, fp::AbstractFlowpipe)
 
 ### Input
 
@@ -37,7 +37,7 @@ function LazySets.ρ(d::AbstractVector, fp::AbstractFlowpipe)
 end
 
 """
-    LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
+    σ(d::AbstractVector, fp::AbstractFlowpipe)
 
 ### Input
 
@@ -58,7 +58,7 @@ function LazySets.σ(d::AbstractVector, fp::AbstractFlowpipe)
 end
 
 """
-    LazySets.dim(fp::AbstractFlowpipe)
+    dim(fp::AbstractFlowpipe)
 
 ### Input
 

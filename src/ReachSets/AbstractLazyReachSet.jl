@@ -69,11 +69,11 @@ Base.convert(::Type{<:IntervalBox}, R::AbstractLazyReachSet) = convert(IntervalB
 LazySets.complement(R::AbstractLazyReachSet) = reconstruct(R, complement(set(R)))
 Base.isempty(R::AbstractLazyReachSet) = isempty(set(R))
 
-function LinearMap(M::Union{AbstractMatrix,Number}, R::AbstractLazyReachSet)
-    return reconstruct(R, LinearMap(M, set(R)))
+function LazySets.LinearMap(M::Union{AbstractMatrix,Number}, R::AbstractLazyReachSet)
+    return reconstruct(R, LazySets.LinearMap(M, set(R)))
 end
 
-Base.:(*)(M::AbstractMatrix, R::AbstractLazyReachSet) = LinearMap(M, R)
+Base.:(*)(M::AbstractMatrix, R::AbstractLazyReachSet) = LazySets.LinearMap(M, R)
 Base.:(*)(α::AbstractFloat, R::AbstractLazyReachSet) = reconstruct(R, α * set(R))
 
 function linear_map(M::AbstractMatrix, R::AbstractLazyReachSet)
@@ -218,7 +218,7 @@ end
 
 # splitting a reach-set according to a given partition; the partition should be
 # a vector of integers
-function LazySets.split(R::AbstractLazyReachSet, partition)
+function Base.split(R::AbstractLazyReachSet, partition)
     Y = split(set(R), partition)
     return [reconstruct(R, y) for y in Y]
 end

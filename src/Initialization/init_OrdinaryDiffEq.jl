@@ -9,7 +9,7 @@ const DEFAULT_TRAJECTORIES = 10
 # Continuous system
 # =====================================
 
-function _solve_ensemble(ivp::InitialValueProblem, args...;
+function _solve_ensemble(ivp::IVP, args...;
                          trajectories_alg=ODE.Tsit5(),
                          ensemble_alg=ODE.EnsembleThreads(),
                          inplace=true,
@@ -76,7 +76,7 @@ end
 # Hybrid system
 # =====================================
 
-function _solve_ensemble(ivp::InitialValueProblem{<:AbstractHybridSystem},
+function _solve_ensemble(ivp::IVP{<:AbstractHybridSystem},
                          args...; kwargs...)
     H = system(ivp)
 
@@ -248,7 +248,7 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
         # with k initial regions, we collected up to `k * trajectories` many
         # samples (some regions may be empty), so we reduce to a random
         # collection of `trajectories` samples
-        rng = get(kwargs, :rng, LazySets.GLOBAL_RNG)
+        rng = get(kwargs, :rng, Random.GLOBAL_RNG)
         all_samples = Random.shuffle!(rng, all_samples)[1:trajectories]
     end
 

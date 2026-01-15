@@ -1,4 +1,4 @@
-using LazySets.Arrays: SingleEntryVector
+using ReachabilityAnalysis.ReachabilityBase.Arrays: SingleEntryVector
 
 @testset "LGG09 algorithm: template construction" begin
     # case where the template directions is as single vector

@@ -21,7 +21,7 @@ function Base.convert(::Type{Vector{Tuple{String,String}}}, s::BlackBoxContinuou
 
     # remove square brackets, eg. turning x[1] into x1
     pat = ["x[$i]" => "x$i" for i in 1:n]
-    rhs = [Symbolics.replace(fi, pat...) for fi in rhs]
+    rhs = [replace(fi, pat...) for fi in rhs]
 
     return [("x$i", rhs[i]) for i in 1:n]
 end

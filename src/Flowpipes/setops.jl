@@ -105,7 +105,7 @@ end
 
 # dimension is missing
 function _reconvert(V::VPOLY{N,VN}, static::Val{true}, dim::Missing) where {N,VN<:AbstractVector{N}}
-    return _reconvert(V, static, Val(LazySets.dim(V)))
+    return _reconvert(V, static, Val(dim(V)))
 end
 
 function Base.convert(::Type{Hyperrectangle{N,Vector{N},Vector{N}}},
@@ -161,7 +161,7 @@ function Base.convert(HT::Type{Hyperrectangle{N,Vector{N},Vector{N}}},
     return convert(Hyperrectangle{N,Vector{N},Vector{N}}, H)
 end
 
-function LazySets.split(B::IntervalBox{D,N}, partition::AbstractVector{Int}) where {D,N}
+function Base.split(B::IntervalBox{D,N}, partition::AbstractVector{Int}) where {D,N}
     H = convert(Hyperrectangle{N,Vector{N},Vector{N}}, B)
     return split(H, partition)
 end
@@ -286,7 +286,7 @@ has_backend(alg::FallbackIntersection) = !isnothing(alg.backend)
 function _intersection(X::AbstractPolyhedron{N}, Y::AbstractPolyhedron{N},
                        alg::FallbackIntersection) where {N}
     if has_backend(alg)
-        return LazySets.intersection(X, Y; backend=alg.backend)
+        return intersection(X, Y; backend=alg.backend)
     else
         return intersection(X, Y)
     end

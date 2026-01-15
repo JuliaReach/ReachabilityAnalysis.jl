@@ -6,9 +6,14 @@ module NoBloatingModule
 using ..DiscretizationModule
 using ..Exponentiation: _exp, _alias, BaseExp, Φ₁, Φ₁_u
 using ..ApplySetops: _apply_setops
-using MathematicalSystems
-using LazySets
-using Reexport
+using MathematicalSystems: ConstrainedLinearContinuousSystem,
+                           ConstrainedLinearControlContinuousSystem,
+                           ConstrainedLinearControlDiscreteSystem,
+                           ConstrainedLinearDiscreteSystem, IVP,
+                           IdentityMultiple, initial_state, inputset,
+                           state_matrix, stateset
+using LazySets: AbstractSingleton, CartesianProduct, LazySet, Singleton, element
+using Reexport: @reexport
 
 export NoBloating
 
@@ -73,7 +78,7 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::NoBloating)
     Ω0 = copy(X0) # alg.setops doesn't apply
     X = stateset(ivp)
     Sdiscr = ConstrainedLinearDiscreteSystem(Φ, X)
-    return InitialValueProblem(Sdiscr, Ω0)
+    return IVP(Sdiscr, Ω0)
 end
 
 # inhomogeneous case
@@ -96,7 +101,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::NoBloating)
     In = IdentityMultiple(one(eltype(A)), size(A, 1))
     X = stateset(ivp)
     Sdis = ConstrainedLinearControlDiscreteSystem(Φ, In, X, V)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 # extension for no bloating case and singleton initial states
