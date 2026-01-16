@@ -1,5 +1,3 @@
-using ..Overapproximate: _convert_or_overapproximate
-
 """
     A20{N} <: AbstractContinuousPost
 
@@ -36,7 +34,3 @@ function rsetrep(::A20{N}) where {N}
     MT = Matrix{N}
     return ReachSet{N,Zonotope{N,VT,MT}}
 end
-
-include("post.jl")
-include("reach_homog.jl")
-include("reach_inhomog.jl")
