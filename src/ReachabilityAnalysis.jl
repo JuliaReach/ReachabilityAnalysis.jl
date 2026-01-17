@@ -49,7 +49,8 @@ include("Algorithms/BOX/BOX.jl")
 
 include("Algorithms/GLGM06/GLGM06.jl")
 
-include("Algorithms/INT/INT.jl")
+include("Algorithms/INT/INTModule.jl")
+using ..INTModule: INT
 
 include("Algorithms/LGG09/LGG09.jl")
 
