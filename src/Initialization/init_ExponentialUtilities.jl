@@ -1,4 +1,4 @@
 using .ExponentialUtilities: expv!, arnoldi!, KrylovSubspace
 
-eval(load_krylov_LGG09_homog())
-eval(load_krylov_LGG09_inhomog())
+eval(LGG09Module.load_krylov_LGG09_homog())
+eval(LGG09Module.load_krylov_LGG09_inhomog())

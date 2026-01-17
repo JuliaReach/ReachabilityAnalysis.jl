@@ -131,10 +131,6 @@ numtype(::LGG09{N}) where {N} = N
 setrep(alg::LGG09) = setrep(alg.template)
 
 function rsetrep(::LGG09{N,AM,VN,TN}) where {N,AM,VN,TN}
-    SN = SubArray{N,1,Matrix{N},Tuple{Base.Slice{Base.OneTo{Int}},Int},true}
+    SN = SubArray{N,1,Matrix{N},Tuple{Slice{OneTo{Int}},Int},true}
     return TemplateReachSet{N,VN,TN,SN}
 end
-
-include("reach_homog.jl")
-include("reach_inhomog.jl")
-include("post.jl")
