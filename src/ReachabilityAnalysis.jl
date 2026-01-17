@@ -47,7 +47,8 @@ using ..BFFPSV18Module: BFFPSV18
 
 include("Algorithms/BOX/BOX.jl")
 
-include("Algorithms/GLGM06/GLGM06.jl")
+include("Algorithms/GLGM06/GLGM06Module.jl")
+using ..GLGM06Module: GLGM06
 
 include("Algorithms/INT/INT.jl")
 

@@ -1,5 +1,3 @@
-using ..Overapproximate: _convert_or_overapproximate
-
 """
     GLGM06{N, AM, S, D, NG, P, RM} <: AbstractContinuousPost
 
@@ -70,7 +68,7 @@ function GLGM06(; δ::N,
                 dim::Union{Int,Missing}=missing,
                 ngens::Union{Int,Missing}=missing,
                 preallocate::Bool=true,
-                reduction_method::RM=LazySets.GIR05(),
+                reduction_method::RM=GIR05(),
                 disjointness_method::DM=NoEnclosure()) where {N,AM,RM<:AbstractReductionMethod,
                                                               DM<:AbstractDisjointnessMethod}
 
@@ -111,7 +109,3 @@ end
                         "that the system's dimension argument has been defined; add `dim=...`" *
                         "to the algorithm constructor"))
 end
-
-include("post.jl")
-include("reach_homog.jl")
-include("reach_inhomog.jl")
