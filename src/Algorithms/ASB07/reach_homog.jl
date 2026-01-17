@@ -57,7 +57,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     k = 1
     @inbounds while k < NSTEPS
-        Φ_power_k = IntervalMatrices.matrix(Φpow)
+        Φ_power_k = matrix(Φpow)
         Φc, Φs = _split(Φ_power_k)
 
         Zₖ = _overapproximate_interval_linear_map(Φc, Φs, c0, G0)
