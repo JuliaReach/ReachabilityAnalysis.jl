@@ -6,7 +6,7 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
     @unpack δ, approx_model, max_order = alg
     # TODO define these options in the algorithm struct
     static = Val(get(kwargs, :static, false))
-    reduction_method = LazySets.GIR05()
+    reduction_method = GIR05()
     dim = missing
     ngens = missing
     preallocate = Val(get(kwargs, :preallocate, true))
@@ -40,7 +40,6 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
     ZT = typeof(Ω0)
     F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
-    # TODO currently uses GLGM06 algorithm
     if got_homogeneous
 
         #=
@@ -53,13 +52,13 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
         end
         =#
 
-        reach_homog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, X, preallocate, Δt0, disjointness_method)
+        reach_homog_A20!(F, Ω0, Φ, NSTEPS, δ, X, preallocate, Δt0, disjointness_method)
     else
         # TODO: implement preallocate option for this scenario
         U = inputset(ivp)
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
-        reach_inhomog_GLGM06!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0,
+        reach_inhomog_A20!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0,
                               disjointness_method)
     end
 
