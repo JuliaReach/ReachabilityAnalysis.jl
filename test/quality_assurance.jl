@@ -18,10 +18,10 @@ import Aqua, ExplicitImports
                                                                             ignore=ignores))
     @test isnothing(ExplicitImports.check_all_qualified_accesses_via_owners(ReachabilityAnalysis))
     # due to reexporting multiple packages
-    ignores = (# due to reexporting HybridSystems:
-               :HybridSystems, :AbstractHybridSystem, :AutonomousSwitching,
-               :GraphAutomaton, :add_transition!, :guard, :mode, :nmodes,
-               :nstates, :out_transitions, :resetmap, :source, :states, :target,
+    ignores = (:HybridSystems, # due to reexporting HybridSystems:
+               :AbstractHybridSystem, :AutonomousSwitching, :GraphAutomaton,
+               :add_transition!, :guard, :mode, :nmodes, :nstates,
+               :out_transitions, :resetmap, :source, :states, :target,
                # due to reexporting IntervalMatrices:
                :IntervalMatrices, :(..), :IntervalBox, :IntervalMatrix,
                :IntervalMatrixPower, :emptyinterval, :increment!, :inf,
