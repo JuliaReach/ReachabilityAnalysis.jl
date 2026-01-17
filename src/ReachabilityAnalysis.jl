@@ -51,7 +51,8 @@ include("Algorithms/GLGM06/GLGM06.jl")
 
 include("Algorithms/INT/INT.jl")
 
-include("Algorithms/LGG09/LGG09.jl")
+include("Algorithms/LGG09/LGG09Module.jl")
+using ..LGG09Module: LGG09
 
 include("Algorithms/ORBIT/ORBIT.jl")
 

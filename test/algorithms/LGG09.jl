@@ -117,33 +117,34 @@ end
     end
 
     # `reach_(in)homog_dir_LGG09!` with `Vector` argument (TODO not used internally)
-    v = RA.reach_homog_dir_LGG09!([1.0], X0, hcat([1.0]), [1.0], 1, Val{false}())
+    v = RA.LGG09Module.reach_homog_dir_LGG09!([1.0], X0, hcat([1.0]), [1.0], 1, Val{false}())
     @test length(v) == 1
-    v = sol = RA.reach_homog_dir_LGG09!([1.0], X0, hcat([1.0]), [1.0], 1, Val{true}())
+    v = sol = RA.LGG09Module.reach_homog_dir_LGG09!([1.0], X0, hcat([1.0]), [1.0], 1, Val{true}())
     @test length(v) == 1
-    v = RA.reach_inhomog_dir_LGG09!([1.0], X0, hcat([1.0]), U, [1.0], 1, Val{false}())
+    v = RA.LGG09Module.reach_inhomog_dir_LGG09!([1.0], X0, hcat([1.0]), U, [1.0], 1, Val{false}())
     @test length(v) == 1
-    v = sol = RA.reach_inhomog_dir_LGG09!([1.0], X0, hcat([1.0]), U, [1.0], 1, Val{true}())
+    v = sol = RA.LGG09Module.reach_inhomog_dir_LGG09!([1.0], X0, hcat([1.0]), U, [1.0], 1,
+                                                      Val{true}())
     @test length(v) == 1
 
     # `reach_homog_eig_LGG09*` (TODO not used internally)
-    m = RA.reach_homog_eig_LGG09_posneg([1.0], A, X0, 1)
+    m = RA.LGG09Module.reach_homog_eig_LGG09_posneg([1.0], A, X0, 1)
     @test size(m) == (2, 1)
-    m = RA.reach_homog_eig_LGG09([1.0], A, X0, 1)
+    m = RA.LGG09Module.reach_homog_eig_LGG09([1.0], A, X0, 1)
     @test size(m) == (1, 1)
-    t = RA.reach_homog_eig_LGG09_box([1.0], A, X0, 1)
+    t = RA.LGG09Module.reach_homog_eig_LGG09_box([1.0], A, X0, 1)
     @test t isa Tuple && size(t[1]) == size(t[2]) == (1, 1)
 
     # `_upper_bound_eig` (TODO not used internally)
-    m = RA._upper_bound_eig(ones(2, 1), hcat([1.0]), 1)
+    m = RA.LGG09Module._upper_bound_eig(ones(2, 1), hcat([1.0]), 1)
     @test size(m) == (2, 1)
-    RA._upper_bound_eig_dir(hcat([1.0]), 1, hcat([1.0]), 1)
+    RA.LGG09Module._upper_bound_eig_dir(hcat([1.0]), 1, hcat([1.0]), 1)
 
     # Krylov
     if isdefined(@__MODULE__, :ExponentialUtilities)
         out = Vector{Float64}(undef, 2)
-        RA.reach_homog_krylov_LGG09!(out, X0, A, [1.0], 2)
-        RA.reach_inhomog_krylov_LGG09!(out, X0, U, A, [1.0], 2)
+        RA.LGG09Module.reach_homog_krylov_LGG09!(out, X0, A, [1.0], 2)
+        RA.LGG09Module.reach_inhomog_krylov_LGG09!(out, X0, U, A, [1.0], 2)
     end
 end
 
