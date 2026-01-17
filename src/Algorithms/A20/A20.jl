@@ -1,6 +1,9 @@
 """
     A20{N} <: AbstractContinuousPost
 
+!!! note
+    This algorithm is currently not implemented.
+
 Implementation of the reachability method for large linear systems with uncertain
 inputs in the Krylov subspace from [Althoff20](@citet).
 

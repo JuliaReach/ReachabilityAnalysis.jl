@@ -119,7 +119,7 @@ CLOCKED_SYSTEMS = ["Clocked systems" => [
 
 LINEAR_SOLVERS = [
                   #
-                  "A20"      => "man/algorithms/A20.md",
+                #   "A20"      => "man/algorithms/A20.md",
                   "ASB07"    => "man/algorithms/ASB07.md",
                   "BFFPSV18" => "man/algorithms/BFFPSV18.md",
                   "BOX"      => "man/algorithms/BOX.md",
