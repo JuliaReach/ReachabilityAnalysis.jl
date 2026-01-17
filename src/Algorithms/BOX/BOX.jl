@@ -82,7 +82,3 @@ function rsetrep(alg::BOX{N}) where {N}
     ST = setrep(alg)
     return ReachSet{N,ST}
 end
-
-include("post.jl")
-include("reach_homog.jl")
-include("reach_inhomog.jl")

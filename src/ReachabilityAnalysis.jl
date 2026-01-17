@@ -42,7 +42,8 @@ include("Algorithms/ASB07/ASB07.jl")
 
 include("Algorithms/BFFPSV18/BFFPSV18.jl")
 
-include("Algorithms/BOX/BOX.jl")
+include("Algorithms/BOX/BOXModule.jl")
+using ..BOXModule: BOX
 
 include("Algorithms/GLGM06/GLGM06.jl")
 
