@@ -91,7 +91,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
 
     # preallocate buffer for each row-block
     SMT = SubArray{N,2,MT,Tuple{RBLKi,CBLKj},false}
-    buffer = Vector{LazySets.LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
+    buffer = Vector{LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
@@ -143,7 +143,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
 
     # preallocate buffer for each row-block
     SMT = SubArray{N,2,MT,Tuple{RBLKi,CBLKj},false}
-    buffer = Vector{LazySets.LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
+    buffer = Vector{LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
@@ -197,7 +197,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
 
     # preallocate buffer for each row-block
     SMT = SparseMatrixCSC{NM,IM}
-    buffer = Vector{LazySets.LinearMap{N,ST,NM,SMT}}(undef, length(column_blocks))
+    buffer = Vector{LinearMap{N,ST,NM,SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
@@ -256,7 +256,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
 
     # preallocate buffer for each row-block
     SMT = SubArray{N,2,MT,Tuple{RBLKi,CBLKj},false}
-    buffer = Vector{LazySets.LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
+    buffer = Vector{LinearMap{N,ST,N,SMT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))

@@ -163,7 +163,3 @@ setrep(::BFFPSV18{N,ST}) where {N,ST} = ST
 function rsetrep(alg::BFFPSV18{N,ST}) where {N,ST}
     return SparseReachSet{N,CartesianProductArray{N,ST},length(reduce(vcat, alg.row_blocks))}
 end
-
-include("post.jl")
-include("reach_homog.jl")
-include("reach_inhomog.jl")
