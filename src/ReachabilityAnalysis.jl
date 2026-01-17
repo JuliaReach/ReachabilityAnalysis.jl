@@ -55,7 +55,8 @@ include("Algorithms/LGG09/LGG09.jl")
 
 include("Algorithms/ORBIT/ORBIT.jl")
 
-include("Algorithms/VREP/VREP.jl")
+include("Algorithms/VREP/VREPModule.jl")
+using ..VREPModule: VREP
 
 include("Algorithms/linear_post.jl")
 
