@@ -75,7 +75,7 @@ function _post!(U::LazySet, alg::ORBIT{N,VT}, F, ivp, NSTEPS, Δt0;
     @inbounds for k in 2:(NSTEPS + 1)
         # obtain random input signal and discretize it
         u = sample(U)
-        Mu = _Φ₁_u(A, δ, approx_model.exp, approx_model.inv, u, Φ)
+        Mu = _Φ₁_u(A, δ, approx_model.exp, approx_model.inv, u, Φ)  # TODO `_Φ₁_u` does not exist anymore
 
         # compute next state
         y = VT(undef, n)
