@@ -47,5 +47,3 @@ function rsetrep(alg::ORBIT{N}) where {N}
     ST = setrep(alg)
     return ReachSet{N,ST}
 end
-
-include("post.jl")
