@@ -4,7 +4,7 @@ import Aqua, ExplicitImports
 @testset "ExplicitImports tests" begin
     ignores = (:AbstractDirections, :AbstractReductionMethod, :DEFAULT_ALPHA,
                :DEFAULT_ASPECT_RATIO, :DEFAULT_COLOR, :DEFAULT_GRID,
-               :DEFAULT_LABEL, :PLOT_POLAR_DIRECTIONS, :PLOT_PRECISION,
+               :DEFAULT_LABEL, :GIR05, :PLOT_POLAR_DIRECTIONS, :PLOT_PRECISION,
                :_check_constrained_dimensions, :_expmv, :_plot_singleton_list,
                :plot_recipe, :shrink_wrapping!, :solve, :_exp_remainder,
                :correction_hull, :input_correction, :AbstractODEScheme,

@@ -44,7 +44,8 @@ include("Algorithms/BFFPSV18/BFFPSV18.jl")
 
 include("Algorithms/BOX/BOX.jl")
 
-include("Algorithms/GLGM06/GLGM06.jl")
+include("Algorithms/GLGM06/GLGM06Module.jl")
+using ..GLGM06Module: GLGM06
 
 include("Algorithms/INT/INT.jl")
 
