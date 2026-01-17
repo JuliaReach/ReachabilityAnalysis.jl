@@ -37,23 +37,38 @@ include("Continuous/setops.jl")
 
 # Linear
 include("Algorithms/A20/A20.jl")
+
 include("Algorithms/LGG09/LGG09.jl")
+
 include("Algorithms/GLGM06/GLGM06.jl")
+
 include("Algorithms/INT/INT.jl")
+
 include("Algorithms/BOX/BOX.jl")
+
 include("Algorithms/BFFPSV18/BFFPSV18.jl")
+
 include("Algorithms/ASB07/ASB07.jl")
+
 include("Algorithms/ORBIT/ORBIT.jl")
+
 include("Algorithms/VREP/VREP.jl")
+
 include("Algorithms/FLOWSTAR/FLOWSTAR.jl")
+
 include("Algorithms/linear_post.jl")
+
 include("Algorithms/HLBS25/HLBS25.jl")
 
 # Nonlinear
 include("Algorithms/CARLIN/CARLIN.jl")
+
 include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
+
 include("Algorithms/TMJets/common.jl")
+
 include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
+
 include("Algorithms/QINT/QINT.jl")
 
 # ===========================================================
