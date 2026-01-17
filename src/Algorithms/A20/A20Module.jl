@@ -1,7 +1,7 @@
 module A20Module
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, NoEnclosure,
-                              ReachSet, TimeInterval, hasinput,
+                              ReachSet, TimeInterval, hasinput, zeroI,
                               _reconvert
 using ..FirstOrderZonotopeModule: FirstOrderZonotope
 using ..Overapproximate: _convert_or_overapproximate
