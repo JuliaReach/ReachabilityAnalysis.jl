@@ -1,5 +1,5 @@
 function _expansion_point(a, b, c, X0::Interval, Δ)
-    c₀ = IA.mid(X0.dat)
+    c₀ = mid(X0.dat)
     f_c₀ = c₀ * (a * c₀ + b) + c
     x̃ = c₀ + Δ / 2 * f_c₀
     return x̃
@@ -45,7 +45,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
 
         # solve linear reachability
         prob = @ivp(x' = α * x + β, x(0) ∈ X0)
-        sol = post(INT(; δ=δ), prob, IA.interval(0.0, Δ); Δt0=Δti)
+        sol = post(INT(; δ=δ), prob, interval(0.0, Δ); Δt0=Δti)
 
         # compute admissible linearization error
         kθ = 1 / (exp(α * Δ) - 1) * α * θ * Δ
