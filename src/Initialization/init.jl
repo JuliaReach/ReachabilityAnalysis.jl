@@ -52,9 +52,10 @@ const AdmissibleSet = Union{LazySet,IA.Interval,IA.IntervalBox}
 
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
-                 intersection, directions, linear_map, split!, set, array
+                 intersection, directions, linear_map, split!, set, array,
+                 constrained_dimensions
 import ReachabilityBase.Comparison: _isapprox
-import Base: ∈, ∩, convert, isdisjoint
+import Base: *, ∈, ∩, convert, isdisjoint
 import LinearAlgebra: normalize
 
 import MathematicalSystems: system, statedim, initial_state
