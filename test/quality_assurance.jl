@@ -80,7 +80,7 @@ import Aqua, ExplicitImports
                :set_variables)
     @test isnothing(ExplicitImports.check_no_implicit_imports(ReachabilityAnalysis; ignore=ignores))
     @test isnothing(ExplicitImports.check_no_self_qualified_accesses(ReachabilityAnalysis))
-    ignores = (:AbstractODEScheme,)
+    ignores = (:AbstractODEScheme, Symbol("@polyvar"))
     @test isnothing(ExplicitImports.check_no_stale_explicit_imports(ReachabilityAnalysis;
                                                                     ignore=ignores))
 end
