@@ -16,7 +16,7 @@ function projectile(; X=Universe(4))
          0 0 0 0.0]
     X0 = Singleton([0.0, 1000.0, 10.0, 40.0])
     b = [0.0, 0.0, 0.0, -g]
-    @ivp(x' = A * x + b, x(0) ∈ X0, x ∈ X)
+    prob = @ivp(x' = A * x + b, x(0) ∈ X0, x ∈ X)
     tspan = (0.0, 20.0)
     return prob, tspan
 end
