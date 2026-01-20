@@ -40,7 +40,8 @@ TEST_FILES = fn(["continuous/setops.jl",
                  "reachsets/reachsets.jl",
                  "hybrid/hybrid.jl"])
 
-TEST_ALGORITHMS = fn(["algorithms/INT.jl",
+TEST_ALGORITHMS = fn(["algorithms/A20.jl",
+                      "algorithms/INT.jl",
                       "algorithms/BOX.jl",
                       @ts("algorithms/CARLIN.jl"),
                       "algorithms/GLGM06.jl",
