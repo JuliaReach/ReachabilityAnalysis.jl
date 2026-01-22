@@ -136,6 +136,12 @@ abstract type AbstractContinuousPost <: AbstractPost end
 
 setrep(::IVP{HS,ST}) where {HS,ST} = ST
 
+# to be extended by all algorithms
+function post end
+
+# to be extended by algorithms with fixed time step
+function step_size end
+
 # ==================
 # Argument handling
 # ==================
