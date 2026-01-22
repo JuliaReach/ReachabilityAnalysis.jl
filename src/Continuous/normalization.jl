@@ -6,9 +6,6 @@
 #       iscontinuoussystem,
 #       ishybridsystem
 
-import Base: *
-import LazySets.constrained_dimensions
-
 # continuous systems that are handled by this library
 iscontinuoussystem(T::Type{<:AbstractSystem}) = false
 iscontinuoussystem(T::Type{<:LCS}) = true
