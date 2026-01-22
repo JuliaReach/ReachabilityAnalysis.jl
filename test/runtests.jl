@@ -19,6 +19,7 @@ end
 TEST_MODELS = fn(["models/harmonic_oscillator.jl",
                   "models/forced_oscillator.jl",
                   "models/exponential1D.jl",
+                  "models/linear/projectile.jl",
                   "models/motor.jl",
                   "models/linear5D.jl",
                   "models/generated/VanDerPol.jl",
