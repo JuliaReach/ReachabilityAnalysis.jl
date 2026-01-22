@@ -110,7 +110,7 @@ function reach_homog_BOX!(F::Vector{ReachSet{N,Hyperrectangle{N,VNC,VNR}}},
         mul!(r[k], Φ_power_k_abs, r[1])
         Hₖ = Hyperrectangle(c[k], r[k]; check_bounds=false)
 
-        _is_intersection_empty(X, Hₖ) && break
+        _isdisjoint(X, Hₖ) && break
         Δt += δ
         F[k] = ReachSet(Hₖ, Δt)
 

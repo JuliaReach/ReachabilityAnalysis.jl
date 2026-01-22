@@ -65,7 +65,7 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
         Ri = TaylorModelReachSet(xTM1v[:, i], δt + Δt0)
 
         # check intersection with invariant
-        _is_intersection_empty(Ri, X, disjointness) && break
+        _isdisjoint(Ri, X, disjointness) && break
 
         push!(F, Ri)
     end

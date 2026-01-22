@@ -208,7 +208,7 @@ end
     intersecting_reachsets = []
     for (i, Fi) in enumerate(solz)
         for (j, Xj) in enumerate(Fi)
-            !is_intersection_empty(Xj, B_ext) && push!(intersecting_reachsets, (i, j))
+            !isdisjoint(Xj, B_ext) && push!(intersecting_reachsets, (i, j))
         end
     end
 

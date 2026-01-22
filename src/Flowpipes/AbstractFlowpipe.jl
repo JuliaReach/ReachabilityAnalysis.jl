@@ -226,15 +226,15 @@ function isdisjoint(F1::AbstractFlowpipe, F2::AbstractFlowpipe,
 end
 @commutative function isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet,
                                  method::AbstractDisjointnessMethod=FallbackDisjointness())
-    return all(X -> _is_intersection_empty(X, Y, method), array(F))
+    return all(X -> _isdisjoint(X, Y, method), array(F))
 end
 
 # flowpipe and vector of reach-sets TODO
 
 # internal
-function _is_intersection_empty(F::AbstractFlowpipe, Y::SetOrReachSet,
+function _isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet,
                                 method::AbstractDisjointnessMethod)
-    return all(X -> _is_intersection_empty(X, Y, method), array(F))
+    return all(X -> _isdisjoint(X, Y, method), array(F))
 end
 
 # ------------------------------
