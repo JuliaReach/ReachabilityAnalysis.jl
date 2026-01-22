@@ -20,9 +20,9 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     # split the interval matrix into center and radius
     Φc, Φs = _split(Φ)
 
-    k = 2
-    @inbounds while k <= NSTEPS
-        Zₖ₋₁ = set(F[k - 1])
+    k = 1
+    @inbounds while k < NSTEPS
+        Zₖ₋₁ = set(F[k])
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -31,8 +31,8 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
 
         Δt += δ
-        F[k] = ReachSet(Zₖʳ, Δt)
         k += 1
+        F[k] = ReachSet(Zₖʳ, Δt)
         Wk₊ = _overapproximate_interval_linear_map(Φc, Φs, Wk₊.center, Wk₊.generators)
         Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
     end
@@ -61,9 +61,9 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     # split the interval matrix into center and radius
     Φc, Φs = _split(Φ)
 
-    k = 2
-    @inbounds while k <= NSTEPS
-        Zₖ₋₁ = set(F[k - 1])
+    k = 1
+    @inbounds while k < NSTEPS
+        Zₖ₋₁ = set(F[k])
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -73,14 +73,14 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         _isdisjoint(X, Zₖʳ) && break
 
         Δt += δ
-        F[k] = ReachSet(Zₖʳ, Δt)
         k += 1
+        F[k] = ReachSet(Zₖʳ, Δt)
 
         Wk₊ = _overapproximate_interval_linear_map(Φc, Φs, Wk₊.center, Wk₊.generators)
         Wk₊ = reduce_order(Wk₊, max_order, reduction_method)
     end
-    if k < NSTEPS + 1
-        resize!(F, k - 1)
+    if k < NSTEPS
+        resize!(F, k)
     end
     return F
 end

@@ -19,7 +19,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     Φc, Φs = _split(Φ)
 
     k = 1
-    @inbounds while k <= NSTEPS - 1
+    @inbounds while k < NSTEPS
         Zk = set(F[k])
         ck = Zk.center
         Gk = Zk.generators
@@ -55,8 +55,8 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     Φpow = IntervalMatrixPower(Φ) # lazy interval matrix power
 
-    k = 2
-    @inbounds while k <= NSTEPS
+    k = 1
+    @inbounds while k < NSTEPS
         Φ_power_k = IntervalMatrices.matrix(Φpow)
         Φc, Φs = _split(Φ_power_k)
 
@@ -64,9 +64,9 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
 
         Δt += δ
+        k += 1
         F[k] = ReachSet(Zₖʳ, Δt)
         increment!(Φpow)
-        k += 1
     end
     return F
 end
@@ -89,9 +89,9 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     # split the interval matrix into center and radius
     Φc, Φs = _split(Φ)
 
-    k = 2
-    @inbounds while k <= NSTEPS
-        Zₖ₋₁ = set(F[k - 1])
+    k = 1
+    @inbounds while k < NSTEPS
+        Zₖ₋₁ = set(F[k])
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -103,8 +103,8 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         Δt += δ
         F[k] = ReachSet(Zₖʳ, Δt)
     end
-    if k < NSTEPS + 1
-        resize!(F, k - 1)
+    if k < NSTEPS
+        resize!(F, k)
     end
     return F
 end
