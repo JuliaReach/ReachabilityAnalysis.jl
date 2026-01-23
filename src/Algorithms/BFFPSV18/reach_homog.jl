@@ -129,7 +129,7 @@ function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEP
             for (j, bj) in enumerate(column_blocks) # loop over all column-blocks
                 Φpowerk_bi_bj = Φpowerk
                 if !iszero(Φpowerk_bi_bj)
-                    buffer[j] = Φpowerk[bi, bj] * Xhat0.array[j]
+                    buffer[j] = view(Φpowerk, bi, bj) * Xhat0.array[j]
                 end
             end
             Xhatk[i] = overapproximate(MinkowskiSumArray(buffer), ST)
