@@ -13,7 +13,6 @@ using StaticArrays: MMatrix, SMatrix, SVector
 # are made available after loading ReachabilityAnalysis
 @reexport using HybridSystems,
                 IntervalMatrices,
-                ReachabilityBase,
                 LazySets,
                 MathematicalSystems,
                 TaylorIntegration
@@ -25,6 +24,7 @@ using LazySets: AffineMap, LinearMap, ResetMap
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
 
 # JuliaReach internal functions
+import ReachabilityBase
 using ReachabilityBase.Arrays: projection_matrix, SingleEntryVector,
                                isinvertible, samedir, vector_type
 using ReachabilityBase.Commutative: @commutative
