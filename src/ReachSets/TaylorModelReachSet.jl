@@ -99,16 +99,16 @@ function _isdisjoint(R::TaylorModelReachSet, Y::LazySet, ::FallbackDisjointness)
 end
 
 function _isdisjoint(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
-                                ::FallbackDisjointness)
+                     ::FallbackDisjointness)
     return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 end
 function _isdisjoint(R1::TaylorModelReachSet, R2::TaylorModelReachSet,
-                                ::ZonotopeEnclosure)
+                     ::ZonotopeEnclosure)
     return isdisjoint(set(overapproximate(R1, Zonotope)), set(overapproximate(R2, Zonotope)))
 end
 
 @commutative function _isdisjoint(R::TaylorModelReachSet, Y::LazySet,
-                                             ::ZonotopeEnclosure)
+                                  ::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end
@@ -117,7 +117,7 @@ for T in
     (:AbstractDisjointnessMethod, :FallbackDisjointness, :ZonotopeEnclosure, :BoxEnclosure, :Dummy)
     @eval begin
         @commutative function _isdisjoint(::TaylorModelReachSet, ::Universe,
-                                                     method::$T)
+                                          method::$T)
             return false
         end
     end

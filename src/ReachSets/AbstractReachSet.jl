@@ -224,17 +224,17 @@ end
 
 # internal implementation
 function _isdisjoint(R::AbstractReachSet, Y::AbstractReachSet,
-                                ::FallbackDisjointness)
+                     ::FallbackDisjointness)
     return isdisjoint(set(R), set(Y))
 end
 
 @commutative function _isdisjoint(R::AbstractReachSet, Y::LazySet,
-                                             ::FallbackDisjointness)
+                                  ::FallbackDisjointness)
     return isdisjoint(set(R), Y)
 end
 
 @commutative function _isdisjoint(R::AbstractReachSet, Y::LazySet,
-                                             ::ZonotopeEnclosure)
+                                  ::ZonotopeEnclosure)
     Z = overapproximate(R, Zonotope)
     return isdisjoint(set(Z), Y)
 end

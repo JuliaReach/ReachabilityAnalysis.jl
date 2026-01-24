@@ -17,7 +17,8 @@ using StaticArrays: SMatrix, SVector
 
     # StaticArrays
     alg = ASB07(; δ=0.01, static=true, dim=1, ngens=1)
-    @test rsetrep(alg) == ReachSet{Float64,Zonotope{Float64,SVector{1, Float64},SMatrix{1, 1, Float64, 1}}}
+    @test rsetrep(alg) ==
+          ReachSet{Float64,Zonotope{Float64,SVector{1,Float64},SMatrix{1,1,Float64,1}}}
 
     # invalid construction: `static=true` requires `dim` and `ngens`
     # TODO should this be detected by the constructor?
