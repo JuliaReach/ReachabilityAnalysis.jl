@@ -1,3 +1,34 @@
+using ReachabilityAnalysis, Test
+import ReachabilityAnalysis as RA
+
+@testset "BFFPSV18 struct" begin
+    # full constructor (requires to manually define the type parameter for the set representation)
+    alg = BFFPSV18{Float64,Int,Int,Int,Int,Int,Int}(0.01, 0, 0, 0, 0, 0, false, false, false, false)
+
+    # constructor with default values
+    alg = BFFPSV18(; δ=0.01, dim=1)
+
+    # struct getters
+    @test RA.step_size(alg) == 0.01
+    @test RA.numtype(alg) == Float64
+    @test setrep(alg) == Interval{Float64}
+    @test rsetrep(alg) == SparseReachSet{Float64,CartesianProductArray{Float64,Interval{Float64}},1}
+
+    # higher-dimensional blocks
+    alg = BFFPSV18(; δ=0.01, dim=2)
+    @test setrep(alg) == Interval{Float64}
+    @test rsetrep(alg) == SparseReachSet{Float64,CartesianProductArray{Float64,Interval{Float64}},2}
+    alg = BFFPSV18(; δ=0.01, partition=[1:2, 3:4])
+    @test setrep(alg) == Hyperrectangle{Float64,Vector{Float64},Vector{Float64}}
+    @test rsetrep(alg) == SparseReachSet{Float64,
+                                         CartesianProductArray{Float64,
+                                                               Hyperrectangle{Float64,Vector{Float64},
+                                                                              Vector{Float64}}},4}
+
+    # invalid construction: requires `dim` or `partition`
+    @test_throws ArgumentError BFFPSV18(; δ=0.01)
+end
+
 @testset "BFFPSV18 algorithm: type constructors" begin
     A = rand(5, 5)
     X0 = rand(Hyperrectangle; dim=5)
@@ -96,5 +127,57 @@
     @test alg.column_blocks == [[1, 2], [3, 4, 5]]
     @test setrep(alg) == Hyperrectangle{Float64,Vector{Float64},Vector{Float64}}
     sol = solve(ivp; T=T, alg=alg)
+    sol = solve(ivpI; T=T, alg=alg)
+
+    # sparse option, interval (1D) decomposition
+    alg = BFFPSV18(; δ=δ, setrep=Interval, vars=[2], dim=5, sparse=true)
+    @test alg.vars == [2]
+    @test alg.block_indices == [2]
+    @test alg.row_blocks == [[2]]
+    @test alg.column_blocks == [[1], [2], [3], [4], [5]]
+    @test alg.sparse == true
+    sol = solve(ivp; T=T, alg=alg)
+    sol = solve(ivpI; T=T, alg=alg)
+
+    # sparse option, generic (nD) decomposition
+    alg = BFFPSV18(; δ=δ, setrep=Hyperrectangle, vars=[2], dim=5, sparse=true)
+    @test alg.vars == [2]
+    @test alg.block_indices == [2]
+    @test alg.row_blocks == [[2]]
+    @test alg.column_blocks == [[1], [2], [3], [4], [5]]
+    @test alg.sparse == true
+    sol = solve(ivp; T=T, alg=alg)
+    sol = solve(ivpI; T=T, alg=alg)
+
+    # sparse option, no view
+    alg = BFFPSV18(; δ=δ, setrep=Interval, vars=[2], dim=5, sparse=true, view=false)
+    @test alg.vars == [2]
+    @test alg.block_indices == [2]
+    @test alg.row_blocks == [[2]]
+    @test alg.column_blocks == [[1], [2], [3], [4], [5]]
+    @test alg.sparse == true
+    @test alg.view == false
+    @test_broken solve(ivp; T=T, alg=alg)  # TODO missing method
+    sol = solve(ivpI; T=T, alg=alg)
+
+    # invariant
+    X = BallInf(zeros(5), 100.0)
+    ivp = @ivp(x' = A * x, x(0) ∈ X0, x ∈ X)
+    ivpI = @ivp(x' = A * x + B * u, x(0) ∈ X0, x ∈ X, u ∈ U)
+    alg = BFFPSV18(; δ=δ, setrep=Interval, vars=1:5, dim=5)
+    @test_broken solve(ivp; T=T, alg=alg)  # TODO missing method
+    sol = solve(ivpI; T=T, alg=alg)
+
+    # invariant incompatible with selected variables
+    alg = BFFPSV18(; δ=δ, setrep=Interval, vars=[2], dim=5)
+    @test_broken solve(ivp; T=T, alg=alg)  # TODO missing method
+    @test_throws DimensionMismatch solve(ivpI; T=T, alg=alg)
+
+    # invariant compatible with selected variable
+    X = BallInf(zeros(1), 100.0)
+    ivp = @ivp(x' = A * x, x(0) ∈ X0, x ∈ X)
+    ivpI = @ivp(x' = A * x + B * u, x(0) ∈ X0, x ∈ X, u ∈ U)
+    alg = BFFPSV18(; δ=δ, setrep=Interval, vars=[2], dim=5)
+    @test_broken solve(ivp; T=T, alg=alg)  # TODO missing method
     sol = solve(ivpI; T=T, alg=alg)
 end

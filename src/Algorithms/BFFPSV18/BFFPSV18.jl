@@ -137,7 +137,7 @@ function _parse_opts_ND(vars, dim::Integer, partition)
     elseif got_vars
         return _parse_opts_1D(vars, dim, partition)
     else
-        column_blocks = [1:dim]
+        column_blocks = [1:dim]  # TODO this is dead code because `vars != missing` at the call site
     end
     block_indices = Vector{Int}()
     row_blocks = Vector{Vector{Int}}()
