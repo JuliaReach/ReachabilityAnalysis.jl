@@ -39,7 +39,8 @@ include("Continuous/setops.jl")
 include("Algorithms/A20/A20Module.jl")
 using ..A20Module: A20
 
-include("Algorithms/ASB07/ASB07.jl")
+include("Algorithms/ASB07/ASB07Module.jl")
+using ..ASB07Module: ASB07
 
 include("Algorithms/BFFPSV18/BFFPSV18.jl")
 
