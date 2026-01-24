@@ -233,7 +233,7 @@ end
 
 # internal
 function _isdisjoint(F::AbstractFlowpipe, Y::SetOrReachSet,
-                                method::AbstractDisjointnessMethod)
+                     method::AbstractDisjointnessMethod)
     return all(X -> _isdisjoint(X, Y, method), array(F))
 end
 
