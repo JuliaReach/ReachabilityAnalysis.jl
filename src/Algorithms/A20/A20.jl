@@ -1,7 +1,8 @@
-using ..Overapproximate: _convert_or_overapproximate
-
 """
     A20{N} <: AbstractContinuousPost
+
+!!! note
+    This algorithm is currently not implemented.
 
 Implementation of the reachability method for large linear systems with uncertain
 inputs in the Krylov subspace from [Althoff20](@citet).
@@ -36,7 +37,3 @@ function rsetrep(::A20{N}) where {N}
     MT = Matrix{N}
     return ReachSet{N,Zonotope{N,VT,MT}}
 end
-
-include("post.jl")
-include("reach_homog.jl")
-include("reach_inhomog.jl")
