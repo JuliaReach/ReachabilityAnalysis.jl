@@ -42,7 +42,8 @@ using ..A20Module: A20
 include("Algorithms/ASB07/ASB07Module.jl")
 using ..ASB07Module: ASB07
 
-include("Algorithms/BFFPSV18/BFFPSV18.jl")
+include("Algorithms/BFFPSV18/BFFPSV18Module.jl")
+using ..BFFPSV18Module: BFFPSV18
 
 include("Algorithms/BOX/BOX.jl")
 
