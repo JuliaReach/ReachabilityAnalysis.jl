@@ -105,6 +105,7 @@ end
     return ReachSet{N,ZT}
 end
 
+# TODO update error message (also requires `ngens`) and cover cases where only one argument is `missing`
 @inline function rsetrep(::GLGM06{N,AM,Val{true},Missing,Missing}) where {N,AM}
     throw(ArgumentError("the reach-set representation for a statically sized zonotope " *
                         "that the system's dimension argument has been defined; add `dim=...`" *
