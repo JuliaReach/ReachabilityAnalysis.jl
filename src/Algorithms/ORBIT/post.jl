@@ -1,5 +1,3 @@
-using ..Exponentiation: _exp
-
 function post(alg::ORBIT{N,VT,AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N,VT,AM}
     @unpack δ, approx_model = alg

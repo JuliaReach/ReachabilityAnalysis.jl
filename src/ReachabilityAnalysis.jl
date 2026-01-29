@@ -55,7 +55,8 @@ include("Algorithms/INT/INT.jl")
 
 include("Algorithms/LGG09/LGG09.jl")
 
-include("Algorithms/ORBIT/ORBIT.jl")
+include("Algorithms/ORBIT/ORBITModule.jl")
+using ..ORBITModule: ORBIT
 
 include("Algorithms/VREP/VREP.jl")
 
