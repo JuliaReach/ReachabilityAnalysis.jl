@@ -119,9 +119,6 @@ function __init__()
     # sparse dynamic representation of multivariate polynomials
     @require DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07" include("init_DynamicPolynomials.jl")
 
-    # exponentiation methods using Krylov subspace approximations
-    @require ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18" include("init_ExponentialUtilities.jl")
-
     # external reachability backend: Flow* C++ library
     @require Flowstar = "a8054ddd-9dca-4d20-8ffe-ae96ec1541f1" include("init_Flowstar.jl")
 
