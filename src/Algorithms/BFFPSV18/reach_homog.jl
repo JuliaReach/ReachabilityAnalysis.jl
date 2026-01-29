@@ -66,7 +66,7 @@ function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEP
                                ::Universe, ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj}, Δt0,
-                               viewval::Val{true}) where {NM,MT<:AbstractMatrix{NM},N,RBLKi,CBLKj}
+                               viewval::Val{true}) where {MT<:AbstractMatrix,N,RBLKi,CBLKj}
 
     # initial reach-set
     Δt = (zero(N) .. δ) + Δt0
@@ -107,7 +107,7 @@ function reach_homog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NSTEP
                                ::Universe, ST, vars, block_indices,
                                row_blocks::AbstractVector{<:RBLKi},
                                column_blocks::AbstractVector{<:CBLKj}, Δt0,
-                               viewval::Val{true}) where {NM,MT<:SparseMatrixCSC{NM},N,RBLKi,CBLKj}
+                               viewval::Val{true}) where {MT<:SparseMatrixCSC,N,RBLKi,CBLKj}
 
     # store first element
     Δt = (zero(N) .. δ) + Δt0
