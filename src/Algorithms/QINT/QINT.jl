@@ -33,7 +33,3 @@ step_size(alg::QINT) = alg.δ
 numtype(::QINT{N}) where {N} = N
 setrep(::QINT{N}) where {N} = Interval{N}
 rsetrep(::QINT{N}) where {N} = ReachSet{N,Interval{N}}
-
-include("post.jl")
-include("reach_homog.jl")
-#include("reach_inhomog.jl")
