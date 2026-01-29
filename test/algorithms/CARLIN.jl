@@ -18,8 +18,8 @@ end
 
 @testset "CARLIN lift_vector" begin
     x = IA.interval(0, 1)
-    H = RA.lift_vector(x, 2)
-    H2 = RA.lift_vector(Interval(x), 2)
+    H = RA.CARLINModule.lift_vector(x, 2)
+    H2 = RA.CARLINModule.lift_vector(Interval(x), 2)
     @test H == H2 == Hyperrectangle([0.5, 0.5], [0.5, 0.5])
 end
 
@@ -27,19 +27,19 @@ end
     # Interval
     X0 = Interval(0.47, 0.53)
     for N in (1, 2)
-        I1 = RA.kron_pow(X0, N)
-        I2 = RA.kron_pow(X0.dat, N)  # IA.Interval
+        I1 = RA.CARLINModule.kron_pow(X0, N)
+        I2 = RA.CARLINModule.kron_pow(X0.dat, N)  # IA.Interval
         @test I1 == Interval(I2)
 
         if N == 1
-            @test RA.kron_pow(X0, N, "invalid") == X0
+            @test RA.CARLINModule.kron_pow(X0, N, "invalid") == X0
         else
-            @test_throws ArgumentError RA.kron_pow(X0, N, "invalid")
+            @test_throws ArgumentError RA.CARLINModule.kron_pow(X0, N, "invalid")
         end
 
         # TODO "explicit" algorithm cannot be passed to `Interval` method,
         # so it chooses the `Hyperrectangle` method
-        I2 = RA.kron_pow(X0, N, "explicit")
+        I2 = RA.CARLINModule.kron_pow(X0, N, "explicit")
         if N == 2
             @test_broken I2 isa Interval
         end
@@ -49,7 +49,7 @@ end
     # Hyperrectangle
     X0 = Hyperrectangle([1.0, 1, 1], [0.1, 0.1, 0.1])
     # explicit `kron_pow` (TODO refactor code so that this can be chosen by the user)
-    H = RA.kron_pow(X0, 2, "explicit")
+    H = RA.CARLINModule.kron_pow(X0, 2, "explicit")
     @test H ≈ Hyperrectangle(fill(1.01, 9), fill(0.2, 9))
 end
 
@@ -57,13 +57,13 @@ end
     # Interval
     X0 = Interval(0.47, 0.53)
     N = 2
-    H1 = RA.kron_pow_stack(X0, N)
-    H2 = RA.kron_pow_stack(X0.dat, N)  # IA.Interval
+    H1 = RA.CARLINModule.kron_pow_stack(X0, N)
+    H2 = RA.CARLINModule.kron_pow_stack(X0.dat, N)  # IA.Interval
     @test H1 == H2
 
     # Hyperrectangle
     X0 = Hyperrectangle([1.0, 1, 1], [0.1, 0.1, 0.1])
-    H = RA.kron_pow_stack(X0, N)
+    H = RA.CARLINModule.kron_pow_stack(X0, N)
     @test_broken H isa Hyperrectangle  # TODO `kron_pow_stack` is not consistent in return type
 end
 

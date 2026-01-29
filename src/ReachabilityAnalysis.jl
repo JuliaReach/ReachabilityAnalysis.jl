@@ -69,7 +69,8 @@ include("Algorithms/linear_post.jl")
 include("Algorithms/HLBS25/HLBS25.jl")
 
 # Nonlinear
-include("Algorithms/CARLIN/CARLIN.jl")
+include("Algorithms/CARLIN/CARLINModule.jl")
+using ..CARLINModule: CARLIN, CanonicalQuadraticForm
 
 include("Algorithms/FLOWSTAR/FLOWSTAR.jl")
 
