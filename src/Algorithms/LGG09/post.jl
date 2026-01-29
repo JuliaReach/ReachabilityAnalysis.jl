@@ -34,8 +34,7 @@ function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS
     # NOTE: option :static currently ignored!
 
     # preallocate output flowpipe
-    SN = SubArray{N,1,Matrix{N},Tuple{Slice{OneTo{Int}},Int},true}
-    RT = TemplateReachSet{N,VN,TN,SN}
+    RT = rsetrep(alg)
     F = Vector{RT}(undef, NSTEPS)
 
     if got_homogeneous
