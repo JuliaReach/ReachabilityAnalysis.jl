@@ -1,3 +1,20 @@
+using ReachabilityAnalysis, Test
+import ReachabilityAnalysis as RA
+
+@testset "INT struct" begin
+    # full constructor
+    alg = INT(0.01, nothing)
+
+    # constructor with default values
+    alg = INT(; δ=0.01)
+
+    # struct getters
+    @test RA.step_size(alg) == 0.01
+    @test RA.numtype(alg) == Float64
+    @test setrep(alg) == Interval{Float64}
+    @test rsetrep(alg) == ReachSet{Float64,setrep(alg)}
+end
+
 @testset "INT algorithm" begin
     ivp, tspan = exponential_1d()
     alg = INT(; δ=0.01)
@@ -9,10 +26,10 @@
     @test setrep(sol) <: Interval
     @test setrep(sol) == Interval{Float64}
     # discrete algorithm
-    ivp_norm = ReachabilityAnalysis._normalize(ivp)
+    ivp_norm = RA._normalize(ivp)
     ivp_discr = discretize(ivp_norm, alg.δ, alg.approx_model)
     NSTEPS = 500
-    fp_d = ReachabilityAnalysis.post(alg, ivp_discr, NSTEPS)
+    fp_d = RA.post(alg, ivp_discr, NSTEPS)
 
     ivp, tspan = exponential_1d(; invariant=HalfSpace([-1.0], -0.3)) # x >= 0.3
     sol_inv = solve(ivp; tspan=tspan, alg=INT(; δ=0.01))
@@ -34,4 +51,11 @@ end
 @testset "Scalar affine ODE" begin
     ivp = @ivp(x' = x + [1.0], x(0) ∈ Singleton([1.0]))
     sol = solve(ivp; T=4.0)
+    @test sol.alg isa INT
+
+    # invariant
+    X = BallInf(zeros(1), 100.0)
+    ivp = @ivp(x' = x + [1.0], x(0) ∈ Singleton([1.0]), x ∈ X)
+    sol = solve(ivp; T=4.0)
+    @test sol.alg isa INT
 end
