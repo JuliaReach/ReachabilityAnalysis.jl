@@ -8,7 +8,7 @@ import Aqua, ExplicitImports
                :_check_constrained_dimensions, :_expmv, :_plot_singleton_list,
                :plot_recipe, :shrink_wrapping!, :solve, :_exp_remainder,
                :correction_hull, :input_correction, :AbstractODEScheme,
-               :AbstractPreconditioner, :AbstractTMOrder, :GIR05)
+               :AbstractPreconditioner, :AbstractTMOrder, :GIR05, :Slice)
     @test isnothing(ExplicitImports.check_all_explicit_imports_are_public(ReachabilityAnalysis;
                                                                           ignore=ignores))
     @test isnothing(ExplicitImports.check_all_explicit_imports_via_owners(ReachabilityAnalysis))

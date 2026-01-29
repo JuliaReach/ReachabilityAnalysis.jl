@@ -53,7 +53,8 @@ using ..GLGM06Module: GLGM06
 
 include("Algorithms/INT/INT.jl")
 
-include("Algorithms/LGG09/LGG09.jl")
+include("Algorithms/LGG09/LGG09Module.jl")
+using ..LGG09Module: LGG09
 
 include("Algorithms/ORBIT/ORBITModule.jl")
 using ..ORBITModule: ORBIT

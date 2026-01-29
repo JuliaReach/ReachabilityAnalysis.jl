@@ -6,7 +6,7 @@ using LinearAlgebra: Diagonal, I, dot, isdiag, mul!, tr
 using Parameters: @unpack, @with_kw
 using RecipesBase: @recipe, @series
 using Reexport: @reexport
-using SparseArrays: SparseMatrixCSC, SparseVector, sparse, sparsevec, spzeros
+using SparseArrays: SparseMatrixCSC, SparseVector, sparsevec, spzeros
 using StaticArrays: MMatrix, SMatrix, SVector
 
 # the reexport macro ensures that the names exported by the following libraries
