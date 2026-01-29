@@ -189,6 +189,7 @@ end  # quote / load_krylov_LGG09_homog()
 # ------------------------------------------------------------
 
 # it is assumed that (λ, d) is an eigenvalue-eigenvector pair of the matrix Φᵀ
+# TODO `λ` is always positive at the call sites
 function reach_homog_dir_eig_LGG09!(out::AbstractVector{N}, X₀, d::AbstractVector{N}, λ::N,
                                     NSTEPS) where {N}
     if iszero(λ)

@@ -1,5 +1,8 @@
 using Test, ReachabilityAnalysis
 
+# optional dependencies
+import ExponentialUtilities
+
 # auxiliary code to skip expensive tests
 begin
     __test_short = haskey(ENV, "JULIA_PKGEVAL")
