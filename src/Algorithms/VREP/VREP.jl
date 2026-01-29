@@ -32,7 +32,8 @@ function setrep(::VREP{N,AM,Val{false},D}) where {N,AM,D}
 end
 
 function setrep(alg::VREP{N,AM,Val{true},Missing}) where {N,AM}
-    return error("the set representation of this algorithm requires the dimension to be specified, but it is $(alg.dim)")
+    return throw(ArgumentError("for static arrays, this algorithm requires " *
+                               "to specify the dimension"))
 end
 
 function setrep(::VREP{N,AM,Val{true},Val{2}}) where {N,AM}

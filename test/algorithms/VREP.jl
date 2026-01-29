@@ -27,7 +27,7 @@ using StaticArrays: SVector
     @test_broken setrep(VREP(; δ=0.1, dim=5, static=false)) == VPolytope{N,Vector{N}}  # TODO fix this
 
     # `static` option requires `dim`
-    @test_throws ErrorException setrep(VREP(; δ=0.1, static=true))
+    @test_throws ArgumentError setrep(VREP(; δ=0.1, static=true))
 end
 
 @testset "VREP static arrays conversions" begin
