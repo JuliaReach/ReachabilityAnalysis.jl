@@ -51,7 +51,8 @@ using ..BOXModule: BOX
 include("Algorithms/GLGM06/GLGM06Module.jl")
 using ..GLGM06Module: GLGM06
 
-include("Algorithms/INT/INT.jl")
+include("Algorithms/INT/INTModule.jl")
+using ..INTModule: INT
 
 include("Algorithms/LGG09/LGG09Module.jl")
 using ..LGG09Module: LGG09
