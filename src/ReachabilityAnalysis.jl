@@ -45,7 +45,8 @@ using ..ASB07Module: ASB07
 include("Algorithms/BFFPSV18/BFFPSV18Module.jl")
 using ..BFFPSV18Module: BFFPSV18
 
-include("Algorithms/BOX/BOX.jl")
+include("Algorithms/BOX/BOXModule.jl")
+using ..BOXModule: BOX
 
 include("Algorithms/GLGM06/GLGM06.jl")
 
