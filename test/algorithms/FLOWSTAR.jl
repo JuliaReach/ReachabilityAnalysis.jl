@@ -1,6 +1,20 @@
+using ReachabilityAnalysis, Test
+import ReachabilityAnalysis as RA
 import Flowstar, Symbolics
 using Suppressor: @suppress  # suppress long output of Flowstar
-using ReachabilityAnalysis: ReachSolution
+
+@testset "FLOWSTAR struct" begin
+    # full constructor
+    alg = FLOWSTAR(nothing, nothing, 0.01, nothing, 0.0, 0, true, nothing)
+
+    # constructor with default values
+    alg = FLOWSTAR(; δ=0.01)
+
+    # struct getters
+    @test RA.numtype(alg) == Float64
+    @test_broken setrep(alg) == Vector{TaylorModel1{TaylorN{Float64},Float64}}  # TODO this should work
+    @test rsetrep(alg) == TaylorModelReachSet{Float64,RA.IA.Interval{Float64}}
+end
 
 @testset "FLOWSTAR algorithm" begin
     # Passing a model file.
@@ -8,10 +22,10 @@ using ReachabilityAnalysis: ReachSolution
     ivp = @ivp(BlackBoxContinuousSystem(model, 2), x(0) ∈ (4.8 .. 5.2) × (1.8 .. 2.2))
     sol = @suppress solve(ivp; tspan=(0, 1), alg=FLOWSTAR(; δ=0.02))
     RT = TaylorModelReachSet{Float64,IntervalArithmetic.Interval{Float64}}
-    @test sol isa ReachSolution{Flowpipe{Float64,RT,Vector{RT}},
-                                FLOWSTAR{Float64,Flowstar.FixedTMOrder,
-                                         Flowstar.QRPreconditioner,
-                                         Flowstar.NonPolyODEScheme}}
+    @test sol isa RA.ReachSolution{Flowpipe{Float64,RT,Vector{RT}},
+                                   FLOWSTAR{Float64,Flowstar.FixedTMOrder,
+                                            Flowstar.QRPreconditioner,
+                                            Flowstar.NonPolyODEScheme}}
 
     # Generating the model file from the given system.
     function f!(dx, x, p, t)
@@ -21,8 +35,8 @@ using ReachabilityAnalysis: ReachSolution
     ivp = @ivp(x' = f!(x), dim = 2, x(0) ∈ (4.8 .. 5.2) × (1.8 .. 2.2))
     sol = @suppress solve(ivp; tspan=(0, 1), alg=FLOWSTAR(; δ=0.02))
     RT = TaylorModelReachSet{Float64,IntervalArithmetic.Interval{Float64}}
-    @test sol isa ReachSolution{Flowpipe{Float64,RT,Vector{RT}},
-                                FLOWSTAR{Float64,Flowstar.FixedTMOrder,
-                                         Flowstar.QRPreconditioner,
-                                         Flowstar.NonPolyODEScheme}}
+    @test sol isa RA.ReachSolution{Flowpipe{Float64,RT,Vector{RT}},
+                                   FLOWSTAR{Float64,Flowstar.FixedTMOrder,
+                                            Flowstar.QRPreconditioner,
+                                            Flowstar.NonPolyODEScheme}}
 end
