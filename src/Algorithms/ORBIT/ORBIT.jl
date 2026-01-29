@@ -44,7 +44,7 @@ function setrep(::ORBIT{N,VT,AM}) where {N,VT,AM}
 end
 
 function rsetrep(alg::ORBIT{N}) where {N}
-    ST = sertrep(alg)
+    ST = setrep(alg)
     return ReachSet{N,ST}
 end
 

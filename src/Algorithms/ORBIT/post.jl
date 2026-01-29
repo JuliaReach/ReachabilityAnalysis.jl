@@ -1,3 +1,5 @@
+using ..Exponentiation: _exp
+
 function post(alg::ORBIT{N,VT,AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroI, kwargs...) where {N,VT,AM}
     @unpack δ, approx_model = alg
@@ -75,7 +77,7 @@ function _post!(U::LazySet, alg::ORBIT{N,VT}, F, ivp, NSTEPS, Δt0;
     @inbounds for k in 2:(NSTEPS + 1)
         # obtain random input signal and discretize it
         u = sample(U)
-        Mu = _Φ₁_u(A, δ, approx_model.exp, approx_model.inv, u, Φ)
+        Mu = _Φ₁_u(A, δ, approx_model.exp, approx_model.inv, u, Φ)  # TODO this function does not exist anymore
 
         # compute next state
         y = VT(undef, n)
@@ -122,7 +124,7 @@ end
 # case with zero homogeneous solution Ω0 = 0
 function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::ZeroSet, V::Singleton, NSTEPS) where {N}
     v = element(V)
-    out[1] = zeros(N, n)
+    out[1] = zeros(N, length(v))
     copy!(out[2], v)
     @inbounds for i in 2:(NSTEPS - 1)
         mul!(out[i + 1], Φ, out[i])
