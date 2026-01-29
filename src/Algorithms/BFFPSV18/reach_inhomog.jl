@@ -184,8 +184,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
                                  ::Universe, U, ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj}, Δt0,
-                                 viewval::Val{false}) where {NM,IM,MT<:SparseMatrixCSC{NM,IM},N,
-                                                             RBLKi,CBLKj}
+                                 viewval::Val{false}) where {MT<:SparseMatrixCSC,N,RBLKi,CBLKj}
 
     # store first element
     Δt = (zero(N) .. δ) + Δt0
@@ -196,8 +195,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
     Φpowerk_cache = similar(Φ)
 
     # preallocate buffer for each row-block
-    SMT = SparseMatrixCSC{NM,IM}
-    buffer = Vector{LinearMap{N,ST,NM,SMT}}(undef, length(column_blocks))
+    buffer = Vector{LinearMap{N,ST,N,MT}}(undef, length(column_blocks))
 
     # preallocate overapproximated Minkowski sum for each row-block
     Xhatk = Vector{ST}(undef, length(row_blocks))
@@ -244,7 +242,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
                                  X::LazySet, U, ST, vars, block_indices,
                                  row_blocks::AbstractVector{<:RBLKi},
                                  column_blocks::AbstractVector{<:CBLKj}, Δt0,
-                                 viewval::Val{true}) where {NM,MT<:AbstractMatrix{NM},N,RBLKi,CBLKj}
+                                 viewval::Val{true}) where {MT<:AbstractMatrix,N,RBLKi,CBLKj}
 
     # initial reach-set
     Δt = (zero(N) .. δ) + Δt0
