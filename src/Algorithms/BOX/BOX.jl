@@ -73,7 +73,7 @@ function setrep(::BOX{N,AM,Val{false},D,R}) where {N,AM,D,R}
     return Hyperrectangle{N,VT,VT}
 end
 
-function rsetrep(::BOX{N,AM,Val{true},Val{n},R}) where {N,AM,n,R}
+function setrep(::BOX{N,AM,Val{true},Val{n},R}) where {N,AM,n,R}
     VT = SVector{n,N}
     return Hyperrectangle{N,VT,VT}
 end
