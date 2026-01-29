@@ -3,6 +3,7 @@ using .Symbolics: Num
 
 include("../Continuous/symbolics.jl")
 
+# TODO refactor to FLOWSTARModule
 function Base.convert(::Type{Vector{Tuple{String,String}}}, s::BlackBoxContinuousSystem; params=[],
                       t=nothing)
     @required Symbolics
