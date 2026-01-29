@@ -60,7 +60,8 @@ using ..LGG09Module: LGG09
 include("Algorithms/ORBIT/ORBITModule.jl")
 using ..ORBITModule: ORBIT
 
-include("Algorithms/VREP/VREP.jl")
+include("Algorithms/VREP/VREPModule.jl")
+using ..VREPModule: VREP
 
 include("Algorithms/linear_post.jl")
 
