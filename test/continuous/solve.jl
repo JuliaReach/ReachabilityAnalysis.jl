@@ -2,21 +2,21 @@ using StaticArrays: SArray
 using ReachabilityAnalysis: _isapprox
 
 @testset "Default continuous post-operator" begin
-    prob, dt = motor_homog()
-    sol = solve(prob; tspan=dt)
+    prob, _ = motor_homog()
+    sol = solve(prob; T=0.001)
     @test sol.alg isa GLGM06
     @test sol.alg.static == Val{false}()
     @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
 
     # static case
-    sol = solve(prob; tspan=dt, static=true)
+    sol = solve(prob; T=0.001, static=true)
     @test sol.alg isa GLGM06
     @test sol.alg.static == Val{true}()
     @test setrep(sol) ==
           Zonotope{Float64,SArray{Tuple{8},Float64,1,8},SArray{Tuple{8,13},Float64,2,104}}
 
     # if the static kwarg is passed outside the algorithm => it is ignored
-    sol = solve(prob; tspan=dt, alg=GLGM06(; δ=1e-2), static=true)
+    sol = solve(prob; T=0.001, alg=GLGM06(; δ=1e-5), static=true)
     @test setrep(sol) == Zonotope{Float64,Array{Float64,1},Array{Float64,2}}
 end
 
@@ -135,7 +135,7 @@ end
 
 @testset "Concrete projection" begin
     prob, tspan = motor_homog()
-    sol = solve(prob; tspan=tspan, alg=GLGM06(; δ=0.01), static=false)
+    sol = solve(prob; T=0.001, alg=GLGM06(; δ=1e-5), static=false)
 
     project(sol, (1, 3))
     project(sol, [1, 3])
