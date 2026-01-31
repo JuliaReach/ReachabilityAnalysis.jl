@@ -7,8 +7,8 @@ using TaylorModels: set_variables,
     X = BallInf(ones(2), 1.0)
 
     # constructor with a time interval
-    R = ReachSet(X, 0 .. 1)
-    @test tspan(R) == 0 .. 1
+    R = ReachSet(X, interval(0, 1))
+    @test tspan(R) == interval(0, 1)
 
     # constructor with a time point
     R = ReachSet(X, 1.0)
@@ -34,7 +34,7 @@ end
     X = BallInf(zeros(5), 1.0)
     B = BallInf(zeros(2), 1.0)
 
-    R = ReachSet(X, 0 .. 1)
+    R = ReachSet(X, interval(0, 1))
 
     # concrete projection of a set
     p1 = project(X, [1, 2])
@@ -94,11 +94,11 @@ end
     @test tspan(X) == tspan(Y)
     @test isequivalent(set(X), set(Y))
 
-    R = ReachSet(H, 0 .. 1)
+    R = ReachSet(H, interval(0, 1))
     c = overapproximate(R, TaylorModelReachSet)
     d = convert(TaylorModelReachSet, R)
 
-    @test tspan(c) == tspan(d) == 0 .. 1
+    @test tspan(c) == tspan(d) == interval(0, 1)
     @test isequivalent(set(overapproximate(c, Hyperrectangle)), set(R))
     @test isequivalent(set(overapproximate(d, Hyperrectangle)), set(R))
 
@@ -110,11 +110,11 @@ end
     @test isequivalent(set(overapproximate(a, Zonotope)), Z)
     @test isequivalent(set(overapproximate(b, Zonotope)), Z)
 
-    R = ReachSet(Z, 0 .. 1)
+    R = ReachSet(Z, interval(0, 1))
     c = overapproximate(R, TaylorModelReachSet)
     d = convert(TaylorModelReachSet, R)
 
-    @test tspan(c) == tspan(d) == 0 .. 1
+    @test tspan(c) == tspan(d) == interval(0, 1)
     @test isequivalent(set(overapproximate(c, Zonotope)), set(R))
     @test isequivalent(set(overapproximate(d, Zonotope)), set(R))
 
@@ -126,10 +126,10 @@ end
 end
 
 @testset "Taylor model reach-sets with non-float coefficients" begin
-    Δt, orderT, orderQ = 0 .. 1, 4, 3
+    Δt, orderT, orderQ = interval(0, 1), 4, 3
     x = set_variables(IntervalArithmetic.Interval{Float64}, "x"; order=orderQ, numvars=2)
-    p1 = Taylor1([0, (0 .. 0.1) + (0 .. 0.01) * x[2]], orderT)
-    p2 = Taylor1([0, (0 .. 0.5) + (0 .. 0.02) * x[1] + (0 .. 0.03) * x[2]], orderT)
+    p1 = Taylor1([0, interval(0, 0.1) + interval(0, 0.01) * x[2]], orderT)
+    p2 = Taylor1([0, interval(0, 0.5) + interval(0, 0.02) * x[1] + interval(0, 0.03) * x[2]], orderT)
     vec = [TaylorModel1(p1, zeroI, zeroI, Δt), TaylorModel1(p2, zeroI, zeroI, Δt)]
     T = TaylorModelReachSet(vec, Δt)
     H = set(overapproximate(T, Hyperrectangle))
@@ -138,10 +138,10 @@ end
 
 @testset "Overapproximation of Taylor model reach-sets I" begin
     # Create a Hyperrectangle centered at 5 and of radius 1
-    H = Hyperrectangle([5.0, 5.0], [1.0, 1.0]) # = (4 .. 6) × (4 .. 6)
+    H = Hyperrectangle([5.0, 5.0], [1.0, 1.0]) # = [4, 6] × [4, 6]
 
-    # Make it a reach-set assigning the time interval 0 .. 1
-    R = ReachSet(H, 0 .. 1)
+    # Make it a reach-set assigning the time interval [0, 1]
+    R = ReachSet(H, interval(0, 1))
 
     # Convert to its Taylor model representation
     T = overapproximate(R, TaylorModelReachSet)
@@ -155,15 +155,15 @@ end
     @test isequivalent(set(Z0), H)
 
     # same but specifying the domain
-    Z0 = overapproximate(T, Zonotope; dom=IntervalBox(-1 .. 1, 2))
+    Z0 = overapproximate(T, Zonotope; dom=IntervalBox(interval(-1, 1), 2))
     @test isequivalent(set(Z0), H)
 
     # evaluate over 1/4th the domain
-    Z1 = overapproximate(T, Zonotope; dom=IntervalBox(0 .. 1.0, 2))
+    Z1 = overapproximate(T, Zonotope; dom=IntervalBox(interval(0, 1), 2))
     @test isequivalent(set(Z1), Hyperrectangle([5.5, 5.5], [0.5, 0.5]))
 
     # evaluate over a custom domain
-    doms = mince(IntervalBox(-1 .. 1, 2), (5, 6))
+    doms = mince(IntervalBox(interval(-1, 1), 2), (5, 6))
     Z = [overapproximate(T, Zonotope; dom=d) for d in doms]
     @test isequivalent(ConvexHullArray(set.(Z)), set(Z0))
 end
@@ -173,33 +173,33 @@ end
     # Two dimensional
     # ------------------
 
-    Z = ReachSet(rand(Zonotope), 0 .. 1)
+    Z = ReachSet(rand(Zonotope), interval(0, 1))
     T = overapproximate(Z, TaylorModelReachSet)
 
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0)
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Zonotope; Δt=interval(0.5, 1.0))
+    overapproximate(T, Zonotope; Δt=interval(0.5, 1.0), dom=IntervalBox(interval(0.9, 1.0), 2))
     overapproximate(T, Zonotope, 2)
     overapproximate(T, Zonotope, [2, 2])
 
     overapproximate(T, Hyperrectangle)
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0)
+    overapproximate(T, Hyperrectangle; Δt=interval(0.5, 1.0))
 
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Hyperrectangle; Δt=interval(0.5, 1.0), dom=IntervalBox(interval(0.9, 1.0), 2))
 
     # One dimensional
     # ------------------
-    Z = ReachSet(rand(Zonotope; dim=1), 0 .. 1)
+    Z = ReachSet(rand(Zonotope; dim=1), interval(0, 1))
     T = overapproximate(Z, TaylorModelReachSet)
 
     overapproximate(T, Zonotope)
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0)
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=0.9 .. 1.0)
+    overapproximate(T, Zonotope; Δt=interval(0.5, 1.0))
+    overapproximate(T, Zonotope; Δt=interval(0.5, 1.0), dom=IntervalBox(interval(0.9, 1.0), 1))
+    overapproximate(T, Zonotope; Δt=interval(0.5, 1.0), dom=interval(0.9, 1.0))
     overapproximate(T, Zonotope, 2)
     overapproximate(T, Zonotope, [2])
 
     overapproximate(T, Hyperrectangle)
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0)
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
+    overapproximate(T, Hyperrectangle; Δt=interval(0.5, 1.0))
+    overapproximate(T, Hyperrectangle; Δt=interval(0.5, 1.0), dom=IntervalBox(interval(0.9, 1.0), 1))
+    overapproximate(T, Hyperrectangle; Δt=interval(0.5, 1.0), dom=IntervalBox(interval(0.9, 1.0), 1))
 end

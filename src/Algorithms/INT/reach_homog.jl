@@ -11,7 +11,7 @@ function reach_homog_INT!(F::Vector{ReachSet{N,Interval{N}}},
                           ::Universe,
                           Δt0::TimeInterval) where {N}
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -34,7 +34,7 @@ function reach_homog_INT!(F::Vector{ReachSet{N,Interval{N}}},
                           Δt0::TimeInterval) where {N}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
