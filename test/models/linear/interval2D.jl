@@ -6,14 +6,14 @@
 X0 = BallInf([1.0, 1.0], 0.1)
 
 # linear ODE: x' = Ax
-A = IntervalMatrix([-1.0±0.05 -4.0±0.05;
-                    4.0±0.05 -1.0±0.05])
+A = IntervalMatrix([interval(-1.05, -0.95) interval(-4.05, -3.95);
+                    interval(3.95, 4.05) interval(-1.05, -0.95)])
 
 # IVP(LCS(A), X0) TODO: remove
 interval2D_linear = @ivp x' = A * x, x(0) ∈ X0
 
 # affine ODE: x' = Ax + Bu
-B = IntervalMatrix(hcat([1.0 ± 0.0; 1.0 ± 0.0])) # why hcat?
+B = IntervalMatrix(hcat([interval(1); interval(1)])) # TODO why hcat?
 U = Interval(-0.05, 0.05)
 
 # IVP(CLCCS(A, B, nothing, U), X0) TODO: remove

@@ -115,31 +115,15 @@ end
 
 # duck-typing sampling functions
 LazySets._default_sampler(X::IA.Interval) = LazySets._default_sampler(convert(Interval, X))
-LazySets._default_sampler(X::IA.IntervalBox) = LazySets._default_sampler(convert(Hyperrectangle, X))
+LazySets._default_sampler(X::IntervalBox) = LazySets._default_sampler(convert(Hyperrectangle, X))
 LazySets._default_sampler(X::AbstractVector{<:Real}) = LazySets._default_sampler(Singleton(X))
 
 LazySets.sample(X::IA.Interval, d::Integer; kwargs...) = sample(convert(Interval, X), d; kwargs...)
-function LazySets.sample(X::IA.IntervalBox, d::Integer; kwargs...)
+function LazySets.sample(X::IntervalBox, d::Integer; kwargs...)
     return sample(convert(Hyperrectangle, X), d; kwargs...)
 end
 function LazySets.sample(X::AbstractVector{<:Real}, d::Integer; kwargs...)
     return sample(Singleton(X), d; kwargs...)
-end
-
-LazySets.low(dom::IntervalBox) = inf.(dom.v)
-LazySets.low(dom::IntervalBox, i::Int) = inf(dom.v[i])
-LazySets.high(dom::IntervalBox) = sup.(dom.v)
-LazySets.high(dom::IntervalBox, i::Int) = sup(dom.v[i])
-
-LazySets.low(dom::IA.Interval) = inf(dom)
-function LazySets.low(dom::IA.Interval, i::Int)
-    @assert i == 1
-    return inf(dom)
-end
-LazySets.high(dom::IA.Interval) = sup(dom)
-function LazySets.high(dom::IA.Interval, i::Int)
-    @assert i == 1
-    return sup(dom)
 end
 
 # ------------------------------------------------
@@ -191,7 +175,8 @@ end
 function _split_symmetric_box(D::Int, partition::Vector{Int})
     S = BallInf(zeros(D), 1.0)
     Sp = split(S, partition)
-    return convert.(IA.IntervalBox, Sp)
+    IB = convert.(IntervalBox, Sp)
+    return [IB[i] for i in 1:length(IB)]
 end
 
 # ====================================

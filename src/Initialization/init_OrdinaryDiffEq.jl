@@ -223,7 +223,7 @@ end
 
 # sample initial states of hybrid system given a list of pairs (loc, X0)
 function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
-                                  <:Vector{<:Tuple{Integer,AdmissibleSet}}};
+                                  <:Vector{<:Tuple{Integer,LazySet}}};
                          kwargs...)
     H = system(ivp)
     X0 = initial_state(ivp)
@@ -256,7 +256,7 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
 end
 
 # sample initial states of hybrid system given a set X0
-function _sample_initial(ivp::IVP{<:AbstractHybridSystem,<:AdmissibleSet};
+function _sample_initial(ivp::IVP{<:AbstractHybridSystem,<:LazySet};
                          kwargs...)
     H = system(ivp)
     X0 = initial_state(ivp)

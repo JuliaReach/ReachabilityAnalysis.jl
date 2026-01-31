@@ -15,7 +15,7 @@ with initial condition ``x(0) ∈ [0.45, 0.55]``. We can solve the problem as fo
 using ReachabilityAnalysis, Plots
 
 # define the initial-value problem
-prob = @ivp(x' = -x, x(0) ∈ 0.45 .. 0.55)
+prob = @ivp(x' = -x, x(0) ∈ Interval(0.45, 0.55))
 
 # solve it
 sol = solve(prob, T=4.0)

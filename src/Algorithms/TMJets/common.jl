@@ -1,7 +1,7 @@
 # shared functionality among TMJets implementations
 
-using TaylorModels: TaylorModelN
-using TaylorModels: fp_rpa, remainder
+using TaylorModels: TaylorModelN, fp_rpa, remainder
+using TaylorModels.ValidatedInteg: _DEF_MINABSTOL, validated_integ, validated_integ2
 
 # =================================
 # Default values for the parameters
@@ -37,10 +37,11 @@ _initialize(X0::Vector{TaylorModel1{TaylorN{T},T}}, orderQ, orderT) where {T} = 
 
 # hyperrectangular sets
 function _initialize(X0::AbstractHyperrectangle, orderQ, orderT)
-    return convert(IntervalBox, box_approximation(X0))
+    IB = convert(IntervalBox, box_approximation(X0))
+    return [IB[i] for i in 1:length(IB)]
 end
-_initialize(X0::IntervalBox, orderQ, orderT) = X0
-_initialize(X0::IA.Interval, orderQ, orderT) = IntervalBox(X0)
+_initialize(X0::IntervalBox, orderQ, orderT) = [X0[i] for i in 1:length(X0)]
+_initialize(X0::IA.Interval, orderQ, orderT) = [X0]
 
 # zonotopic sets
 function _initialize(X0::AbstractZonotope, orderQ, orderT)
@@ -56,7 +57,8 @@ end
 
 function _initialize(X0::CartesianProduct{N,<:AbstractHyperrectangle,<:AbstractHyperrectangle},
                      orderQ, orderT) where {N}
-    return convert(IntervalBox, convert(Hyperrectangle, X0))
+    IB = convert(IntervalBox, convert(Hyperrectangle, X0))
+    return [IB[i] for i in 1:length(IB)]
 end
 
 function _initialize(X0::CartesianProduct{N,<:Zonotope,<:Interval}, orderQ, orderT) where {N}
