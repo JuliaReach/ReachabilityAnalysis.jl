@@ -17,7 +17,7 @@ using StaticArrays: SVector
 
     # StaticArrays
     alg = BOX(; δ=0.01, static=true, dim=1)
-    @test setrep(alg) == Hyperrectangle{Float64,SVector{1, Float64},SVector{1,Float64}}
+    @test setrep(alg) == Hyperrectangle{Float64,SVector{1,Float64},SVector{1,Float64}}
     @test rsetrep(alg) == ReachSet{Float64,setrep(alg)}
 
     # invalid construction: `static=true` requires `dim`

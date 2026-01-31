@@ -59,7 +59,7 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
         @assert isa(U, LazySet) "expected input of type `<:LazySet`, but got $(typeof(U))"
         U = _convert_or_overapproximate(Zonotope, U)
         reach_inhomog_A20!(F, Ω0, Φ, NSTEPS, δ, max_order, X, U, reduction_method, Δt0,
-                              disjointness_method)
+                           disjointness_method)
     end
 
     return Flowpipe(F)

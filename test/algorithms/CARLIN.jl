@@ -105,11 +105,11 @@ end
     @test dim(sol) == 3
 
     # reset option: uniform resets
-    sol = solve(prob; T=1.0, alg=CARLIN(; resets=2));
+    sol = solve(prob; T=1.0, alg=CARLIN(; resets=2))
     @test dim(sol) == 3
 
     # reset option: specific resets
-    sol = solve(prob; T=1.0, alg=CARLIN(; resets=[0.1]));
+    sol = solve(prob; T=1.0, alg=CARLIN(; resets=[0.1]))
     @test dim(sol) == 3
 end
 
