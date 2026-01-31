@@ -221,7 +221,7 @@ function solve_spacecraft(prob; k=25, s=missing)
                   intersection_method=TemplateHullIntersection(BoxDirections(5)),
                   clustering_method=LazyClustering(1),
                   disjointness_method=BoxEnclosure())
-    sol12jump = overapproximate(sol12[2](120 .. 150), Zonotope)
+    sol12jump = overapproximate(sol12[2](interval(120, 150)), Zonotope)
     t0 = tstart(sol12jump[1])
     sol12jump_c = cluster(sol12jump, 1:length(sol12jump), BoxClustering(k, s))
 

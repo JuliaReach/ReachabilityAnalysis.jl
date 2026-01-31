@@ -38,7 +38,6 @@ If `recursive == true`, each term of the Taylor expansion is computed recursivel
 
 If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential
 map, producing a single matrix that represents the exponential.
-
 """
 struct CorrectionHullMatrixZonotope{R} <: AbstractApproximationModel
     taylor_order::Int

@@ -24,7 +24,7 @@ by solving the given differential equation with the `Tsit5` algorithm from [Ordi
 using OrdinaryDiffEq, IntervalArithmetic
 
 # initial condition
-x₀ = [-1 .. 1]
+x₀ = [interval(-1, 1)]
 
 # define the problem
 function f(dx, x, p, t)
@@ -63,7 +63,7 @@ function f(dx, x, p, t)
 end
 
 # define the set of initial states
-X0 = -1 .. 1
+X0 = interval(-1, 1)
 
 # define the initial-value problem
 prob = @ivp(x' = f(x), x(0) ∈ X0, dim=1)
@@ -79,7 +79,7 @@ fig = DisplayAs.Text(DisplayAs.PNG(fig))  # hide
 ```
 
 It is illustrative to plot the computed flowpipe and the known analytic solution
-for a range of initial conditions that cover the range of the initial interval `X0 = -1 .. 1`.
+for a range of initial conditions that cover the range of the initial interval `X0 = [-1, 1]`.
 We can do so by overlaying exact solutions taken uniformly from the initial interval.
 
 ```@example nonlinear_univariate
@@ -136,10 +136,10 @@ tspan(aux)
 ```
 
 Filtering by the time span also works with time intervals; in the following example, we obtain all reach-sets whose time span with the interval
-`1.0 .. 3.0` is non-empty:
+`[1.0, 3.0]` is non-empty:
 
 ```@example nonlinear_univariate
-length(sol(1.0 .. 3.0))
+length(sol(interval(1.0, 3.0)))
 ```
 
 On the other hand, evaluating over a given time point or time interval can be achieved using the `evaluate` function:
