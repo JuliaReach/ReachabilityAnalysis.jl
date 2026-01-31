@@ -26,6 +26,7 @@
 # ``A = 1, B = 1.5``.
 
 using ReachabilityAnalysis
+import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
 
 @taylorize function brusselator!(du, u, p, t)
     local A = 1.0
@@ -100,8 +101,8 @@ sol_01 = solve(bruss(0.01); T=30.0, alg=alg);
 
 #-
 
-old_ztol = LazySets._ztol(Float64)  #!jl
-LazySets.set_ztol(Float64, 1e-15)  # use higher precision for the plots #!jl
+old_ztol = CMP._ztol(Float64)  #!jl
+CMP.set_ztol(Float64, 1e-15)  # use higher precision for the plots #!jl
 
 fig = plot(sol_01; vars=(1, 2), xlab="x", ylab="y", lw=0.2, color=:blue, lab="Flowpipe (r = 0.01)",  #!jl
            legend=:bottomright)  #!jl
@@ -126,7 +127,7 @@ plot!(fig, sol_01; vars=(1, 2), lw=0.2, color=:blue, lab="r = 0.01")  #!jl
 
 #-
 
-LazySets.set_ztol(Float64, old_ztol);  # reset precision #!jl
+CMP.set_ztol(Float64, old_ztol);  # reset precision #!jl
 
 # The volume at time ``T = 9.0`` can be (over)estimated by evaluating the
 # flowpipe and computing the volume of a hyperrectangular overapproximation:

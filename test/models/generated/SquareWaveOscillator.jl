@@ -1,4 +1,5 @@
 using ReachabilityAnalysis, Symbolics
+import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
 
 function multistable_oscillator(; X0=Interval(0.0, 0.05),
                                 V₊=+13.5, V₋=-13.5,

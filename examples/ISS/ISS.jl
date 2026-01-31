@@ -37,6 +37,7 @@
 
 using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 using ReachabilityAnalysis: add_dimension
+import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
 
 path = @current_path("ISS", "ISS.jld2")
 
@@ -144,8 +145,8 @@ dim(πsol_ISSF01)  #!jl
 using Plots, Plots.PlotMeasures, LaTeXStrings  #!jl
 #!jl import DisplayAs  #hide
 
-old_ztol = LazySets._ztol(Float64)  #!jl
-LazySets.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
+old_ztol = CMP._ztol(Float64)  #!jl
+CMP.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
 
 #-
 
@@ -178,4 +179,4 @@ fig = plot(πsol_ISSC01; vars=(0, 1), linecolor=:blue, color=:blue, alpha=0.8,  
 
 #-
 
-LazySets.set_ztol(Float64, old_ztol);  # reset precision #!jl
+CMP.set_ztol(Float64, old_ztol);  # reset precision #!jl
