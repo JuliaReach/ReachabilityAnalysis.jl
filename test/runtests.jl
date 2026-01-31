@@ -19,7 +19,9 @@ begin
     fn(vec) = [e for e in vec if !isnothing(e)]
 end
 
-TEST_MODELS = fn(["models/harmonic_oscillator.jl",
+TEST_MODELS = fn([
+                  #
+                  "models/harmonic_oscillator.jl",
                   "models/forced_oscillator.jl",
                   "models/exponential1D.jl",
                   "models/linear/projectile.jl",
@@ -30,9 +32,13 @@ TEST_MODELS = fn(["models/harmonic_oscillator.jl",
                   "models/bouncing_ball.jl",
                   @ts("models/burgers.jl"),
                   @ts("models/generated/Brusselator.jl"),
-                  @ts("models/hybrid/thermostat.jl")])
+                  @ts("models/hybrid/thermostat.jl")
+                  #
+                  ])
 
-TEST_FILES = fn(["continuous/setops.jl",
+TEST_FILES = fn([
+                 #
+                 "continuous/setops.jl",
                  "continuous/solve.jl",
                  @ts("continuous/symbolics.jl"),
                  @ts("continuous/traces.jl"),
@@ -41,9 +47,13 @@ TEST_FILES = fn(["continuous/setops.jl",
                  "flowpipes/flowpipes.jl",
                  @ts("flowpipes/setops.jl"),
                  "reachsets/reachsets.jl",
-                 "hybrid/hybrid.jl"])
+                 "hybrid/hybrid.jl"
+                 #
+                 ])
 
-TEST_ALGORITHMS = fn(["algorithms/A20.jl",
+TEST_ALGORITHMS = fn([
+                      #
+                      "algorithms/A20.jl",
                       "algorithms/INT.jl",
                       "algorithms/BOX.jl",
                       @ts("algorithms/CARLIN.jl"),
@@ -56,7 +66,9 @@ TEST_ALGORITHMS = fn(["algorithms/A20.jl",
                       "algorithms/QINT.jl",
                       "algorithms/HLBS25.jl",
                       @ts("algorithms/VREP.jl"),
-                      @ts("algorithms/FLOWSTAR.jl")])
+                      @ts("algorithms/FLOWSTAR.jl")
+                      #
+                      ])
 
 foreach(include, TEST_MODELS)
 foreach(include, TEST_FILES)

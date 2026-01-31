@@ -4,7 +4,7 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, SparseReachSet,
                               TimeInterval, hasinput, zeroI, _isdisjoint
 using ..ForwardModule: Forward
 
-using IntervalArithmetic: (..)
+using IntervalArithmetic: interval
 using LazySets: CartesianProductArray, Hyperrectangle, Interval, LazySet,
                 LinearMap, MinkowskiSumArray, Projection, Universe, decompose,
                 overapproximate, ⊕

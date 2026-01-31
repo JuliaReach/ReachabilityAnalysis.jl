@@ -69,7 +69,7 @@ fig = plot(solz; vars=(0, 1), xlab="t", ylab="x")  #!jl
 # It is apparent by inspection that variable ``x(t)`` does not exceed ``20`` in
 # the computed time span:
 
-fig = plot(solz(0.0 .. 1.5); vars=(0, 1), xlab="t", ylab="x", lw=0)  #!jl
+fig = plot(solz(interval(0.0, 1.5)); vars=(0, 1), xlab="t", ylab="x", lw=0)  #!jl
 plot!(fig, x -> 20.0; c=:red, xlims=(0.0, 1.5), lab="")  #!jl
 
 #!jl DisplayAs.Text(DisplayAs.PNG(fig))  #hide
@@ -77,11 +77,11 @@ plot!(fig, x -> 20.0; c=:red, xlims=(0.0, 1.5), lab="")  #!jl
 # We can prove that this is the case by evaluating the support function of the
 # flowpipe along direction ``[1, 0, 0]``:
 
-@assert ρ([1.0, 0, 0], solz(0 .. 1.5)) < 20 "the property should be proven"
+@assert ρ([1.0, 0, 0], solz(interval(0, 1.5))) < 20 "the property should be proven"
 
 #-
 
-ρ([1.0, 0, 0], solz(0 .. 1.5))  #!jl
+ρ([1.0, 0, 0], solz(interval(0, 1.5)))  #!jl
 
 # In a similar fashion, we can compute extremal values of variable ``y(t)``:
 

@@ -29,7 +29,7 @@ function _reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ, NSTEPS
                                   row_blocks::AbstractVector, column_blocks::AbstractVector, Δt0,
                                   viewval::Val{true}) where {N}
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -82,7 +82,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
                                  viewval::Val{true}) where {MT<:AbstractMatrix,N,RBLKi,CBLKj}
 
     # initial reach-set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -134,7 +134,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
                                  column_blocks::AbstractVector{<:CBLKj}, Δt0,
                                  viewval::Val{true}) where {MT<:SparseMatrixCSC,N,RBLKi,CBLKj}
     # store first element
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -188,7 +188,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
                                                              RBLKi,CBLKj}
 
     # store first element
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix
@@ -247,7 +247,7 @@ function reach_inhomog_BFFPSV18!(F, Xhat0::CartesianProductArray{N}, Φ::MT, NST
                                  viewval::Val{true}) where {NM,MT<:AbstractMatrix{NM},N,RBLKi,CBLKj}
 
     # initial reach-set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = SparseReachSet(CartesianProductArray(Xhat0.array[block_indices]), Δt, vars)
 
     # cache matrix

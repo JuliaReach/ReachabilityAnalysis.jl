@@ -110,15 +110,15 @@ fig = plot(sol_nondet; vars=(0, 1), xlab=L"t", ylab=L"e_{out}",  #!jl
 # we solve for three different initial conditions of increasing width, for a
 # shorter time horizon.
 
-Δt = 0 .. 0.04  #!jl
+Δt = interval(0, 0.04)  #!jl
 
 fig = plot(; xlab=L"t", ylab=L"e_{out}(t)", title="Solution for nondeterministic input")  #!jl
 
 sol_nondet = solve(opamp_nondet(; X0=Interval(-1.0, 1.0)); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -1 .. 1", lw=0.2)  #!jl
+plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = [-1, 1]", lw=0.2)  #!jl
 
 sol_nondet = solve(opamp_nondet(; X0=Interval(-0.5, 0.5)); T=0.1, alg=INT(; δ=1e-4))
-plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = -0.5 .. 0.5", lw=0.2)  #!jl
+plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = [-0.5, 0.5]", lw=0.2)  #!jl
 
 sol_nondet = solve(opamp_nondet(); T=0.1, alg=INT(; δ=1e-4))
 plot!(fig, sol_nondet(Δt); vars=(0, 1), lab="X0 = 0", lw=0.2)  #!jl

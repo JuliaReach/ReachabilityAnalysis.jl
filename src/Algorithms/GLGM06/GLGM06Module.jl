@@ -7,7 +7,7 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, AbstractDisjointnessMethod
 using ..FirstOrderZonotopeModule: FirstOrderZonotope
 using ..Overapproximate: _convert_or_overapproximate
 
-using IntervalArithmetic: (..)
+using IntervalArithmetic: interval
 using LazySets: AbstractReductionMethod, GIR05, LazySet, Universe, Zonotope,
                 linear_map, linear_map!, reduce_order, set
 using LinearAlgebra: mul!

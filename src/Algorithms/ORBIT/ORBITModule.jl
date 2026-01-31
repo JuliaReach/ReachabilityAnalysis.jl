@@ -7,7 +7,7 @@ using ..DiscretizationModule: next_set
 using ..Exponentiation: _exp
 using ..NoBloatingModule: NoBloating
 
-using IntervalArithmetic: (..)
+using IntervalArithmetic: interval
 using LazySets: AbstractSingleton, LazySet, Singleton, Universe, ZeroSet, element, sample
 using LinearAlgebra: mul!
 using MathematicalSystems: AbstractContinuousSystem, AbstractInput, IVP,
