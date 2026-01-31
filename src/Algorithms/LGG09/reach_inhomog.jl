@@ -23,7 +23,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     _reach_inhomog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, U, dirs, NSTEPS, cache, threaded)
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds for k in 1:NSTEPS
         F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)
         Δt += δ
@@ -119,7 +119,7 @@ end
     end
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = interval(zero(N), δ) + time_shift
     @inbounds for k in 1:NSTEPS
         sf = [ρℓ[i][k] for i in eachindex(dirs)]
         F[k] = TemplateReachSet(dirs, sf, Δt)
@@ -178,7 +178,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     sᵢ = zeros(N, ndirs)
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     k = 1
     @inbounds while k <= NSTEPS
 
@@ -241,7 +241,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     sᵢ = zeros(N, ndirs)
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = interval(zero(N), δ) + time_shift
     k = 1
     @inbounds while k <= NSTEPS
         for (j, ℓ) in enumerate(dirs)
@@ -291,7 +291,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     end
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = interval(zero(N), δ) + time_shift
     k = 1
     @inbounds while k <= NSTEPS
         F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)

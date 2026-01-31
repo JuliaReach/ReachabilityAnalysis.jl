@@ -11,7 +11,7 @@ function reach_homog_VREP!(F::Vector{ReachSet{N,VP}},
                            Δt0::TimeInterval) where {N,VN,VP<:VPOLY{N,VN}}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2

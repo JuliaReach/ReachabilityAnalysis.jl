@@ -64,7 +64,7 @@ function _post!(U::LazySet, alg::ORBIT{N,VT}, F, ivp, NSTEPS, Δt0;
     Φ = _exp(A, δ, approx_model.exp)
 
     # time interval
-    Δt = (zero(N) .. zero(N)) + Δt0
+    Δt = interval(zero(N), zero(N)) + Δt0
 
     # start with x0
     x = element(X0)
@@ -110,7 +110,7 @@ function _orbit!(F, Φ::AbstractMatrix{N}, Ω0, V, NSTEPS, δ, ::Universe, Δt0)
     _orbit!(out, Φ, Ω0, V, NSTEPS)
 
     # fill reach-set sequence for each time instance 0, δ, 2δ, ...
-    Δt = (zero(N) .. zero(N)) + Δt0
+    Δt = interval(zero(N), zero(N)) + Δt0
     for k in 1:NSTEPS
         xk = Singleton(out[k])
         F[k] = ReachSet(xk, Δt)

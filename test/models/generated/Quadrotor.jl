@@ -84,12 +84,12 @@ const v3 = SingleEntryVector(3, 12, 1.0)
 
     # Condition: b1 = (x[3] < 1.4) for all time
     unsafe1 = HalfSpace(-v3, -1.4) # unsafe: -x3 <= -1.4
-    b1 = all([isdisjoint(unsafe1, set(R)) for R in sol(0.0 .. tf)])
+    b1 = all([isdisjoint(unsafe1, set(R)) for R in sol(interval(0.0, tf))])
     #b1 = ρ(v3, sol) < 1.4
 
     # Condition: x[3] > 0.9 for t ≥ 1.0
     unsafe2 = HalfSpace(v3, 0.9) # unsafe: x3 <= 0.9
-    b2 = all([isdisjoint(unsafe2, set(R)) for R in sol(1.0 .. tf)])
+    b2 = all([isdisjoint(unsafe2, set(R)) for R in sol(interval(1.0, tf))])
 
     # Condition: x[3] ⊆ Interval(0.98, 1.02) for t = 5.0
     b3 = set(project(sol[end]; vars=(3))) ⊆ Interval(0.98, 1.02)

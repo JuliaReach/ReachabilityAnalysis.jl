@@ -30,8 +30,8 @@ end
     # [AlthoffSB07; Example 1](@citet)
 
     # linear ODE: x' = Ax
-    A = IntervalMatrix([-1.0±0.05 -4.0±0.05;
-                        4.0±0.05 -1.0±0.05])
+    A = IntervalMatrix([interval(-1.05, -0.95) interval(-4.05, -3.95);
+                        interval(3.95, 4.05) interval(-1.05, -0.95)])
     X0 = BallInf([1.0, 1.0], 0.1)
     ivp = @ivp(x' = A * x, x(0) ∈ X0)
     alg = ASB07(; δ=0.04)
@@ -78,8 +78,8 @@ end
     @test diameter(set(sol1_rec[end])) < diameter(set(sol1_nonrec[end]))
 
     # TODO test without IntervalMatrix wrapper
-    #A = [-1.0 ± 0.05 -4.0 ± 0.05;
-    #     4.0 ± 0.05 -1.0 ± 0.05]
+    # A = IntervalMatrix([interval(-1.05, -0.95) interval(-4.05, -3.95);
+    #                     interval(3.95, 4.05) interval(-1.05, -0.95)])
     #ivp = @ivp(x' = A * x, x(0) ∈ X0)
     #sol1 = solve(ivp, tspan=(0.0, 1.0), alg=ASB07(δ=0.04));
 
@@ -92,9 +92,9 @@ end
 
 @testset "ASB07 algorithm: inhomogeneous case" begin
     # affine ODE: x' = Ax + Bu
-    A = [-1.0±0.05 -4.0±0.05;
-         4.0±0.05 -1.0±0.05]
-    B = hcat([1.0 ± 0.01; 1.0 ± 0.0])
+    A = IntervalMatrix([interval(-1.05, -0.95) interval(-4.05, -3.95);
+                        interval(3.95, 4.05) interval(-1.05, -0.95)])
+    B = hcat([interval(0.99, 1.01); interval(1)])
     U = Interval(-0.05, 0.05)
     X0 = BallInf([1.0, 1.0], 0.1)
     ivp = @ivp(x' = A * x + Bu, x(0) ∈ X0, u ∈ U, x ∈ Universe(2))

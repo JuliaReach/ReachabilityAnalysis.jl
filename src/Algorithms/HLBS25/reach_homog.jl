@@ -10,7 +10,7 @@ function reach_homog_HLBS25!(F::Vector{ReachSet{N,S}},
                              Δt0::IA.Interval) where {N,S<:SparsePolynomialZonotope{N},
                                                       MN<:AbstractMatrix{N}}
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     expΦδ = MatrixZonotopeExp(scale(δ, Φ))
@@ -41,7 +41,7 @@ function reach_homog_HLBS25!(F::Vector{ReachSet{N,S}},
                              Δt0::IA.Interval) where {N,S<:SparsePolynomialZonotope{N},
                                                       MN<:AbstractMatrix{N}}
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     expΦδ = MatrixZonotopeExp(scale(δ, Φ))
