@@ -8,6 +8,7 @@
 # ## Model description
 
 using ReachabilityAnalysis, Symbolics
+import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
 
 function multistable_oscillator(; X0=Interval(0.0, 0.05),
                                 V₊=+13.5, V₋=-13.5,
@@ -61,8 +62,8 @@ location.(sol)'  #!jl
 using Plots  #!jl
 #!jl import DisplayAs  #hide
 
-old_ztol = LazySets._ztol(Float64)  #!jl
-LazySets.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
+old_ztol = CMP._ztol(Float64)  #!jl
+CMP.set_ztol(Float64, 1e-8);  # use higher precision for the plots #!jl
 
 fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")  #!jl
 
@@ -110,4 +111,4 @@ fig = plot(sol; vars=(0, 1), xlab="t", ylab="v-")  #!jl
 
 #-
 
-LazySets.set_ztol(Float64, old_ztol);  # reset precision #!jl
+CMP.set_ztol(Float64, old_ztol);  # reset precision #!jl
