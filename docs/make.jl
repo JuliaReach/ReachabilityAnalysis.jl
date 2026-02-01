@@ -232,7 +232,7 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                                        "Brusselator"            => "generated_examples/Brusselator.md",
                                        "Quadrotor"              => "generated_examples/Quadrotor.md",
                                        "Epidemic (SEIR) model"  => "generated_examples/SEIR.md",
-                                       "Spacecraft"             => "generated_examples/Spacecraft.md"
+                                    #    "Spacecraft"             => "generated_examples/Spacecraft.md"  # TODO temporarily deactivated
                                        #
                                        ],
                 "API Reference" => [
