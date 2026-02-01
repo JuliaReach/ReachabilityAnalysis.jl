@@ -1,6 +1,8 @@
 using ReachabilityAnalysis: _distribute, WaitingList, StateInLocation, state, location,
                             TimeInterval, DeterministicSwitching, NonDeterministicSwitching
-import Optim
+import Optim, OrdinaryDiffEq
+using ReachabilityAnalysis: _isapprox
+using LinearAlgebra: I
 
 @testset "Hybrid utility functions" begin
     prob, _ = bouncing_ball()
