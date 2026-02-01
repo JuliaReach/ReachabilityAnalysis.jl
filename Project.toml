@@ -24,6 +24,10 @@ TaylorIntegration = "92b13dbe-c966-51a2-8445-caca9f8a7d42"
 TaylorModels = "314ce334-5f6e-57ae-acf6-00b6e903104a"
 TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 
+[sources]
+LazySets = {path = "/home/christian/.julia/dev/LazySets"}
+MathematicalSystems = {path = "/home/christian/.julia/dev/MathematicalSystems"}
+
 [compat]
 CarlemanLinearization = "0.4.1"
 CommonSolve = "0.2"
