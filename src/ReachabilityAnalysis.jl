@@ -72,7 +72,8 @@ include("Algorithms/HLBS25/HLBS25.jl")
 include("Algorithms/CARLIN/CARLINModule.jl")
 using ..CARLINModule: CARLIN, CanonicalQuadraticForm
 
-include("Algorithms/FLOWSTAR/FLOWSTAR.jl")
+include("Algorithms/FLOWSTAR/FLOWSTARModule.jl")
+using ..FLOWSTARModule: FLOWSTAR
 
 include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
 

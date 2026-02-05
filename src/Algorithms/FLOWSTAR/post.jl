@@ -1,7 +1,3 @@
-using .Flowstar: FlowstarSetting, ContinuousReachModel, FlowstarContinuousSolution,
-                 AbstractTMOrder, FixedTMOrder, AbstractPreconditioner, QRPreconditioner,
-                 AbstractODEScheme, NonPolyODEScheme
-
 function FLOWSTAR(; δ::Union{Float64,Nothing}=nothing,
                   step_size::Union{Float64,IA.Interval{Float64},Nothing}=nothing,
                   order::AbstractTMOrder=FixedTMOrder(6),
