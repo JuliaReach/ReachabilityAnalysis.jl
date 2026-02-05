@@ -81,8 +81,6 @@ include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
 
 include("Algorithms/TMJets/common.jl")
 
-include("Algorithms/QINT/QINT.jl")
-
 # ===========================================================
 # Discrete post-operators for hybrid systems
 # ===========================================================
@@ -91,6 +89,13 @@ include("Hybrid/waiting_list.jl")
 include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
 include("Hybrid/solve.jl")
+
+# ===========================================================
+# Reachability solvers (part 2)
+# ===========================================================
+
+include("Algorithms/QINT/QINTModule.jl")
+using ..QINTModule: QINT
 
 # visualization
 include("Flowpipes/recipes.jl")
