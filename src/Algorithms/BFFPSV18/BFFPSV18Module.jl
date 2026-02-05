@@ -1,7 +1,7 @@
 module BFFPSV18Module
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, SparseReachSet,
-                              TimeInterval, hasinput, zeroI, _isdisjoint
+                              TimeInterval, hasinput, zeroT, _isdisjoint
 using ..ForwardModule: Forward
 
 using IntervalArithmetic: (..)

@@ -2,7 +2,7 @@
 
 # discrete post
 function post(alg::GLGM06{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+              Δt0::TimeInterval=zeroT, kwargs...) where {N}
     @unpack δ, approx_model, max_order, static, dim, ngens,
     preallocate, reduction_method, disjointness_method = alg
 

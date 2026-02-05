@@ -23,7 +23,7 @@ function FLOWSTAR(; δ::Union{Float64,Nothing}=nothing,
 end
 
 function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
-              Δt0::TimeInterval=zeroI, kwargs...) where {ST,OT,PT,IT}
+              Δt0::TimeInterval=zeroT, kwargs...) where {ST,OT,PT,IT}
     @required Flowstar
 
     @unpack step_size, order, remainder_estimation, precondition, cutoff, precision, verbose, scheme = alg
@@ -82,7 +82,7 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
     for Fi in flow
         dt = domain(first(Fi))
         δt = TimeInterval(counter + dt)
-        counter += sup(dt)
+        counter += max(dt)
         Ri = TaylorModelReachSet(Fi, δt + Δt0)
         push!(F, Ri)
     end

@@ -1,7 +1,7 @@
 module VREPModule
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
-                              TimeInterval, VPOLY, hasinput, zeroI, _reconvert
+                              TimeInterval, VPOLY, hasinput, zeroT, _reconvert
 using ..ForwardModule: Forward
 
 using IntervalArithmetic: (..)

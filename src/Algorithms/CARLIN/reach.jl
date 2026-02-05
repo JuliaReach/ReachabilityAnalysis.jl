@@ -36,7 +36,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
     errfunc = error_bound_func(X0, Matrix(F1), Matrix(F2); N=N)
 
     # evaluate error bounds for each reach-set in the solution
-    E = [errfunc.(tspan(R)) for R in sol]
+    E = [errfunc.(convert(IA.Interval, tspan(R))) for R in sol]
 
     # if the interval is always > 0 then we can just take max(Ei)
 
@@ -69,7 +69,7 @@ function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress
     time_intervals = _compute_resets(resets, T)
 
     # compute until first chunk
-    T1 = sup(first(time_intervals))
+    T1 = max(first(time_intervals))
     sol_1 = reach_CARLIN(X0, F1, F2; alg, N, T=T1, Δt=zeroI + Δt, bloat, compress, A=A)
 
     # preallocate output flowpipe
@@ -84,7 +84,7 @@ function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress
     # compute remaining chunks
     for i in 2:length(time_intervals)
         T0 = T1
-        Ti = sup(time_intervals[i])
+        Ti = max(time_intervals[i])
         sol_i = reach_CARLIN(X0, F1, F2; alg, N, T=Ti - T0, Δt=interval(T0) + Δt, bloat, compress,
                              A=A)
         push!(out, flowpipe(sol_i))

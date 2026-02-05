@@ -31,8 +31,8 @@ set(R::ReachSet)                                          = R.X
 setrep(R::ReachSet{N,ST}) where {N,ST<:LazySet{N}}        = ST
 setrep(::Type{ReachSet{N,ST}}) where {N,ST<:LazySet{N}}   = ST
 setrep(::AbstractVector{RT}) where {RT<:AbstractReachSet} = setrep(RT)
-tstart(R::ReachSet)                                       = inf(R.Δt)
-tend(R::ReachSet)                                         = sup(R.Δt)
+tstart(R::ReachSet)                                       = min(R.Δt)
+tend(R::ReachSet)                                         = max(R.Δt)
 tspan(R::ReachSet)                                        = R.Δt
 dim(R::ReachSet)                                          = dim(R.X)
 vars(R::ReachSet)                                         = Tuple(Base.OneTo(dim(R.X)))
@@ -59,7 +59,7 @@ end
 
 # constructor with a time point
 function ReachSet(X::ST, t::Real) where {N,ST<:LazySet{N}}
-    return ReachSet(X, interval(t))
+    return ReachSet(X, TimeInterval(IA.interval(t)))
 end
 
 #=

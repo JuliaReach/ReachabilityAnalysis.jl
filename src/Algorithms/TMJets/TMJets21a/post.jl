@@ -1,5 +1,5 @@
 function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
-              Δt0::TimeInterval=zeroI,
+              Δt0::TimeInterval=zeroT,
               kwargs...) where {N}
     @unpack orderQ, orderT, abstol, maxsteps, adaptive, minabstol, absorb, disjointness = alg
 

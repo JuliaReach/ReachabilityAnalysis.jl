@@ -25,7 +25,7 @@ function _solve_ensemble(ivp::IVP, args...;
 
     # get time span
     dt = _get_tspan(args...; kwargs...)
-    tspan = (inf(dt), sup(dt))
+    tspan = (min(dt), max(dt))
 
     if isnothing(initial_states)
         # sample initial states

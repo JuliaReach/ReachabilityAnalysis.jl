@@ -1,7 +1,7 @@
 module ORBITModule
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
-                              TimeInterval, compute_nsteps, homogenize, zeroI,
+                              TimeInterval, compute_nsteps, homogenize, zeroT,
                               _normalize
 using ..DiscretizationModule: next_set
 using ..Exponentiation: _exp

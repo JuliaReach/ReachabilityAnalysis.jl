@@ -1,7 +1,7 @@
 # this algorithms assumes that the initial-value problem is one-dimensional
 # TODO requires special scalar quadratic system type
 function reach_homog_QINT(alg::QINT{N}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-                          Δt0::TimeInterval=zeroI, kwargs...) where {N}
+                          Δt0::TimeInterval=zeroT, kwargs...) where {N}
     n = statedim(ivp)
     n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
                                   "systems, but this initial-value problem is $n-dimensional"))
@@ -31,7 +31,8 @@ function reach_homog_QINT(alg::QINT{N}, ivp::IVP{<:AbstractContinuousSystem}, ts
 
     if got_homogeneous
         # TODO consider Δt0
-        F = reach_homog_QINT(; a=a, b=b, c=c, X0=Ω0, T=T, Δ=Δ, δ=δ, θ=θ, maxiter=maxiter)
+        F = reach_homog_QINT(; a=a, b=b, c=c, X0=Ω0, T=T, Δ=_TimeInterval(Δ), δ=δ, θ=θ,
+                             maxiter=maxiter)
     else
         error("not implemented yet")
         #U = inputset(ivp_discr)
