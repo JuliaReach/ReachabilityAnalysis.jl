@@ -284,8 +284,8 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
         return _overapproximate(R, T; Δt=Δt, dom=dom, kwargs...)
     end
 
-    D = dim(R)
-    S = symBox(D)
+    n = dim(R)
+    S = symBox(n)
     @assert Δt == tspan(R) "time subdomain not implemented"
     @assert dom == S "spatial subdomain not implemented"
 
@@ -306,7 +306,7 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
             partition = [S]
         else
             # TODO (also below) may use IA.mince directly
-            partition = fill(nsdiv, D)
+            partition = fill(nsdiv, n)
             Sdiv = Base.split(convert(T, S), partition)
             partition = convert.(IntervalBox, Sdiv)
         end
@@ -319,7 +319,7 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
 
     # preallocate output vectors
     if T <: Hyperrectangle
-        ST = Hyperrectangle{N,SVector{D,N},SVector{D,N}}
+        ST = Hyperrectangle{N,SVector{n,N},SVector{n,N}}
         R̂out = Vector{ReachSet{N,ST}}(undef, nparts * ntdiv)
     else
         R̂out = Vector{ReachSet{N}}(undef, nparts * ntdiv)
@@ -330,7 +330,7 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
         for j in 1:nparts
             Bj = partition[j]
             Xk = X_Δt[k]
-            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:D])
+            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:n])
 
             idx = j + (k - 1) * nparts
             X̂out = convert(T, convert(Hyperrectangle, X̂ib))
