@@ -1,5 +1,6 @@
 using ReachabilityAnalysis, JLD2, ReachabilityBase.CurrentPath
 using ReachabilityAnalysis: add_dimension
+import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
 
 path = @current_path("ISS", "ISS.jld2")
 

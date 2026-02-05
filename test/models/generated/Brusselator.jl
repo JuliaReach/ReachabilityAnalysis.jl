@@ -1,4 +1,5 @@
 using ReachabilityAnalysis
+import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
 
 @taylorize function brusselator!(du, u, p, t)
     local A = 1.0
