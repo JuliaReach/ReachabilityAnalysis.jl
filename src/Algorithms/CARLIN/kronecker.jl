@@ -3,8 +3,6 @@
 # ======================================
 
 # TODO refactor to CarlemanLinearization.jl
-import CarlemanLinearization: lift_vector
-
 lift_vector(X0::IA.Interval, N) = lift_vector(Interval(X0), N)
 
 """

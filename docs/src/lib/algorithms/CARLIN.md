@@ -2,6 +2,6 @@
 
 ```@docs
 CARLIN
-ReachabilityAnalysis.kron_pow
-ReachabilityAnalysis.kron_pow_stack
+ReachabilityAnalysis.CARLINModule.kron_pow
+ReachabilityAnalysis.CARLINModule.kron_pow_stack
 ```
