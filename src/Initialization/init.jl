@@ -36,8 +36,6 @@ using LazySets: AbstractReductionMethod, linear_map!
 # aliases for intervals
 const IM = IntervalMatrices
 import IntervalArithmetic as IA
-using IntervalArithmetic: diam
-const TimeInterval = IA.Interval{Float64}
 import TaylorModels as TM
 using TaylorModels: TaylorModel1, TaylorN, fp_rpa, shrink_wrapping!
 
@@ -55,7 +53,7 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, directions, linear_map, split!, set, array,
                  constrained_dimensions
 import ReachabilityBase.Comparison: _isapprox
-import Base: *, ∈, ∩, convert, isdisjoint
+import Base: +, -, *, ∈, ∩, ⊆, convert, isdisjoint, isempty
 import LinearAlgebra: normalize
 
 import MathematicalSystems: system, statedim, initial_state
@@ -98,10 +96,6 @@ const SecondOrderSystem = Union{SOLCS,SOACS,SOCLCCS,SOCACCS}
 const NonlinearSystem = Union{BBCS,CBBCS,CBBCCS}
 const LPCS = LinearParametricContinuousSystem
 const LPDS = LinearParametricDiscreteSystem
-
-@inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
-    return (tstart(Δt) ≈ tstart(Δs)) && (tend(Δt) ≈ tend(Δs))
-end
 
 const VecOrTuple = Union{<:AbstractVector{Int},NTuple{D,Int}} where {D}
 const VecOrTupleOrInt = Union{<:AbstractVector{Int},NTuple{D,Int},Int} where {D}

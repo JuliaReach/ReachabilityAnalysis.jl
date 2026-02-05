@@ -111,22 +111,23 @@ end
 
 # evaluate a flowpipe at a given time interval: gives possibly more than one reach set
 # i.e. first and last sets and those in between them
-function (fp::Flowpipe)(dt::TimeInterval)
+function (fp::Flowpipe)(Δt::TimeInterval)
     idx = Vector{Int}()
-    α = tstart(dt)
-    β = tend(dt)
     Xk = array(fp)
     for (i, X) in enumerate(Xk)
-        if !isempty(tspan(X) ∩ dt)
+        if !isdisjoint(tspan(X), Δt)
             push!(idx, i)
         end
     end
 
     if isempty(idx)
-        throw(ArgumentError("the time interval $dt does not intersect the time span, " *
+        throw(ArgumentError("the time interval $Δt does not intersect the time span, " *
                             "$(tspan(fp)), of the given flowpipe"))
     end
     return view(Xk, idx)
+end
+function (fp::Flowpipe)(dt::IA.Interval)
+    return fp(TimeInterval(dt))
 end
 
 # concrete projection of a flowpipe along variables `vars`

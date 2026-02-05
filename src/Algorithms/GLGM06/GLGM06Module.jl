@@ -2,7 +2,7 @@ module GLGM06Module
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, AbstractDisjointnessMethod,
                               Flowpipe, NoEnclosure, ReachSet, TimeInterval,
-                              hasinput, linear_map_minkowski_sum, zeroI,
+                              hasinput, linear_map_minkowski_sum, zeroT,
                               _isdisjoint, _reconvert
 using ..FirstOrderZonotopeModule: FirstOrderZonotope
 using ..Overapproximate: _convert_or_overapproximate

@@ -2,7 +2,7 @@
 
 # discrete post
 function post(alg::INT{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+              Δt0::TimeInterval=zeroT, kwargs...) where {N}
     n = statedim(ivp)
     n == 1 || throw(ArgumentError("this algorithm applies to one-dimensional " *
                                   "systems, but this initial-value problem is $n-dimensional"))

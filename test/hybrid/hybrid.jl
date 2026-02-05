@@ -119,37 +119,37 @@ end
     # jitter is not defined => no jitter
     A = HACLD1(idsys, idmap, Ts)
     @inferred HACLD1(idsys, idmap, Ts)
-    @test jitter(A) == 0.0 .. 0.0
+    @test jitter(A) == TimeInterval(0.0 .. 0.0)
     @test switching(A) == DeterministicSwitching
 
     # jitter is zero => no jitter
     A = HACLD1(idsys, idmap, Ts, 0.0)
     @test_broken @inferred HACLD1(idsys, idmap, Ts, 0.0)
-    @test jitter(A) == 0.0 .. 0.0
+    @test jitter(A) == TimeInterval(0.0 .. 0.0)
     @test switching(A) == DeterministicSwitching
 
     # jitter is a number => symmetric jitter, [-ζ, ζ]
     A = HACLD1(idsys, idmap, Ts, 1e-8)
     @test_broken @inferred HACLD1(idsys, idmap, Ts, 1e-8)
-    @test jitter(A) == -1e-8 .. 1e-8
+    @test jitter(A) == TimeInterval(-1e-8 .. 1e-8)
     @test switching(A) == NonDeterministicSwitching
 
     # jitter is an interval [ζ⁻, ζ⁺]
     A = HACLD1(idsys, idmap, Ts, -1e-8 .. 1e-7)
     @inferred HACLD1(idsys, idmap, Ts, -1e-8 .. 1e-7)
-    @test jitter(A) == -1e-8 .. 1e-7
+    @test jitter(A) == TimeInterval(-1e-8 .. 1e-7)
     @test switching(A) == NonDeterministicSwitching
 
     # jitter is a vector [ζ⁻, ζ⁺], it is converted to an interval
     A = HACLD1(idsys, idmap, Ts, [-1e-8, 1e-7])
     @test_broken @inferred HACLD1(idsys, idmap, Ts, [-1e-8, 1e-7])
-    @test _isapprox(jitter(A), -1e-8 .. 1e-7)
+    @test _isapprox(jitter(A), TimeInterval(-1e-8 .. 1e-7))
     @test switching(A) == NonDeterministicSwitching
 
     # jitter is a tuple (ζ⁻, ζ⁺), it is converted to an interval
     A = HACLD1(idsys, idmap, Ts, (-1e-8, 1e-7))
     @test_broken @inferred HACLD1(idsys, idmap, Ts, (-1e-8, 1e-7))
-    @test _isapprox(jitter(A), -1e-8 .. 1e-7)
+    @test _isapprox(jitter(A), TimeInterval(-1e-8 .. 1e-7))
     @test switching(A) == NonDeterministicSwitching
 end
 

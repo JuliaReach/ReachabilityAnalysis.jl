@@ -49,7 +49,7 @@ end
 
 # constructor with a time point
 function TemplateReachSet(dirs::AbstractDirections{N}, X::LazySet, t::N) where {N}
-    return TemplateReachSet(dirs, X, interval(t))
+    return TemplateReachSet(dirs, X, IA.interval(t))
 end
 
 # abstract reachset interface

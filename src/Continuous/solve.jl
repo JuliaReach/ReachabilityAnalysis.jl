@@ -52,16 +52,16 @@ function solve(ivp::IVP{<:AbstractContinuousSystem_}, args...; kwargs...)
     _check_dim(ivp)
 
     # get time span (or the emptyset if NSTEPS was specified)
-    tspan = _get_tspan(args...; kwargs...)
+    Δt = _get_tspan(args...; kwargs...)
 
     # get the continuous post or find a default one
     cpost = _get_cpost(ivp, args...; kwargs...)
     if isnothing(cpost)
-        cpost = _default_cpost(ivp, tspan; kwargs...)
+        cpost = _default_cpost(ivp, Δt; kwargs...)
     end
 
     # run the continuous-post operator
-    F = post(cpost, ivp, tspan; kwargs...)
+    F = post(cpost, ivp, Δt; kwargs...)
 
     # optionally compute ensemble simulations
     got_ensemble = get(kwargs, :ensemble, false)
@@ -85,10 +85,10 @@ function solve(ivp::IVP{AT,VT}, args...;
                kwargs...) where {AT<:AbstractContinuousSystem,
                                  ST<:Union{LazySet,IntervalBox},VT<:AbstractVector{ST}}
     _check_dim(ivp)
-    tspan = _get_tspan(args...; kwargs...)
+    Δt = _get_tspan(args...; kwargs...)
     cpost = _get_cpost(ivp, args...; kwargs...)
     if isnothing(cpost)
-        cpost = _default_cpost(ivp, tspan; kwargs...)
+        cpost = _default_cpost(ivp, Δt; kwargs...)
     end
 
     X0 = initial_state(ivp)
@@ -96,21 +96,21 @@ function solve(ivp::IVP{AT,VT}, args...;
 
     threading = get(kwargs, :threading, Threads.nthreads() > 1)
 
-    F = _solve_distributed(cpost, S, X0, tspan, Val(threading); kwargs...)
+    F = _solve_distributed(cpost, S, X0, Δt, Val(threading); kwargs...)
     return ReachSolution(MixedFlowpipe(F), cpost)
 end
 
-function _solve_distributed(cpost, S, X0, tspan, threading::Val{false}; kwargs...)
-    return [post(cpost, IVP(S, X0i), tspan; kwargs...) for X0i in X0]
+function _solve_distributed(cpost, S, X0, Δt, threading::Val{false}; kwargs...)
+    return [post(cpost, IVP(S, X0i), Δt; kwargs...) for X0i in X0]
 end
 
-function _solve_distributed(cpost, S, X0, tspan, threading::Val{true}; kwargs...)
+function _solve_distributed(cpost, S, X0, Δt, threading::Val{true}; kwargs...)
     nsets = length(X0)
     FT = Flowpipe{numtype(cpost),rsetrep(cpost)} # TODO add third parameter
     sol_tot = Vector{FT}(undef, nsets)
 
     Threads.@threads for i in eachindex(X0)
-        sol_i = post(cpost, IVP(S, X0[i]), tspan; kwargs...)
+        sol_i = post(cpost, IVP(S, X0[i]), Δt; kwargs...)
         sol_tot[i] = sol_i
     end
     return sol_tot
@@ -211,20 +211,20 @@ end
 @inline _promote_tspan((t1, t2)::Tuple{T,T}) where {T} = TimeInterval(t1, t2)
 @inline _promote_tspan((t1, t2)::Tuple{T,S}) where {T,S} = TimeInterval(promote(t1, t2))
 
-# no-op, corresponds to (tstart(tspan), tend(tspan))
-@inline _promote_tspan(tspan::IA.Interval) = tspan
+# no-op, corresponds to [inf(Δt), sup(Δt)]
+@inline _promote_tspan(Δt::IA.Interval) = TimeInterval(Δt)
 
-# no-op, takes interval wrapped data; corresponds to (min(tspan), max(tspan))
-@inline _promote_tspan(tspan::Interval) = tspan.dat
+# no-op, takes interval wrapped data; corresponds to [min(Δt), max(Δt)]
+@inline _promote_tspan(Δt::Interval) = TimeInterval(Δt.dat)
 
-# number T defaults to a time interval of the form [0, T]
-@inline _promote_tspan(tspan::Number) = TimeInterval(zero(tspan), tspan)
+# number T defaults to the time interval [0, T]
+@inline _promote_tspan(T::Number) = TimeInterval(zero(T), T)
 
 # catch-all array like tspan
-@inline function _promote_tspan(tspan::AbstractArray)
-    @assert length(tspan) == 2 throw(ArgumentError("the length of `tspan` must be two, but " *
-                                                   "it is of length $(length(tspan))"))
-    return TimeInterval(tspan[1], tspan[2])
+@inline function _promote_tspan(Δt::AbstractArray)
+    @assert length(Δt) == 2 throw(ArgumentError("the length of a time span must be two, but " *
+                                                "it is of length $(length(Δt))"))
+    return TimeInterval(Δt[1], Δt[2])
 end
 
 function _get_tspan(args...; kwargs...)
@@ -246,17 +246,17 @@ function _get_tspan(args...; kwargs...)
 
     # parse time span
     if got_tspan
-        tspan = _promote_tspan(kwargs[:tspan])
+        Δt = _promote_tspan(kwargs[:tspan])
 
     elseif got_T
-        tspan = _promote_tspan(kwargs[:T])
+        Δt = _promote_tspan(kwargs[:T])
 
     elseif got_NSTEPS
-        tspan = emptyinterval() # defined a posteriori
+        Δt = emptyinterval() # defined a posteriori
 
     elseif !isempty(args) && applicable(_promote_tspan, args[1])
         # applies to tuples, vectors, LazySets.Interval, IA.Interval, and numbers
-        tspan = _promote_tspan(args[1])
+        Δt = _promote_tspan(args[1])
         #=
                 (args[1] isa Tuple{Float64, Float64} || # time span given as tuple
                                       args[1] isa Vector{Float64}         || # time span given as vector
@@ -267,7 +267,7 @@ function _get_tspan(args...; kwargs...)
 
     elseif haskey(kwargs, :max_jumps)
         # got maximum number of jumps, applicable to hybrid systems
-        tspan = emptyinterval()
+        Δt = emptyinterval()
 
     else
 
@@ -276,34 +276,33 @@ function _get_tspan(args...; kwargs...)
                             "for `solve`; you should specify either the time horizon " *
                             "`T=...`, the time span `tspan=...`, or the number of steps, `NSTEPS=...`"))
     end
-    return tspan
+    return _TimeInterval(Δt)
 end
+
+_TimeInterval(Δt::TimeInterval) = Δt
+_TimeInterval(Δt) = TimeInterval(Δt)
 
 # return the time horizon given a time span
 # the check_positive flag is used for algorithms that do not support negative
 # times
-function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool=true)
-    t0 = tstart(tspan)
+function _get_T(Δt::TimeInterval; check_zero::Bool=true, check_positive::Bool=true)
+    t0 = tstart(Δt)
     if check_zero
         @assert iszero(t0) "this algorithm can only handle zero initial time"
     end
-    T = tend(tspan)
+    T = tend(Δt)
     if check_positive
         @assert T > 0 "the time horizon should be positive"
     end
     return T
 end
 
-function compute_nsteps(δ, tspan)
-    isempty(tspan) && return zero(δ)
+function compute_nsteps(δ, Δt)
+    isempty(Δt) && return zero(δ)
     # Get time horizon from the time span imposing that it is of the form (0, T).
-    T = _get_T(tspan; check_zero=true, check_positive=true)
+    T = _get_T(Δt; check_zero=true, check_positive=true)
     return NSTEPS = ceil(Int, T / δ)
 end
-
-tstart(Δt::TimeInterval) = inf(Δt)
-tend(Δt::TimeInterval) = sup(Δt)
-tspan(Δt::TimeInterval) = Δt
 
 function _get_cpost(ivp, args...; kwargs...)
     got_alg = haskey(kwargs, :alg)
@@ -341,21 +340,21 @@ end
 # number of discrete steps used if only the time horizon is given
 const DEFAULT_NSTEPS = 100
 
-function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, tspan; kwargs...)
+function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, Δt; kwargs...)
     if isaffine(S)
         if haskey(kwargs, :δ)
             δ = kwargs[:δ]
         elseif haskey(kwargs, :N)
             N = kwargs[:N]
-            δ = diam(tspan) / N
+            δ = diam(Δt) / N
         elseif haskey(kwargs, :NSTEPS)
             NSTEPS = kwargs[:NSTEPS]
-            δ = diam(tspan) / NSTEPS
+            δ = diam(Δt) / NSTEPS
         elseif haskey(kwargs, :num_steps)
             num_steps = kwargs[:num_steps]
-            δ = diam(tspan) / num_steps
+            δ = diam(Δt) / num_steps
         else
-            δ = diam(tspan) / DEFAULT_NSTEPS
+            δ = diam(Δt) / DEFAULT_NSTEPS
         end
         if statedim(S) == 1 && !is_second_order(S)
             opC = INT(; δ=δ)
@@ -394,12 +393,12 @@ function _default_cpost(S::AbstractContinuousSystem, X0, ishybrid, tspan; kwargs
 end
 
 """
-    _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
+    _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, Δt; kwargs...)
 
 ### Input
 
-- `ivp`   -- initial-value problem
-- `tspan` -- time-span
+- `ivp` -- initial-value problem
+- `Δt`  -- time-span
 
 ### Output
 
@@ -414,12 +413,12 @@ If the system is affine, then:
 
 If the system is not affine, then the algorithm `TMJets` is used.
 """
-function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, tspan; kwargs...)
-    return _default_cpost(system(ivp), initial_state(ivp), false, tspan; kwargs...)
+function _default_cpost(ivp::IVP{<:AbstractContinuousSystem}, Δt; kwargs...)
+    return _default_cpost(system(ivp), initial_state(ivp), false, Δt; kwargs...)
 end
 
 # return a default algorithm, assuming that the first mode is representative
-function _default_cpost(ivp::IVP{<:AbstractHybridSystem}, tspan; kwargs...)
+function _default_cpost(ivp::IVP{<:AbstractHybridSystem}, Δt; kwargs...)
     first_mode = mode(system(ivp), 1)
-    return _default_cpost(first_mode, initial_state(ivp), true, tspan; kwargs...)
+    return _default_cpost(first_mode, initial_state(ivp), true, Δt; kwargs...)
 end

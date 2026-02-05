@@ -1,5 +1,5 @@
 using StaticArrays: SArray
-using ReachabilityAnalysis: _isapprox
+using ReachabilityAnalysis: TimeInterval, _isapprox
 
 @testset "Default continuous post-operator" begin
     prob, _ = motor_homog()
@@ -31,7 +31,7 @@ end
     @test set(F, length(F)) == set(F[end])
 
     # time span methods
-    @test _isapprox(tspan(sol), 0.0 .. 1.0)
+    @test _isapprox(tspan(sol), TimeInterval(0.0 .. 1.0))
     @test tstart(F) == 0.0
     @test tend(F) ≈ 1.0
     @test tstart(F[1]) == 0.0
@@ -42,15 +42,15 @@ end
     # time span for flowpipe slices
     @test tstart(F[1:3]) ≈ 0.0
     @test tend(F[1:3]) ≈ 3δ
-    @test tspan(F[1:3]) ≈ 0.0 .. 3δ
+    @test _isapprox(tspan(F[1:3]), TimeInterval(0.0 .. 3δ))
 
     @test tstart(F, 1:3) ≈ 0.0  # same, more efficient
     @test tend(F, 1:3) ≈ 3δ
-    @test tspan(F, 1:3) ≈ 0.0 .. 3δ
+    @test _isapprox(tspan(F, 1:3), TimeInterval(0.0 .. 3δ))
 
     @test tstart(sol[1:3]) ≈ 0.0
     @test tend(sol[1:3]) ≈ 3δ
-    @test tspan(sol[1:3]) ≈ 0.0 .. 3δ
+    @test _isapprox(tspan(sol[1:3]), TimeInterval(0.0 .. 3δ))
 
     # set representation
     @test setrep(F) <: Zonotope
@@ -107,7 +107,7 @@ end
 
 @testset "Solution interface: time span" begin
     p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
-    Δt = 0.0 .. 2.0
+    Δt = TimeInterval(0.0 .. 2.0)
 
     # only time horizon given
     sol = solve(p; T=2.0)
