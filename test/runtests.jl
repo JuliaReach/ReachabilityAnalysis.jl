@@ -34,6 +34,7 @@ TEST_MODELS = fn(["models/harmonic_oscillator.jl",
 
 TEST_FILES = fn(["continuous/setops.jl",
                  "continuous/solve.jl",
+                 "continuous/homogenize.jl",
                  @ts("continuous/symbolics.jl"),
                  @ts("continuous/traces.jl"),
                  @ts("discretization/exponentiation.jl"),

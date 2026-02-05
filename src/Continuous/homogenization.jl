@@ -54,6 +54,21 @@ function homogenize(ivp::IVP{<:CLCCS{N,MTA,MTB,XT,UT},ST}) where {N,
     return ivph
 end
 
+# x' = Ax + b
+function homogenize(sys::ACS)
+    A = state_matrix(sys)
+    b = affine_term(sys)
+    Â = _homogenize_state_matrix(A, b)
+    return LCS(Â)
+end
+
+# x' = Ax + b, x(0) ∈ X0
+function homogenize(ivp::IVP{<:ACS,ST}) where {ST<:LazySet}
+    S = homogenize(system(ivp))
+    X0 = _homogenize_initial_state(initial_state(ivp))
+    return IVP(S, X0)
+end
+
 """
     homogenize(sys::SOACS)
 
@@ -96,10 +111,14 @@ end
 
 function _homogenize_state_matrix(A::AbstractMatrix, U::Singleton)
     u = element(U)
+    return _homogenize_state_matrix(A, u)
+end
+
+function _homogenize_state_matrix(A::AbstractMatrix, b::AbstractVector)
     n = size(A, 1)
     Â = zeros(n + 1, n + 1)
     Â[1:n, 1:n] .= A
-    Â[1:n, n + 1] .= u
+    Â[1:n, n + 1] .= b
     return Â
 end
 
