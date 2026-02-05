@@ -1,6 +1,6 @@
 using ReachabilityAnalysis, Test
 import ReachabilityAnalysis as RA
-using ReachabilityAnalysis.ReachabilityBase.Comparison: _isapprox
+using ReachabilityAnalysis: _isapprox
 
 @testset "ORBIT struct" begin
     # full constructor (requires to manually define the type parameter for the set representation)
