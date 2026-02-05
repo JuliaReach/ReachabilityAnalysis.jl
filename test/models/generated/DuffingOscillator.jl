@@ -12,7 +12,7 @@ const ω = 1.2
 
     f = γ * cos(ω * t)
 
-    du[1] = u[2]
+    du[1] = v
     du[2] = -α * x - δ * v - β * x^3 + f
     return du
 end
