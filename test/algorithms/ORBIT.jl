@@ -47,6 +47,13 @@ end
     prob0 = IVP(prob.s, ZeroSet(2))
     @test_broken solve(prob0; tspan=(0.0, 3δ), alg=ORBIT(; δ=δ)) isa RA.ReachSolution  # TODO fix this
 
+    # Krylov
+    if isdefined(@__MODULE__, :ExponentialUtilities)
+        A = prob.s.A
+        res = RA.ORBITModule._orbit_krylov!(A, [1.0, 1.0], 2)
+        @test length(res) == 2
+    end
+
     # --------------------------------------------------------------------------
     # inhomogeneous problem
     # --------------------------------------------------------------------------
