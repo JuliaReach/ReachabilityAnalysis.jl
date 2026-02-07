@@ -63,8 +63,8 @@ setrep(::Type{<:TemplateReachSet{N,VN}}) where {N,VN} = HPolyhedron{N,VN}
 setrep(::TemplateReachSet{N,VN}) where {N,VN} = HPolyhedron{N,VN}
 
 tspan(R::TemplateReachSet) = R.Δt
-tstart(R::TemplateReachSet) = inf(R.Δt)
-tend(R::TemplateReachSet) = sup(R.Δt)
+tstart(R::TemplateReachSet) = tstart(R.Δt)
+tend(R::TemplateReachSet) = tend(R.Δt)
 dim(R::TemplateReachSet) = dim(R.dirs)
 vars(R::TemplateReachSet) = Tuple(Base.OneTo(dim(R)))
 
