@@ -532,7 +532,7 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     xstate = x[1:(n - 1)]
     @inbounds for i in 1:(n - 1)
         pi = c[i] + sum(view(G, i, :) .* xstate) + zero(TaylorN(n; order=orderQ))
-        rem = interval(0)
+        rem = zeroI
         vTM[i] = TaylorModel1(Taylor1(pi, orderT), rem, zeroI, Δtn)
     end
     # diagonal part

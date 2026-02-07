@@ -32,7 +32,7 @@ function canonical_form(s::BlackBoxContinuousSystem)
     # differentiate
 end
 
-function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=interval(0), kwargs...)
+function post(alg::CARLIN, ivp::IVP{<:AbstractContinuousSystem}, tspan; Δt0=zeroI, kwargs...)
     @unpack N, compress, δ, bloat, resets = alg
 
     T = _get_T(tspan; check_zero=true, check_positive=true)
