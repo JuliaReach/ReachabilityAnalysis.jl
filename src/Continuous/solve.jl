@@ -211,7 +211,7 @@ end
 @inline _promote_tspan((t1, t2)::Tuple{T,T}) where {T} = TimeInterval(t1, t2)
 @inline _promote_tspan((t1, t2)::Tuple{T,S}) where {T,S} = TimeInterval(promote(t1, t2))
 
-# no-op, corresponds to (inf(tspan), sup(tspan))
+# no-op, corresponds to (tstart(tspan), tend(tspan))
 @inline _promote_tspan(tspan::IA.Interval) = tspan
 
 # no-op, takes interval wrapped data; corresponds to (min(tspan), max(tspan))
@@ -283,11 +283,11 @@ end
 # the check_positive flag is used for algorithms that do not support negative
 # times
 function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool=true)
-    t0 = inf(tspan)
+    t0 = tstart(tspan)
     if check_zero
         @assert iszero(t0) "this algorithm can only handle zero initial time"
     end
-    T = sup(tspan)
+    T = tend(tspan)
     if check_positive
         @assert T > 0 "the time horizon should be positive"
     end

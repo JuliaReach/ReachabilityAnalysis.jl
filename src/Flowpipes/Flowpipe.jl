@@ -113,8 +113,8 @@ end
 # i.e. first and last sets and those in between them
 function (fp::Flowpipe)(dt::TimeInterval)
     idx = Vector{Int}()
-    α = inf(dt)
-    β = sup(dt)
+    α = tstart(dt)
+    β = tend(dt)
     Xk = array(fp)
     for (i, X) in enumerate(Xk)
         if !isempty(tspan(X) ∩ dt)
