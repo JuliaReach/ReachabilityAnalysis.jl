@@ -15,6 +15,7 @@ using Requires: @require
 import ..ReachabilityAnalysis: post, numtype, rsetrep
 
 include("FLOWSTAR.jl")
+include("post.jl")
 
 include("init.jl")
 
