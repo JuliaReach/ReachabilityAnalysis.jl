@@ -6,7 +6,7 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, LGG09,
 using ..ForwardModule: Forward
 
 using Base: @kwdef
-using CarlemanLinearization: build_matrix, error_bound_specabs
+using CarlemanLinearization: build_matrix, error_bound_specabs, lift_vector
 using IntervalArithmetic: IntervalBox, inf, interval, mince, sup, (..)
 import IntervalArithmetic as IA
 using LazySets: AbstractHyperrectangle, BallInf, CartesianProductArray,
@@ -21,7 +21,6 @@ using ReachabilityBase.Require: @required
 using Requires: @require
 
 import ..ReachabilityAnalysis: post
-import CarlemanLinearization: lift_vector
 import MathematicalSystems: statedim
 
 include("CARLIN.jl")

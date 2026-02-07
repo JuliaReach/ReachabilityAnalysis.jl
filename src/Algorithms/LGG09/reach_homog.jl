@@ -23,7 +23,7 @@ function reach_homog_LGG09!(F::Vector{RT},
     _reach_homog_dir_LGG09!(ρℓ, Ω₀, Φᵀ, dirs, NSTEPS, cache, threaded)
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds for k in 1:NSTEPS
         F[k] = TemplateReachSet(dirs, view(ρℓ, :, k), Δt)
         Δt += δ
@@ -119,7 +119,7 @@ end
     end
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + time_shift
+    Δt = interval(zero(N), δ) + time_shift
     @inbounds for k in 1:NSTEPS
         sf = [ρℓ[i][k] for i in eachindex(dirs)]
         F[k] = TemplateReachSet(dirs, sf, Δt)
@@ -401,7 +401,7 @@ function reach_homog_LGG09!(F::Vector{RT},
     rᵢ₊₁ = similar(rᵢ)
 
     # fill template reach-set sequence
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     k = 1
     @inbounds while k <= NSTEPS
 

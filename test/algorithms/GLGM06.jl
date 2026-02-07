@@ -83,7 +83,7 @@ end
     ivp, _ = linear5D()
     sol = solve(ivp; T=5.0, alg=GLGM06(; δ=1e-3))
     @test dim(sol) == 5
-    @test tspan(shift(sol, 1.0)) == tspan(sol) + 1.0
+    @test IA.isequal_interval(tspan(shift(sol, 1.0)), tspan(sol) + 1.0)
 
     # use approx model for "discrete-time" reachability
     sol = solve(ivp; T=5.0, alg=GLGM06(; δ=1e-3, approx_model=NoBloating()))

@@ -4,7 +4,7 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
                               TimeInterval, hasinput, zeroI, _isdisjoint
 using ..ForwardModule: Forward
 
-using IntervalArithmetic: (..)
+using IntervalArithmetic: interval
 using LazySets: Interval, LazySet, Universe, overapproximate, set
 using MathematicalSystems: AbstractDiscreteSystem, IVP, initial_state, inputset,
                            state_matrix, statedim, stateset

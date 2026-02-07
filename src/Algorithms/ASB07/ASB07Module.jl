@@ -7,7 +7,7 @@ using ..CorrectionHullModule: CorrectionHull
 using ..Overapproximate: _convert_or_overapproximate, _split,
                          _overapproximate_interval_linear_map
 
-using IntervalArithmetic: (..)
+using IntervalArithmetic: interval
 using IntervalMatrices: IntervalMatrixPower, increment!, matrix
 using LazySets: AbstractReductionMethod, GIR05, LazySet, Universe, Zonotope,
                 minkowski_sum, reduce_order, set

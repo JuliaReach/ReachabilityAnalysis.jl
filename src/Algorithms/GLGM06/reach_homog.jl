@@ -16,7 +16,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                              disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -41,7 +41,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}
                              disjointness_method::AbstractDisjointnessMethod) where {N}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)
@@ -83,7 +83,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                              Δt0::TimeInterval,
                              disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     k = 2
@@ -111,7 +111,7 @@ function reach_homog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,Vector{N},Matrix{N}
                              Δt0::TimeInterval,
                              disjointness_method::AbstractDisjointnessMethod) where {N}
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     n, p = size(Ω0.generators)

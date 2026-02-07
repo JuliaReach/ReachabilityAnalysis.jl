@@ -16,7 +16,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                                disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
@@ -56,7 +56,7 @@ function reach_inhomog_GLGM06!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                                disjointness_method::AbstractDisjointnessMethod) where {N,VN,MN}
 
     # initial reach set
-    Δt = (zero(N) .. δ) + Δt0
+    Δt = interval(zero(N), δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
 
     Wk₊ = U
