@@ -1,4 +1,5 @@
 using ReachabilityAnalysis.ReachabilityBase.Arrays: SingleEntryVector
+using StaticArrays: SArray, SVector
 
 @testset "Intersection methods: TemplateHullIntersection" begin
 
