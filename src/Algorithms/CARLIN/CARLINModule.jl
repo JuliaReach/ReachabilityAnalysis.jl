@@ -13,8 +13,8 @@ using LazySets: AbstractHyperrectangle, BallInf, CartesianProductArray,
                 Hyperrectangle, Interval, box_approximation, dim, high, low,
                 project, set, symmetric_interval_hull, ⊕
 using LazySets.Approximations: CustomDirections
-using MathematicalSystems: @ivp, AbstractContinuousSystem,
-                           BlackBoxContinuousSystem, IVP, initial_state, system
+using MathematicalSystems: AbstractContinuousSystem, BlackBoxContinuousSystem,
+                           IVP, LinearContinuousSystem, initial_state, system
 using Parameters: @unpack
 using ReachabilityBase.Arrays: SingleEntryVector
 using ReachabilityBase.Require: @required

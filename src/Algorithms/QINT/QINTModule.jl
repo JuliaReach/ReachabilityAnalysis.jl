@@ -8,7 +8,8 @@ using ..ForwardModule: Forward
 
 using IntervalArithmetic: interval, mid
 using LazySets: ConvexHullArray, Interval, overapproximate, set, ⊕
-using MathematicalSystems: @ivp, AbstractContinuousSystem, IVP, initial_state, statedim
+using MathematicalSystems: AbstractContinuousSystem, AffineContinuousSystem,
+                           IVP, initial_state, statedim
 using Parameters: @unpack
 
 import ..ReachabilityAnalysis: post, numtype, rsetrep, setrep, step_size

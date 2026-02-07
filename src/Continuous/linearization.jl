@@ -58,7 +58,7 @@ function _linearize(ivp::IVP,
     B = Matrix(1.0I, n, n)
     UH = _enclose_hessian(Hsym, var, X0, c, alg)
     UH = convert(Hyperrectangle, UH)
-    ivplin = @ivp(x' = A * x + b + B * u, x(0) ∈ X0, x ∈ Universe(n), u ∈ UH)
+    ivplin = IVP(ConstrainedAffineControlContinuousSystem(A, B, b, Universe(n), UH), X0)
 
     return ivplin
 end
