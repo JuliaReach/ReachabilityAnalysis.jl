@@ -70,7 +70,7 @@ function reach_CARLIN_resets(X0, F1, F2, resets; alg, N, T, Δt, bloat, compress
 
     # compute until first chunk
     T1 = sup(first(time_intervals))
-    sol_1 = reach_CARLIN(X0, F1, F2; alg, N, T=T1, Δt=interval(0) + Δt, bloat, compress, A=A)
+    sol_1 = reach_CARLIN(X0, F1, F2; alg, N, T=T1, Δt=zeroI + Δt, bloat, compress, A=A)
 
     # preallocate output flowpipe
     fp_1 = flowpipe(sol_1)
