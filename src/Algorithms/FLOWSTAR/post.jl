@@ -58,7 +58,7 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
     for Fi in flow
         dt = domain(first(Fi))
         δt = TimeInterval(counter + dt)
-        counter += sup(dt)
+        counter += tend(dt)
         Ri = TaylorModelReachSet(Fi, δt + Δt0)
         push!(F, Ri)
     end
