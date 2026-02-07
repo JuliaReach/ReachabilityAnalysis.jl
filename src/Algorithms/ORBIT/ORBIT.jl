@@ -39,7 +39,7 @@ function ORBIT(; δ::N, approx_model::AM=NoBloating(; exp=:base, setops=:concret
     return ORBIT{N,VT,AM}(δ, approx_model)
 end
 
-function setrep(::ORBIT{N,VT,AM}) where {N,VT,AM}
+function setrep(::ORBIT{N,VT}) where {N,VT}
     return Singleton{N,VT}
 end
 

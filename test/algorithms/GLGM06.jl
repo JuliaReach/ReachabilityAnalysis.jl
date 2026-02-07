@@ -18,7 +18,7 @@ using StaticArrays: SMatrix, SVector
     # `static` option requires `dim` and `ngens` options
     # TODO should this be checked by the constructor?
     alg = GLGM06(; δ=0.01, static=true)
-    @test_throws MethodError setrep(alg)
+    @test_throws ArgumentError setrep(alg)
     @test_throws ArgumentError rsetrep(alg)
     alg = GLGM06(; δ=0.01, static=true, dim=1)
     @test_throws MethodError setrep(alg)

@@ -32,8 +32,13 @@ end
 step_size(alg::A20) = alg.δ
 numtype(::A20{N}) where {N} = N
 
-function rsetrep(::A20{N}) where {N}
+function setrep(::A20{N}) where {N}
     VT = Vector{N}
     MT = Matrix{N}
-    return ReachSet{N,Zonotope{N,VT,MT}}
+    return Zonotope{N,VT,MT}
+end
+
+function rsetrep(alg::A20{N}) where {N}
+    ST = setrep(alg)
+    return ReachSet{N,ST}
 end
