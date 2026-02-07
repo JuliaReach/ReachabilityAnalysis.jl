@@ -35,7 +35,7 @@ information.
 """
 struct SparseReachSet{N,ST<:LazySet{N},D} <: AbstractLazyReachSet{N}
     X::ST
-    Δt::IA.Interval{Float64}
+    Δt::TimeInterval
     vars::NTuple{D,Int}
     # TODO: inner constructor that the dimension of vars matches that of X ?
 end
@@ -51,7 +51,7 @@ dim(R::SparseReachSet{N,ST,D}) where {N,ST<:LazySet{N},D} = D
 vars(R::SparseReachSet) = R.vars
 
 # constructor from vector of dimensions
-function SparseReachSet(X::ST, Δt::IA.Interval{Float64},
+function SparseReachSet(X::ST, Δt::TimeInterval,
                         vars::AbstractVector) where {N,ST<:LazySet{N}}
     return SparseReachSet(X, Δt, Tuple(vars))
 end
