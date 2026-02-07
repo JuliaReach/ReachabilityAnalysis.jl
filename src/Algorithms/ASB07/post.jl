@@ -1,6 +1,6 @@
 # continuous post
 function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...)
+              Δt0::TimeInterval=zeroT, kwargs...)
     δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
@@ -18,7 +18,7 @@ end
 
 # discrete post
 function post(alg::ASB07{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+              Δt0::TimeInterval=zeroT, kwargs...) where {N}
     @unpack δ, approx_model, max_order, reduction_method, static, recursive, dim, ngens = alg
 
     if isnothing(NSTEPS)

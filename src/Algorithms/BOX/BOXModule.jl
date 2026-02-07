@@ -1,7 +1,7 @@
 module BOXModule
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
-                              TimeInterval, hasinput, zeroI, _isdisjoint,
+                              TimeInterval, hasinput, zeroT, _isdisjoint,
                               _reconvert
 using ..ForwardModule: Forward
 using ..Overapproximate: _overapproximate

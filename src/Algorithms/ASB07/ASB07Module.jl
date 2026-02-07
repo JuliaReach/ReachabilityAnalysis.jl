@@ -1,7 +1,7 @@
 module ASB07Module
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
-                              TimeInterval, compute_nsteps, hasinput, zeroI,
+                              TimeInterval, compute_nsteps, hasinput, zeroT,
                               _isdisjoint, _normalize, _reconvert
 using ..CorrectionHullModule: CorrectionHull
 using ..Overapproximate: _convert_or_overapproximate, _split,

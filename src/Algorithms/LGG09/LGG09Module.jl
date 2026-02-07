@@ -2,7 +2,7 @@ module LGG09Module
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe,
                               TemplateReachSet, TimeInterval, VecOrTuple,
-                              hasinput, zeroI, _collect, _isdisjoint
+                              hasinput, zeroT, _collect, _isdisjoint
 using ..ForwardModule: Forward
 
 using Base: OneTo, Slice

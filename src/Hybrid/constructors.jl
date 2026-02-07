@@ -160,7 +160,7 @@ end
 
 # should be treated separately because IA.Interval <: Number
 function HACLD1(sys::T, rmap::MT, Tsample::N, ζ::J) where {T,MT,N,J<:IA.Interval}
-    return HACLD1(sys, rmap, Tsample, ζ, NonDeterministicSwitching())
+    return HACLD1(sys, rmap, Tsample, TimeInterval(ζ), NonDeterministicSwitching())
 end
 
 # constructor when jitter is an interval: check whether its diameter is zero or not

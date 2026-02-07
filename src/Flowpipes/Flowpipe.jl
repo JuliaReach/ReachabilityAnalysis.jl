@@ -113,11 +113,11 @@ end
 # i.e. first and last sets and those in between them
 function (fp::Flowpipe)(dt::TimeInterval)
     idx = Vector{Int}()
-    α = inf(dt)
-    β = sup(dt)
+    α = min(dt)
+    β = max(dt)
     Xk = array(fp)
     for (i, X) in enumerate(Xk)
-        if !isempty(tspan(X) ∩ dt)
+        if !isdisjoint(tspan(X), dt)
             push!(idx, i)
         end
     end
@@ -127,6 +127,9 @@ function (fp::Flowpipe)(dt::TimeInterval)
                             "$(tspan(fp)), of the given flowpipe"))
     end
     return view(Xk, idx)
+end
+function (fp::Flowpipe)(dt::IA.Interval)
+    return fp(TimeInterval(dt))
 end
 
 # concrete projection of a flowpipe along variables `vars`

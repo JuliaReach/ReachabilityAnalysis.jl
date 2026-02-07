@@ -2,7 +2,7 @@
 
 # discrete post
 function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+              Δt0::TimeInterval=zeroT, kwargs...) where {N}
     @unpack δ, approx_model, max_order = alg
     # TODO define these options in the algorithm struct
     static = Val(get(kwargs, :static, false))

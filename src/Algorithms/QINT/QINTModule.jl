@@ -3,7 +3,7 @@ module QINTModule
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, HybridFlowpipe,
                               INT, ReachSet, StateInLocation, TimeInterval,
                               WaitingList, hasinput, state, tend, tspan, tstart,
-                              zeroI, _normalize
+                              zeroT, _normalize, _TimeInterval
 using ..ForwardModule: Forward
 
 using IntervalArithmetic: interval, mid

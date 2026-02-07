@@ -8,15 +8,15 @@ using TaylorModels: set_variables,
 
     # constructor with a time interval
     R = ReachSet(X, 0 .. 1)
-    @test tspan(R) == 0 .. 1
+    @test tspan(R) == TimeInterval(0 .. 1)
 
     # constructor with a time point
     R = ReachSet(X, 1.0)
-    @test tspan(R) == interval(1.0)
+    @test tspan(R) == TimeInterval(1 .. 1)
 
     # if the time is an integer, it is converted to a float
     R = ReachSet(X, 1)
-    @test tspan(R) == interval(1.0)
+    @test tspan(R) == TimeInterval(1 .. 1)
 end
 
 @testset "Reach-set support function" begin
@@ -85,7 +85,7 @@ end
     a = overapproximate(H, TaylorModelReachSet)
     b = convert(TaylorModelReachSet, H)
 
-    @test tspan(a) == tspan(b) == 0 .. 0
+    @test tspan(a) == tspan(b) == TimeInterval(0 .. 0)
     @test isequivalent(set(overapproximate(a, Hyperrectangle)), H)
     @test isequivalent(set(overapproximate(b, Hyperrectangle)), H)
 
@@ -98,7 +98,7 @@ end
     c = overapproximate(R, TaylorModelReachSet)
     d = convert(TaylorModelReachSet, R)
 
-    @test tspan(c) == tspan(d) == 0 .. 1
+    @test tspan(c) == tspan(d) == TimeInterval(0 .. 1)
     @test isequivalent(set(overapproximate(c, Hyperrectangle)), set(R))
     @test isequivalent(set(overapproximate(d, Hyperrectangle)), set(R))
 
@@ -106,7 +106,7 @@ end
     a = overapproximate(Z, TaylorModelReachSet)
     b = convert(TaylorModelReachSet, Z)
 
-    @test tspan(a) == tspan(b) == 0 .. 0
+    @test tspan(a) == tspan(b) == TimeInterval(0 .. 0)
     @test isequivalent(set(overapproximate(a, Zonotope)), Z)
     @test isequivalent(set(overapproximate(b, Zonotope)), Z)
 
@@ -114,7 +114,7 @@ end
     c = overapproximate(R, TaylorModelReachSet)
     d = convert(TaylorModelReachSet, R)
 
-    @test tspan(c) == tspan(d) == 0 .. 1
+    @test tspan(c) == tspan(d) == TimeInterval(0 .. 1)
     @test isequivalent(set(overapproximate(c, Zonotope)), set(R))
     @test isequivalent(set(overapproximate(d, Zonotope)), set(R))
 
@@ -173,18 +173,18 @@ end
     # Two dimensional
     # ------------------
 
-    Z = ReachSet(rand(Zonotope), 0 .. 1)
+    Z = ReachSet(rand(Zonotope), TimeInterval(0 .. 1))
     T = overapproximate(Z, TaylorModelReachSet)
 
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0)
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0))
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 2))
     overapproximate(T, Zonotope, 2)
     overapproximate(T, Zonotope, [2, 2])
 
     overapproximate(T, Hyperrectangle)
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0)
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0))
 
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 2))
 
     # One dimensional
     # ------------------
@@ -192,14 +192,14 @@ end
     T = overapproximate(Z, TaylorModelReachSet)
 
     overapproximate(T, Zonotope)
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0)
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
-    overapproximate(T, Zonotope; Δt=0.5 .. 1.0, dom=0.9 .. 1.0)
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0))
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 1))
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=0.9 .. 1.0)
     overapproximate(T, Zonotope, 2)
     overapproximate(T, Zonotope, [2])
 
     overapproximate(T, Hyperrectangle)
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0)
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
-    overapproximate(T, Hyperrectangle; Δt=0.5 .. 1.0, dom=IntervalBox(0.9 .. 1.0, 1))
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0))
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 1))
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 1))
 end

@@ -2,7 +2,7 @@
 
 # discrete post
 function post(alg::LGG09{N,AM,VN,TN}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N,AM,VN,TN}
+              Δt0::TimeInterval=zeroT, kwargs...) where {N,AM,VN,TN}
     # dimension check
     template = alg.template
     @assert statedim(ivp) == dim(template) "the problems' dimension $(statedim(ivp)) " *

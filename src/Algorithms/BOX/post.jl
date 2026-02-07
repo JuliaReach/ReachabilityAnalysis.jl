@@ -2,7 +2,7 @@
 
 # discrete post
 function post(alg::BOX{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
-              Δt0::TimeInterval=zeroI, kwargs...) where {N}
+              Δt0::TimeInterval=zeroT, kwargs...) where {N}
     @unpack δ, approx_model, static, dim, recursive = alg
 
     if isnothing(NSTEPS)

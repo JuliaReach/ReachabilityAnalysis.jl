@@ -7,8 +7,8 @@ function reach_homog_HLBS25!(F::Vector{ReachSet{N,S}},
                              recursive::Val{false},
                              max_order::Integer,
                              reduction_method::AbstractReductionMethod,
-                             Δt0::IA.Interval) where {N,S<:SparsePolynomialZonotope{N},
-                                                      MN<:AbstractMatrix{N}}
+                             Δt0::TimeInterval) where {N,S<:SparsePolynomialZonotope{N},
+                                                       MN<:AbstractMatrix{N}}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
@@ -38,8 +38,8 @@ function reach_homog_HLBS25!(F::Vector{ReachSet{N,S}},
                              recursive::Val{true},
                              max_order::Integer,
                              reduction_method::AbstractReductionMethod,
-                             Δt0::IA.Interval) where {N,S<:SparsePolynomialZonotope{N},
-                                                      MN<:AbstractMatrix{N}}
+                             Δt0::TimeInterval) where {N,S<:SparsePolynomialZonotope{N},
+                                                       MN<:AbstractMatrix{N}}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)

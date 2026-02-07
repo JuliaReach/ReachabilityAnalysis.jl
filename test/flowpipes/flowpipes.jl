@@ -1,5 +1,5 @@
 using LinearAlgebra
-using ReachabilityAnalysis: _isapprox
+using ReachabilityAnalysis: TimeInterval, _isapprox
 
 @testset "Abstract flowpipe interface" begin
     prob, dt = harmonic_oscillator()
@@ -29,7 +29,7 @@ using ReachabilityAnalysis: _isapprox
     # time domain interface
     @test tstart(fp) ≈ 0.0 && dt[1] ≈ 0.0
     @test tend(fp) ≈ 20.0 && dt[2] ≈ 20.0
-    @test _isapprox(tspan(fp), 0 .. 20)
+    @test _isapprox(tspan(fp), TimeInterval(0 .. 20))
     @test vars(fp) == (1, 2)
 end
 

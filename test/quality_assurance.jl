@@ -42,11 +42,12 @@ import Aqua, ExplicitImports
                :UnionSetArray, :Universe, :VPolygon, :VPolytope, :ZeroSet,
                :Zonotope, :affine_map, :area, :center, :complement, :concretize,
                :constrained_dimensions, :constraints_list, :convex_hull,
-               :decompose, :element, :genmat, :high, :isbounded, :isbounding,
-               :low, :minkowski_sum, :ngens, :order, :radius_hyperrectangle,
-               :reduce_order, :remove_redundant_constraints!,
-               :remove_redundant_generators, :symmetric_interval_hull, :tohrep,
-               :translate, :vertices_list, :volume, :×, :ρ, :σ, :⊕,
+               :decompose, :diameter, :element, :genmat, :high, :isbounded,
+               :isbounding, :low, :minkowski_sum, :ngens, :order,
+               :radius_hyperrectangle, :reduce_order,
+               :remove_redundant_constraints!, :remove_redundant_generators,
+               :symmetric_interval_hull, :tohrep, :translate, :vertices_list,
+               :volume, :×, :ρ, :σ, :⊕,
                :Arrays,  # superficially exported from LazySets
                # due to reexporting MathematicalSystems:
                :MathematicalSystems, Symbol("@ivp"), Symbol("@map"),

@@ -5,11 +5,11 @@ function _get_numsteps(Tsample, δ, ζ, ::DeterministicSwitching)
 end
 
 function _get_numsteps(Tsample, δ, ζ, ::NonDeterministicSwitching)
-    ζ⁻ = inf(ζ)
+    ζ⁻ = min(ζ)
     αlow = (Tsample + ζ⁻) / δ
     NLOW = ceil(Int, αlow)
 
-    ζ⁺ = sup(ζ)
+    ζ⁺ = max(ζ)
     αhigh = (Tsample + ζ⁺) / δ
     NHIGH = ceil(Int, αhigh)
 
@@ -28,7 +28,7 @@ function _get_max_jumps(tspan, Tsample, δ, ζ, ::DeterministicSwitching)
 end
 
 function _get_max_jumps(tspan, Tsample, δ, ζ, ::NonDeterministicSwitching)
-    ζ⁻ = inf(ζ)
+    ζ⁻ = min(ζ)
     αlow = (Tsample + ζ⁻) / δ
     NLOW = ceil(Int, αlow)
     T = tend(tspan)
@@ -76,8 +76,8 @@ function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
     prob = IVP(sys, X0)
     NLOW, NHIGH = _get_numsteps(Tsample, δ, ζ, switching)
     ζint = jitter(ha)
-    ζ⁻ = inf(ζint)
-    ζ⁺ = sup(ζint)
+    ζ⁻ = min(ζint)
+    ζ⁺ = max(ζint)
     @assert NLOW > 0 throw(ArgumentError("inconsistent choice of parameters"))
 
     # solve first flowpipe

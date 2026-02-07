@@ -211,11 +211,11 @@ end
 @inline _promote_tspan((t1, t2)::Tuple{T,T}) where {T} = TimeInterval(t1, t2)
 @inline _promote_tspan((t1, t2)::Tuple{T,S}) where {T,S} = TimeInterval(promote(t1, t2))
 
-# no-op, corresponds to (inf(tspan), sup(tspan))
-@inline _promote_tspan(tspan::IA.Interval) = tspan
+# no-op, corresponds to (min(tspan), max(tspan))
+@inline _promote_tspan(tspan::IA.Interval) = TimeInterval(tspan)
 
 # no-op, takes interval wrapped data; corresponds to (min(tspan), max(tspan))
-@inline _promote_tspan(tspan::Interval) = tspan.dat
+@inline _promote_tspan(tspan::Interval) = TimeInterval(tspan.dat)
 
 # number T defaults to a time interval of the form [0, T]
 @inline _promote_tspan(tspan::Number) = TimeInterval(zero(tspan), tspan)
@@ -276,18 +276,21 @@ function _get_tspan(args...; kwargs...)
                             "for `solve`; you should specify either the time horizon " *
                             "`T=...`, the time span `tspan=...`, or the number of steps, `NSTEPS=...`"))
     end
-    return tspan
+    return _TimeInterval(tspan)
 end
+
+_TimeInterval(tspan::TimeInterval) = tspan
+_TimeInterval(tspan) = TimeInterval(tspan)
 
 # return the time horizon given a time span
 # the check_positive flag is used for algorithms that do not support negative
 # times
 function _get_T(tspan::TimeInterval; check_zero::Bool=true, check_positive::Bool=true)
-    t0 = inf(tspan)
+    t0 = min(tspan)
     if check_zero
         @assert iszero(t0) "this algorithm can only handle zero initial time"
     end
-    T = sup(tspan)
+    T = max(tspan)
     if check_positive
         @assert T > 0 "the time horizon should be positive"
     end
@@ -300,10 +303,6 @@ function compute_nsteps(δ, tspan)
     T = _get_T(tspan; check_zero=true, check_positive=true)
     return NSTEPS = ceil(Int, T / δ)
 end
-
-tstart(Δt::TimeInterval) = inf(Δt)
-tend(Δt::TimeInterval) = sup(Δt)
-tspan(Δt::TimeInterval) = Δt
 
 function _get_cpost(ivp, args...; kwargs...)
     got_alg = haskey(kwargs, :alg)
