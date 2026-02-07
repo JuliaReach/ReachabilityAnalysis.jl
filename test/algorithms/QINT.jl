@@ -12,7 +12,7 @@ import ReachabilityAnalysis as RA
     @test RA.step_size(alg) == 0.01
     @test RA.numtype(alg) == Float64
     @test setrep(alg) == Interval{Float64}
-    @test rsetrep(alg) == ReachSet{Float64,Interval{Float64}}
+    @test rsetrep(alg) == ReachSet{Float64,setrep(alg)}
 end
 
 @testset "QINT algorithm" begin

@@ -30,7 +30,9 @@
         @test sol1.alg.max_order == 5
         @test sol1.alg.taylor_order == 5
         @test sol1.alg.approx_model isa CorrectionHullMatrixZonotope
-        @test setrep(sol1) <: SparsePolynomialZonotope
+        @test setrep(sol1) == setrep(alg) ==
+              SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
+        @test rsetrep(alg) == ReachSet{N,setrep(alg)}
 
         # recursive true
         alg2 = HLBS25(; δ=δ,
@@ -45,6 +47,8 @@
         @test sol2.alg.δ == δ
         @test sol2.alg.max_order == 4
         @test sol2.alg.taylor_order == 4
-        @test setrep(sol2) <: SparsePolynomialZonotope
+        @test setrep(sol2) == setrep(alg) ==
+              SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
+        @test rsetrep(alg) == ReachSet{N,setrep(alg)}
     end
 end

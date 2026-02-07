@@ -10,7 +10,7 @@ using MathematicalSystems: AbstractDiscreteSystem, IVP, initial_state, inputset,
                            state_matrix, stateset
 using Parameters: @unpack
 
-import ..ReachabilityAnalysis: post, numtype, step_size, rsetrep
+import ..ReachabilityAnalysis: post, numtype, rsetrep, setrep, step_size
 
 include("A20.jl")
 include("post.jl")

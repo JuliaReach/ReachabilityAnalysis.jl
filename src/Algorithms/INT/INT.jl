@@ -46,12 +46,15 @@ struct INT{N,AM} <: AbstractContinuousPost
 end
 
 # convenience constructor using symbols
-function INT(; δ::N,
-             approx_model::AM=Forward(; sih=:concrete, exp=:base)) where {N,AM}
+function INT(; δ::N, approx_model::AM=Forward(; sih=:concrete, exp=:base)) where {N,AM}
     return INT(δ, approx_model)
 end
 
 step_size(alg::INT) = alg.δ
 numtype(::INT{N}) where {N} = N
 setrep(::INT{N}) where {N} = Interval{N}
-rsetrep(::INT{N}) where {N} = ReachSet{N,Interval{N}}
+
+function rsetrep(alg::INT{N}) where {N}
+    ST = setrep(alg)
+    return ReachSet{N,ST}
+end

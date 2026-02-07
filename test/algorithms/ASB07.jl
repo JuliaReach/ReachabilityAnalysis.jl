@@ -13,7 +13,8 @@ using StaticArrays: SMatrix, SVector
     # struct getters
     @test RA.step_size(alg) == 0.01
     @test RA.numtype(alg) == Float64
-    @test rsetrep(alg) == ReachSet{Float64,Zonotope{Float64,Vector{Float64},Matrix{Float64}}}
+    @test setrep(alg) == Zonotope{Float64,Vector{Float64},Matrix{Float64}}
+    @test rsetrep(alg) == ReachSet{Float64,setrep(alg)}
 
     # StaticArrays
     alg = ASB07(; δ=0.01, static=true, dim=1, ngens=1)

@@ -19,13 +19,13 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
 - `recursive`        -- (optional, default: `false`) if `true`, compute the
                         Taylor series expansion of the matrix zonotope
                         exponential map recursively
-            
+
 ### Notes
 
 The `recursive` option is used to compute the Taylor expansion of the matrix zonotope exponential map.
 If `recursive == true`, each term of the Taylor expansion is computed recursively (e.g., ``A^2 P = A (A P)``).
 
-If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential 
+If `recursive == false`, the Taylor expansion is computed by overapproximating the matrix zonotope exponential
 map, producing a single matrix that represents the exponential.
 """
 struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
@@ -50,8 +50,13 @@ end
 step_size(alg::HLBS25) = alg.δ
 numtype(::HLBS25{N}) where {N} = N
 
-function rsetrep(::HLBS25{N}) where {N}
-    return ReachSet{N,SparsePolynomialZonotope{N,Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}}
+function setrep(::HLBS25{N}) where {N}
+    return SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
+end
+
+function rsetrep(alg::HLBS25{N}) where {N}
+    ST = setrep(alg)
+    return ReachSet{N,ST}
 end
 
 include("post.jl")

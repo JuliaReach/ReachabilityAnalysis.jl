@@ -83,29 +83,24 @@ end
 step_size(alg::GLGM06) = alg.δ
 numtype(::GLGM06{N}) where {N} = N
 
-@inline function setrep(::GLGM06{N,AM,Val{false}}) where {N,AM}
+function setrep(::GLGM06{N,AM,Val{false}}) where {N,AM}
     return Zonotope{N,Vector{N},Matrix{N}}
 end
 
-@inline function rsetrep(alg::GLGM06{N,AM,Val{false}}) where {N,AM}
-    ST = setrep(alg)
-    return ReachSet{N,ST}
-end
-
-@inline function setrep(::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
+function setrep(::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
     VT = SVector{n,N}
     MT = SMatrix{n,p,N,n * p}
     return Zonotope{N,VT,MT}
 end
 
-@inline function rsetrep(alg::GLGM06{N,AM,Val{true},Val{n},Val{p}}) where {N,AM,n,p}
-    ZT = setrep(alg)
-    return ReachSet{N,ZT}
-end
-
 # TODO update error message (also requires `ngens`) and cover cases where only one argument is `missing`
-@inline function rsetrep(::GLGM06{N,AM,Val{true},Missing,Missing}) where {N,AM}
-    throw(ArgumentError("the reach-set representation for a statically sized zonotope " *
+function setrep(::GLGM06{N,AM,Val{true},Missing,Missing}) where {N,AM}
+    throw(ArgumentError("the set representation for a statically sized zonotope " *
                         "that the system's dimension argument has been defined; add `dim=...`" *
                         "to the algorithm constructor"))
+end
+
+function rsetrep(alg::GLGM06{N}) where {N}
+    ST = setrep(alg)
+    return ReachSet{N,ST}
 end

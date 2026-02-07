@@ -32,4 +32,8 @@ end
 step_size(alg::QINT) = alg.δ
 numtype(::QINT{N}) where {N} = N
 setrep(::QINT{N}) where {N} = Interval{N}
-rsetrep(::QINT{N}) where {N} = ReachSet{N,Interval{N}}
+
+function rsetrep(alg::QINT{N}) where {N}
+    ST = setrep(alg)
+    return ReachSet{N,ST}
+end
