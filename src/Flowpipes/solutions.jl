@@ -109,7 +109,7 @@ Base.keys(sol::ReachSolution) = keys(sol.F)
 Base.getindex(sol::ReachSolution, t::Float64) = getindex(sol.F, t)
 (sol::ReachSolution)(t::Float64) = sol.F(t)
 (sol::ReachSolution)(t::Number) = sol.F(t)
-(sol::ReachSolution)(dt::IA.Interval{Float64}) = sol.F(dt)
+(sol::ReachSolution)(dt::TimeInterval) = sol.F(dt)
 
 function overapproximate(sol::ReachSolution{FT}, args...) where {FT<:AbstractFlowpipe}
     return ReachSolution(overapproximate(sol.F, args...), sol.alg, sol.ext)
