@@ -23,7 +23,6 @@ end
     @test isa(sol.alg, INT)
     @test dim(sol) == 1
     @test length(sol) == 100
-    @test setrep(sol) <: Interval
     @test setrep(sol) == Interval{Float64}
     # discrete algorithm
     ivp_norm = RA._normalize(ivp)

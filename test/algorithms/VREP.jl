@@ -16,7 +16,7 @@ using StaticArrays: SVector
     @test RA.step_size(alg) == 0.01
     @test RA.numtype(alg) == N
     @test setrep(alg) == VPolytope{N,Vector{N}}
-    @test rsetrep(alg) == ReachSet{N,VPolytope{N,Vector{N}}}
+    @test rsetrep(alg) == ReachSet{N,setrep(alg)}
 
     # dimension is two => VPolygon with static arrays by default
     @test setrep(VREP(; δ=0.1, dim=2)) == VPolygon{N,SVector{2,N}}

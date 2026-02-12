@@ -17,7 +17,7 @@ using MathematicalSystems: AbstractContinuousSystem, AbstractDiscreteSystem,
 using Parameters: @unpack
 using StaticArrays: SMatrix, SVector
 
-import ..ReachabilityAnalysis: post, numtype, step_size, rsetrep
+import ..ReachabilityAnalysis: post, numtype, setrep, step_size, rsetrep
 
 include("ASB07.jl")
 include("post.jl")
