@@ -100,7 +100,7 @@ const LPCS = LinearParametricContinuousSystem
 const LPDS = LinearParametricDiscreteSystem
 
 @inline function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
-    return (inf(Δt) ≈ inf(Δs)) && (sup(Δt) ≈ sup(Δs))
+    return (tstart(Δt) ≈ tstart(Δs)) && (tend(Δt) ≈ tend(Δs))
 end
 
 const VecOrTuple = Union{<:AbstractVector{Int},NTuple{D,Int}} where {D}

@@ -1,8 +1,8 @@
 module CARLINModule
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, LGG09,
-                              MixedFlowpipe, ReachSet, flowpipe, solve, tspan,
-                              zeroI, _get_T
+                              MixedFlowpipe, ReachSet, flowpipe, solve, tend,
+                              tspan, zeroI, _get_T
 using ..ForwardModule: Forward
 
 using Base: @kwdef
