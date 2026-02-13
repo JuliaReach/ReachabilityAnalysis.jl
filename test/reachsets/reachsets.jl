@@ -1,7 +1,5 @@
 using ReachabilityAnalysis: zeroI, TimeInterval
-using TaylorModels: set_variables,
-                    Taylor1,
-                    TaylorModel1
+using TaylorModels: set_variables, Taylor1, TaylorModel1
 
 @testset "Reach-set constructors" begin
     X = BallInf(ones(2), 1.0)
@@ -155,15 +153,15 @@ end
     @test isequivalent(set(Z0), H)
 
     # same but specifying the domain
-    Z0 = overapproximate(T, Zonotope; dom=IntervalBox(-1 .. 1, 2))
+    Z0 = overapproximate(T, Zonotope; dom=fill(-1 .. 1, 2))
     @test isequivalent(set(Z0), H)
 
     # evaluate over 1/4th the domain
-    Z1 = overapproximate(T, Zonotope; dom=IntervalBox(0 .. 1.0, 2))
+    Z1 = overapproximate(T, Zonotope; dom=fill(0 .. 1.0, 2))
     @test isequivalent(set(Z1), Hyperrectangle([5.5, 5.5], [0.5, 0.5]))
 
     # evaluate over a custom domain
-    doms = mince(IntervalBox(-1 .. 1, 2), (5, 6))
+    doms = mince(fill(-1 .. 1, 2), (5, 6))
     Z = [overapproximate(T, Zonotope; dom=d) for d in doms]
     @test isequivalent(ConvexHullArray(set.(Z)), set(Z0))
 end
@@ -177,14 +175,14 @@ end
     T = overapproximate(Z, TaylorModelReachSet)
 
     overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0))
-    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=fill(0.9 .. 1.0, 2))
     overapproximate(T, Zonotope, 2)
     overapproximate(T, Zonotope, [2, 2])
 
     overapproximate(T, Hyperrectangle)
     overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0))
 
-    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 2))
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=fill(0.9 .. 1.0, 2))
 
     # One dimensional
     # ------------------
@@ -193,13 +191,12 @@ end
 
     overapproximate(T, Zonotope)
     overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0))
-    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 1))
-    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=0.9 .. 1.0)
+    overapproximate(T, Zonotope; Δt=TimeInterval(0.5 .. 1.0), dom=[0.9 .. 1.0])
     overapproximate(T, Zonotope, 2)
     overapproximate(T, Zonotope, [2])
 
     overapproximate(T, Hyperrectangle)
     overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0))
-    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 1))
-    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=IntervalBox(0.9 .. 1.0, 1))
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=[0.9 .. 1.0])
+    overapproximate(T, Hyperrectangle; Δt=TimeInterval(0.5 .. 1.0), dom=[0.9 .. 1.0])
 end

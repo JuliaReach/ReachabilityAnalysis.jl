@@ -22,7 +22,16 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
 
         # initial set
         X0 = initial_state(ivp)
-        dom = isa(X0, IntervalBox) ? X0 : convert(IntervalBox, overapproximate(X0, Hyperrectangle))
+        if X0 isa AbstractVector{<:IA.Interval}
+            dom = X0
+        elseif X0 isa IntervalBox
+            dom = [X0[i] for i in 1:length(X0)]
+        elseif X0 isa LazySet
+            IB = convert(IntervalBox, overapproximate(X0, Hyperrectangle))
+            dom = [IB[i] for i in 1:length(IB)]
+        else
+            throw(ArgumentError("invalid `X0` of type $(typeof(X0))"))
+        end
 
         name = "flowstar" # TODO parse name of f
 
