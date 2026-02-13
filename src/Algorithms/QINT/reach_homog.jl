@@ -27,7 +27,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
     Ftot = Vector{FT}()
 
     # initialization
-    Δti = zeroI # defines the initial time
+    Δti = zeroT # defines the initial time
     waiting_list = WaitingList([Δti], [StateInLocation(X0, 1)])
     R̄err = Interval(-θ * Δ, θ * Δ)
 
@@ -45,7 +45,7 @@ function reach_homog_QINT(; a, b, c, # right-hand side: f(x) = ax^2 + bx + c
 
         # solve linear reachability
         prob = IVP(AffineContinuousSystem(α, β), X0)
-        sol = post(INT(; δ=δ), prob, interval(0.0, Δ); Δt0=Δti)
+        sol = post(INT(; δ=δ), prob, TimeInterval(0.0, Δ); Δt0=Δti)
 
         # compute admissible linearization error
         kθ = 1 / (exp(α * Δ) - 1) * α * θ * Δ

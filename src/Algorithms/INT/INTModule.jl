@@ -1,7 +1,7 @@
 module INTModule
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
-                              TimeInterval, hasinput, zeroI, _isdisjoint
+                              TimeInterval, hasinput, zeroT, _isdisjoint
 using ..ForwardModule: Forward
 
 using IntervalArithmetic: (..)

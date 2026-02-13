@@ -1,7 +1,7 @@
 # default continuous post for linear systems
 function post(alg::Union{A20,BFFPSV18,BOX,GLGM06,INT,LGG09,VREP},
               ivp::IVP{<:AbstractContinuousSystem}, tspan;
-              Δt0::TimeInterval=zeroI, kwargs...)
+              Δt0::TimeInterval=zeroT, kwargs...)
     δ = alg.δ
 
     NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))

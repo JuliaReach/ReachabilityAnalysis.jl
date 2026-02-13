@@ -1,13 +1,13 @@
 module CARLINModule
 
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, LGG09,
-                              MixedFlowpipe, ReachSet, flowpipe, solve, tend,
-                              tspan, zeroI, _get_T
+                              MixedFlowpipe, ReachSet, flowpipe, solve, tspan,
+                              zeroI, zeroT, _get_T
 using ..ForwardModule: Forward
 
 using Base: @kwdef
 using CarlemanLinearization: build_matrix, error_bound_specabs
-using IntervalArithmetic: IntervalBox, inf, interval, mince, sup, (..)
+using IntervalArithmetic: IntervalBox, inf, mince, sup, (..)
 import IntervalArithmetic as IA
 using LazySets: AbstractHyperrectangle, BallInf, CartesianProductArray,
                 Hyperrectangle, Interval, box_approximation, dim, high, low,

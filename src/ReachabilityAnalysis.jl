@@ -5,6 +5,7 @@ module ReachabilityAnalysis
 # ===========================================================
 include("Initialization/init.jl")
 include("Initialization/exports.jl")
+include("Continuous/TimeInterval.jl")
 include("Continuous/solve.jl")
 
 # ===========================================================

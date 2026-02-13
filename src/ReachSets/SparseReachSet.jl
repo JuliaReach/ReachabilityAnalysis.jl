@@ -66,5 +66,5 @@ end
 
 # constructor with a time point
 function SparseReachSet(X::ST, t::Real, vars::AbstractVector) where {N,ST<:LazySet{N}}
-    return SparseReachSet(X, interval(t), vars)
+    return SparseReachSet(X, IA.interval(t), vars)
 end

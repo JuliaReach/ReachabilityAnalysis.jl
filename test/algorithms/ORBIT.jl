@@ -30,14 +30,15 @@ end
 
     # test number of steps
     sol = solve(prob; tspan=(0.0, 3δ), alg=ORBIT(; δ=δ))
-    @test _isapprox(tspan(sol), interval(0, 3δ))
+    @test _isapprox(tspan(sol), TimeInterval(IA.interval(0, 3δ)))
     x = sol[end]
 
-    @test _isapprox(tspan(x), interval(3δ))
+    @test _isapprox(tspan(x), TimeInterval(IA.interval(3δ)))
     @test element(set(x)) ≈ [cos(3δ), -sin(3δ)]
 
     # test time span sequence
-    @test all(_isapprox(tspan(sol[i]), interval(δ * (i - 1))) for i in eachindex(sol))
+    @test all(_isapprox(tspan(sol[i]), TimeInterval(IA.interval(δ * (i - 1))))
+              for i in eachindex(sol))
 
     # `homogenize` option
     @test_broken solve(prob; tspan=(0.0, 3δ), alg=ORBIT(; δ=δ), homogenize=true) isa

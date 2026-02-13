@@ -59,7 +59,7 @@ end
 
 # constructor with a time point
 function ReachSet(X::ST, t::Real) where {N,ST<:LazySet{N}}
-    return ReachSet(X, interval(t))
+    return ReachSet(X, TimeInterval(IA.interval(t)))
 end
 
 #=

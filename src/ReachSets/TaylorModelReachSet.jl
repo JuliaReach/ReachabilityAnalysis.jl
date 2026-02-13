@@ -61,7 +61,7 @@ end
 
 # constructor with a time point
 function TaylorModelReachSet(X::Vector{TaylorModel1{TaylorN{S},N}}, t::Real) where {S,N}
-    return TaylorModelReachSet(X, interval(t))
+    return TaylorModelReachSet(X, TimeInterval(IA.interval(t)))
 end
 
 # ======================
@@ -179,11 +179,11 @@ end
 function evaluate(R::TaylorModelReachSet, Δt::TimeInterval)
     n = dim(R)
     X = set(R)
-    Δtn = (Δt - tstart(R)) ∩ domain(R)
+    Δtn = convert(IA.Interval, (Δt - tstart(R)) ∩ TimeInterval(domain(R)))
     return [fp_rpa(TaylorModelN(evaluate(X[i], Δtn), zeroI, zeroBox(n), symBox(n))) for i in 1:n]
 end
 
-evaluate(R::TaylorModelReachSet, t::Real) = evaluate(R, interval(t))
+evaluate(R::TaylorModelReachSet, t::Real) = evaluate(R, TimeInterval(IA.interval(t)))
 
 # =================================
 # Conversion and overapproximation
@@ -223,9 +223,9 @@ function _overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet};
     # evaluate the Taylor model in time
     X = set(R)
     tdom = Δt - tstart(R)  # normalize time (to TM-internal time)
-    tdom = tdom ∩ domain(R)  # intersection handles round-off errors
+    tdom = tdom ∩ TimeInterval(domain(R))  # intersection handles round-off errors
     # X_Δt is a vector of TaylorN (spatial variables) whose coefficients are intervals
-    X_Δt = evaluate(X, tdom)
+    X_Δt = evaluate(X, convert(IA.Interval, tdom))
 
     # transform the domain if needed
     X_Δt = _taylor_shift(X_Δt, dom)
@@ -383,7 +383,7 @@ end
 
 # convert a hyperrectangular set to a taylor model reachset
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
-                 orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+                 orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT) where {N}
     n = dim(H)
     x = set_variables("x"; numvars=n, order=orderQ)
 
@@ -391,7 +391,7 @@ function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = IA.interval(zero(N), diam(Δt))
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of H
@@ -407,14 +407,14 @@ end
 
 # overapproximate a hyperrectangular set with a taylor model reachset, fallback to convert
 function overapproximate(H::AbstractHyperrectangle{N}, T::Type{<:TaylorModelReachSet};
-                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI) where {N}
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT) where {N}
     return convert(T, H; orderQ=orderQ, orderT=orderT, Δt=Δt)
 end
 
 # overapproximate a zonotopic set with a taylor model reachset
 # TODO pass algorithm option to choose between using parallelotope oa or order reduction
 function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
-                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroI,
+                         orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT,
                          indices=1:dim(Z), box_reduction=false) where {N}
     n = dim(Z)
     x = set_variables("x"; numvars=n, order=orderQ)
@@ -435,7 +435,7 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = IA.interval(zero(N), diam(Δt))
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of Z
@@ -470,7 +470,7 @@ end
 # zonotope of order 2 with generators matrix G = [M; D] where M is n x n and D is n x n and diagonal
 function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                                      orderQ::Integer=2, orderT::Integer=8,
-                                     Δt::TimeInterval=zeroI) where {N}
+                                     Δt::TimeInterval=zeroT) where {N}
     n = dim(Z)
     x = set_variables("x"; numvars=n, order=orderQ)
 
@@ -490,7 +490,7 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = IA.interval(zero(N), diam(Δt))
 
     # for each variable i = 1, .., n, compute the linear polynomial that covers
     # the line segment corresponding to the i-th edge of Z
@@ -507,7 +507,7 @@ end
 function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interval},
                                      ::Type{<:TaylorModelReachSet};
                                      orderQ::Integer=2, orderT::Integer=8,
-                                     Δt::TimeInterval=zeroI) where {N}
+                                     Δt::TimeInterval=zeroT) where {N}
     n = dim(Zcp)
     x = set_variables("x"; numvars=n, order=orderQ)
 
@@ -527,7 +527,7 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = IA.interval(zero(N), diam(Δt))
 
     xstate = x[1:(n - 1)]
     @inbounds for i in 1:(n - 1)
@@ -550,7 +550,7 @@ end
 function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:Interval},
                                           ::Type{<:TaylorModelReachSet};
                                           orderQ::Integer=2, orderT::Integer=8,
-                                          Δt::TimeInterval=zeroI) where {N}
+                                          Δt::TimeInterval=zeroT) where {N}
     n = dim(Zcp) - 1
     x = set_variables("x"; numvars=n + 1, order=orderQ)
 
@@ -564,7 +564,7 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n + 1)
 
     # normalized time domain
-    Δtn = TimeInterval(zero(N), diam(Δt))
+    Δtn = IA.interval(zero(N), diam(Δt))
 
     # fill rows corresponding to the "zonotope" variables: 1 to nth-variables
     @inbounds for i in 1:n

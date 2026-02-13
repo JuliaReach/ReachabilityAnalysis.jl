@@ -103,7 +103,7 @@ function kron_pow(H::AbstractHyperrectangle, pow::Int, algorithm=nothing)
 end
 
 function _kron_pow_explicit(H::AbstractHyperrectangle, pow::Int)
-    x = [interval(low(H, j), high(H, j)) for j in 1:dim(H)]
+    x = [IA.interval(low(H, j), high(H, j)) for j in 1:dim(H)]
     r = reduce(kron, fill(x, pow))
 
     low_r = inf.(r)
@@ -182,7 +182,7 @@ function load_kron_dynamicpolynomials()
 
             out = Vector{IA.Interval{N}}(undef, length(y))
             for (i, p) in enumerate(y)
-                aux = interval(1)
+                aux = IA.interval(1)
                 for (xj, j) in powers(p)
                     aux = aux * B[dict[xj]]^j
                 end

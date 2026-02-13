@@ -94,7 +94,7 @@ function WaitingList(array::Vector{QT}) where {ST,M,QT<:StateInLocation{ST,M}}
     return WaitingList{TimeInterval}(array)
 end
 function WaitingList{TN}(array::Vector{QT}) where {TN,ST,M,QT<:StateInLocation{ST,M}}
-    times = fill(zeroI, length(array))
+    times = fill(zeroT, length(array))
     return WaitingList(times, array)
 end
 
@@ -107,7 +107,7 @@ tspan(w::WaitingList, i) = w.times[i]
 
 # we let elem::ET be possibly different than QT, for waiting lists which mixed set representations
 @inline function Base.push!(w::WaitingList{TN,ST,M,QT}, elem::ET) where {TN,ST,M,QT,ET}
-    push!(w.times, zeroI)
+    push!(w.times, zeroT)
     push!(w.array, elem)
     return w
 end
