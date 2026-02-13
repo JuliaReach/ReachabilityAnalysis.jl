@@ -1,5 +1,4 @@
 ```@meta
-DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
@@ -139,7 +138,7 @@ with the `trajectories` keyword argument.
 using ReachabilityAnalysis, OrdinaryDiffEq
 
 # formulate initial-value problem
-prob = @ivp(x' = 1.01x, x(0) ∈ 0 .. 0.5)
+prob = @ivp(x' = 1.01x, x(0) ∈ Interval(0, 0.5))
 
 # solve the flowpipe using a default algorithm, and also compute trajectories
 sol = solve(prob, tspan=(0.0, 1.0), ensemble=true, trajectories=250)

@@ -135,7 +135,7 @@ end
 
 # conversion from vector-of-tuples to waiting list
 function Base.convert(::Type{TW},
-                      Q::Vector{Tuple{Int,ST}}) where {TW<:WaitingList,ST<:AdmissibleSet}
+                      Q::Vector{Tuple{Int,ST}}) where {TW<:WaitingList,ST<:LazySet}
     waiting_list = TW()
     for Qi in Q # no intersection checks
         q, Xi = Qi
@@ -146,7 +146,7 @@ end
 
 # "duck-typing" conversion from vector-of-tuples to waiting list
 function Base.convert(::Type{TW},
-                      Q::Vector{Tuple{ST,Int}}) where {TW<:WaitingList,ST<:AdmissibleSet}
+                      Q::Vector{Tuple{ST,Int}}) where {TW<:WaitingList,ST<:LazySet}
     waiting_list = TW()
     for Qi in Q # no intersection checks
         Xi, q = Qi
