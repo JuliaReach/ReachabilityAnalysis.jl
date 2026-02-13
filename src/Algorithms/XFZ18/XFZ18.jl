@@ -1,7 +1,12 @@
 """
-References:
+Implementation of the reachability algorithm for the class of polynomial ODEs
+with uncertain initial states (see [XueFZ18](@citet)).
+This method consists of reducing the Hamilton-Jacobi-Bellman equation to a
+hierarchy of semidefinite programs that are solved using an SDP solver.
 
-https://dl.acm.org/doi/10.1145/3178126.3178133
+### Algorithm
+
+We refer to [XueFZ18](@citet) for technical details.
 """
 struct XFZ18{N,ST} <: AbstractContinuousPost
     #

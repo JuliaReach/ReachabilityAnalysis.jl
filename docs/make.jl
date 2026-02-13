@@ -128,6 +128,7 @@ LINEAR_SOLVERS = [
                   "LGG09"    => "man/algorithms/LGG09.md",
                   "ORBIT"    => "man/algorithms/ORBIT.md",
                   "VREP"     => "man/algorithms/VREP.md"
+                  #   "XFZ18"      => "man/algorithms/XFZ18.md"
                   #
                   ]
 
@@ -141,7 +142,8 @@ LINEAR_SOLVERS_API = [
                       "INT"      => "lib/algorithms/INT.md",
                       "LGG09"    => "lib/algorithms/LGG09.md",
                       "ORBIT"    => "lib/algorithms/ORBIT.md",
-                      "VREP"     => "lib/algorithms/VREP.md"
+                      "VREP"     => "lib/algorithms/VREP.md",
+                      "XFZ18"    => "lib/algorithms/XFZ18.md"
                       #
                       ]
 
