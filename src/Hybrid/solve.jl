@@ -217,7 +217,7 @@ end
                 intersection_method::AbstractIntersectionMethod=nothing,
                 check_invariant=false,
                 intersect_invariant=false,
-                ) where {HS<:HybridSystem, ST<:AdmissibleSet}
+                ) where {HS<:HybridSystem, ST<:LazySet}
 
 Distribute the set of initial states to each mode of a hybrid system.
 
@@ -239,7 +239,7 @@ states is the list of tuples `(state, X0)`, for each state in the hybrid system.
 function _distribute(ivp::IVP{HS,ST};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:LazySet}
     H = system(ivp)
     X0 = initial_state(ivp)
     N = eltype(X0)
@@ -291,12 +291,12 @@ end
 function _distribute_mixed(ivp::IVP{HS,ST};
                            intersection_method=nothing, # not used
                            check_invariant=false,
-                           intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
+                           intersect_invariant=false) where {HS<:HybridSystem,ST<:LazySet}
     H = system(ivp)
     X0 = initial_state(ivp)
     N = eltype(X0)
 
-    waiting_list = MixedWaitingList{TimeInterval,Vector{<:AdmissibleSet}}()
+    waiting_list = MixedWaitingList{TimeInterval,Vector{<:LazySet}}()
 
     if !check_invariant
         for loc in states(H)
@@ -330,7 +330,7 @@ end
 function _distribute(ivp::IVP{<:HybridSystem,Vector{Tuple{Int,ST}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {ST<:AdmissibleSet}
+                     intersect_invariant=false) where {ST<:LazySet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 
@@ -357,7 +357,7 @@ end
 function _distribute(ivp::IVP{HS,Vector{Tuple{ST,Int}}};
                      intersection_method=nothing,
                      check_invariant=false,
-                     intersect_invariant=false) where {HS<:HybridSystem,ST<:AdmissibleSet}
+                     intersect_invariant=false) where {HS<:HybridSystem,ST<:LazySet}
     H = system(ivp)
     X0vec = initial_state(ivp) #  distributed initial states
 

@@ -45,9 +45,6 @@ import TaylorModels: domain, remainder, polynomial, get_order, evaluate
 # aliases for set types
 const CPA = CartesianProductArray
 
-# convenience union for dispatch on structs that are admissible as initial sets or inputs
-const AdmissibleSet = Union{LazySet,IA.Interval,IA.IntervalBox}
-
 # method extensions
 import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, directions, linear_map, split!, set, array,
