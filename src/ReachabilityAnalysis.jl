@@ -82,6 +82,9 @@ include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
 
 include("Algorithms/TMJets/common.jl")
 
+include("Algorithms/XFZ18/XFZ18Module.jl")
+# using ..XFZ18Module: XFZ18
+
 # ===========================================================
 # Discrete post-operators for hybrid systems
 # ===========================================================
