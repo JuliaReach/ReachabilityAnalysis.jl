@@ -6,7 +6,7 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe,
 using ..ForwardModule: Forward
 
 using Base: OneTo, Slice
-using IntervalArithmetic: (..)
+using IntervalArithmetic.Symbols: (..)
 using LazySets: LazySet, Universe, dim, set, ρ
 using LazySets.Approximations: AbstractDirections, BoxDirections,
                                CustomDirections, OctDirections

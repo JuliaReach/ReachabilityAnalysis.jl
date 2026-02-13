@@ -310,8 +310,7 @@ for the `@taylorize` macro to speedup reachability computations using Taylor mod
 
 When using intervals as set representation, `ReachabilityAnalysis.jl` relies on
 rigorous floating-point arithmetic implemented in pure Julia in the library [IntervalArithmetic.jl](https://github.com/JuliaIntervals/IntervalArithmetic.jl) (we often use `const IA = IntervalArithmetic` as an abbreviation).
-The main struct defined in the library is `IA.Interval` (and the corresponding
-multi-dimensional interval is `IA.IntervalBox`). Internally, the set `LazySets.Interval`
+The main struct defined in the library is `IA.Interval` Internally, the set `LazySets.Interval`
 is **wrapper-type** of `IA.Interval` and these two types should not be confused,
 although our user APIs extensively use [duck typing](https://en.wikipedia.org/wiki/Duck_typing),
 in the sense that `x(0) ∈ 0 .. 1` (`IA.Interval` type) and `x(0) ∈ Interval(0, 1)` are valid.

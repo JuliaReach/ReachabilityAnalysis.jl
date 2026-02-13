@@ -148,10 +148,10 @@ function step_size end
 
 # extend dimension for common IntervalArithmetic types
 LazySets.dim(::IA.Interval) = 1
-LazySets.dim(::IA.IntervalBox{D,N}) where {D,N} = D
+LazySets.dim(::IntervalBox{D,N}) where {D,N} = D
 
 # lazy sets (or sets that behave as such)
-_dim(X::Union{<:LazySet,<:IA.Interval,<:IA.IntervalBox}) = dim(X)
+_dim(X::Union{<:LazySet,<:IA.Interval,<:IntervalBox}) = dim(X)
 
 # singleton elements
 _dim(X::Number) = 1
@@ -159,7 +159,7 @@ _dim(X::AbstractVector{N}) where {N<:Number} = length(X)
 
 # vector of sets
 function _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
-                                                      <:IA.Interval,<:IA.IntervalBox}}
+                                                      <:IA.Interval,<:IntervalBox}}
     n = _dim(first(X))
     all(X -> _dim(X) == n, X) || throw(ArgumentError("dimension mismatch between " *
                                                      "the initial sets in this array; expected only sets of dimension $n"))

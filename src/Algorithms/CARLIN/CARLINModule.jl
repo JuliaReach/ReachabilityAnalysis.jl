@@ -7,8 +7,10 @@ using ..ForwardModule: Forward
 
 using Base: @kwdef
 using CarlemanLinearization: build_matrix, error_bound_specabs
-using IntervalArithmetic: IntervalBox, inf, mince, sup, (..)
+using IntervalArithmetic: inf, mince, sup
+using IntervalArithmetic.Symbols: (..)
 import IntervalArithmetic as IA
+using IntervalBoxes: IntervalBox
 using LazySets: AbstractHyperrectangle, BallInf, CartesianProductArray,
                 Hyperrectangle, Interval, box_approximation, dim, high, low,
                 project, set, symmetric_interval_hull, ⊕

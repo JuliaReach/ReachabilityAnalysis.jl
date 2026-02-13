@@ -599,7 +599,7 @@ end
 _normalize_initial_state(ivp, X0) = X0
 _normalize_initial_state(ivp, X0::AbstractVector) = Singleton(X0)
 _normalize_initial_state(ivp, X0::IA.Interval) = convert(Interval, X0)
-_normalize_initial_state(ivp, X0::IA.IntervalBox) = convert(Hyperrectangle, X0)
+_normalize_initial_state(ivp, X0::IntervalBox) = convert(Hyperrectangle, X0)
 _normalize_initial_state(ivp, X0::Number) = Singleton([X0])
 function _normalize_initial_state(ivp::IVP{<:SecondOrderSystem},
                                   X0::Tuple{<:AbstractVector,<:AbstractVector})
