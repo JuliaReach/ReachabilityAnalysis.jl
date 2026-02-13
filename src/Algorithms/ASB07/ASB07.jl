@@ -80,7 +80,7 @@ function setrep(::ASB07{N,AM,RM,Val{false}}) where {N,AM,RM}
     return Zonotope{N,Vector{N},Matrix{N}}
 end
 
-function setrep(::ASB07{N,AM,RM,S,R,Val{n},Val{p}}) where {N,AM,RM,S,R,n,p}
+function setrep(::ASB07{N,AM,RM,Val{true},R,Val{n},Val{p}}) where {N,AM,RM,R,n,p}
     VT = SVector{n,N}
     MT = SMatrix{n,p,N,n * p}
     return Zonotope{N,VT,MT}
