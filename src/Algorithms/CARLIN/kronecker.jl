@@ -126,7 +126,7 @@ Return a hyperrectangle with the interval powers `[x, x^2, …, x^pow]`.
 A hyperrectangle such that the `i`-th dimension is the interval `x^i`.
 """
 function kron_pow_stack(x::IA.Interval, pow::Int)
-    return convert(Hyperrectangle, IntervalBox([kron_pow(x, i) for i in 1:pow]))
+    return convert(Hyperrectangle, IntervalBox([kron_pow(x, i) for i in 1:pow]...))
 end
 
 """
@@ -188,7 +188,7 @@ function load_kron_dynamicpolynomials()
                 end
                 out[i] = aux
             end
-            Bpow = IntervalBox(out)
+            Bpow = IntervalBox(out...)
             Hpow = convert(Hyperrectangle, Bpow)
             return Hpow
         end

@@ -3,8 +3,9 @@ module FLOWSTARModule
 using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, TimeInterval,
                               TaylorModelReachSet, domain, tend, tstart, zeroT
 
-using IntervalArithmetic: IntervalBox, sup
+using IntervalArithmetic: sup
 import IntervalArithmetic as IA
+using IntervalBoxes: IntervalBox
 using LazySets: Hyperrectangle, overapproximate
 using MathematicalSystems: AbstractContinuousSystem, BlackBoxContinuousSystem,
                            IVP, initial_state, statedim, system

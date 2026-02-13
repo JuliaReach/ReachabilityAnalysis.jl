@@ -1,5 +1,4 @@
 ```@meta
-DocTestSetup = :(using ReachabilityAnalysis)
 CurrentModule = ReachabilityAnalysis
 ```
 
@@ -36,13 +35,13 @@ prob = ODEProblem(f, X0, (0.0, 2.0))
 sol = solve(prob, Tsit5(), adaptive=false, dt=0.05, reltol=1e-6)
 nothing # hide
 ```
-There is no plot recipe readily available so we create it by hand using [`LazySets.jl`](https://github.com/JuliaReach/LazySets.jl).
+
+Now we plot the result.
 
 ```@example nonlinear_univariate_bland
-using LazySets, Plots
-using LazySets: Interval
+using Plots
 
-out = [Interval(sol.t[i]) × Interval(sol.u[i][1]) for i in 1:20]
+out = [[interval(sol.t[i]), interval(sol.u[i][1])] for i in 1:20]
 
 fig = plot(out, xlab="t", ylab="x(t)", lw=3.0, alpha=1., c=:black, marker=:none, lab="", title="Standard integrator with an interval initial condition")
 
