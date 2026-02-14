@@ -146,27 +146,14 @@ function step_size end
 # Argument handling
 # ==================
 
-# extend dimension for common IntervalArithmetic types
-LazySets.dim(::IA.Interval) = 1
-LazySets.dim(::IntervalBox{D,N}) where {D,N} = D
-
-# lazy sets (or sets that behave as such)
-_dim(X::Union{<:LazySet,<:IA.Interval,<:IntervalBox}) = dim(X)
-
-# singleton elements
-_dim(X::Number) = 1
-_dim(X::AbstractVector{N}) where {N<:Number} = length(X)
-
-# vector of sets
-function _dim(X::AbstractVector{UT}) where {UT<:Union{<:LazySet,
-                                                      <:IA.Interval,<:IntervalBox}}
+_dim(X) = throw(ArgumentError("the type of the initial condition, $(typeof(X)), cannot be handled"))
+_dim(X::LazySet) = dim(X)
+function _dim(X::AbstractVector{<:LazySet})
     n = _dim(first(X))
     all(X -> _dim(X) == n, X) || throw(ArgumentError("dimension mismatch between " *
                                                      "the initial sets in this array; expected only sets of dimension $n"))
     return n
 end
-
-_dim(X) = throw(ArgumentError("the type of the initial condition, $(typeof(X)), cannot be handled"))
 
 function _check_dim(S, X0; throw_error::Bool=true)
     n = statedim(S)
@@ -180,9 +167,6 @@ function _check_dim(S, X0; throw_error::Bool=true)
     end
     return false
 end
-
-_dim(X0::Tuple{VT,VT}) where {N,VT<:AbstractVector{N}} = length(X0[1]) + length(X0[2])
-_dim(X0::Tuple{<:LazySet{N},<:LazySet{N}}) where {N} = dim(X0[1]) + dim(X0[2])
 
 function _check_dim(S::Union{SecondOrderLinearContinuousSystem,
                              SecondOrderAffineContinuousSystem,
