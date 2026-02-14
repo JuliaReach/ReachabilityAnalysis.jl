@@ -37,7 +37,11 @@ function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
         reach_homog_HLBS25!(F, Ω0, Φ, NSTEPS, δ, taylor_order, recursive, max_order,
                             reduction_method, Δt0)
     else
-        error("inhomogeneous algorithm not implemented yet")
+        B = input_matrix(ivp)
+        Φ_norm = norm(Φ, Inf)
+        U = inputset(ivp)
+        reach_inhomog_HLBS25!(F, Ω0, Φ, B, U, NSTEPS, δ, taylor_order, Φ_norm, recursive, max_order,
+                            reduction_method, Δt0, IDgen)
     end
 
     return Flowpipe(F)
