@@ -233,8 +233,8 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                                        "Production-Destruction" => "generated_examples/ProductionDestruction.md",
                                        "Brusselator"            => "generated_examples/Brusselator.md",
                                        "Quadrotor"              => "generated_examples/Quadrotor.md",
-                                       "Epidemic (SEIR) model"  => "generated_examples/SEIR.md",
-                                       "Spacecraft"             => "generated_examples/Spacecraft.md"
+                                       "Epidemic (SEIR) model"  => "generated_examples/SEIR.md"
+                                       # "Spacecraft"             => "generated_examples/Spacecraft.md"  # TODO did not work with new TaylorModels algorithm anymore (IntervalArithmetic v1 switch)
                                        #
                                        ],
                 "API Reference" => [
