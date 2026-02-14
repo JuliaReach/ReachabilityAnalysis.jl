@@ -35,6 +35,7 @@ struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
     max_order::Int
     reduction_method::RM
     recursive::R
+    idg::IDGenerator
 end
 
 function HLBS25(; δ::N,
@@ -42,7 +43,7 @@ function HLBS25(; δ::N,
                 taylor_order::Int=5,
                 max_order::Int=5,
                 reduction_method::RM=LazySets.GIR05(),
-                recursive::Bool=false) where {N,AM,RM}
+                recursive::Bool=true) where {N,AM,RM}
     return HLBS25{N,AM,RM,Val{recursive}}(δ, approx_model, taylor_order, max_order,
                                           reduction_method, Val(recursive))
 end
@@ -56,3 +57,5 @@ end
 
 include("post.jl")
 include("reach_homog.jl")
+include("reach_inhomog.jl")
+include("IDgen.jl")
