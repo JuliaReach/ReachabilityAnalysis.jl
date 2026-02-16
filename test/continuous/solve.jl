@@ -21,7 +21,7 @@ using ReachabilityAnalysis: TimeInterval, _isapprox
 end
 
 @testset "Flowpipe interface" begin
-    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
+    p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
     δ = 0.1
     sol = solve(p; tspan=(0.0, 1.0), alg=GLGM06(; δ=δ))
     F = flowpipe(sol)
@@ -89,24 +89,16 @@ end
 
 @testset "Solution interface: initial states" begin
     # interval initial condition
-    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
-    solve(p; T=1.0)
-
-    # interval initial condition
     p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
     solve(p; T=1.0)
 
-    # deterministic initial condition, scalar for one-dimensional matrix (TODO)
-    p = InitialValueProblem(@system(x' = -x), 0.5)
-    solve(p; T=1.0)
-
-    # deterministic initial condition, vector
-    p = InitialValueProblem(@system(x' = -x), [0.5])
+    # deterministic initial condition
+    p = InitialValueProblem(@system(x' = -x), Singleton([0.5]))
     solve(p; T=1.0)
 end
 
 @testset "Solution interface: time span" begin
-    p = @ivp(x' = -x, x(0) ∈ 0 .. 1)
+    p = @ivp(x' = -x, x(0) ∈ Interval(0, 1))
     Δt = TimeInterval(0.0 .. 2.0)
 
     # only time horizon given

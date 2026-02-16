@@ -2,7 +2,7 @@ import OrdinaryDiffEq
 using ReachabilityAnalysis: _solve_ensemble, ReachSolution
 
 @testset "Simulation traces using OrdinaryDiffEq.jl solvers" begin
-    prob = @ivp(x' = 1.0x, x(0) ∈ [1 / 2])
+    prob = @ivp(x' = 1.0x, x(0) ∈ Singleton([1 / 2]))
 
     # `solve` extends CommonSolve.jl
     sol = OrdinaryDiffEq.solve(prob; tspan=(0.0, 1.0))
