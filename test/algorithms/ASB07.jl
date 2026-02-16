@@ -2,6 +2,7 @@ using ReachabilityAnalysis, Test
 import ReachabilityAnalysis as RA
 import ReachabilityAnalysis.Exponentiation as EXP
 using StaticArrays: SMatrix, SVector
+using IntervalArithmetic.Symbols: ±
 
 @testset "ASB07 struct" begin
     # full constructor

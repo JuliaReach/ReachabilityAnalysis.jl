@@ -6,7 +6,7 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, ReachSet,
 using ..ForwardModule: Forward
 using ..Overapproximate: _overapproximate
 
-using IntervalArithmetic: (..)
+using IntervalArithmetic.Symbols: (..)
 using LazySets: Hyperrectangle, LazySet, Universe, dim, overapproximate, set
 using LinearAlgebra: mul!
 using MathematicalSystems: AbstractDiscreteSystem, IVP, initial_state, inputset,
