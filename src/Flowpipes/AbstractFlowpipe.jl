@@ -241,8 +241,8 @@ end
 # Methods to check inclusion
 # ------------------------------
 
-Base.:⊆(F::AbstractFlowpipe, X::LazySet) = all(R ⊆ X for R in F)
-Base.:⊆(F::AbstractFlowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
+issubset(F::AbstractFlowpipe, X::LazySet) = all(R ⊆ X for R in F)
+issubset(F::AbstractFlowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 
 # ------------------------------
 # Methods to overapproximate

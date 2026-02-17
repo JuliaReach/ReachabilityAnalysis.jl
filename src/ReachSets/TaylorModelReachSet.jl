@@ -85,7 +85,7 @@ end
 # Inclusion checks
 # ======================
 
-function Base.:⊆(R::TaylorModelReachSet, X::LazySet)
+function issubset(R::TaylorModelReachSet, X::LazySet)
     Rz = overapproximate(R, Zonotope)
     return set(Rz) ⊆ X
 end

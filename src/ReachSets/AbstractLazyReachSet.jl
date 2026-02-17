@@ -59,9 +59,9 @@ end
 # Expose common LazySets operations
 LazySets.constraints_list(R::AbstractLazyReachSet) = constraints_list(set(R))
 LazySets.vertices_list(R::AbstractLazyReachSet) = vertices_list(set(R))
-Base.:⊆(R::AbstractLazyReachSet, X::LazySet) = ⊆(set(R), X)
-Base.:⊆(X::LazySet, R::AbstractLazyReachSet) = ⊆(X, set(R))
-Base.:⊆(R::AbstractLazyReachSet, S::AbstractLazyReachSet) = ⊆(set(R), set(S))
+issubset(R::AbstractLazyReachSet, X::LazySet) = set(R) ⊆ X
+issubset(X::LazySet, R::AbstractLazyReachSet) = X ⊆ set(R)
+issubset(R::AbstractLazyReachSet, S::AbstractLazyReachSet) = set(R) ⊆ set(S)
 LazySets.area(R::AbstractLazyReachSet) = area(set(R))
 LazySets.volume(R::AbstractLazyReachSet) = volume(set(R))
 Base.convert(::Type{ST}, R::AbstractLazyReachSet) where {ST<:LazySet} = convert(ST, set(R))
@@ -212,8 +212,8 @@ end
 # ----------------------
 
 # membership test
-function ∈(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
-    return ∈(x, set(R))
+function in(x::AbstractVector{N}, R::AbstractLazyReachSet{N}) where {N}
+    return x ∈ set(R)
 end
 
 # splitting a reach-set according to a given partition; the partition should be
