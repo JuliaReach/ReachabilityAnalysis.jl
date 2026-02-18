@@ -76,8 +76,8 @@ end
 #    error("not implemented")
 #end
 
-Base.:⊆(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
-Base.:⊆(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
+issubset(F::HybridFlowpipe, X::LazySet) = all(fp ⊆ X for fp in F)
+issubset(F::HybridFlowpipe, Y::AbstractLazyReachSet) = all(fp ⊆ set(Y) for fp in F)
 
 # evaluation for scalars
 function (fp::HybridFlowpipe{N,RT})(t::Number) where {N,RT<:AbstractReachSet{N}}

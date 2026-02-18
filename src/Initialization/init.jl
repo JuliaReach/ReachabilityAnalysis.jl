@@ -50,7 +50,7 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, directions, linear_map, split!, set, array,
                  constrained_dimensions
 import ReachabilityBase.Comparison: _isapprox
-import Base: +, -, *, ∈, ∩, ⊆, convert, isdisjoint, isempty
+import Base: +, -, *, in, intersect, issubset, convert, isdisjoint, isempty
 import LinearAlgebra: normalize
 
 import MathematicalSystems: system, statedim, initial_state

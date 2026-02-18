@@ -120,7 +120,7 @@ end
 @inline Base.pop!(w::WaitingList) = (pop!(w.times), pop!(w.array))
 
 # containment check
-function Base.:⊆(s::StateInLocation, w::WaitingList)
+function issubset(s::StateInLocation, w::WaitingList)
     contained = false
     q = location(s)
     X = state(s)

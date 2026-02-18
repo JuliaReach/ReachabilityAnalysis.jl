@@ -240,8 +240,8 @@ tspan(F::Flowpipe, arr::AbstractVector) = tspan(view(array(F), arr))
 function Base.isdisjoint(F::Flowpipe{N,<:AbstractLazyReachSet}, Y::LazySet) where {N}
     return all(X -> _isdisjoint(X, Y), array(F))
 end
-Base.:⊆(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
-Base.:⊆(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
+issubset(F::Flowpipe, X::LazySet) = all(R ⊆ X for R in F)
+issubset(F::Flowpipe, Y::AbstractLazyReachSet) = all(R ⊆ set(Y) for R in F)
 
 # lazy projection of a flowpipe
 function Projection(F::Flowpipe, vars::NTuple{D,Int}) where {D}
@@ -253,7 +253,7 @@ Projection(F::Flowpipe; vars) = Projection(F, Tuple(vars))
 Projection(F::Flowpipe, vars::AbstractVector{Int}) = Projection(F, Tuple(vars))
 
 # membership test
-function ∈(x::AbstractVector{N}, fp::Flowpipe{N,<:AbstractLazyReachSet{N}}) where {N}
+function in(x::AbstractVector{N}, fp::Flowpipe{N,<:AbstractLazyReachSet{N}}) where {N}
     return any(R -> x ∈ set(R), array(fp))
 end
 
@@ -274,7 +274,7 @@ end
 
 # lazy intersection
 # use the flag `filter` (optional, default: `true`) to remove empty sets
-@commutative function Base.:∩(fp::Flowpipe, X::LazySet; filter=true)
+@commutative function intersect(fp::Flowpipe, X::LazySet; filter=true)
     out = [reconstruct(R, set(R) ∩ X) for R in fp]
 
     if filter
