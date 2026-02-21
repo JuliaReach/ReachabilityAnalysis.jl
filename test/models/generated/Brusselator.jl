@@ -14,7 +14,7 @@ import ReachabilityAnalysis.ReachabilityBase.Comparison as CMP
     return du
 end
 
-U₀ = Hyperrectangle(low=[0.8, 0], high=[1, 0.2])
+U₀ = Hyperrectangle(; low=[0.8, 0], high=[1, 0.2])
 prob = @ivp(u' = brusselator!(u), u(0) ∈ U₀, dim:2)
 
 T = 18.0;
