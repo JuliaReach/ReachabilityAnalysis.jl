@@ -8,7 +8,8 @@ using MathematicalSystems: IVP, LinearParametricContinuousSystem,
                            LinearParametricDiscreteSystem, initial_state,
                            state_matrix
 using ..DiscretizationModule
-using LinearAlgebra: I
+using ..ReachabilityAnalysis: IDGenerator, synchronize!, overapproximate_continuous_input
+using LinearAlgebra: I, norm
 
 export CorrectionHullMatrixZonotope
 export ExactSum
@@ -18,6 +19,8 @@ export ExactSum
 
 const LPCS = LinearParametricContinuousSystem
 const LPDS = LinearParametricDiscreteSystem
+const CLCPCS = ConstrainedLinearControlParametricContinuousSystem
+const CLCPDS = ConstrainedLinearControlParametricDiscreteSystem
 
 #TODO: move to LazySets
 struct ExactSum{N,S1<:LazySet{N},S2<:LazySet{N}} <: LazySet{N}
@@ -65,7 +68,7 @@ struct CorrectionHullMatrixZonotope{R} <: AbstractApproximationModel
 end
 
 function CorrectionHullMatrixZonotope(; taylor_order::Int=5, recursive::Bool=false)
-    return CorrectionHullMatrixZonotope{Val{recursive}}(taylor_order, Val(recursive))
+    return CorrectionHullMatrixZonotope{Val{recursive}}(taylor_order, Val(recursive), IDGenerator(0))
 end
 
 # Homogeneous case
@@ -78,8 +81,9 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
 
     N = eltype(X0)
 
+    idg = alg.idg
     synchronize!(idg, A)
-    IDₜ = idg(1) #IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
+    IDₜ = idg(1)
     
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
     T = MatrixZonotope(Tₜ, [Tₜ], IDₜ)
@@ -106,7 +110,7 @@ function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{false})
 end
 
 # Non-homogeneous case
-function discretize(ivp::IVP{<:LCPCS,<:SparsePolynomialZonotope}, δ,
+function discretize(ivp::IVP{<:CLCPCS,<:SparsePolynomialZonotope}, δ,
                     alg::CorrectionHullMatrixZonotope)
     taylor_order = alg.taylor_order
     A = state_matrix(ivp)
@@ -115,17 +119,21 @@ function discretize(ivp::IVP{<:LCPCS,<:SparsePolynomialZonotope}, δ,
 
     N = eltype(X0)
 
-    IDₜ = ngens(A) > 0 ? maximum(indexvector(A)) + 1 : 1
+    idg = alg.idg
+    synchronize!(idg, A)
+    IDₜ = idg(1)[1]
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
     T = MatrixZonotope(Tₜ, [Tₜ], [IDₜ])
 
     H0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive)
 
     B = input_matrix(ivp)
-    Pτ0 = overapproximate_continuous_input() #TODO implemement 
+    U = inputset(ivp)
+    A_norm = norm(A, Inf)
+    Pτ0 = overapproximate_continuous_input(A, B, T, U, idg, taylor_order, A_norm; Δt=δ)
 
     Ω0 = ExactSum(H0, Pτ0)
-    Sdis = LCPDS(A, B)
+    Sdis = CLCPDS(A, B, ivp.s.X, ivp.s.U)
     return InitialValueProblem(Sdis, Ω0)
 end
 

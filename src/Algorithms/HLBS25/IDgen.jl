@@ -3,8 +3,11 @@ mutable struct IDGenerator
 end
 
 function synchronize!(idg::IDGenerator, xs...)
-    all_ids = vcat(getfield.(xs, :idx)...)
-    idg.max_id = maximum(all_ids)
+    all_ids = Int[]
+    @inbounds for x in xs
+        append!(all_ids, indexvector(x))
+    end
+    idg.max_id = isempty(all_ids) ? 0 : maximum(all_ids)
     return idg
 end
 
@@ -12,18 +15,18 @@ end
     @assert l ≥ 0 "number of IDs to generate must be ≥ 0"
 
     # prevent integer overflow
-    if gen.max_id > typemax(Int) - l
+    if idg.max_id > typemax(Int) - l
         throw(OverflowError("ID space exhausted"))
     end
 
-    start = gen.max_id + 1
+    start = idg.max_id + 1
     ids = Vector{Int}(undef, l)
 
     @inbounds @simd for i in 1:l
         ids[i] = start + i - 1
     end
 
-    gen.max_id += l
+    idg.max_id += l
     return ids
 end
 
@@ -41,7 +44,7 @@ function fresh!(idg::IDGenerator,
     # count how many need replacement
     n = 0
     @inbounds for id in idₚ
-        n += !(id in shared)
+        n += (id in shared)
     end
 
     # generate new unique IDs
@@ -50,7 +53,7 @@ function fresh!(idg::IDGenerator,
     # replace
     j = 1
     @inbounds for i in eachindex(idₚ)
-        if !(idₚ[i] in shared)
+        if idₚ[i] in shared
             idₚ[i] = new_ids[j]
             j += 1
         end
