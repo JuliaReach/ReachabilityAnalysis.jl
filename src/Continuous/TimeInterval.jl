@@ -27,7 +27,7 @@ diam(Δt::TimeInterval{<:IA.Interval}) = IA.diam(Δt.i)
 
 isempty(Δt::TimeInterval) = isempty(Δt.i)
 
-∈(x::Real, Δt::TimeInterval) = ∈(x, Δt.i)
+in(x::Real, Δt::TimeInterval) = in(x, Δt.i)
 
 function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
     return (tstart(Δt) ≈ tstart(Δs)) && (tend(Δt) ≈ tend(Δs))
@@ -65,12 +65,12 @@ function isdisjoint(Δt::TimeInterval, Δs::TimeInterval)
     return tstart(Δt) > tend(Δs) || tstart(Δs) > tend(Δt)
 end
 
-function ⊆(Δt::TimeInterval, Δs::TimeInterval)
+function issubset(Δt::TimeInterval, Δs::TimeInterval)
     return _issubset(Δt.i, Δs.i)
 end
 
 function _issubset(x::Interval, y::Interval)
-    return ⊆(x, y)
+    return x ⊆ y
 end
 
 @commutative function _issubset(x::IA.Interval, y::Interval)
@@ -78,10 +78,10 @@ end
 end
 
 function _issubset(x::IA.Interval, y::IA.Interval)
-    return ⊆(x, y)
+    return x ⊆ y
 end
 
-function ∩(Δt::TimeInterval, Δs::TimeInterval)
+function intersect(Δt::TimeInterval, Δs::TimeInterval)
     return TimeInterval(_intersection(Δt.i, Δs.i))
 end
 

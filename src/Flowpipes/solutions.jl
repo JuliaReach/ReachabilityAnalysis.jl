@@ -138,7 +138,7 @@ LazySets.ρ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = ρ(d, sol.
 LazySets.σ(d, sol::ReachSolution{FT}) where {FT<:AbstractFlowpipe} = σ(d, sol.F)
 
 # further setops functions acting on solutions' flowpipes
-∈(x::AbstractVector, sol::ReachSolution) = ∈(x, sol.F)
+in(x::AbstractVector, sol::ReachSolution) = in(x, sol.F)
 
 # ------------------------------
 # Methods to check disjointness
@@ -159,8 +159,8 @@ end
 # ------------------------------
 
 # inclusion checks
-Base.:⊆(sol::ReachSolution, X::LazySet) = ⊆(sol.F, X)
-Base.:⊆(sol::ReachSolution, Y::AbstractLazyReachSet) = ⊆(sol.F, set(Y))
+issubset(sol::ReachSolution, X::LazySet) = sol.F ⊆ X
+issubset(sol::ReachSolution, Y::AbstractLazyReachSet) = sol.F ⊆ set(Y)
 
 # -------------------------------------
 # Methods for concrete set operations
