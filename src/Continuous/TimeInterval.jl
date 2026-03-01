@@ -25,9 +25,23 @@ tspan(Δt::TimeInterval) = Δt
 diam(Δt::TimeInterval{<:Interval}) = diameter(Δt.i)
 diam(Δt::TimeInterval{<:IA.Interval}) = IA.diam(Δt.i)
 
-isempty(Δt::TimeInterval) = isempty(Δt.i)
+isempty(Δt::TimeInterval{<:Interval}) = isempty(Δt.i)
+isempty(Δt::TimeInterval{<:IA.Interval}) = IA.isempty_interval(Δt.i)
 
-in(x::Real, Δt::TimeInterval) = in(x, Δt.i)
+in(x::Real, Δt::TimeInterval{<:Interval}) = in(x, Δt.i)
+in(x::Real, Δt::TimeInterval{<:IA.Interval}) = IA.in_interval(x, Δt.i)
+
+function ==(Δt::TimeInterval{<:Interval}, Δs::TimeInterval{<:Interval})
+    return Δt.i == Δs
+end
+
+@commutative function ==(Δt::TimeInterval{<:Interval}, Δs::TimeInterval{<:IA.Interval})
+    return IA.isequal_interval(Δt.i.dat, Δs.i)
+end
+
+function ==(Δt::TimeInterval{<:IA.Interval}, Δs::TimeInterval{<:IA.Interval})
+    return IA.isequal_interval(Δt.i, Δs.i)
+end
 
 function _isapprox(Δt::TimeInterval, Δs::TimeInterval)
     return (tstart(Δt) ≈ tstart(Δs)) && (tend(Δt) ≈ tend(Δs))
@@ -78,7 +92,7 @@ end
 end
 
 function _issubset(x::IA.Interval, y::IA.Interval)
-    return x ⊆ y
+    return IA.issubset_interval(x, y)
 end
 
 function intersect(Δt::TimeInterval, Δs::TimeInterval)
@@ -94,9 +108,5 @@ end
 end
 
 function _intersection(x::IA.Interval, y::IA.Interval)
-    l, h = max(inf(x), inf(y)), min(sup(x), sup(y))
-    if l > h
-        return emptyinterval()
-    end
-    return IA.interval(l, h)
+    return IA.intersect_interval(x, y)
 end

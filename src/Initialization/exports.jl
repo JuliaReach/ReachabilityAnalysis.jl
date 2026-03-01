@@ -104,4 +104,7 @@ export
       LazyClustering,
       UnionClustering,
       BoxClustering,
-      ZonotopeClustering
+      ZonotopeClustering,
+
+# IntervalArithmetic convenience symbol
+      (..)

@@ -40,14 +40,14 @@ function post(alg::TMJets21a{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
     end
 
     # call external solver
-    TMSol = TM.validated_integ(f!, X0tm, t0, T, orderQ, orderT,
-                               abstol, params;
-                               maxsteps=maxsteps,
-                               parse_eqs=parse_eqs,
-                               adaptive=adaptive,
-                               minabstol=minabstol,
-                               absorb=absorb,
-                               check_property=check_property)
+    TMSol = validated_integ(f!, X0tm, t0, T, orderQ, orderT,
+                            abstol, params;
+                            maxsteps=maxsteps,
+                            parse_eqs=parse_eqs,
+                            adaptive=adaptive,
+                            minabstol=minabstol,
+                            absorb=absorb,
+                            check_property=check_property)
     tv = TMSol.time
     xv = TMSol.fp
     xTM1v = TMSol.xTM

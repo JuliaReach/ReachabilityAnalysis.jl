@@ -21,7 +21,7 @@ using StaticArrays: MMatrix, SMatrix, SVector
 using LazySets: AffineMap, LinearMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
-using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix
+using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
 
 # JuliaReach internal functions
 import ReachabilityBase
@@ -36,8 +36,12 @@ using LazySets: AbstractReductionMethod, linear_map!
 # aliases for intervals
 const IM = IntervalMatrices
 import IntervalArithmetic as IA
-import TaylorModels as TM
-using TaylorModels: TaylorModel1, TaylorN, fp_rpa, shrink_wrapping!
+using IntervalArithmetic.Symbols: (..)  # convenience symbol
+using IntervalBoxes: IntervalBox
+using LazySets: ×  # resolve conflict
+import TaylorModels
+using TaylorModels: TaylorModel1, TaylorN, fp_rpa
+using TaylorModels.ValidatedInteg: shrink_wrapping!
 
 # method extensions for Taylor model reach-sets
 import TaylorModels: domain, remainder, polynomial, get_order, evaluate
@@ -50,7 +54,7 @@ import LazySets: dim, overapproximate, box_approximation, project, Projection,
                  intersection, directions, linear_map, split!, set, array,
                  constrained_dimensions
 import ReachabilityBase.Comparison: _isapprox
-import Base: +, -, *, in, intersect, issubset, convert, isdisjoint, isempty
+import Base: +, -, *, in, intersect, ==, convert, isdisjoint, isempty, issubset
 import LinearAlgebra: normalize
 
 import MathematicalSystems: system, statedim, initial_state
@@ -62,10 +66,14 @@ import CommonSolve: solve # common solve name
 # Useful constants
 # ======================
 
-@inline zeroBox(m) = IntervalBox(zeroI, m)
-@inline symBox(n::Integer) = IntervalBox(symI, n)
+@inline zeroBox(n::Integer) = fill(zeroI, n)
+@inline symBox(n::Integer) = fill(symI, n)
 const zeroI = IA.interval(0.0) # TODO use number type
 const symI = IA.interval(-1.0, 1.0)
+
+# some convenience definitions for vectors of intervals
+==(X::Vector{<:IA.Interval}, Y::Vector{<:IA.Interval}) = all(IA.isequal_interval.(X, Y))
+issubset(X::Vector{<:IA.Interval}, Y::Vector{<:IA.Interval}) = all(IA.issubset_interval.(X, Y))
 
 # common aliases for system's names
 const LCS = LinearContinuousSystem

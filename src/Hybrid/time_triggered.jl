@@ -40,7 +40,7 @@ function _get_max_jumps(tspan, Tsample, δ, ζ::TimeInterval, ::NonDeterministic
     return max_jumps
 end
 
-const no_tspan = emptyinterval()
+const no_tspan = TimeInterval(emptyinterval())
 
 function solve(ivp::IVP{<:HACLD1}, args...; kwargs...)
 

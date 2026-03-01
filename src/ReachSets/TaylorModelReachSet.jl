@@ -164,10 +164,10 @@ end
 function _taylor_shift(X::Vector{TaylorN{S}}, dom) where {S}
     x = get_variables()
     n = length(x) # number of variables
-    @assert n == length(X) == dim(dom)
+    @assert n == length(X) == length(dom)
     (dom == symBox(n)) && return X
 
-    a, b = low(dom), high(dom)
+    a, b = inf.(dom), sup.(dom)
     transf = [(a[i] + b[i]) / 2 + (b[i] - a[i]) / 2 * x[i] for i in 1:n]
     return [evaluate(X[i], transf) for i in 1:n]
 end
@@ -213,9 +213,9 @@ function _overapproximate(R::TaylorModelReachSet, T::Type{<:LazySet};
     n = dim(R)
 
     # consistency checks
-    n == dim(dom) ||
+    n == length(dom) ||
         throw(ArgumentError("the dimension of the reach-set should match the dimension of the domain, " *
-                            "but they are $(dim(R)) and $(dim(dom)) respectively"))
+                            "but they are $(dim(R)) and $(length(dom)) respectively"))
     dom ⊆ symBox(dim(R)) || throw(ArgumentError("`dom` must be a subset of [-1, 1]^n"))
     Δt ⊆ tspan(R) || throw(ArgumentError("the given time range $Δt does not belong to the " *
                                          "reach-set's time span, $(tspan(R))"))
@@ -292,7 +292,7 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
     X = set(R)
 
     # time domain splittig
-    tspdiv = IA.mince(tspan(R), ntdiv)
+    tspdiv = IA.mince(convert(IA.Interval, tspan(R)), ntdiv)
     tdom = domain(R)
     Δtdiv = IA.mince(tdom, ntdiv)
 
@@ -330,7 +330,7 @@ function overapproximate(R::TaylorModelReachSet{N}, T::Type{<:Union{Hyperrectang
         for j in 1:nparts
             Bj = partition[j]
             Xk = X_Δt[k]
-            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:n])
+            X̂ib = IntervalBox([evaluate(Xk[i], Bj) for i in 1:n]...)
 
             idx = j + (k - 1) * nparts
             X̂out = convert(T, convert(Hyperrectangle, X̂ib))
@@ -367,7 +367,10 @@ function overapproximate(R::TaylorModelReachSet{N}, ::Type{<:Zonotope},
     part = _split_symmetric_box(D, partition)
     fX̂ = Vector{Vector{TaylorModelN{length(X_Δt),N,N}}}(undef, length(part))
     @inbounds for (i, Bi) in enumerate(part)
-        x0 = IntervalBox(IA.mid.(Bi))
+        x0 = interval.(IA.mid.(Bi))
+        if Bi isa IntervalBox
+            Bi = [Bi[i] for i in 1:length(Bi)]
+        end
         X̂ib = [TaylorModelN(X_Δt[j], zeroI, x0, Bi) for j in 1:D]
         fX̂[i] = fp_rpa.(X̂ib)
     end
