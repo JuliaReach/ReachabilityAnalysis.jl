@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Spacecraft · ReachabilityAnalysis.jl</title><meta name="title" content="Spacecraft · ReachabilityAnalysis.jl"/><meta property="og:title" content="Spacecraft · ReachabilityAnalysis.jl"/><meta property="twitter:title" content="Spacecraft · ReachabilityAnalysis.jl"/><meta name="description" content="Documentation for ReachabilityAnalysis.jl."/><meta property="og:description" content="Documentation for ReachabilityAnalysis.jl."/><meta property="twitter:description" content="Documentation for ReachabilityAnalysis.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/aligned.css" rel="stylesheet" type="text/css"/><link href="../../assets/citations.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="ReachabilityAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ReachabilityAnalysis.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Overview</a></li><li><input class="collapse-toggle" id="menuitem-2" type="checkbox"/><label class="tocitem" for="menuitem-2"><span class="docs-label">Tutorials</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><input class="collapse-toggle" id="menuitem-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-1"><span class="docs-label">Set representations</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../tutorials/set_representations/zonotopes/">Zonotopic sets</a></li><li><a class="tocitem" href="../../tutorials/set_representations/polyhedral_computations/">Polyhedral computations</a></li><li><a class="tocitem" href="../../tutorials/set_representations/distances/">Metric notions</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Linear methods</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../tutorials/linear_methods/introduction/">Introduction</a></li><li><a class="tocitem" href="../../tutorials/linear_methods/discrete_time/">Discrete time reachability</a></li><li><a class="tocitem" href="../../tutorials/linear_methods/dense_time/">Dense time reachability</a></li><li><a class="tocitem" href="../ISS/">International Space Station</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">Modeling uncertain inputs</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../Building/">Building model</a></li><li><a class="tocitem" href="../OpAmp/">Operational amplifier</a></li><li><a class="tocitem" href="../TransmissionLine/">Transmission line</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-4" type="checkbox"/><label class="tocitem" for="menuitem-2-4"><span class="docs-label">Taylor methods</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../tutorials/taylor_methods/introduction/">Introduction</a></li><li><a class="tocitem" href="../../tutorials/taylor_methods/domain_splitting/">Domain splitting</a></li><li><a class="tocitem" href="../../tutorials/taylor_methods/gotchas/">Common gotchas</a></li><li><a class="tocitem" href="../LotkaVolterra/">Lotka-Volterra</a></li><li><a class="tocitem" href="../VanDerPol/">Van der Pol oscillator</a></li><li><a class="tocitem" href="../Lorenz/">Lorenz system</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-5" type="checkbox"/><label class="tocitem" for="menuitem-2-5"><span class="docs-label">Hybrid systems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../SquareWaveOscillator/">Square wave oscillator</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-6" type="checkbox"/><label class="tocitem" for="menuitem-2-6"><span class="docs-label">Clocked systems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../Platoon/">Platoon</a></li><li><a class="tocitem" href="../EMBrake/">Electromechanical brake</a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-3" type="checkbox"/><label class="tocitem" for="menuitem-3"><span class="docs-label">Manual</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/systems/">Systems</a></li><li><input class="collapse-toggle" id="menuitem-3-2" type="checkbox"/><label class="tocitem" for="menuitem-3-2"><span class="docs-label">Linear solvers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/algorithms/A20/">A20</a></li><li><a class="tocitem" href="../../man/algorithms/ASB07/">ASB07</a></li><li><a class="tocitem" href="../../man/algorithms/BFFPSV18/">BFFPSV18</a></li><li><a class="tocitem" href="../../man/algorithms/BOX/">BOX</a></li><li><a class="tocitem" href="../../man/algorithms/GLGM06/">GLGM06</a></li><li><a class="tocitem" href="../../man/algorithms/INT/">INT</a></li><li><a class="tocitem" href="../../man/algorithms/LGG09/">LGG09</a></li><li><a class="tocitem" href="../../man/algorithms/ORBIT/">ORBIT</a></li><li><a class="tocitem" href="../../man/algorithms/VREP/">VREP</a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-4" type="checkbox"/><label class="tocitem" for="menuitem-4"><span class="docs-label">Benchmarks</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/benchmarks/repeatability/">Repeatability evaluations</a></li><li><a class="tocitem" href="../../man/benchmarks/model_library/">Model library</a></li><li><a class="tocitem" href="../../man/benchmarks/benchmarks/">Benchmark repository</a></li><li><a class="tocitem" href="../../man/benchmarks/filtered_oscillator/">Filtered oscillator</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-5" type="checkbox" checked/><label class="tocitem" for="menuitem-5"><span class="docs-label">Further examples</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/examples_overview/">Overview</a></li><li><a class="tocitem" href="../DuffingOscillator/">Duffing oscillator</a></li><li><a class="tocitem" href="../LaubLoomis/">Laub-Loomis</a></li><li><a class="tocitem" href="../ProductionDestruction/">Production-Destruction</a></li><li><a class="tocitem" href="../Brusselator/">Brusselator</a></li><li><a class="tocitem" href="../Quadrotor/">Quadrotor</a></li><li><a class="tocitem" href="../SEIR/">Epidemic (SEIR) model</a></li><li class="is-active"><a class="tocitem" href>Spacecraft</a><ul class="internal"><li><a class="tocitem" href="#Model-description"><span>Model description</span></a></li><li><a class="tocitem" href="#Specification"><span>Specification</span></a></li><li><a class="tocitem" href="#Analysis"><span>Analysis</span></a></li><li><a class="tocitem" href="#Results"><span>Results</span></a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-6" type="checkbox"/><label class="tocitem" for="menuitem-6"><span class="docs-label">API Reference</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/systems/">Systems</a></li><li><a class="tocitem" href="../../lib/reachsets/">Reach-sets</a></li><li><a class="tocitem" href="../../lib/flowpipes/">Flowpipes</a></li><li><input class="collapse-toggle" id="menuitem-6-4" type="checkbox"/><label class="tocitem" for="menuitem-6-4"><span class="docs-label">Linear solvers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/algorithms/A20/">A20</a></li><li><a class="tocitem" href="../../lib/algorithms/ASB07/">ASB07</a></li><li><a class="tocitem" href="../../lib/algorithms/BFFPSV18/">BFFPSV18</a></li><li><a class="tocitem" href="../../lib/algorithms/BOX/">BOX</a></li><li><a class="tocitem" href="../../lib/algorithms/GLGM06/">GLGM06</a></li><li><a class="tocitem" href="../../lib/algorithms/INT/">INT</a></li><li><a class="tocitem" href="../../lib/algorithms/LGG09/">LGG09</a></li><li><a class="tocitem" href="../../lib/algorithms/ORBIT/">ORBIT</a></li><li><a class="tocitem" href="../../lib/algorithms/VREP/">VREP</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-6-5" type="checkbox"/><label class="tocitem" for="menuitem-6-5"><span class="docs-label">Nonlinear solvers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/algorithms/CARLIN/">CARLIN</a></li><li><a class="tocitem" href="../../lib/algorithms/QINT/">QINT</a></li><li><a class="tocitem" href="../../lib/algorithms/TMJets/">TMJets</a></li></ul></li><li><a class="tocitem" href="../../lib/solutions/">Solutions</a></li><li><a class="tocitem" href="../../lib/discretize/">Discretization</a></li><li><a class="tocitem" href="../../lib/projections/">Projections</a></li><li><a class="tocitem" href="../../lib/clustering/">Clustering</a></li><li><a class="tocitem" href="../../lib/operations/">Further set operations</a></li><li><a class="tocitem" href="../../lib/distributed/">Distributed computations</a></li><li><a class="tocitem" href="../../lib/internals/">Internal functions and macros</a></li></ul></li><li><a class="tocitem" href="../../man/faq/">Frequently Asked Questions (FAQ)</a></li><li><a class="tocitem" href="../../bibliography/">Bibliography</a></li><li><a class="tocitem" href="../../about/">How to contribute</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Further examples</a></li><li class="is-active"><a href>Spacecraft</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Spacecraft</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaReach/ReachabilityAnalysis.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/Spacecraft/Spacecraft.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Spacecraft"><a class="docs-heading-anchor" href="#Spacecraft">Spacecraft</a><a id="Spacecraft-1"></a><a class="docs-heading-anchor-permalink" href="#Spacecraft" title="Permalink"></a></h1><div class="admonition is-info" id="Overview-fc9abfe0f5f42fd8"><header class="admonition-header">Overview<a class="admonition-anchor" href="#Overview-fc9abfe0f5f42fd8" title="Permalink"></a></header><div class="admonition-body"><p>System type: Nonlinear hybrid system<br/>State dimension: 4 + 1<br/>Application domain: Flight dynamics, switched controllers</p></div></div><h2 id="Model-description"><a class="docs-heading-anchor" href="#Model-description">Model description</a><a id="Model-description-1"></a><a class="docs-heading-anchor-permalink" href="#Model-description" title="Permalink"></a></h2><p>Spacecraft rendezvous is a perfect use case for formal veriﬁcation of hybrid systems with nonlinear dynamics since mission failure can cost lives and is extremely expensive. This benchmark is taken from <a href="../../bibliography/#ChanM17">Chan and Mitra [CM17]</a> but adapted to the settings of ARCH-COMP [<a href="../../bibliography/#GerettiSABCCCFF20">GSA+20</a>].</p><p>The nonlinear differential equations describe the two-dimensional, planar motion of the space-craft on an orbital plane towards a space station:</p><p class="math-container">\[\begin{aligned}
+    \dot{x} &amp;= v_x \\
+    \dot{y} &amp;= v_y \\
+    \dot{v_x} &amp;= n^2x + 2nv_y + \dfrac{μ}{r^2} - \dfrac{μ}{r_c^3} (r +x) + \dfrac{u_x}{m_c} \\
+    \dot{v_y} &amp;= n^2y - 2nv_x - \dfrac{μ}{r_c^3}y + \dfrac{u_y}{m_c}
+\end{aligned}\]</p><p>The model consists of a 2D position (relative to the target) <span>$x$</span>, <span>$y$</span> [m], time <span>$t$</span> [min], as well as horizontal and vertical velocity <span>$v_x$</span>, <span>$v_y$</span> [m / min]. The parameters are <span>$µ = 3.986 × 10^{14} × 60^2$</span> [m<span>$^3$</span> / min<span>$^2$</span>], <span>$r = 42164 × 10^3$</span> [m], <span>$m_c = 500$</span> [kg], <span>$n = \sqrt{\dfrac{μ}{r^3}}$</span> and <span>$r_c = \sqrt{(r + x)^2 + y^2}$</span>.</p><p>The hybrid nature of this benchmark originates from a switched controller. In particular, the modes are <em>approaching</em> (<span>$x ∈ [−1000, −100]$</span> [m]), <em>rendezvous attempt</em> (<span>$x ≥ −100$</span> [m]), and <em>aborting</em>. A transition to mode <em>aborting</em> occurs nondeterministically at <span>$t ∈ [120, 150]$</span> [min].</p><p>The linear feedback controllers for the diﬀerent modes are deﬁned as <span>$\binom{u_x}{u_y} = K_1 s$</span> for mode <em>approaching</em>, and <span>$\binom{u_x}{u_y} = K_2 s$</span> for mode <em>rendezvous attempt</em>, where <span>$s = (x, y, v_x, v_y)^T$</span> is the vector of system states.  In the mode <em>aborting</em>, the system is uncontrolled: <span>$\binom{u_x}{u_y} = \binom{0}{0}$</span>. The feedback matrices <span>$K_i$</span> were determined with an LQR-approach applied to the linearized system dynamics, which resulted in the following numerical values:</p><p class="math-container">\[\begin{aligned}
+    K_1 &amp;= \begin{pmatrix}
+        −28.8287 &amp; 0.1005 &amp; −1449.9754 &amp; 0.0046 \\
+        −0.087 &amp; −33.2562 &amp; 0.00462 &amp; −1451.5013
+    \end{pmatrix} \\
+    K_2 &amp;= \begin{pmatrix}
+        −288.0288 &amp; 0.1312 &amp; −9614.9898 &amp; 0 \\
+        −0.1312 &amp; −288 &amp; 0 &amp; −9614.9883
+    \end{pmatrix}
+\end{aligned}\]</p><pre><code class="language-julia hljs">using ReachabilityAnalysis  # !jl
+
+const μ = 3.986e14 * 60^2
+const r = 42164.0e3
+const r² = r^2
+const mc = 500.0
+const n² = μ / r^3
+const n = sqrt(n²)
+
+const two_n = 2 * n
+const μ_r² = μ / r²
+
+const K₁ = [-28.8287 0.1005 -1449.9754 0.0046 0.0;
+            -0.087 -33.2562 0.00462 -1451.5013 0.0]
+const K₂ = [-288.0288 0.1312 -9614.9898 0.0 0.0;
+            -0.1312 -288.0 0.0 -9614.9883 0.0]
+
+const K₁mc = K₁ / mc
+const K₂mc = K₂ / mc
+
+function mymul!(v, A, x)  # helper function for matrix-vector multiplication
+    @inbounds for ind in eachindex(v)
+        v[ind] = zero(x[1])
+        for jind in eachindex(x)
+            v[ind] += A[ind, jind] * x[jind]
+        end
+    end
+    return nothing
+end;</code></pre><h3 id="Dynamics-in-the-*approaching*-mode"><a class="docs-heading-anchor" href="#Dynamics-in-the-*approaching*-mode">Dynamics in the <em>approaching</em> mode</a><a id="Dynamics-in-the-*approaching*-mode-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamics-in-the-*approaching*-mode" title="Permalink"></a></h3><pre><code class="language-julia hljs">@taylorize function spacecraft_approaching!(du, u, p, time)
+    x, y, vx, vy, t = u
+
+    rx = r + x
+    rx² = rx^2
+    y² = y^2
+    rc = sqrt(rx² + y²)
+    rc³ = rc^3
+    μ_rc³ = μ / rc³
+
+    uxy = Vector{typeof(x)}(undef, 2)
+    mymul!(uxy, K₁mc, u)
+
+    # x&#39; = vx
+    du[1] = vx
+
+    # y&#39; = vy
+    du[2] = vy
+
+    # vx&#39; = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x) + ux/mc
+    du[3] = (n² * x + two_n * vy) + ((μ_r² - μ_rc³ * rx) + uxy[1])
+
+    # vy&#39; = n²y - 2n*vx - μ/(rc^3)y + uy/mc
+    du[4] = (n² * y - two_n * vx) - (μ_rc³ * y - uxy[2])
+
+    # t&#39; = 1
+    du[5] = one(t)
+
+    return du
+end</code></pre><h3 id="Dynamics-in-the-*rendezvous-attempt*-mode"><a class="docs-heading-anchor" href="#Dynamics-in-the-*rendezvous-attempt*-mode">Dynamics in the <em>rendezvous attempt</em> mode</a><a id="Dynamics-in-the-*rendezvous-attempt*-mode-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamics-in-the-*rendezvous-attempt*-mode" title="Permalink"></a></h3><pre><code class="language-julia hljs">@taylorize function spacecraft_attempt!(du, u, p, time)
+    x, y, vx, vy, t = u
+
+    rx = r + x
+    rx² = rx^2
+    y² = y^2
+    rc = sqrt(rx² + y²)
+    rc³ = rc^3
+    μ_rc³ = μ / rc³
+
+    uxy = Vector{typeof(x)}(undef, 2)
+    mymul!(uxy, K₂mc, u)
+
+    # x&#39; = vx
+    du[1] = vx
+
+    # y&#39; = vy
+    du[2] = vy
+
+    # vx&#39; = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x) + ux/mc
+    du[3] = (n² * x + two_n * vy) + ((μ_r² - μ_rc³ * rx) + uxy[1])
+
+    # vy&#39; = n²y - 2n*vx - μ/(rc^3)y + uy/mc
+    du[4] = (n² * y - two_n * vx) - (μ_rc³ * y - uxy[2])
+
+    # t&#39; = 1
+    du[5] = one(t)
+
+    return du
+end</code></pre><h3 id="Dynamics-in-the-*aborting*-mode"><a class="docs-heading-anchor" href="#Dynamics-in-the-*aborting*-mode">Dynamics in the <em>aborting</em> mode</a><a id="Dynamics-in-the-*aborting*-mode-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamics-in-the-*aborting*-mode" title="Permalink"></a></h3><pre><code class="language-julia hljs">@taylorize function spacecraft_aborting!(du, u, p, time)
+    x, y, vx, vy, t = u
+
+    rx = r + x
+    rx² = rx^2
+    y² = y^2
+    rc = sqrt(rx² + y²)
+    rc³ = rc^3
+    μ_rc³ = μ / rc³
+
+    # x&#39; = vx
+    du[1] = vx
+
+    # y&#39; = vy
+    du[2] = vy
+
+    # vx&#39; = n²x + 2n*vy + μ/(r^2) - μ/(rc^3)*(r+x)
+    du[3] = (n² * x + two_n * vy) + (μ_r² - μ_rc³ * rx)
+
+    # vy&#39; = n²y - 2n*vx - μ/(rc^3)y
+    du[4] = (n² * y - two_n * vx) - μ_rc³ * y
+
+    # t&#39; = 1
+    du[5] = one(t)
+
+    return du
+end</code></pre><h3 id="Hybrid-system"><a class="docs-heading-anchor" href="#Hybrid-system">Hybrid system</a><a id="Hybrid-system-1"></a><a class="docs-heading-anchor-permalink" href="#Hybrid-system" title="Permalink"></a></h3><p>To model the system as a hybrid automaton, it is useful to work with symbolic state variables.</p><pre><code class="language-julia hljs">using Symbolics
+
+const var = @variables x y vx vy t
+
+function spacecraft(; abort_time=(120.0, 150.0))
+    n = 4 + 1  # number of variables
+    t_abort_lower, t_abort_upper = abort_time
+
+    automaton = GraphAutomaton(3)
+
+    # mode 1 (approaching)
+    invariant = HalfSpace(x &lt;= -100, var)
+    approaching = @system(x&#39; = spacecraft_approaching!(x), dim:5, x ∈ invariant)
+
+    # mode 2 (rendezvous attempt)
+    invariant = HalfSpace(x &gt;= -100, var)
+    attempt = @system(x&#39; = spacecraft_attempt!(x), dim:5, x ∈ invariant)
+
+    # mode 3 (aborting)
+    invariant = Universe(n)
+    aborting = @system(x&#39; = spacecraft_aborting!(x), dim:5, x ∈ invariant)
+
+    # transition &quot;approach&quot; -&gt; &quot;rendezvous attempt&quot;
+    add_transition!(automaton, 1, 2, 1)
+    guard = HalfSpace(x &gt;= -100, var)
+    t1 = @map(x -&gt; x, dim:n, x ∈ guard)
+
+    # transition &quot;approach&quot; -&gt; &quot;abort&quot;
+    add_transition!(automaton, 1, 3, 2)
+    guard_time = HPolyhedron([t &gt;= t_abort_lower, t &lt;= t_abort_upper], var)
+    t2 = @map(x -&gt; x, dim:n, x ∈ guard_time)
+
+    # transition &quot;rendezvous attempt&quot; -&gt; &quot;abort&quot;
+    add_transition!(automaton, 2, 3, 3)
+    t3 = @map(x -&gt; x, dim:n, x ∈ guard_time)
+
+    H = HybridSystem(; automaton=automaton,
+                     modes=[approaching, attempt, aborting],
+                     resetmaps=[t1, t2, t3])
+
+    # initial condition in mode 1
+    X0 = Hyperrectangle([-900.0, -400, 0, 0, 0], [25.0, 25, 0, 0, 0])
+    init = [(1, X0)]
+
+    return InitialValueProblem(H, init)
+end;</code></pre><h2 id="Specification"><a class="docs-heading-anchor" href="#Specification">Specification</a><a id="Specification-1"></a><a class="docs-heading-anchor-permalink" href="#Specification" title="Permalink"></a></h2><p>The spacecraft starts from the initial set <span>$x ∈ [−925, −875]$</span> [m], <span>$y ∈ [−425, −375]$</span> [m], <span>$vx = 0$</span> [m/min], and <span>$vy = 0$</span> [m/min]. For the considered time horizon of <span>$t ∈ [0, 200]$</span> [min], the following speciﬁcations have to be satisﬁed:</p><ul><li><p>Line-of-sight: In mode <em>rendezvous attempt</em>, the spacecraft has to stay inside the line-of-sight cone <span>$L = \{\binom{x}{y} | (x ≥ −100) ∧ (y ≥ x \tan(30°)) ∧ (−y ≥ x \tan(30°))\}$</span>.</p></li><li><p>Collision avoidance: In mode <em>aborting</em>, the spacecraft has to avoid a collision with the target, which is modeled as a box <span>$B$</span> with <span>$0.2$</span> [m] edge length and the center placed at the origin.</p></li><li><p>Velocity constraint: In mode <em>rendezvous attempt</em>, the absolute velocity has to stay below <span>$3.3$</span> [m/min]: <span>$\sqrt{v^2_x + v^2_y} ≤ 3.3$</span> [m/min].</p></li></ul><div class="admonition is-info" id="Remark-on-velocity-constraint-d8ac109332e66dfd"><header class="admonition-header">Remark on velocity constraint<a class="admonition-anchor" href="#Remark-on-velocity-constraint-d8ac109332e66dfd" title="Permalink"></a></header><div class="admonition-body"><p>In the original benchmark [<a href="../../bibliography/#ChanM17">CM17</a>], the constraint on the velocity was set to 0.05 m/s, but it can be shown (by a counterexample) that this constraint cannot be satisﬁed. We therefore use the relaxed constraint to <span>$0.055$</span> [m/s] <span>$= 3.3$</span> [m/min].</p></div></div><pre><code class="language-julia hljs">const tan30 = tand(30)
+
+LineOfSightCone = HPolyhedron([x &gt;= -100, y &gt;= x * tan30, -y &gt;= x * tan30], var)
+
+target = BallInf(zeros(2), 0.2)
+
+function line_of_sight(sol)
+    all_idx = findall(x -&gt; x == 2, location.(sol))  # &quot;rendezvous attempt&quot; mode
+    for idx in all_idx
+        if !all(set(R) ⊆ LineOfSightCone for R in sol[idx][2:end])
+            return false
+        end
+    end
+    return true
+end
+
+function collision_avoidance(sol)
+    all_idx = findall(x -&gt; x == 3, location.(sol))  # &quot;aborting&quot; mode
+    for idx in all_idx
+        if !all(isdisjoint(set(Projection(R, [1, 2])), target) for R in sol[idx])
+            (set(Projection(R, [1, 2])) for R in sol[idx])
+            return false
+        end
+    end
+    return true
+end
+
+function absolute_velocity(R)
+    vx, vy = 3, 4
+    vx2 = set(overapproximate(project(R; vars=(vx,)), Interval))
+    vy2 = set(overapproximate(project(R; vars=(vy,)), Interval))
+    return sqrt(vx2.dat + vy2.dat)
+end
+
+function velocity_constraint(sol)
+    all_idx = findall(x -&gt; x == 2, location.(sol))  # &quot;rendezvous attempt&quot; mode
+    for idx in all_idx
+        # maximum velocity measured in m/min
+        if !all(absolute_velocity(R) &lt; 0.055 * 60.0 for R in sol[idx])
+            return false
+        end
+    end
+    return true
+end;</code></pre><h2 id="Analysis"><a class="docs-heading-anchor" href="#Analysis">Analysis</a><a id="Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Analysis" title="Permalink"></a></h2><p>The transition to the <em>aborting</em> mode is handled by clustering the flowpipe into 25 boxes.</p><pre><code class="language-julia hljs">function solve_spacecraft(prob; k=25, s=missing)
+    # transition from mode 1 to mode 2
+    sol12 = solve(prob;
+                  tspan=(0.0, 200.0),
+                  alg=TMJets21a(; abstol=1e-5, maxsteps=10_000, orderT=5, orderQ=1,
+                                disjointness=BoxEnclosure()),
+                  max_jumps=1,
+                  intersect_source_invariant=false,
+                  intersection_method=TemplateHullIntersection(BoxDirections(5)),
+                  clustering_method=LazyClustering(1),
+                  disjointness_method=BoxEnclosure())
+    sol12jump = overapproximate(sol12[2](120 .. 150), Zonotope)
+    t0 = tstart(sol12jump[1])
+    sol12jump_c = cluster(sol12jump, 1:length(sol12jump), BoxClustering(k, s))
+
+    # transition from mode 2 to mode 3
+    H = system(prob)
+    sol3 = solve(IVP(mode(H, 3), [set(X) for X in sol12jump_c]);
+                 tspan=(t0, 200.0),
+                 alg=TMJets21a(; abstol=1e-10, orderT=7, orderQ=1, disjointness=BoxEnclosure()))
+    d = Dict{Symbol,Any}(:loc_id =&gt; 3)
+    F12 = [fp for fp in sol12.F]
+    F23 = [Flowpipe(fp.Xk, d) for fp in sol3.F]
+    return HybridFlowpipe(vcat(F12, F23))
+end
+
+prob = spacecraft()
+sol = solve_spacecraft(prob; k=25, s=missing)
+solz = overapproximate(sol, Zonotope);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌ Warning: maximum number of jumps reached; try increasing `max_jumps`
+└ @ ReachabilityAnalysis ~/work/ReachabilityAnalysis.jl/ReachabilityAnalysis.jl/src/Hybrid/solve.jl:143</code></pre><p>Now we verify the specification. Verifying the collision avoidance requires more effort, so here we do not manage to prove this property.</p><pre><code class="language-julia hljs">@assert line_of_sight(solz) &quot;the property should be proven&quot;
+@assert !collision_avoidance(solz) &quot;the property cannot be proven with these settings&quot;
+@assert velocity_constraint(solz) &quot;the property should be proven&quot;</code></pre><h2 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h2><pre><code class="language-julia hljs">using Plots, Plots.PlotMeasures, LaTeXStrings
+
+fig = plot(solz; vars=(1, 2), xlab=&quot;x&quot;, ylab=&quot;y&quot;)</code></pre><img src="b40e6793.png" alt="Example block output"/><p>Note that in the previous plot, it is not specified which reach set corresponds to which mode. After finding the location (mode of the hybrid system) associated to each reach set of the solution, we can plot each one using different colors. The plotting code is more sophisticated than before, and is an example of finer control of the options used to plot the flowpipes.</p><pre><code class="language-julia hljs">idx_approaching = findall(x -&gt; x == 1, location.(solz))
+idx_attempt = findall(x -&gt; x == 2, location.(solz))
+idx_aborting = findall(x -&gt; x == 3, location.(solz))
+
+fig = plot(; legend=:bottomright, tickfont=font(10, &quot;Times&quot;), guidefontsize=15,
+           xlab=L&quot;x&quot;, ylab=L&quot;y&quot;, lw=0.0, xtick=[-750, -500, -250, 0, 250.0],
+           ytick=[-400, -300, -200, -100, 0.0], xlims=(-1000.0, 400.0), ylims=(-450.0, 0.0),
+           size=(600, 600), bottom_margin=6mm, left_margin=2mm, right_margin=4mm, top_margin=3mm)
+
+plot!(fig, solz[idx_approaching[1]]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1,
+      lab=&quot;Approaching&quot;)
+for k in idx_approaching[2:end]
+    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:lightgreen, alpha=1)
+end
+
+plot!(fig, solz[idx_attempt[1]]; vars=(1, 2), lw=0.0, color=:red, alpha=1, lab=&quot;Attempt&quot;)
+for k in idx_attempt[2:end]
+    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:red, alpha=1)
+end
+
+plot!(fig, solz[idx_aborting[1]]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1, lab=&quot;Aborting&quot;)
+for k in idx_aborting[2:end]
+    plot!(fig, solz[k]; vars=(1, 2), lw=0.0, color=:cyan, alpha=1)
+end
+
+fig</code></pre><img src="a7466813.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../SEIR/">« Epidemic (SEIR) model</a><a class="docs-footer-nextpage" href="../../lib/systems/">Systems »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Saturday 23 August 2025 08:37">Saturday 23 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
