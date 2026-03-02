@@ -80,6 +80,8 @@ include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
 
 include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
 
+include("Algorithms/TMJets/TMJets26/TMJets26.jl")
+
 include("Algorithms/TMJets/common.jl")
 
 include("Algorithms/XFZ18/XFZ18Module.jl")

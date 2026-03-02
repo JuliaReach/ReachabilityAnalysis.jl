@@ -1,7 +1,7 @@
 # shared functionality among TMJets implementations
 
 using TaylorModels: TaylorModelN, fp_rpa, remainder
-using TaylorModels.ValidatedInteg: _DEF_MINABSTOL, validated_integ, validated_integ2
+using TaylorModels.ValidatedInteg: _DEF_MINABSTOL, validated_integ, validated_integ2, validated_integ3
 
 # =================================
 # Default values for the parameters
