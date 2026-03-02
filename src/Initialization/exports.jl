@@ -21,6 +21,7 @@ export
       TMJets,
       TMJets21a,
       TMJets21b,
+      TMJets26,
       VREP,
       HLBS25,
 # XFZ18,
