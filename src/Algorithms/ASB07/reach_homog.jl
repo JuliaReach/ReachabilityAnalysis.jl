@@ -20,16 +20,16 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     k = 1
     @inbounds while k < NSTEPS
-        Zk = set(F[k])
-        ck = Zk.center
-        Gk = Zk.generators
+        Zₖ₋₁ = set(F[k])
+        cₖ₋₁ = Zₖ₋₁.center
+        Gₖ₋₁ = Zₖ₋₁.generators
 
-        Zₖ₊₁ = _overapproximate_interval_linear_map(Φc, Φs, ck, Gk)
-        Zₖ₊₁ʳ = reduce_order(Zₖ₊₁, max_order, reduction_method)
+        Zₖ = _overapproximate_interval_linear_map(Φc, Φs, cₖ₋₁, Gₖ₋₁)
+        Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
 
         k += 1
         Δt += δ
-        F[k] = ReachSet(Zₖ₊₁ʳ, Δt)
+        F[k] = ReachSet(Zₖʳ, Δt)
     end
     return F
 end
@@ -49,9 +49,9 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     @inbounds F[1] = ReachSet(Ω0, Δt)
-    Z0 = Ω0
-    c0 = Z0.center
-    G0 = Z0.generators
+    Z₀ = Ω0
+    c₀ = Z₀.center
+    G₀ = Z₀.generators
 
     Φpow = IntervalMatrixPower(Φ) # lazy interval matrix power
 
@@ -60,7 +60,7 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
         Φ_power_k = matrix(Φpow)
         Φc, Φs = _split(Φ_power_k)
 
-        Zₖ = _overapproximate_interval_linear_map(Φc, Φs, c0, G0)
+        Zₖ = _overapproximate_interval_linear_map(Φc, Φs, c₀, G₀)
         Zₖʳ = reduce_order(Zₖ, max_order, reduction_method)
 
         Δt += δ
