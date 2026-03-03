@@ -13,14 +13,15 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                             Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    @inbounds F[1] = ReachSet(Ω0, Δt)
+    Zₖʳ = Ω0
+    @inbounds F[1] = ReachSet(Zₖʳ, Δt)
 
     # split the interval matrix into center and radius
     Φc, Φs = _split(Φ)
 
     k = 1
     @inbounds while k < NSTEPS
-        Zₖ₋₁ = set(F[k])
+        Zₖ₋₁ = Zₖʳ
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -48,8 +49,9 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                             Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    @inbounds F[1] = ReachSet(Ω0, Δt)
     Z₀ = Ω0
+    @inbounds F[1] = ReachSet(Z₀, Δt)
+
     c₀ = Z₀.center
     G₀ = Z₀.generators
 
@@ -84,14 +86,15 @@ function reach_homog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                             Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    @inbounds F[1] = ReachSet(Ω0, Δt)
+    Zₖʳ = Ω0
+    @inbounds F[1] = ReachSet(Zₖʳ, Δt)
 
     # split the interval matrix into center and radius
     Φc, Φs = _split(Φ)
 
     k = 1
     @inbounds while k < NSTEPS
-        Zₖ₋₁ = set(F[k])
+        Zₖ₋₁ = Zₖʳ
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
