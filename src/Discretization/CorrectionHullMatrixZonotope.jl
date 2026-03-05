@@ -8,11 +8,14 @@ using MathematicalSystems: IVP, LinearParametricContinuousSystem,
                            LinearParametricDiscreteSystem, initial_state,
                            state_matrix
 using ..DiscretizationModule
-using ..ReachabilityAnalysis: IDGenerator, synchronize!, overapproximate_continuous_input
+using ..ReachabilityAnalysis: IDGenerator, synchronize!, fresh!
 using LinearAlgebra: I, norm
 
 export CorrectionHullMatrixZonotope
 export ExactSum
+export overapproximate_continuous_input
+export overapproximate_discrete_input
+export overapproximate_discrete_input_split
 
 @reexport import ..DiscretizationModule: discretize
 @reexport import LazySets: concretize
@@ -36,6 +39,65 @@ end
 
 function concretize(ES::ExactSum)
     exact_sum(ES.X, ES.Y)
+end
+
+@inline function _split_emz_overapproximation(MZP,
+                                              P::S,
+                                              k::Int,
+                                              matnorm::Real) where {S<:Union{SparsePolynomialZonotope,
+                                                                             AbstractZonotope}}
+    tayexp = LazySets.Approximations.taylor_expmap_truncation(MZP, P, k)
+    Z = overapproximate(P, Zonotope)
+    lagrem = LazySets.Approximations.taylor_expmap_remainder(Z, matnorm, k)
+    return tayexp, lagrem
+end
+
+function overapproximate_continuous_input(A::MatrixZonotope{N},
+                                          B::MatrixZonotope{N},
+                                          T::MatrixZonotope{N},
+                                          U::SparsePolynomialZonotope{N},
+                                          idg::IDGenerator,
+                                          taylor_order::Int,
+                                          A_norm::N;
+                                          Δt::N) where {N}
+    fresh!(idg, U)
+    BU = overapproximate(B * U, SparsePolynomialZonotope)
+    BUT = overapproximate(T * BU, SparsePolynomialZonotope)
+    AT = A * T
+    AΔt_norm = A_norm * Δt
+
+    poly = LazySets.Approximations.taylor_expmap_truncation(AT, BUT, taylor_order)
+    Z = overapproximate(BU, Zonotope)
+    rem = scale!(Δt, LazySets.Approximations.taylor_expmap_remainder(Z, AΔt_norm, taylor_order))
+
+    return remove_redundant_generators(minkowski_sum(poly, rem))
+end
+
+function overapproximate_discrete_input(A::MatrixZonotope{N},
+                                        B::MatrixZonotope{N},
+                                        U::SparsePolynomialZonotope{N},
+                                        idg::IDGenerator,
+                                        taylor_order::Int,
+                                        A_norm::N,
+                                        t::N) where {N}
+    poly, zono = overapproximate_discrete_input_split(A, B, U, idg, taylor_order, A_norm, t)
+    return MinkowskiSum(poly, zono)
+end
+
+function overapproximate_discrete_input_split(A::MatrixZonotope{N},
+                                              B::MatrixZonotope{N},
+                                              U::SparsePolynomialZonotope{N},
+                                              idg::IDGenerator,
+                                              taylor_order::Int,
+                                              A_norm::N,
+                                              t::N) where {N}
+
+    fresh!(idg, U)
+    BUt = scale!(t, overapproximate(B * U, SparsePolynomialZonotope))
+    At = scale(t, A)
+    At_norm = A_norm * t
+    tayexp, lagrem = _split_emz_overapproximation(At, BUt, taylor_order, At_norm)
+    return remove_redundant_generators(tayexp), remove_redundant_generators(lagrem)
 end
 
 """
@@ -88,24 +150,27 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
     T = MatrixZonotope(Tₜ, [Tₜ], IDₜ)
 
-    Ω0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive)
+    Ω0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive, idg)
 
     Sdis = LPDS(A)
     return IVP(Sdis, Ω0)
 end
 
 # Recursive case
-function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{true})
+function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{true}, idg)
+    _ = idg
     expAT = MatrixZonotopeExp(A * T)
     em = ExponentialMap(expAT, X0)
     return overapproximate(em, SparsePolynomialZonotope, taylor_order)
 end
 
 # Non-recursive case
-function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{false})
+function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{false}, idg::IDGenerator)
     AT = overapproximate(A * T, MatrixZonotope)
     expAT = MatrixZonotopeExp(AT)
     expAT_approx = overapproximate(expAT, MatrixZonotope, taylor_order)
+    synchronize!(idg, A, X0)
+    fresh!(idg, expAT_approx)
     return overapproximate(expAT_approx * X0, SparsePolynomialZonotope)
 end
 
@@ -125,7 +190,7 @@ function discretize(ivp::IVP{<:CLCPCS,<:SparsePolynomialZonotope}, δ,
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
     T = MatrixZonotope(Tₜ, [Tₜ], [IDₜ])
 
-    H0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive)
+    H0 = _discretize_CHMZ(A, T, X0, taylor_order, alg.recursive, idg)
 
     B = input_matrix(ivp)
     U = inputset(ivp)

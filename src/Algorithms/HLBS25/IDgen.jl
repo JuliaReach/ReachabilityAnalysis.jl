@@ -74,3 +74,15 @@ function fresh!(idg::IDGenerator, P::SparsePolynomialZonotope)
 
     return P
 end
+
+function fresh!(idg::IDGenerator, MZ::MatrixZonotope)
+    idₘ = indexvector(MZ)
+
+    new_ids = idg(length(idₘ))
+
+    @inbounds @simd for i in eachindex(idₘ)
+        idₘ[i] = new_ids[i]
+    end
+
+    return MZ
+end

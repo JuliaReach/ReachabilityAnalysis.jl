@@ -28,6 +28,7 @@
         @test isa(sol1.alg, HLBS25)
         @test sol1.alg.δ == δ
         @test sol1.alg.max_order == 5
+        @test sol1.alg.max_order_zono == 5
         @test sol1.alg.taylor_order == 5
         @test sol1.alg.approx_model isa CorrectionHullMatrixZonotope
         @test setrep(sol1) == setrep(alg) ==
@@ -46,6 +47,7 @@
         @test isa(sol2.alg, HLBS25)
         @test sol2.alg.δ == δ
         @test sol2.alg.max_order == 4
+        @test sol2.alg.max_order_zono == 4
         @test sol2.alg.taylor_order == 4
         @test setrep(sol2) == setrep(alg) ==
               SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
@@ -74,11 +76,14 @@ end
                      approx_model=CorrectionHullMatrixZonotope(; recursive=true),
                      taylor_order=4,
                      max_order=4,
+                     max_order_zono=20,
                      reduction_method=LazySets.GIR05(),
                      recursive=true)
 
         @test isa(alg, HLBS25)
         @test alg.δ == δ
+        @test alg.max_order == 4
+        @test alg.max_order_zono == 20
         @test alg.approx_model isa CorrectionHullMatrixZonotope
         @test alg.approx_model.idg === alg.idg
 

@@ -13,7 +13,7 @@ end
 # discrete post
 function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroI, kwargs...) where {N}
-    @unpack δ, approx_model, taylor_order, max_order, reduction_method, recursive, idg = alg
+    @unpack δ, approx_model, taylor_order, max_order, max_order_zono, reduction_method, recursive, idg = alg
 
     if isnothing(NSTEPS)
         if haskey(kwargs, :NSTEPS)
@@ -33,8 +33,8 @@ function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
         # homogeneous branch keeps a fixed sparse-polynomial-zonotope representation
         ZT = typeof(Ω0)
         F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
-        reach_homog_HLBS25!(F, Ω0, Φ, NSTEPS, δ, taylor_order, recursive, max_order,
-                            reduction_method, Δt0)
+        reach_homog_HLBS25!(F, Ω0, Φ, NSTEPS, δ, taylor_order, recursive, max_order, max_order_zono,
+                            reduction_method, Δt0, idg)
     else
         # concretize the initial exact-sum container to obtain the concrete set type
         Ω0c = concretize(Ω0)
@@ -44,7 +44,7 @@ function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
         Φ_norm = norm(Φ, Inf)
         U = inputset(ivp)
         reach_inhomog_HLBS25!(F, Ω0, Φ, B, U, NSTEPS, δ, taylor_order, Φ_norm, recursive, max_order,
-                              reduction_method, Δt0, idg)
+                              max_order_zono, reduction_method, Δt0, idg)
     end
 
     return Flowpipe(F)

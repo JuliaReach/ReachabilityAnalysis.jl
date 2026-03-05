@@ -13,7 +13,10 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
                         model for the discretization of the initial value problem
 - `taylor_order`     -- (optional, default: `5`) order of the Taylor series
                         expansion of the matrix exponential for each step
-- `max_order`        -- (optional, default: `5`) maximum order of the reach set
+- `max_order`        -- (optional, default: `5`) maximum order of the
+                        polynomial bucket
+- `max_order_zono`   -- (optional, default: `max_order`) maximum order of the
+                        zonotopic bucket
 - `reduction_method` -- (optional, default: `LazySets.GIR05()` zonotope
                         order reduction method used
 - `recursive`        -- (optional, default: `false`) if `true`, compute the
@@ -33,6 +36,7 @@ struct HLBS25{N,AM,RM,R} <: AbstractContinuousPost
     approx_model::AM
     taylor_order::Int
     max_order::Int
+    max_order_zono::Int
     reduction_method::RM
     recursive::R
     idg::IDGenerator
@@ -42,11 +46,12 @@ function HLBS25(; δ::N,
                 approx_model::AM=CorrectionHullMatrixZonotope(),
                 taylor_order::Int=5,
                 max_order::Int=5,
+                max_order_zono::Int=max_order,
                 reduction_method::RM=LazySets.GIR05(),
                 recursive::Bool=true) where {N,AM,RM}
     idg = IDGenerator(0)
     am = _attach_idg(approx_model, idg)
-    return HLBS25{N,typeof(am),RM,Val{recursive}}(δ, am, taylor_order, max_order,
+    return HLBS25{N,typeof(am),RM,Val{recursive}}(δ, am, taylor_order, max_order, max_order_zono,
                                                    reduction_method, Val(recursive), idg)
 end
 
@@ -69,5 +74,6 @@ function rsetrep(alg::HLBS25{N}) where {N}
 end
 
 include("post.jl")
+include("common.jl")
 include("reach_homog.jl")
 include("reach_inhomog.jl")
