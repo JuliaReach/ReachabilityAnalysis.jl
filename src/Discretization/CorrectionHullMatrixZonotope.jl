@@ -12,7 +12,6 @@ using ..ReachabilityAnalysis: IDGenerator, synchronize!, fresh!
 using LinearAlgebra: I, norm
 
 export CorrectionHullMatrixZonotope
-export ExactSum
 export overapproximate_continuous_input
 export overapproximate_discrete_input
 export overapproximate_discrete_input_split
@@ -24,22 +23,6 @@ const LPCS = LinearParametricContinuousSystem
 const LPDS = LinearParametricDiscreteSystem
 const CLCPCS = ConstrainedLinearControlParametricContinuousSystem
 const CLCPDS = ConstrainedLinearControlParametricDiscreteSystem
-
-#TODO: move to LazySets
-struct ExactSum{N,S1<:LazySet{N},S2<:LazySet{N}} <: LazySet{N}
-    X::S1
-    Y::S2
-
-    # default constructor with dimension check
-    function ExactSum(X::LazySet{N}, Y::LazySet{N}) where {N}
-        @assert dim(X) == dim(Y) "sets in a exact sum must have the same dimension"
-        return new{N,typeof(X),typeof(Y)}(X, Y)
-    end
-end
-
-function concretize(ES::ExactSum)
-    exact_sum(ES.X, ES.Y)
-end
 
 @inline function _split_emz_overapproximation(MZP,
                                               P::S,
@@ -197,7 +180,7 @@ function discretize(ivp::IVP{<:CLCPCS,<:SparsePolynomialZonotope}, δ,
     A_norm = norm(A, Inf)
     Pτ0 = overapproximate_continuous_input(A, B, T, U, idg, taylor_order, A_norm; Δt=δ)
 
-    Ω0 = ExactSum(H0, Pτ0)
+    Ω0 = H0 ⊞ Pτ0
     Sdis = CLCPDS(A, B, ivp.s.X, ivp.s.U)
     return InitialValueProblem(Sdis, Ω0)
 end
