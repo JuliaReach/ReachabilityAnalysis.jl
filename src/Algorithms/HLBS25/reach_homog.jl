@@ -50,7 +50,7 @@ function reach_homog_HLBS25!(F::Vector{ReachSet{N,S}},
                              Δt0::TimeInterval,
                              idg::IDGenerator) where {N,S<:SparsePolynomialZonotope{N},
                                                       MN<:AbstractMatrix{N}}
-    _ = idg
+    _ = idg #remove?
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
     Z_poly, Z_zono = _split_reduce_spz(Ω0, max_order_poly, max_order_zono, reduction_method)

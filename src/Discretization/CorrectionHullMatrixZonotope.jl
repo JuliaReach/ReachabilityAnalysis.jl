@@ -1,12 +1,14 @@
 module CorrectionHullMatrixZonotopeModule
 
 using LazySets: ExponentialMap, MatrixZonotope, MatrixZonotopeExp,
-                SparsePolynomialZonotope, dim, indexvector, ngens,
-                overapproximate
+                SparsePolynomialZonotope, AbstractZonotope,
+                dim, indexvector, ngens, overapproximate
 using Reexport: @reexport
 using MathematicalSystems: IVP, LinearParametricContinuousSystem,
-                           LinearParametricDiscreteSystem, initial_state,
-                           state_matrix
+                           LinearParametricDiscreteSystem,
+                           ConstrainedLinearControlParametricContinuousSystem,
+                           ConstrainedLinearControlParametricDiscreteSystem,
+                           initial_state, state_matrix
 using ..DiscretizationModule
 using ..ReachabilityAnalysis: IDGenerator, synchronize!, fresh!
 using LinearAlgebra: I, norm
