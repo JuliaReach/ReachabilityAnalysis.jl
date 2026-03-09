@@ -126,6 +126,9 @@ function _get_template(vars::VecOrTuple, n::Int)
     return CustomDirections(dirs, n)
 end
 
+_copy_Vector(ℓ::Vector) = copy(ℓ)
+_copy_Vector(ℓ::AbstractVector) = Vector(ℓ)
+
 step_size(alg::LGG09) = alg.δ
 numtype(::LGG09{N}) where {N} = N
 setrep(alg::LGG09) = setrep(alg.template)
