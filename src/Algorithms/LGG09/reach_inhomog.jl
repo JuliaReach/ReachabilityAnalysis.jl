@@ -48,7 +48,7 @@ end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
                                   NSTEPS, cache::Val{true}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
 
@@ -65,7 +65,7 @@ end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
                                   NSTEPS, cache::Val{false}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     sᵢ = zero(N)
 
     @inbounds for i in 1:NSTEPS
@@ -80,7 +80,7 @@ end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
                                   NSTEPS, cache::Val{true}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
 
@@ -97,7 +97,7 @@ end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
                                   NSTEPS, cache::Val{false}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     sᵢ = zero(N)
 
     @inbounds for i in 1:NSTEPS
@@ -133,7 +133,7 @@ end
 # compute NSTEPS iterations support function along direction ℓ
 function reach_inhomog_dir_LGG09!(ρvec_ℓ, Φᵀ, ℓ, Ω₀, NSTEPS, W, time_shift)
     sᵢ = zero(T)
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     rᵢ₊₁ = similar(rᵢ)
 
     @inbounds for i in 0:NSTEPS-2
@@ -236,7 +236,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
     ndirs = length(dirs)
     ρmat = Matrix{N}(undef, ndirs, NSTEPS)
 
-    rᵢ = [copy(ℓ) for ℓ in dirs]
+    rᵢ = [_copy_Vector(ℓ) for ℓ in dirs]
     rᵢ₊₁ = [similar(first(rᵢ)) for _ in 1:ndirs]
     sᵢ = zeros(N, ndirs)
 

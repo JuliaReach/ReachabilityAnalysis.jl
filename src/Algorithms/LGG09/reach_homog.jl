@@ -48,7 +48,7 @@ end
 
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS,
                                 cache::Val{true}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     rᵢ₊₁ = similar(rᵢ)
 
     @inbounds for i in 1:NSTEPS
@@ -63,7 +63,7 @@ end
 
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, ℓ, NSTEPS,
                                 cache::Val{false}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
 
     @inbounds for i in 1:NSTEPS
         ρvec_ℓ[j, i] = ρ(rᵢ, Ω₀)
@@ -79,7 +79,7 @@ end
 # ``ρ(ℓ, Ω₀), ρ(ℓ, Φ * Ω₀), ρ(ℓ, Φ^2 * Ω₀), ..., ρ(ℓ, Φ^NSTEPS * Ω₀)``
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS,
                                 cache::Val{true}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     rᵢ₊₁ = similar(rᵢ)
 
     @inbounds for i in 1:NSTEPS
@@ -95,7 +95,7 @@ end
 # ``ρ(ℓ, Ω₀), ρ(ℓ, Φ * Ω₀), ρ(ℓ, Φ^2 * Ω₀), ..., ρ(ℓ, Φ^NSTEPS * Ω₀)``
 function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ, NSTEPS,
                                 cache::Val{false}) where {N}
-    rᵢ = copy(ℓ)
+    rᵢ = _copy_Vector(ℓ)
     @inbounds for i in 1:NSTEPS
         ρvec_ℓ[i] = ρ(rᵢ, Ω₀)
 
