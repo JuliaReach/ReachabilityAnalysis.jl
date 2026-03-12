@@ -63,6 +63,23 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ,
     return ρvec_ℓ
 end
 
+function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀::ZeroSet, Φᵀ, U,
+                                  ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
+    rᵢ = _copy_Vector(ℓ)
+    rᵢ₊₁ = similar(rᵢ)
+    sᵢ = zero(N)
+
+    @inbounds for i in 1:NSTEPS
+        ρvec_ℓ[j, i] = sᵢ
+        sᵢ += ρ(rᵢ, U)
+
+        # update cache for the next iteration
+        mul!(rᵢ₊₁, Φᵀ, rᵢ)
+        rᵢ, rᵢ₊₁ = rᵢ₊₁, rᵢ
+    end
+    return ρvec_ℓ
+end
+
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, U, ℓ::AbstractVector{N},
                                   NSTEPS, cache::Val{false}) where {N}
     rᵢ = copy(ℓ)
