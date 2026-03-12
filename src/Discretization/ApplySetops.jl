@@ -6,9 +6,10 @@ module ApplySetops
 using ..DiscretizationModule: AbstractApproximationModel, hasbackend
 using LazySets: LazySets, AbstractPolytope, AbstractZonotope, ConvexHull,
                 LazySet, LinearMap, MinkowskiSum, VPolygon, VPolytope, Zonotope,
-                box_approximation, concretize, convex_hull, dim, linear_map,
-                minkowski_sum, overapproximate, vertices_list
+                box_approximation, center, concretize, convex_hull, dim, genmat,
+                linear_map, minkowski_sum, overapproximate, vertices_list
 using LazySets.Approximations: AbstractDirections
+using LazySets.ReachabilityBase.Arrays: SingleEntryVector
 
 export _apply_setops
 
@@ -89,6 +90,50 @@ function _apply_setops(X::MinkowskiSum{N,LM,AT}, ::Val{:zono},
                                                LM<:LinearMap{N,<:AbstractZonotope{N}},
                                                AT<:AbstractZonotope{N}}
     return convert(Zonotope, concretize(X))
+end
+
+### :mixed
+# - concretize simple operations (e.g., MinkowskiSum and LinearMap of zonotopic sets)
+# - keep everything else lazy
+
+function _apply_setops(X::LazySet, ::Val{:mixed}, backend=nothing)
+    return X
+end
+
+function _apply_setops(X::MinkowskiSum, val::Val{:mixed}, backend=nothing)
+    Y = _apply_setops(X.X, val)
+    Z = _apply_setops(X.Y, val)
+    return _apply_setops_mixed(Y + Z)
+end
+
+function _apply_setops(X::LinearMap, val::Val{:mixed}, backend=nothing)
+    Y = _apply_setops(X.X, val)
+    return _apply_setops_mixed(X.M * Y)
+end
+
+function _apply_setops(X::ConvexHull, val::Val{:mixed}, backend=nothing)
+    return ConvexHull(_apply_setops(X.X, val), _apply_setops(X.Y, val))
+end
+
+function _apply_setops_mixed(X)
+    return X
+end
+
+function _apply_setops_mixed(X::MinkowskiSum{N,<:AbstractZonotope,<:AbstractZonotope}) where {N}
+    Y = concretize(X)
+
+    # check whether an SEV center can be used
+    c = center(Y)
+    i = findfirst(!iszero, c)
+    if isnothing(findnext(!iszero, c, i+1))
+        c2 = SingleEntryVector(i, length(c), c[i])
+        return Zonotope(c2, genmat(Y))
+    end
+    return Y
+end
+
+function _apply_setops_mixed(X::LinearMap{N,<:AbstractZonotope}) where {N}
+    return concretize(X)
 end
 
 end  # module
