@@ -458,10 +458,13 @@ function _Eplus(A::SparseMatrixCSC{N,D}, X0::LazySet{N}, δt; m=min(30, size(A, 
     A2 = A * A # fast if A sparse
     V = symmetric_interval_hull(A2 * X0)
     v = V.radius
-    Aabs = abs.(A)
-
-    require(@__MODULE__, :ExponentialUtilities)
-    Pv = _phiv(Aabs, v, 1, δt; m, tol)
+    if all(iszero, v)
+        Pv = zeros(n)
+    else
+        require(@__MODULE__, :ExponentialUtilities)
+        Aabs = abs.(A)
+        Pv = _phiv(Aabs, v, 1, δt; m, tol)
+    end
     return Hyperrectangle(zeros(n), Pv)
 end
 
