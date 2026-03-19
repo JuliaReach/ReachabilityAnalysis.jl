@@ -7,7 +7,7 @@ using ..ForwardModule: Forward
 
 using Base: OneTo, Slice
 using IntervalArithmetic.Symbols: (..)
-using LazySets: LazySet, Universe, dim, set, ρ
+using LazySets: LazySet, Universe, ZeroSet, dim, set, ρ
 using LazySets.Approximations: AbstractDirections, BoxDirections,
                                CustomDirections, OctDirections
 using LinearAlgebra: mul!
