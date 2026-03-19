@@ -58,7 +58,7 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ,
 
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
-        copy!(rᵢ, rᵢ₊₁)   # rᵢ .= rᵢ₊₁
+        rᵢ, rᵢ₊₁ = rᵢ₊₁, rᵢ
     end
     return ρvec_ℓ
 end
@@ -90,7 +90,7 @@ function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, U,
 
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
-        copy!(rᵢ, rᵢ₊₁)   # rᵢ .= rᵢ₊₁
+        rᵢ, rᵢ₊₁ = rᵢ₊₁, rᵢ
     end
     return ρvec_ℓ
 end
@@ -187,7 +187,7 @@ function reach_inhomog_LGG09!(F::Vector{RT},
 
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
-        copy!(rᵢ, rᵢ₊₁)
+        rᵢ, rᵢ₊₁ = rᵢ₊₁, rᵢ
 
         F[k] = TemplateReachSet(dirs, view(ρmat, :, k), Δt)
         _isdisjoint(X, set(F[k])) && break  # TODO pass disjointness method
