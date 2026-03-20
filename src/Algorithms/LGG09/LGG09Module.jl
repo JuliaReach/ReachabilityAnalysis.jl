@@ -14,7 +14,6 @@ using LinearAlgebra: mul!
 using MathematicalSystems: AbstractDiscreteSystem, IVP, initial_state, inputset,
                            state_matrix, statedim, stateset
 using Parameters: @unpack
-using ReachabilityBase.Arrays: SingleEntryVector
 using Requires: @require
 using SparseArrays: sparse
 
