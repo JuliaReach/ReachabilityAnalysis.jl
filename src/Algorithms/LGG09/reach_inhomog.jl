@@ -65,7 +65,7 @@ end
 
 function reach_inhomog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀::ZeroSet, Φᵀ, U,
                                   ℓ::AbstractVector{N}, NSTEPS, cache::Val{true}) where {N}
-    rᵢ = _copy_Vector(ℓ)
+    rᵢ = copy(ℓ)
     rᵢ₊₁ = similar(rᵢ)
     sᵢ = zero(N)
 
