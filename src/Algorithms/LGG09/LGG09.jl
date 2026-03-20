@@ -10,7 +10,9 @@ using support functions.
 - `approx_model` -- (optional, default: `Forward`) approximation model;
                     see `Notes` below for possible options
 - `template`     -- (alias: `dirs`) struct that holds the directions (either lazily or concretely)
-                    for each support function evaluation defining the template
+                    for each support function evaluation defining the template;
+                    note that the direction vectors must be mutable (e.g., `Vector`s)
+                    because the algorithm will `copy` them and mutate these copies
 - `static`       -- (optional, default: `false`) if `true`, use statically sized arrays
 - `threaded`     -- (optional, default: `false`) if `true`, use multi-threading
                     to compute different template directions in parallel
@@ -107,7 +109,7 @@ function _get_template(template::AbstractVector{VT}) where {N<:Number,VT<:Abstra
 end
 
 _get_template(template::Symbol, n::Int) = _get_template(Val(template), n)
-_get_template(::Val{:box}, n) = BoxDirections(n)
+_get_template(::Val{:box}, n) = BoxDirections{Float64,Vector{Float64}}(n)
 _get_template(::Val{:oct}, n) = OctDirections(n)
 
 _get_template(vars::Int, n::Int) = _get_template((vars,), n)
@@ -115,11 +117,13 @@ _get_template(vars::Int, n::Int) = _get_template((vars,), n)
 function _get_template(vars::VecOrTuple, n::Int)
     m = length(vars)
     @assert m ≤ n "the number of variables should not exceed `n`"
-    dirs = Vector{SingleEntryVector{Float64}}(undef, 2 * m)
+    dirs = Vector{Vector{Float64}}(undef, 2 * m)
 
     @inbounds for (i, vi) in enumerate(vars)
-        d₊ = SingleEntryVector(vi, n, 1.0)
-        d₋ = SingleEntryVector(vi, n, -1.0)
+        d₊ = zeros(n)
+        d₊[vi] = 1
+        d₋ = zeros(n)
+        d₋[vi] = -1
         dirs[i] = d₊
         dirs[i + m] = d₋
     end
