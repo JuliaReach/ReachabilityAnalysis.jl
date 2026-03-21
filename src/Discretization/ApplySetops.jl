@@ -125,7 +125,7 @@ function _apply_setops_mixed(X::MinkowskiSum{N,<:AbstractZonotope,<:AbstractZono
     # check whether an SEV center can be used
     c = center(Y)
     i = findfirst(!iszero, c)
-    if isnothing(findnext(!iszero, c, i+1))
+    if isnothing(findnext(!iszero, c, i + 1))
         c2 = SingleEntryVector(i, length(c), c[i])
         return Zonotope(c2, genmat(Y))
     end
