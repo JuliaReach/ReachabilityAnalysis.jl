@@ -8,6 +8,7 @@ using RecipesBase: @recipe, @series
 using Reexport: @reexport
 using SparseArrays: SparseMatrixCSC, SparseVector, sparsevec, spzeros
 using StaticArrays: MMatrix, SMatrix, SVector
+using Random: GLOBAL_RNG, shuffle!
 
 # the reexport macro ensures that the names exported by the following libraries
 # are made available after loading ReachabilityAnalysis

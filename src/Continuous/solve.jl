@@ -67,7 +67,6 @@ function solve(ivp::IVP{<:AbstractContinuousSystem_}, args...; kwargs...)
     got_ensemble = get(kwargs, :ensemble, false)
     dict = Dict{Symbol,Any}(:ensemble => nothing)
     if got_ensemble
-        @required OrdinaryDiffEq
         trajectories_alg= get(kwargs, :trajectories_alg, _default_simulation_algorithm())
         ensemble_sol = _solve_ensemble(ivp, trajectories_alg, args...; kwargs...)
         dict[:ensemble] = ensemble_sol

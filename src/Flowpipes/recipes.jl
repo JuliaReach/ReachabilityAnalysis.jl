@@ -352,3 +352,30 @@ end
     end
     return x, y
 end
+
+# one trajectory
+@recipe function plot_trajectory(sim::FixedStepSequence; vars=nothing)
+    _check_vars(vars)
+    return _get_simulation_data(sim, vars)
+end
+
+# vector of trajectories
+@recipe function plot_trajectories(sims::AbstractVector{<:FixedStepSequence}; vars=nothing)
+    _check_vars(vars)
+    @series [_get_simulation_data(sim, vars) for sim in sims]
+end
+
+function _get_simulation_data(sim, vars)
+    x = _get_simulation_data_1D(sim, vars[1])
+    y = _get_simulation_data_1D(sim, vars[2])
+    return (x, y)
+end
+
+function _get_simulation_data_1D(sim, var)
+    if var == 0
+        data = [sim.Δ0 + (i - 1) * sim.δ for i in eachindex(sim.F)]
+    else
+        data = [x[var] for x in sim.F]
+    end
+    return data
+end
