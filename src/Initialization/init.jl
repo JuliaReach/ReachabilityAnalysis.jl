@@ -99,6 +99,10 @@ const SecondOrderSystem = Union{SOLCS,SOACS,SOCLCCS,SOCACCS}
 const NonlinearSystem = Union{BBCS,CBBCS,CBBCCS}
 const LPCS = LinearParametricContinuousSystem
 const LPDS = LinearParametricDiscreteSystem
+const LCPCS = LinearParametricContinuousSystem
+const LCPDS = LinearParametricDiscreteSystem
+const CLCPCS = ConstrainedLinearControlParametricContinuousSystem
+const CLCPDS = ConstrainedLinearControlParametricDiscreteSystem
 
 const VecOrTuple = Union{<:AbstractVector{Int},NTuple{D,Int}} where {D}
 const VecOrTupleOrInt = Union{<:AbstractVector{Int},NTuple{D,Int},Int} where {D}
