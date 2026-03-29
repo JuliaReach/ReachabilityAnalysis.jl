@@ -2,7 +2,7 @@ module CorrectionHullMatrixZonotopeModule
 
 using LazySets: ExponentialMap, MatrixZonotope, MatrixZonotopeExp,
                 SparsePolynomialZonotope, AbstractZonotope,
-                dim, indexvector, ngens, overapproximate
+                dim, overapproximate
 using Reexport: @reexport
 using MathematicalSystems: IVP, LinearParametricContinuousSystem,
                            LinearParametricDiscreteSystem,

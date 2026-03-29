@@ -2,7 +2,7 @@
 # Dependencies
 # ======================
 
-using LinearAlgebra: Diagonal, I, dot, isdiag, mul!, tr
+using LinearAlgebra: Diagonal, I, dot, isdiag, mul!, tr, norm
 using Parameters: @unpack, @with_kw
 using RecipesBase: @recipe, @series
 using Reexport: @reexport
@@ -22,6 +22,7 @@ using LazySets: AffineMap, LinearMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
+using LazySets: ExactSum, exact_sum, expmat, genmat_dep, genmat_indep, indexvector
 
 # JuliaReach internal functions
 import ReachabilityBase
@@ -59,6 +60,8 @@ import LinearAlgebra: normalize
 
 import MathematicalSystems: system, statedim, initial_state
 import HybridSystems: HybridSystem, guard, mode
+import MathematicalSystems: ConstrainedLinearControlParametricContinuousSystem,
+                            ConstrainedLinearControlParametricDiscreteSystem
 
 import CommonSolve: solve # common solve name
 
