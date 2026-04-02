@@ -39,33 +39,33 @@ function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:vrep},
     n = dim(X)
     VT = n == 2 ? VPolygon : VPolytope
 
-    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E⁺)
     A = X.X
     B = X.Y
     X₀ = convert(VT, A)
 
     if n == 2
         ΦX₀ = convert(VT, B.X)
-        E₊ = convert(VT, B.Y)
-        out = convex_hull(X₀, minkowski_sum(ΦX₀, E₊))
+        E⁺ = convert(VT, B.Y)
+        out = convex_hull(X₀, minkowski_sum(ΦX₀, E⁺))
     else
         # generic conversion to VPolytope is missing, see LazySets#2467
         ΦX₀ = VPolytope(vertices_list(B.X; prune=false))
-        E₊ = convert(VT, B.Y)
-        aux = minkowski_sum(ΦX₀, E₊; apply_convex_hull=false)
+        E⁺ = convert(VT, B.Y)
+        aux = minkowski_sum(ΦX₀, E⁺; apply_convex_hull=false)
         out = convex_hull(X₀, aux; backend=backend)
     end
 
     return out
 end
 
-# give X = CH(X₀, ΦX₀ ⊕ E₊), return a zonotope overapproximation
+# give X = CH(X₀, ΦX₀ ⊕ E⁺), return a zonotope overapproximation
 function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:zono},
                        backend=nothing) where {N,
                                                AT<:AbstractZonotope{N},
                                                LM<:LinearMap{N,AT,N},
                                                MS<:MinkowskiSum{N,LM}}
-    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E⁺)
     A = X.X
     B = X.Y
     return overapproximate(ConvexHull(A, concretize(B)), Zonotope)
