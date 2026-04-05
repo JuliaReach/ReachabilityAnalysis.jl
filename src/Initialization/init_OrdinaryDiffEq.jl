@@ -1,7 +1,5 @@
 import .OrdinaryDiffEq as ODE
-import Random
-
-const DEFAULT_TRAJECTORIES = 10
+using .OrdinaryDiffEq.SciMLBase: AbstractODEAlgorithm
 
 # extend the solve API for initial-value problems
 
@@ -9,13 +7,14 @@ const DEFAULT_TRAJECTORIES = 10
 # Continuous system
 # =====================================
 
-function _solve_ensemble(ivp::IVP, args...;
-                         trajectories_alg=ODE.Tsit5(),
-                         ensemble_alg=ODE.EnsembleThreads(),
-                         inplace=true,
-                         initial_states=nothing,
-                         kwargs...)
+# Note: this is a method invalidation
+_default_simulation_algorithm() = ODE.Tsit5()
 
+# Note: this is a method invalidation
+function _solve_ensemble(ivp::IVP,
+                         trajectories_alg::AbstractODEAlgorithm=_default_simulation_algorithm(),
+                         args...; ensemble_alg=ODE.EnsembleThreads(), inplace=true,
+                         initial_states=nothing, kwargs...)
     # get problem's vector field
     if inplace
         field = inplace_field!(ivp)
@@ -61,15 +60,6 @@ function _solve_ensemble(ivp::IVP, args...;
                            abstol=abstol, dtmax=dtmax, callback=callback)
     end
     return result
-end
-
-function _sample_initial(X0, trajectories; kwargs...)
-    sampler = get(kwargs, :sampler, LazySets._default_sampler(X0))
-    rng = get(kwargs, :rng, Random.GLOBAL_RNG)
-    seed = get(kwargs, :seed, nothing)
-    include_vertices = get(kwargs, :include_vertices, false)
-    return sample(X0, trajectories; sampler=sampler, rng=rng,
-                  seed=seed, include_vertices=include_vertices)
 end
 
 # =====================================
@@ -248,8 +238,8 @@ function _sample_initial(ivp::IVP{<:AbstractHybridSystem,
         # with k initial regions, we collected up to `k * trajectories` many
         # samples (some regions may be empty), so we reduce to a random
         # collection of `trajectories` samples
-        rng = get(kwargs, :rng, Random.GLOBAL_RNG)
-        all_samples = Random.shuffle!(rng, all_samples)[1:trajectories]
+        rng = get(kwargs, :rng, GLOBAL_RNG)
+        all_samples = shuffle!(rng, all_samples)[1:trajectories]
     end
 
     return all_samples

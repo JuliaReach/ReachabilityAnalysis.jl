@@ -9,12 +9,11 @@ import Aqua, ExplicitImports
                :plot_recipe, :shrink_wrapping!, :solve, :_exp_remainder,
                :correction_hull, :input_correction, :AbstractODEScheme,
                :AbstractPreconditioner, :AbstractTMOrder, :GIR05, :Slice,
-               :_DEF_MINABSTOL)
+               :_DEF_MINABSTOL, :AbstractODEAlgorithm, :GLOBAL_RNG)
     @test isnothing(ExplicitImports.check_all_explicit_imports_are_public(ReachabilityAnalysis;
                                                                           ignore=ignores))
     @test isnothing(ExplicitImports.check_all_explicit_imports_via_owners(ReachabilityAnalysis))
-    ignores = (:GIR05, :Slice, :_DEF_MINABSTOL, :_default_sampler, :GLOBAL_RNG,
-               :value)
+    ignores = (:GIR05, :Slice, :_DEF_MINABSTOL, :_default_sampler, :value)
     @test isnothing(ExplicitImports.check_all_qualified_accesses_are_public(ReachabilityAnalysis;
                                                                             ignore=ignores))
     @test isnothing(ExplicitImports.check_all_qualified_accesses_via_owners(ReachabilityAnalysis))
