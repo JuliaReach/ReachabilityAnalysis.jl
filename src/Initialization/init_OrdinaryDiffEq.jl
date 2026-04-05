@@ -1,4 +1,5 @@
 import .OrdinaryDiffEq as ODE
+using .OrdinaryDiffEq.SciMLBase: AbstractODEAlgorithm
 import Random
 
 const DEFAULT_TRAJECTORIES = 10
@@ -9,13 +10,12 @@ const DEFAULT_TRAJECTORIES = 10
 # Continuous system
 # =====================================
 
-function _solve_ensemble(ivp::IVP, args...;
-                         trajectories_alg=ODE.Tsit5(),
-                         ensemble_alg=ODE.EnsembleThreads(),
-                         inplace=true,
-                         initial_states=nothing,
-                         kwargs...)
+_default_simulation_algorithm() = ODE.Tsit5()
 
+function _solve_ensemble(ivp::IVP,
+                         trajectories_alg::AbstractODEAlgorithm=_default_simulation_algorithm(),
+                         args...; ensemble_alg=ODE.EnsembleThreads(), inplace=true,
+                         initial_states=nothing, kwargs...)
     # get problem's vector field
     if inplace
         field = inplace_field!(ivp)

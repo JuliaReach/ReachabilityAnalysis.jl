@@ -9,7 +9,7 @@ import Aqua, ExplicitImports
                :plot_recipe, :shrink_wrapping!, :solve, :_exp_remainder,
                :correction_hull, :input_correction, :AbstractODEScheme,
                :AbstractPreconditioner, :AbstractTMOrder, :GIR05, :Slice,
-               :_DEF_MINABSTOL)
+               :_DEF_MINABSTOL, :AbstractODEAlgorithm)
     @test isnothing(ExplicitImports.check_all_explicit_imports_are_public(ReachabilityAnalysis;
                                                                           ignore=ignores))
     @test isnothing(ExplicitImports.check_all_explicit_imports_via_owners(ReachabilityAnalysis))
