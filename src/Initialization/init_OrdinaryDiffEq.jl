@@ -28,15 +28,12 @@ function _solve_ensemble(ivp::IVP, args...;
     tspan = (tstart(dt), tend(dt))
 
     if isnothing(initial_states)
-        # sample initial states
-        X0 = initial_state(ivp)
+        # sample initial states from X0
         trajectories = get(kwargs, :trajectories, DEFAULT_TRAJECTORIES)
-        initial_states = _sample_initial(X0, trajectories; kwargs...)
-        # number of trajectories may increase if vertices got included
-        trajectories = length(initial_states)
-    else
-        trajectories = length(initial_states)
+        initial_states = _sample_initial(initial_state(ivp), trajectories; kwargs...)
+        # number of trajectories may increase if vertices got included, so overwrite below
     end
+    trajectories = length(initial_states)
 
     # formulate ensemble ODE problem
     ensemble_prob = ODE.ODEProblem(field, first(initial_states), tspan)
