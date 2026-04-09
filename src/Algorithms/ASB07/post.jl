@@ -3,7 +3,7 @@ function post(alg::ASB07, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroT, kwargs...)
     δ = alg.δ
 
-    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
+    NSTEPS = compute_nsteps(δ, tspan; kwargs...)
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)

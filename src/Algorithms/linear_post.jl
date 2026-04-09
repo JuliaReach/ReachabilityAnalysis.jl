@@ -4,7 +4,7 @@ function post(alg::Union{A20,BFFPSV18,BOX,GLGM06,INT,LGG09,VREP},
               Δt0::TimeInterval=zeroT, kwargs...)
     δ = alg.δ
 
-    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
+    NSTEPS = compute_nsteps(δ, tspan; kwargs...)
 
     # normalize system to canonical form
     ivp_norm = _normalize(ivp)
