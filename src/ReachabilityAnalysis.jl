@@ -33,6 +33,11 @@ include("Continuous/linearization.jl")
 include("Continuous/setops.jl")
 
 # ===========================================================
+# Shared functionality for hybrid systems
+# ===========================================================
+include("Hybrid/waiting_list.jl")
+
+# ===========================================================
 # Reachability solver algorithms
 # ===========================================================
 
@@ -76,6 +81,9 @@ using ..CARLINModule: CARLIN, CanonicalQuadraticForm
 include("Algorithms/FLOWSTAR/FLOWSTARModule.jl")
 using ..FLOWSTARModule: FLOWSTAR
 
+include("Algorithms/QINT/QINTModule.jl")
+using ..QINTModule: QINT
+
 include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
 
 include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
@@ -89,17 +97,9 @@ include("Algorithms/XFZ18/XFZ18Module.jl")
 # Discrete post-operators for hybrid systems
 # ===========================================================
 include("Hybrid/constructors.jl")
-include("Hybrid/waiting_list.jl")
 include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
 include("Hybrid/solve.jl")
-
-# ===========================================================
-# Reachability solvers (part 2)
-# ===========================================================
-
-include("Algorithms/QINT/QINTModule.jl")
-using ..QINTModule: QINT
 
 # visualization
 include("Flowpipes/recipes.jl")
