@@ -14,7 +14,7 @@ using LinearAlgebra: checksquare, I
 using SparseArrays: SparseMatrixCSC, nonzeros, sparse, spzeros
 using IntervalMatrices: AbstractIntervalMatrix, IntervalMatrix,
                         exp_overapproximation
-using LazySets: AbstractHyperrectangle, Hyperrectangle, SparseMatrixExp, dim,
+using LazySets: Hyperrectangle, LazySet, SparseMatrixExp, dim,
                 get_columns, symmetric_interval_hull, _expmv
 
 export BaseExp, BaseExpAlg, IntervalExpAlg, LazyExpAlg, PadeExpAlg, elementwise_abs, Φ₂, Φ₁, Φ₁_u
@@ -452,16 +452,19 @@ function _Φ₂_inv(A::IdentityMultiple, δ, alg, Φ=nothing)
     return IdentityMultiple(α, size(A, 1))
 end
 
-function _Eplus(A::SparseMatrixCSC{N,D}, X0::AbstractHyperrectangle{N}, δt; m=min(30, size(A, 1)),
+function _Eplus(A::SparseMatrixCSC{N,D}, X0::LazySet{N}, δt; m=min(30, size(A, 1)),
                 tol=1e-7) where {N,D}
     n = dim(X0)
     A2 = A * A # fast if A sparse
     V = symmetric_interval_hull(A2 * X0)
     v = V.radius
-    Aabs = copy(abs.(A))
-
-    require(@__MODULE__, :ExponentialUtilities)
-    Pv = _phiv(Aabs, v, 1, δt; m, tol)
+    if all(iszero, v)
+        Pv = zeros(n)
+    else
+        require(@__MODULE__, :ExponentialUtilities)
+        Aabs = abs.(A)
+        Pv = _phiv(Aabs, v, 1, δt; m, tol)
+    end
     return Hyperrectangle(zeros(n), Pv)
 end
 

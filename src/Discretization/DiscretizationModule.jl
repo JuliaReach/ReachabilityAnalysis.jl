@@ -46,6 +46,7 @@ _alias(setops::Val{:concrete}) = setops
 _alias(setops::Val{:vrep}) = setops
 _alias(setops::Val{:box}) = setops
 _alias(setops::Val{:zono}) = setops
+_alias(setops::Val{:mixed}) = setops
 _alias(::Val{:zonotope}) = Val(:zono)
 
 """

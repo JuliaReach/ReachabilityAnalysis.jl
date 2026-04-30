@@ -56,7 +56,7 @@ function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractMatrix{N}, j, Ω₀, Φᵀ, �
 
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
-        copy!(rᵢ, rᵢ₊₁)   # rᵢ .= rᵢ₊₁
+        rᵢ, rᵢ₊₁ = rᵢ₊₁, rᵢ
     end
     return ρvec_ℓ
 end
@@ -87,7 +87,7 @@ function reach_homog_dir_LGG09!(ρvec_ℓ::AbstractVector{N}, Ω₀, Φᵀ, ℓ,
 
         # update cache for the next iteration
         mul!(rᵢ₊₁, Φᵀ, rᵢ)
-        copy!(rᵢ, rᵢ₊₁)   # rᵢ .= rᵢ₊₁
+        rᵢ, rᵢ₊₁ = rᵢ₊₁, rᵢ
     end
     return ρvec_ℓ
 end

@@ -7,14 +7,13 @@ using ..ForwardModule: Forward
 
 using Base: OneTo, Slice
 using IntervalArithmetic.Symbols: (..)
-using LazySets: LazySet, Universe, dim, set, ρ
+using LazySets: LazySet, Universe, ZeroSet, dim, set, ρ
 using LazySets.Approximations: AbstractDirections, BoxDirections,
                                CustomDirections, OctDirections
 using LinearAlgebra: mul!
 using MathematicalSystems: AbstractDiscreteSystem, IVP, initial_state, inputset,
                            state_matrix, statedim, stateset
 using Parameters: @unpack
-using ReachabilityBase.Arrays: SingleEntryVector
 using Requires: @require
 using SparseArrays: sparse
 

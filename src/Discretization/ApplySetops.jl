@@ -6,9 +6,10 @@ module ApplySetops
 using ..DiscretizationModule: AbstractApproximationModel, hasbackend
 using LazySets: LazySets, AbstractPolytope, AbstractZonotope, ConvexHull,
                 LazySet, LinearMap, MinkowskiSum, VPolygon, VPolytope, Zonotope,
-                box_approximation, concretize, convex_hull, dim, linear_map,
-                minkowski_sum, overapproximate, vertices_list
+                box_approximation, center, concretize, convex_hull, dim, genmat,
+                linear_map, minkowski_sum, overapproximate, vertices_list
 using LazySets.Approximations: AbstractDirections
+using LazySets.ReachabilityBase.Arrays: SingleEntryVector
 
 export _apply_setops
 
@@ -38,33 +39,33 @@ function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:vrep},
     n = dim(X)
     VT = n == 2 ? VPolygon : VPolytope
 
-    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E⁺)
     A = X.X
     B = X.Y
     X₀ = convert(VT, A)
 
     if n == 2
         ΦX₀ = convert(VT, B.X)
-        E₊ = convert(VT, B.Y)
-        out = convex_hull(X₀, minkowski_sum(ΦX₀, E₊))
+        E⁺ = convert(VT, B.Y)
+        out = convex_hull(X₀, minkowski_sum(ΦX₀, E⁺))
     else
         # generic conversion to VPolytope is missing, see LazySets#2467
         ΦX₀ = VPolytope(vertices_list(B.X; prune=false))
-        E₊ = convert(VT, B.Y)
-        aux = minkowski_sum(ΦX₀, E₊; apply_convex_hull=false)
+        E⁺ = convert(VT, B.Y)
+        aux = minkowski_sum(ΦX₀, E⁺; apply_convex_hull=false)
         out = convex_hull(X₀, aux; backend=backend)
     end
 
     return out
 end
 
-# give X = CH(X₀, ΦX₀ ⊕ E₊), return a zonotope overapproximation
+# give X = CH(X₀, ΦX₀ ⊕ E⁺), return a zonotope overapproximation
 function _apply_setops(X::ConvexHull{N,AT,MS}, ::Val{:zono},
                        backend=nothing) where {N,
                                                AT<:AbstractZonotope{N},
                                                LM<:LinearMap{N,AT,N},
                                                MS<:MinkowskiSum{N,LM}}
-    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E₊)
+    # CH(A, B) := CH(X₀, ΦX₀ ⊕ E⁺)
     A = X.X
     B = X.Y
     return overapproximate(ConvexHull(A, concretize(B)), Zonotope)
@@ -89,6 +90,50 @@ function _apply_setops(X::MinkowskiSum{N,LM,AT}, ::Val{:zono},
                                                LM<:LinearMap{N,<:AbstractZonotope{N}},
                                                AT<:AbstractZonotope{N}}
     return convert(Zonotope, concretize(X))
+end
+
+### :mixed
+# - concretize simple operations (e.g., MinkowskiSum and LinearMap of zonotopic sets)
+# - keep everything else lazy
+
+function _apply_setops(X::LazySet, ::Val{:mixed}, backend=nothing)
+    return X
+end
+
+function _apply_setops(X::MinkowskiSum, val::Val{:mixed}, backend=nothing)
+    Y = _apply_setops(X.X, val)
+    Z = _apply_setops(X.Y, val)
+    return _apply_setops_mixed(Y + Z)
+end
+
+function _apply_setops(X::LinearMap, val::Val{:mixed}, backend=nothing)
+    Y = _apply_setops(X.X, val)
+    return _apply_setops_mixed(X.M * Y)
+end
+
+function _apply_setops(X::ConvexHull, val::Val{:mixed}, backend=nothing)
+    return ConvexHull(_apply_setops(X.X, val), _apply_setops(X.Y, val))
+end
+
+function _apply_setops_mixed(X)
+    return X
+end
+
+function _apply_setops_mixed(X::MinkowskiSum{N,<:AbstractZonotope,<:AbstractZonotope}) where {N}
+    Y = concretize(X)
+
+    # check whether an SEV center can be used
+    c = center(Y)
+    i = findfirst(!iszero, c)
+    if isnothing(findnext(!iszero, c, i + 1))
+        c2 = SingleEntryVector(i, length(c), c[i])
+        return Zonotope(c2, genmat(Y))
+    end
+    return Y
+end
+
+function _apply_setops_mixed(X::LinearMap{N,<:AbstractZonotope}) where {N}
+    return concretize(X)
 end
 
 end  # module

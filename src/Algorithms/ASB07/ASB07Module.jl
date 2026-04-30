@@ -10,7 +10,7 @@ using ..Overapproximate: _convert_or_overapproximate, _split,
 using IntervalArithmetic.Symbols: (..)
 using IntervalMatrices: IntervalMatrixPower, increment!, matrix
 using LazySets: AbstractReductionMethod, GIR05, LazySet, Universe, Zonotope,
-                minkowski_sum, reduce_order, set
+                minkowski_sum, reduce_order
 using MathematicalSystems: AbstractContinuousSystem, AbstractDiscreteSystem,
                            IVP, discretize, initial_state, inputset,
                            state_matrix, stateset

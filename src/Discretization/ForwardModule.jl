@@ -89,11 +89,11 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::Forward)
 
     Φ = _exp(A, δ, alg.exp)
     A_abs = elementwise_abs(A)
-    Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
+    Φcache = A == A_abs ? Φ : nothing
     P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
-    E₊ = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
+    E⁺ = sih(P2A_abs * sih((A * A) * X0, alg.sih), alg.sih)
 
-    Ω0 = ConvexHull(X0, Φ * X0 ⊕ E₊)
+    Ω0 = ConvexHull(X0, Φ * X0 ⊕ E⁺)
     Ω0 = _apply_setops(Ω0, alg)
 
     X = stateset(ivp)
@@ -140,7 +140,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::Forward)
 
     Φ = _exp(A, δ, alg.exp)
     A_abs = elementwise_abs(A)
-    Φcache = sum(A) == abs(sum(A)) ? Φ : nothing
+    Φcache = A == A_abs ? Φ : nothing
     P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     # TODO outsource to Exponentiation module and merge with _Eplus

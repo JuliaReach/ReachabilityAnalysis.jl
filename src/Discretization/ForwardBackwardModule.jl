@@ -72,14 +72,14 @@ function discretize(ivp::IVP{<:CLCS,<:LazySet}, δ, alg::ForwardBackward)
     P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     A² = A * A
-    E₊ = sih(P2A_abs * sih(A² * X0, alg.sih), alg.sih)
-    E₋ = sih(P2A_abs * sih((A² * Φ) * X0, alg.sih), alg.sih)
+    E⁺ = sih(P2A_abs * sih(A² * X0, alg.sih), alg.sih)
+    E⁻ = sih(P2A_abs * sih((A² * Φ) * X0, alg.sih), alg.sih)
 
     n = size(A, 1)
     Eψ = ZeroSet(n)
     U = ZeroSet(n)
     Φᵀ = transpose(Φ)
-    Ω0 = ContCH(δ, Φᵀ, X0, U, E₊, E₋, Eψ, get_solver(alg))
+    Ω0 = ContCH(δ, Φᵀ, X0, U, E⁺, E⁻, Eψ, get_solver(alg))
 
     # post-processing the lazy set
     Ω0 = _apply_setops(Ω0, alg)
@@ -104,13 +104,13 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::ForwardBackward)
     P2A_abs = Φ₂(A_abs, δ, alg.exp, alg.inv, Φcache)
 
     A² = A * A
-    E₊ = sih(P2A_abs * sih(A² * X0, alg.sih), alg.sih)
-    E₋ = sih(P2A_abs * sih((A² * Φ) * X0, alg.sih), alg.sih)
+    E⁺ = sih(P2A_abs * sih(A² * X0, alg.sih), alg.sih)
+    E⁻ = sih(P2A_abs * sih((A² * Φ) * X0, alg.sih), alg.sih)
     Eψ = sih(P2A_abs * sih(A * U, alg.sih), alg.sih)
 
     Ud = δ * U ⊕ Eψ
     Φᵀ = transpose(Φ)
-    Ω0 = ContCH(δ, Φᵀ, X0, U, E₊, E₋, Eψ, get_solver(alg))
+    Ω0 = ContCH(δ, Φᵀ, X0, U, E⁺, E⁻, Eψ, get_solver(alg))
 
     # post-processing the lazy set
     Ω0 = _apply_setops(Ω0, alg)
@@ -128,15 +128,15 @@ mutable struct ContCH{N,MT,ST,UT,EPT,EMT,EST,OT} <: LazySet{N}
     Φᵀ::MT
     X0::ST
     U::UT
-    E₊::EPT
-    E₋::EMT
+    E⁺::EPT
+    E⁻::EMT
     Eψ::EST
     solver::OT
 end
 
 # constructor without solver specified
-function ContCH(δ, Φᵀ, X0, U, E₊, E₋, Eψ; solver=nothing)
-    return ContCH(δ, Φᵀ, X0, U, E₊, E₋, Eψ, solver)
+function ContCH(δ, Φᵀ, X0, U, E⁺, E⁻, Eψ; solver=nothing)
+    return ContCH(δ, Φᵀ, X0, U, E⁺, E⁻, Eψ, solver)
 end
 
 function LazySets.dim(X::ContCH)
@@ -180,7 +180,7 @@ function load_forwardbackward_discretization()
         using .JuMP: Model, set_silent, register, optimize!, objective_value
 
         function LazySets.ρ(d::AbstractVector, X::ContCH)
-            @unpack δ, Φᵀ, X0, U, E₊, E₋, Eψ, solver = X
+            @unpack δ, Φᵀ, X0, U, E⁺, E⁻, Eψ, solver = X
 
             !has_solver(X) && throw(ArgumentError("the optimization solver should be specified"))
 
@@ -189,10 +189,10 @@ function load_forwardbackward_discretization()
 
             JuMP.@variable(model, 0 <= λ <= 1)
 
-            e₊ = _get_e(d, E₊)
-            e₋ = _get_e(d, E₋)
+            E⁺ = _get_e(d, E⁺)
+            E⁻ = _get_e(d, E⁻)
 
-            _ω(λ) = ω(λ, d, Φᵀ, X0, U, Eψ, δ, e₊, e₋)
+            _ω(λ) = ω(λ, d, Φᵀ, X0, U, Eψ, δ, E⁺, E⁻)
             register(model, :_ω, 1, _ω; autodiff=true)
 
             JuMP.@NLobjective(model, Max, _ω(λ))

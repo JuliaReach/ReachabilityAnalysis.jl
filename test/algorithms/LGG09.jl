@@ -5,9 +5,9 @@ using ReachabilityAnalysis.ReachabilityBase.Arrays: SingleEntryVector
 @testset "LGG09 struct" begin
     # full constructor (requires to manually define the type parameter for the vector type)
     N = Float64
-    VN = SingleEntryVector{N}
+    VN = Vector{N}
     TN = BoxDirections{N,VN}
-    alg = LGG09{N,Int,VN,TN,Int,Int}(0.01, 0, BoxDirections(1), 0, true, true, true, 0)
+    alg = LGG09{N,Int,VN,TN,Int,Int}(0.01, 0, TN(1), 0, true, true, true, 0)
 
     # constructor with default values
     alg = LGG09(; δ=0.01, vars=(1,), dim=1)
@@ -15,7 +15,7 @@ using ReachabilityAnalysis.ReachabilityBase.Arrays: SingleEntryVector
     # requires (1) `dirs`, (2) `template`, or (3) `vars` and `dim`
     @test_throws ArgumentError LGG09(; δ=0.01)
     LGG09(; δ=0.01, dirs=[1.0])
-    LGG09(; δ=0.01, template=BoxDirections(1))
+    LGG09(; δ=0.01, template=TN(1))
     @test_throws ArgumentError LGG09(; δ=0.01, vars=(1,))
     @test_throws ArgumentError LGG09(; δ=0.01, dim=1)
 
@@ -35,12 +35,12 @@ end
     alg.template == CustomDirections([dirs])
 
     # case where the template directions is a vector of vectors
-    dirs = [SingleEntryVector(1, 5, 1.0), SingleEntryVector(1, 5, -1.0)]
+    dirs = [Vector(SingleEntryVector(1, 5, 1.0)), Vector(SingleEntryVector(1, 5, -1.0))]
     alg = LGG09(; δ=0.01, template=dirs)
     alg.template == CustomDirections(dirs)
 
     # alias dirs
-    dirs = [SingleEntryVector(1, 5, 1.0), SingleEntryVector(1, 5, -1.0)]
+    dirs = [Vector(SingleEntryVector(1, 5, 1.0)), Vector(SingleEntryVector(1, 5, -1.0))]
     alg = LGG09(; δ=0.01, dirs=dirs)
     alg.template == CustomDirections(dirs)
 
@@ -50,8 +50,8 @@ end
     @test collect(alg.template) == dirs
 
     alg = LGG09(; δ=0.01, vars=(1, 3), n=5)
-    dirs_1_3 = [SingleEntryVector(1, 5, 1.0), SingleEntryVector(3, 5, 1.0),
-                SingleEntryVector(1, 5, -1.0), SingleEntryVector(3, 5, -1.0)]
+    dirs_1_3 = [Vector(SingleEntryVector(1, 5, 1.0)), Vector(SingleEntryVector(3, 5, 1.0)),
+                Vector(SingleEntryVector(1, 5, -1.0)), Vector(SingleEntryVector(3, 5, -1.0))]
     @test collect(alg.template) == dirs_1_3
 
     # alias using dim
@@ -158,17 +158,15 @@ end
 
     # equivalent algorithm definitions
     alg0 = LGG09(; δ=0.01, template=box5d)
-    alg1 = LGG09(; δ=0.01, template=BoxDirections(5))
-    alg2 = LGG09(; δ=0.01, template=:box, n=5)
-    alg3 = LGG09(; δ=0.01, template=:box, dim=5)
-    @test alg1 == alg2 == alg3
+    alg1 = LGG09(; δ=0.01, template=:box, n=5)
+    alg2 = LGG09(; δ=0.01, template=:box, dim=5)
+    @test alg0 == alg1 == alg2
 
-    @test !(alg0 == alg1) # alg1-3 use single-entry vectors, but alg0 uses Vector
     @test collect(alg0.template) == Vector.(collect(alg1.template))
 
     # other directions
-    alg4 = LGG09(; δ=0.01, template=:oct, dim=5)
-    @test alg4.template isa OctDirections && dim(alg4.template) == 5
+    alg3 = LGG09(; δ=0.01, template=:oct, dim=5)
+    @test alg3.template isa OctDirections && dim(alg3.template) == 5
 end
 
 @testset "LGG09 algorithm: underapproximation" begin

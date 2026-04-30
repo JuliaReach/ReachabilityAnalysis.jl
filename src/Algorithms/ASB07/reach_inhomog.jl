@@ -12,7 +12,8 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                               Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    @inbounds F[1] = ReachSet(Ω0, Δt)
+    Zₖʳ = Ω0
+    @inbounds F[1] = ReachSet(Zₖʳ, Δt)
 
     # input sequence
     Wk₊ = copy(U)
@@ -22,7 +23,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     k = 1
     @inbounds while k < NSTEPS
-        Zₖ₋₁ = set(F[k])
+        Zₖ₋₁ = Zₖʳ
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
@@ -53,7 +54,8 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
                               Δt0::TN) where {N,TN,VN,MN}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    @inbounds F[1] = ReachSet(Ω0, Δt)
+    Zₖʳ = Ω0
+    @inbounds F[1] = ReachSet(Zₖʳ, Δt)
 
     # input sequence
     Wk₊ = copy(U)
@@ -63,7 +65,7 @@ function reach_inhomog_ASB07!(F::Vector{ReachSet{N,Zonotope{N,VN,MN}}},
 
     k = 1
     @inbounds while k < NSTEPS
-        Zₖ₋₁ = set(F[k])
+        Zₖ₋₁ = Zₖʳ
         cₖ₋₁ = Zₖ₋₁.center
         Gₖ₋₁ = Zₖ₋₁.generators
 
