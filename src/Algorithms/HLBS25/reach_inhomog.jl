@@ -1,3 +1,4 @@
+# recursive = true
 function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
                                Ω0::ExactSum{N,S1,S2},
                                Φ::MatrixZonotope{N,MN},
@@ -71,6 +72,7 @@ function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
     return F
 end
 
+# recursive = false
 function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
                                Ω0::ExactSum{N,S1,S2},
                                Φ::MatrixZonotope{N,MN},

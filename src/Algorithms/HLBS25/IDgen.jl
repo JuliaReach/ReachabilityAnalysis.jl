@@ -2,6 +2,7 @@ mutable struct IDGenerator
     max_id::Int
 end
 
+# TODO rename `xs` -> `As` and `x` -> `A`
 function synchronize!(idg::IDGenerator, xs...)
     all_ids = Int[]
     @inbounds for x in xs
@@ -42,10 +43,7 @@ function fresh!(idg::IDGenerator,
     shared = intersect(idmz, idₚ)
 
     # count how many need replacement
-    n = 0
-    @inbounds for id in idₚ
-        n += (id in shared)
-    end
+    n = length(shared)
 
     # generate new unique IDs
     new_ids = idg(n)
@@ -63,26 +61,13 @@ function fresh!(idg::IDGenerator,
 end
 
 
-function fresh!(idg::IDGenerator, P::SparsePolynomialZonotope)
+function fresh!(idg::IDGenerator, P::Union{SparsePolynomialZonotope,MatrixZonotope})
     idₚ = indexvector(P)
 
     new_ids = idg(length(idₚ))
 
-    @inbounds @simd for i in eachindex(idₚ)
-        idₚ[i] = new_ids[i]
-    end
+    idₚ .= new_ids
 
     return P
 end
 
-function fresh!(idg::IDGenerator, MZ::MatrixZonotope)
-    idₘ = indexvector(MZ)
-
-    new_ids = idg(length(idₘ))
-
-    @inbounds @simd for i in eachindex(idₘ)
-        idₘ[i] = new_ids[i]
-    end
-
-    return MZ
-end

@@ -22,6 +22,7 @@ using LazySets: AffineMap, LinearMap, ResetMap
 
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
+# additional unexported symbols
 using LazySets: ExactSum, exact_sum, expmat, genmat_dep, genmat_indep, indexvector
 
 # JuliaReach internal functions

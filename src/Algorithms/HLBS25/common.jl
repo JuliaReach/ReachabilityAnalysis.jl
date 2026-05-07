@@ -1,4 +1,4 @@
-import .CorrectionHullMatrixZonotopeModule: overapproximate_discrete_input_split
+using .CorrectionHullMatrixZonotopeModule: overapproximate_discrete_input_split
 
 @inline function _split_spz_components(P::SparsePolynomialZonotope{N}) where {N}
     n = dim(P)
@@ -8,6 +8,7 @@ import .CorrectionHullMatrixZonotopeModule: overapproximate_discrete_input_split
     return P_poly, P_zono
 end
 
+# TODO use `minkowski_sum` instead
 @inline function _merge_spz_components(P_poly::SparsePolynomialZonotope{N},
                                        P_zono::AbstractZonotope{N}) where {N}
     c = center(P_poly) + center(P_zono)
@@ -16,6 +17,7 @@ end
     return remove_redundant_generators(P)
 end
 
+# TODO consider inlining this function or at least renaming
 @inline function _reduce_buckets(P_poly::SparsePolynomialZonotope,
                                  P_zono::AbstractZonotope,
                                  max_order_poly::Integer,

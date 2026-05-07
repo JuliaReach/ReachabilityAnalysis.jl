@@ -26,12 +26,12 @@ const LPDS = LinearParametricDiscreteSystem
 const CLCPCS = ConstrainedLinearControlParametricContinuousSystem
 const CLCPDS = ConstrainedLinearControlParametricDiscreteSystem
 
-@inline function _split_emz_overapproximation(MZP,
+@inline function _split_emz_overapproximation(A::MatrixZonotope,
                                               P::S,
                                               k::Int,
                                               matnorm::Real) where {S<:Union{SparsePolynomialZonotope,
                                                                              AbstractZonotope}}
-    tayexp = LazySets.Approximations.taylor_expmap_truncation(MZP, P, k)
+    tayexp = LazySets.Approximations.taylor_expmap_truncation(A, P, k)
     Z = overapproximate(P, Zonotope)
     lagrem = LazySets.Approximations.taylor_expmap_remainder(Z, matnorm, k)
     return tayexp, lagrem
@@ -143,7 +143,6 @@ end
 
 # Recursive case
 function _discretize_CHMZ(A, T, X0, taylor_order, ::Val{true}, idg)
-    _ = idg
     expAT = MatrixZonotopeExp(A * T)
     em = ExponentialMap(expAT, X0)
     return overapproximate(em, SparsePolynomialZonotope, taylor_order)

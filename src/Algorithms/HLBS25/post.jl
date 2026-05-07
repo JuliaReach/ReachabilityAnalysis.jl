@@ -36,7 +36,7 @@ function post(alg::HLBS25{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
         reach_homog_HLBS25!(F, Ω0, Φ, NSTEPS, δ, taylor_order, recursive, max_order, max_order_zono,
                             reduction_method, Δt0, idg)
     else
-        # concretize the initial exact-sum container to obtain the concrete set type
+        # concretize the initial exact-sum container to obtain the concrete set type (TODO do this in the type system)
         Ω0c = concretize(Ω0)
         ZT = typeof(Ω0c)
         F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
