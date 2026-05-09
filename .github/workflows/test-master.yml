@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.12.4'  # TODO: temporary workaround for `@system` broken in v1.12.5
+          - '1'
         os:
           - ubuntu-latest
         arch:
