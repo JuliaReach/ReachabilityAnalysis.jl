@@ -14,7 +14,7 @@ import Aqua, ExplicitImports
                                                                           ignore=ignores))
     @test isnothing(ExplicitImports.check_all_explicit_imports_via_owners(ReachabilityAnalysis))
     ignores = (:GIR05, :Slice, :_DEF_MINABSTOL, :_default_sampler, :GLOBAL_RNG,
-               :value)
+               :value, :taylor_expmap_remainder, :taylor_expmap_truncation)
     @test isnothing(ExplicitImports.check_all_qualified_accesses_are_public(ReachabilityAnalysis;
                                                                             ignore=ignores))
     @test isnothing(ExplicitImports.check_all_qualified_accesses_via_owners(ReachabilityAnalysis))
