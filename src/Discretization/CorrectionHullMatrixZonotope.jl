@@ -1,14 +1,15 @@
 module CorrectionHullMatrixZonotopeModule
 
-using LazySets: ExponentialMap, MatrixZonotope, MatrixZonotopeExp,
-                SparsePolynomialZonotope, AbstractZonotope,
-                dim, overapproximate
+using LazySets: LazySets, ExponentialMap, MatrixZonotope, MatrixZonotopeExp,
+                SparsePolynomialZonotope, AbstractZonotope, Zonotope,
+                dim, minkowski_sum, overapproximate,
+                remove_redundant_generators, scale, scale!, ⊞
 using Reexport: @reexport
 using MathematicalSystems: IVP, LinearParametricContinuousSystem,
                            LinearParametricDiscreteSystem,
                            ConstrainedLinearControlParametricContinuousSystem,
                            ConstrainedLinearControlParametricDiscreteSystem,
-                           initial_state, state_matrix
+                           initial_state, input_matrix, inputset, state_matrix
 using ..DiscretizationModule
 using ..ReachabilityAnalysis: IDGenerator, synchronize!, fresh!
 using LinearAlgebra: I, norm
@@ -183,7 +184,7 @@ function discretize(ivp::IVP{<:CLCPCS,<:SparsePolynomialZonotope}, δ,
 
     Ω0 = H0 ⊞ Pτ0
     Sdis = CLCPDS(A, B, ivp.s.X, ivp.s.U)
-    return InitialValueProblem(Sdis, Ω0)
+    return IVP(Sdis, Ω0)
 end
 
 end # module

@@ -12,14 +12,14 @@ function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
                                max_order_poly::Integer,
                                max_order_zono::Integer,
                                reduction_method::AbstractReductionMethod,
-                               Δt0::IA.Interval,
+                               Δt0::TimeInterval,
                                idg::IDGenerator) where {N,ZS<:SparsePolynomialZonotope{N},
                                                         S1<:SparsePolynomialZonotope{N},
                                                         S2<:SparsePolynomialZonotope{N},
                                                         MN<:AbstractMatrix{N}}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    t = sup(Δt)
+    t = tend(Δt)
 
     H_poly, H_zono = _split_spz_components(Ω0.X)
     Pτ_poly, Pτ_zono = _split_spz_components(Ω0.Y)
@@ -35,9 +35,9 @@ function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
     j = 1
     @inbounds while j < NSTEPS
 
-        if j%10 == 0
-            println("Step $j / $NSTEPS, time = $(round(sup(Δt), digits=3))")
-        end
+        # if j%10 == 0
+        #     println("Step $j / $NSTEPS, time = $(round(tend(Δt), digits=3))")
+        # end
         # update H(τⱼ) with separate polynomial and zonotopic buckets
         H_poly_next = overapproximate(ExponentialMap(expΦδ, H_poly), SparsePolynomialZonotope,
                                       taylor_order)
@@ -86,14 +86,14 @@ function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
                                max_order_poly::Integer,
                                max_order_zono::Integer,
                                reduction_method::AbstractReductionMethod,
-                               Δt0::IA.Interval,
+                               Δt0::TimeInterval,
                                idg::IDGenerator) where {N,ZS<:SparsePolynomialZonotope{N},
                                                         S1<:SparsePolynomialZonotope{N},
                                                         S2<:SparsePolynomialZonotope{N},
                                                         MN<:AbstractMatrix{N}}
     # initial reach set
     Δt = (zero(N) .. δ) + Δt0
-    t = sup(Δt)
+    t = tend(Δt)
 
     H_poly, H_zono = _split_spz_components(Ω0.X)
     Pτ_poly, Pτ_zono = _split_spz_components(Ω0.Y)
@@ -112,9 +112,9 @@ function reach_inhomog_HLBS25!(F::Vector{ReachSet{N,ZS}},
     j = 1
     @inbounds while j < NSTEPS
 
-        if j%10 == 0
-            println("Step $j / $NSTEPS, time = $(round(sup(Δt), digits=3))")
-        end
+        # if j%10 == 0
+        #     println("Step $j / $NSTEPS, time = $(round(tend(Δt), digits=3))")
+        # end
         # update H(τⱼ) with separate polynomial and zonotopic buckets
         H_poly_next = overapproximate(expΦδ_approx * H_poly, SparsePolynomialZonotope)
         H_zono_next = overapproximate(expΦδ_approx * H_zono, Zonotope)
