@@ -60,14 +60,16 @@ function fresh!(idg::IDGenerator,
     return P
 end
 
+for T in (:SparsePolynomialZonotope, :MatrixZonotope)
+    @eval begin
+        function fresh!(idg::IDGenerator, Z::$T)
+            idₚ = indexvector(Z)
 
-function fresh!(idg::IDGenerator, P::Union{SparsePolynomialZonotope,MatrixZonotope})
-    idₚ = indexvector(P)
+            new_ids = idg(length(idₚ))
 
-    new_ids = idg(length(idₚ))
+            idₚ .= new_ids
 
-    idₚ .= new_ids
-
-    return P
+            return Z
+        end
+    end
 end
-
