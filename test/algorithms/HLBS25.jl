@@ -91,6 +91,5 @@ end
             sol = solve(prob, alg; T=T)
             setrep(sol) <: SparsePolynomialZonotope
         end
-        
     end
 end

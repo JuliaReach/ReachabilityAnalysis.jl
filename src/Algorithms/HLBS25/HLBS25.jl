@@ -52,13 +52,13 @@ function HLBS25(; δ::N,
     idg = IDGenerator(0)
     am = _attach_idg(approx_model, idg)
     return HLBS25{N,typeof(am),RM,Val{recursive}}(δ, am, taylor_order, max_order, max_order_zono,
-                                                   reduction_method, Val(recursive), idg)
+                                                  reduction_method, Val(recursive), idg)
 end
 
 _attach_idg(approx_model, idg::IDGenerator) = approx_model
 function _attach_idg(approx_model::CorrectionHullMatrixZonotope, idg::IDGenerator)
-    return CorrectionHullMatrixZonotope{typeof(approx_model.recursive)}(
-        approx_model.taylor_order, approx_model.recursive, idg)
+    return CorrectionHullMatrixZonotope{typeof(approx_model.recursive)}(approx_model.taylor_order,
+                                                                        approx_model.recursive, idg)
 end
 
 step_size(alg::HLBS25) = alg.δ

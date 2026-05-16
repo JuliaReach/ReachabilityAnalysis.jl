@@ -77,7 +77,6 @@ function overapproximate_discrete_input_split(A::MatrixZonotope{N},
                                               taylor_order::Int,
                                               A_norm::N,
                                               t::N) where {N}
-
     fresh!(idg, U)
     BUt = scale!(t, overapproximate(B * U, SparsePolynomialZonotope))
     At = scale(t, A)
@@ -116,7 +115,8 @@ struct CorrectionHullMatrixZonotope{R} <: AbstractApproximationModel
 end
 
 function CorrectionHullMatrixZonotope(; taylor_order::Int=5, recursive::Bool=false)
-    return CorrectionHullMatrixZonotope{Val{recursive}}(taylor_order, Val(recursive), IDGenerator(0))
+    return CorrectionHullMatrixZonotope{Val{recursive}}(taylor_order, Val(recursive),
+                                                        IDGenerator(0))
 end
 
 # Homogeneous case
@@ -132,7 +132,7 @@ function discretize(ivp::IVP{<:LPCS,<:SparsePolynomialZonotope}, δ,
     idg = alg.idg
     synchronize!(idg, A)
     IDₜ = idg(1)
-    
+
     Tₜ = N(0.5) * δ * Matrix(N(1) * I, n, n)
     T = MatrixZonotope(Tₜ, [Tₜ], IDₜ)
 
