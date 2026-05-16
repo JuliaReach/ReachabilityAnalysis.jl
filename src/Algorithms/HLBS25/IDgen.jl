@@ -34,7 +34,6 @@ end
 function fresh!(idg::IDGenerator,
                 P::SparsePolynomialZonotope,
                 As::MatrixZonotope...)
-
     idₚ = indexvector(P)
     # collect all IDs appearing in As
     idmz = Set{Int}(el for A in As for el in indexvector(A))
