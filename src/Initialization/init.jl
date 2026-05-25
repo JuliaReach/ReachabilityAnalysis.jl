@@ -23,8 +23,6 @@ using LazySets: AffineMap, LinearMap, ResetMap
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
 # required to avoid conflicts with TaylorIntegration
 using LazySets: order
-# additional unexported symbols
-using LazySets: ExactSum, exact_sum, expmat, genmat_dep, genmat_indep, indexvector
 
 # JuliaReach internal functions
 import ReachabilityBase
@@ -34,7 +32,7 @@ using ReachabilityBase.Commutative: @commutative
 using ReachabilityBase.Comparison: _leq, _geq
 using ReachabilityBase.Require: @required
 using LazySets.Approximations: AbstractDirections
-using LazySets: AbstractReductionMethod, linear_map!
+using LazySets: indexvector, linear_map!
 
 # aliases for intervals
 const IM = IntervalMatrices

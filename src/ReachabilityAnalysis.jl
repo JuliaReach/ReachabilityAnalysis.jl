@@ -73,7 +73,8 @@ using ..VREPModule: VREP
 include("Algorithms/linear_post.jl")
 
 # Linear parametric
-include("Algorithms/HLBS25/HLBS25.jl")
+include("Algorithms/HLBS25/HLBS25Module.jl")
+using ..HLBS25Module: HLBS25
 
 # Nonlinear
 include("Algorithms/CARLIN/CARLINModule.jl")

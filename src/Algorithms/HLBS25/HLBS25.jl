@@ -1,5 +1,3 @@
-import IntervalArithmetic as IA
-
 """
     HLBS25{N, AM, RM, R} <: AbstractContinuousPost
 
@@ -17,7 +15,7 @@ uncertainty using matrix zonotopes by [HuangLBS25](@citet).
                         polynomial bucket
 - `max_order_zono`   -- (optional, default: `max_order`) maximum order of the
                         zonotopic bucket
-- `reduction_method` -- (optional, default: `LazySets.GIR05()` zonotope
+- `reduction_method` -- (optional, default: `GIR05()` zonotope
                         order reduction method used
 - `recursive`        -- (optional, default: `false`) if `true`, compute the
                         Taylor series expansion of the matrix zonotope
@@ -47,8 +45,8 @@ function HLBS25(; δ::N,
                 taylor_order::Int=5,
                 max_order::Int=5,
                 max_order_zono::Int=max_order,
-                reduction_method::RM=LazySets.GIR05(),
-                recursive::Bool=true) where {N,AM,RM}
+                reduction_method::RM=GIR05(),
+                recursive::Bool=true) where {N,AM,RM<:AbstractReductionMethod}
     idg = IDGenerator(0)
     am = _attach_idg(approx_model, idg)
     return HLBS25{N,typeof(am),RM,Val{recursive}}(δ, am, taylor_order, max_order, max_order_zono,
@@ -72,8 +70,3 @@ function rsetrep(alg::HLBS25{N}) where {N}
     ST = setrep(alg)
     return ReachSet{N,ST}
 end
-
-include("post.jl")
-include("common.jl")
-include("reach_homog.jl")
-include("reach_inhomog.jl")
