@@ -1,4 +1,5 @@
 import .OrdinaryDiffEq as ODE
+import .OrdinaryDiffEq.SciMLBase as SMLB
 import Random
 
 const DEFAULT_TRAJECTORIES = 10
@@ -11,7 +12,7 @@ const DEFAULT_TRAJECTORIES = 10
 
 function _solve_ensemble(ivp::IVP, args...;
                          trajectories_alg=ODE.Tsit5(),
-                         ensemble_alg=ODE.EnsembleThreads(),
+                         ensemble_alg=SMLB.EnsembleThreads(),
                          inplace=true,
                          initial_states=nothing,
                          kwargs...)
@@ -37,7 +38,8 @@ function _solve_ensemble(ivp::IVP, args...;
 
     # formulate ensemble ODE problem
     ensemble_prob = ODE.ODEProblem(field, first(initial_states), tspan)
-    _prob_func(prob, i, repeat) = ODE.remake(prob; u0=initial_states[i])
+    _prob_func(prob, i, repeat) = ODE.remake(prob; u0=initial_states[i])  # for OrdinaryDiffEq < v7
+    _prob_func(prob, ctx) = ODE.remake(prob; u0=initial_states[ctx.sim_id])  # for OrdinaryDiffEq >= v7
 
     # choose tolerances
     reltol = get(kwargs, :reltol, 1e-3)
@@ -46,7 +48,7 @@ function _solve_ensemble(ivp::IVP, args...;
     callback = get(kwargs, :callback, nothing)
     dtmax = get(kwargs, :dtmax, Inf)
 
-    ensemble_prob = ODE.EnsembleProblem(ensemble_prob; prob_func=_prob_func)
+    ensemble_prob = SMLB.EnsembleProblem(ensemble_prob; prob_func=_prob_func)
 
     if isnothing(callback)
         result = ODE.solve(ensemble_prob, trajectories_alg, ensemble_alg;
@@ -87,7 +89,7 @@ function _solve_ensemble(ivp::IVP{<:AbstractHybridSystem},
     t0_g = tstart(tspan)
     T = tend(tspan)
 
-    termination_action = (integrator) -> ODE.terminate!(integrator)
+    termination_action = (integrator) -> SMLB.terminate!(integrator)
     use_discrete_callback = get(kwargs, :use_discrete_callback, false)
     dtmax = get(kwargs, :dtmax, Inf)
     if use_discrete_callback && isinf(dtmax)
