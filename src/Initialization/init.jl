@@ -3,7 +3,7 @@
 # ======================
 
 using LinearAlgebra: Diagonal, I, dot, isdiag, mul!, tr, norm
-using Parameters: @unpack, @with_kw
+using Parameters: @unpack
 using RecipesBase: @recipe, @series
 using Reexport: @reexport
 using SparseArrays: SparseMatrixCSC, SparseVector, sparsevec, spzeros
@@ -43,7 +43,7 @@ using IntervalArithmetic.Symbols: (..)  # convenience symbol
 using IntervalBoxes: IntervalBox
 using LazySets: ×  # resolve conflict
 import TaylorModels
-using TaylorModels: TaylorModel1, TaylorN, fp_rpa
+using TaylorModels: TaylorModel1, TaylorModelN, Taylor1, TaylorN, fp_rpa
 using TaylorModels.ValidatedInteg: shrink_wrapping!
 
 # method extensions for Taylor model reach-sets
