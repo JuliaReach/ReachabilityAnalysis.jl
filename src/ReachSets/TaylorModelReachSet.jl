@@ -162,7 +162,7 @@ end
 # `x[i] <- (a[i] + b[i]) / 2 + (b[i] - a[i]) / 2 * x[i]` for each `i = 1, .., n`,
 # which amounts to rescaling and shifting the polynomials according to `dom`.
 function _taylor_shift(X::Vector{TaylorN{S}}, dom) where {S}
-    x = get_variables()
+    x = TaylorSeries.variables()
     n = length(x) # number of variables
     @assert n == length(X) == length(dom)
     (dom == symBox(n)) && return X
@@ -388,7 +388,7 @@ end
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
                  orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT) where {N}
     n = dim(H)
-    x = set_variables("x"; numvars=n, order=orderQ)
+    x = variables!("x"; numvars=n, order=orderQ)
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
@@ -420,7 +420,7 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT,
                          indices=1:dim(Z), box_reduction=false) where {N}
     n = dim(Z)
-    x = set_variables("x"; numvars=n, order=orderQ)
+    x = variables!("x"; numvars=n, order=orderQ)
 
     if order(Z) > 1
         if box_reduction
@@ -475,7 +475,7 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
                                      orderQ::Integer=2, orderT::Integer=8,
                                      Δt::TimeInterval=zeroT) where {N}
     n = dim(Z)
-    x = set_variables("x"; numvars=n, order=orderQ)
+    x = variables!("x"; numvars=n, order=orderQ)
 
     # check structure
     order(Z) == 2 ||
@@ -512,7 +512,7 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
                                      orderQ::Integer=2, orderT::Integer=8,
                                      Δt::TimeInterval=zeroT) where {N}
     n = dim(Zcp)
-    x = set_variables("x"; numvars=n, order=orderQ)
+    x = variables!("x"; numvars=n, order=orderQ)
 
     # check structure
     Z = Zcp.X
@@ -555,7 +555,7 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
                                           orderQ::Integer=2, orderT::Integer=8,
                                           Δt::TimeInterval=zeroT) where {N}
     n = dim(Zcp) - 1
-    x = set_variables("x"; numvars=n + 1, order=orderQ)
+    x = variables!("x"; numvars=n + 1, order=orderQ)
 
     # check structure
     # not checking structure

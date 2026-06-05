@@ -46,6 +46,7 @@ using TaylorModels.ValidatedInteg: shrink_wrapping!
 
 # method extensions for Taylor model reach-sets
 import TaylorModels: domain, remainder, polynomial, get_order, evaluate
+import TaylorSeries
 
 # aliases for set types
 const CPA = CartesianProductArray
