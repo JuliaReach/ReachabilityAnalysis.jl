@@ -74,8 +74,8 @@ import Aqua, ExplicitImports
                                    :mass_matrix, :state_matrix, :stateset, :stiffness_matrix,
                                    :viscosity_matrix,
                                    # due to reexporting TaylorIntegration:
-                                   :TaylorIntegration, :Taylor1, :get_numvars, :get_variables,
-                                   :set_variables)
+                                   :TaylorIntegration, :Taylor1, :get_numvars, :variables,
+                                   :variables!)
     ignores_no_stale_explicit_imports = (:AbstractODEScheme, Symbol("@polyvar"))
     ExplicitImports.test_explicit_imports(ReachabilityAnalysis;
                                           all_explicit_imports_are_public=(ignore=ignores_all_explicit_imports_are_public,),
