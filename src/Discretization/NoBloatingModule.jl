@@ -12,7 +12,7 @@ using MathematicalSystems: ConstrainedLinearContinuousSystem,
                            ConstrainedLinearDiscreteSystem, IVP,
                            IdentityMultiple, initial_state, inputset,
                            state_matrix, stateset
-using LazySets: AbstractSingleton, CartesianProduct, LazySet, Singleton, element
+using LazySets: AbstractSingleton, CartesianProduct, LazySet, Singleton, center
 using Reexport: @reexport
 
 export NoBloating
@@ -89,7 +89,7 @@ function discretize(ivp::IVP{<:CLCCS,<:LazySet}, δ, alg::NoBloating)
 
     Φ = _exp(A, δ, alg.exp)
     if isa(U, AbstractSingleton)
-        Mu = Φ₁_u(A, δ, alg.exp, alg.inv, element(U), Φ)
+        Mu = Φ₁_u(A, δ, alg.exp, alg.inv, center(U), Φ)
         V = Singleton(Mu)
     else
         M = Φ₁(A, δ, alg.exp, alg.inv, Φ)

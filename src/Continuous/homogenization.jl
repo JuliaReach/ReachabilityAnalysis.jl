@@ -110,7 +110,7 @@ function homogenize(sys::SOACS)
 end
 
 function _homogenize_state_matrix(A::AbstractMatrix, U::Singleton)
-    u = element(U)
+    u = center(U)
     return _homogenize_state_matrix(A, u)
 end
 
@@ -123,7 +123,7 @@ function _homogenize_state_matrix(A::AbstractMatrix, b::AbstractVector)
 end
 
 function _homogenize_initial_state(X0::Singleton{N}) where {N}
-    x0 = element(X0)
+    x0 = center(X0)
     y0 = vcat(x0, one(N))
     Y0 = Singleton(y0)
     return Y0

@@ -67,7 +67,7 @@ function _post!(U::LazySet, alg::ORBIT{N,VT}, F, ivp, NSTEPS, Δt0;
     Δt = (zero(N) .. zero(N)) + Δt0
 
     # start with x0
-    x = element(X0)
+    x = center(X0)
     @inbounds F[1] = ReachSet(Singleton(x), Δt)
     Δt += δ
 
@@ -121,7 +121,7 @@ end
 
 # case with zero homogeneous solution Ω0 = 0
 function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::ZeroSet, V::Singleton, NSTEPS) where {N}
-    v = element(V)
+    v = center(V)
     out[1] = zeros(N, length(v))
     copy!(out[2], v)
     @inbounds for i in 2:(NSTEPS - 1)
@@ -134,7 +134,7 @@ end
 # case without input V = 0
 function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::Singleton, V::Union{ZeroSet,Nothing},
                  NSTEPS) where {N}
-    x = element(Ω0)
+    x = center(Ω0)
     copy!(out[1], x)
     @inbounds for i in 1:(NSTEPS - 1)
         mul!(out[i + 1], Φ, out[i])
@@ -144,8 +144,8 @@ end
 
 # general case
 function _orbit!(out, Φ::AbstractMatrix{N}, Ω0::Singleton, V::Singleton, NSTEPS) where {N}
-    v = element(V)
-    x = element(Ω0)
+    v = center(V)
+    x = center(Ω0)
     copy!(out[1], x)
     @inbounds for i in 1:(NSTEPS - 1)
         mul!(out[i + 1], Φ, out[i])

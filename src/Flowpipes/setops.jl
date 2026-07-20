@@ -217,16 +217,16 @@ _isdisjoint(X, Y) = _isdisjoint(X, Y, FallbackDisjointness())
     b = H.b
     N = promote_type(eltype(X), eltype(H))
     if a > zero(N)
-        return !_leq(min(X), b / a)
+        return !_leq(low(X, 1), b / a)
     else
-        return !_geq(max(X), b / a)
+        return !_geq(high(X, 1), b / a)
     end
 end
 
 # H : {x : ax = b}, one-dimensional with a != 0
 @commutative function _isdisjoint(X::Interval, H::Hyperplane)
     q = H.b / H.a[1]
-    return !_geq(q, min(X)) || !_leq(q, max(X))
+    return !_geq(q, low(X, 1)) || !_leq(q, high(X, 1))
 end
 
 # ====================================================================

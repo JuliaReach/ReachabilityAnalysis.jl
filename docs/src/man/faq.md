@@ -225,13 +225,13 @@ fig = plot(f(0.1)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.1", co
 I(Δt, t) = -ρ([-1.0, 0.0], f(Δt)(t)) .. ρ([1.0, 0.0], f(Δt)(t)) |> Interval
 
 I01 = I(0.1, 3.0)
-plot!(y -> max(I01), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:lightblue, lab="Δx = $(I01.dat)")
-plot!(y -> min(I01), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:lightblue, lab="")
+plot!(y -> high(I01, 1), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:lightblue, lab="Δx = $(I01.dat)")
+plot!(y -> low(I01, 1), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:lightblue, lab="")
 plot!(f(0.05)(3.0), vars=(0, 1), xlab="time", ylab="x(t)", lab="ΔT=0.05", color=:green)
 
 I005 = I(0.05, 3.0)
-plot!(y -> max(I005), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:green, lab="Δx = $(I005.dat)")
-plot!(y -> min(I005), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:green, lab="")
+plot!(y -> high(I005, 1), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:green, lab="Δx = $(I005.dat)")
+plot!(y -> low(I005, 1), xlims=(2.9, 3.1), lw=3.0, style=:dash, color=:green, lab="")
 
 dom = 2.9:0.01:3.1
 plot!(dom, cos.(2.0 * dom), lab="Analytic", color=:magenta, legend=:bottomright)

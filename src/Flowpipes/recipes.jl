@@ -3,15 +3,16 @@ The plotting functions in this file are adapted from those in LazySets.jl.
 See the relevant docstrings in LazySets for the description of the available options.
 =#
 
-using LazySets: plot_recipe,
-                PLOT_PRECISION,
-                PLOT_POLAR_DIRECTIONS,
-                DEFAULT_LABEL,
-                DEFAULT_GRID,
-                DEFAULT_ASPECT_RATIO,
-                DEFAULT_ALPHA,
-                DEFAULT_COLOR,
-                _plot_singleton_list
+using LazySets: plot_recipe
+LazySetsRecipesBaseExt = Base.get_extension(LazySets, :LazySetsRecipesBaseExt)
+using .LazySetsRecipesBaseExt: PLOT_PRECISION,
+                               PLOT_POLAR_DIRECTIONS,
+                               DEFAULT_LABEL,
+                               DEFAULT_GRID,
+                               DEFAULT_ASPECT_RATIO,
+                               DEFAULT_ALPHA,
+                               DEFAULT_COLOR,
+                               _plot_singleton_list
 
 DEFAULT_COLOR_FLOWPIPE = :blue
 
@@ -339,8 +340,8 @@ end
 
     _check_vars(vars)
     vx, vy = vars[1], vars[2]
-    X(k) = (vx == 0) ? tstart(sol[k]) : element(set(sol[k]))[vx]
-    Y(k) = (vy == 0) ? tstart(sol[k]) : element(set(sol[k]))[vy]
+    X(k) = (vx == 0) ? tstart(sol[k]) : center(set(sol[k]))[vx]
+    Y(k) = (vy == 0) ? tstart(sol[k]) : center(set(sol[k]))[vy]
 
     x = Vector{N}()
     y = Vector{N}()
