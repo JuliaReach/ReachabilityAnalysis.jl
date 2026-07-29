@@ -198,7 +198,7 @@ end
 # no-op, corresponds to [inf(Δt), sup(Δt)]
 @inline _promote_tspan(Δt::IA.Interval) = TimeInterval(Δt)
 
-# no-op, takes interval wrapped data; corresponds to [min(Δt), max(Δt)]
+# no-op, takes interval wrapped data; corresponds to [low(Δt, 1), high(Δt, 1)]
 @inline _promote_tspan(Δt::Interval) = TimeInterval(Δt.dat)
 
 # number T defaults to the time interval [0, T]

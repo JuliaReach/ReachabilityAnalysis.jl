@@ -34,7 +34,7 @@ end
     x = sol[end]
 
     @test _isapprox(tspan(x), TimeInterval(IA.interval(3δ)))
-    @test element(set(x)) ≈ [cos(3δ), -sin(3δ)]
+    @test center(set(x)) ≈ [cos(3δ), -sin(3δ)]
 
     # test time span sequence
     @test all(_isapprox(tspan(sol[i]), TimeInterval(IA.interval(δ * (i - 1))))

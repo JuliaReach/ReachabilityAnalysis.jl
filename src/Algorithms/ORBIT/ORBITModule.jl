@@ -8,7 +8,7 @@ using ..Exponentiation: _exp
 using ..NoBloatingModule: NoBloating
 
 using IntervalArithmetic.Symbols: (..)
-using LazySets: AbstractSingleton, LazySet, Singleton, Universe, ZeroSet, element, sample
+using LazySets: AbstractSingleton, LazySet, Singleton, Universe, ZeroSet, center, sample
 using LinearAlgebra: mul!
 using MathematicalSystems: AbstractContinuousSystem, AbstractInput, IVP,
                            discretize, initial_state, inputset, state_matrix,

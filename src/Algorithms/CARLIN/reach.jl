@@ -38,7 +38,7 @@ function reach_CARLIN(X0, F1, F2; alg, N, T, Δt, bloat, compress, A=nothing)
     # evaluate error bounds for each reach-set in the solution
     E = [errfunc.(convert(IA.Interval, tspan(R))) for R in sol]
 
-    # if the interval is always > 0 then we can just take max(Ei)
+    # if the interval is always > 0 then we can just take high(Ei, 1)
 
     # symmetrize intervals
     E_rad = [symmetric_interval_hull(Interval(ei)) for ei in E]
