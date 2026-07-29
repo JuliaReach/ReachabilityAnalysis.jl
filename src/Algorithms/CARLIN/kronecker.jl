@@ -3,7 +3,7 @@
 # ======================================
 
 # TODO refactor to CarlemanLinearization.jl
-lift_vector(X0::IA.Interval, N) = lift_vector(Interval(X0), N)
+lift_vector(X0::IA.Interval, N::Number) = lift_vector(Interval(X0), N)
 
 """
     kron_pow(x::IA.Interval, pow::Int)
