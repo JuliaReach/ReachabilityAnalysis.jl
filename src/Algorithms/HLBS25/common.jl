@@ -1,5 +1,3 @@
-using .CorrectionHullMatrixZonotopeModule: overapproximate_discrete_input_split
-
 @inline function _split_spz_components(P::SparsePolynomialZonotope{N}) where {N}
     n = dim(P)
     P_poly = SparsePolynomialZonotope(center(P), genmat_dep(P), zeros(N, n, 0), expmat(P),
