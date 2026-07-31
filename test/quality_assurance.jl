@@ -11,7 +11,8 @@ import Aqua, ExplicitImports
                                                :shrink_wrapping!, :solve, :_exp_remainder,
                                                :correction_hull, :input_correction,
                                                :AbstractODEScheme, :AbstractPreconditioner,
-                                               :AbstractTMOrder, :GIR05, :Slice, :_DEF_MINABSTOL)
+                                               :AbstractTMOrder, :GIR05, :Slice, :_DEF_MINABSTOL,
+                                               :default_space)
     ignores_all_qualified_accesses_are_public = (:GIR05, :Slice, :_DEF_MINABSTOL, :_default_sampler,
                                                  :GLOBAL_RNG, :value, :taylor_expmap_remainder,
                                                  :taylor_expmap_truncation)
