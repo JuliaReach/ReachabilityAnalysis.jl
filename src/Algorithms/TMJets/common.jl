@@ -2,6 +2,7 @@
 
 using TaylorModels: TaylorModelN, fp_rpa, remainder
 using TaylorModels.ValidatedInteg: _DEF_MINABSTOL, validated_integ, validated_integ2
+using TaylorModels.TaylorSeries: default_space
 
 # =================================
 # Default values for the parameters
