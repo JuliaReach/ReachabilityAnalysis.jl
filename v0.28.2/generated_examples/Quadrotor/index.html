@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Quadrotor · ReachabilityAnalysis.jl</title><meta name="title" content="Quadrotor · ReachabilityAnalysis.jl"/><meta property="og:title" content="Quadrotor · ReachabilityAnalysis.jl"/><meta property="twitter:title" content="Quadrotor · ReachabilityAnalysis.jl"/><meta name="description" content="Documentation for ReachabilityAnalysis.jl."/><meta property="og:description" content="Documentation for ReachabilityAnalysis.jl."/><meta property="twitter:description" content="Documentation for ReachabilityAnalysis.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/aligned.css" rel="stylesheet" type="text/css"/><link href="../../assets/citations.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="ReachabilityAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ReachabilityAnalysis.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Overview</a></li><li><input class="collapse-toggle" id="menuitem-2" type="checkbox"/><label class="tocitem" for="menuitem-2"><span class="docs-label">Tutorials</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><input class="collapse-toggle" id="menuitem-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-1"><span class="docs-label">Set representations</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../tutorials/set_representations/zonotopes/">Zonotopic sets</a></li><li><a class="tocitem" href="../../tutorials/set_representations/polyhedral_computations/">Polyhedral computations</a></li><li><a class="tocitem" href="../../tutorials/set_representations/distances/">Metric notions</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Linear methods</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../tutorials/linear_methods/introduction/">Introduction</a></li><li><a class="tocitem" href="../../tutorials/linear_methods/discrete_time/">Discrete time reachability</a></li><li><a class="tocitem" href="../../tutorials/linear_methods/dense_time/">Dense time reachability</a></li><li><a class="tocitem" href="../ISS/">International Space Station</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">Modeling uncertain inputs</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../Building/">Building model</a></li><li><a class="tocitem" href="../OpAmp/">Operational amplifier</a></li><li><a class="tocitem" href="../TransmissionLine/">Transmission line</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-4" type="checkbox"/><label class="tocitem" for="menuitem-2-4"><span class="docs-label">Taylor methods</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../tutorials/taylor_methods/introduction/">Introduction</a></li><li><a class="tocitem" href="../../tutorials/taylor_methods/domain_splitting/">Domain splitting</a></li><li><a class="tocitem" href="../../tutorials/taylor_methods/gotchas/">Common gotchas</a></li><li><a class="tocitem" href="../LotkaVolterra/">Lotka-Volterra</a></li><li><a class="tocitem" href="../VanDerPol/">Van der Pol oscillator</a></li><li><a class="tocitem" href="../Lorenz/">Lorenz system</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-5" type="checkbox"/><label class="tocitem" for="menuitem-2-5"><span class="docs-label">Hybrid systems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../SquareWaveOscillator/">Square wave oscillator</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-6" type="checkbox"/><label class="tocitem" for="menuitem-2-6"><span class="docs-label">Clocked systems</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../Platoon/">Platoon</a></li><li><a class="tocitem" href="../EMBrake/">Electromechanical brake</a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-3" type="checkbox"/><label class="tocitem" for="menuitem-3"><span class="docs-label">Manual</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/systems/">Systems</a></li><li><input class="collapse-toggle" id="menuitem-3-2" type="checkbox"/><label class="tocitem" for="menuitem-3-2"><span class="docs-label">Linear solvers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/algorithms/A20/">A20</a></li><li><a class="tocitem" href="../../man/algorithms/ASB07/">ASB07</a></li><li><a class="tocitem" href="../../man/algorithms/BFFPSV18/">BFFPSV18</a></li><li><a class="tocitem" href="../../man/algorithms/BOX/">BOX</a></li><li><a class="tocitem" href="../../man/algorithms/GLGM06/">GLGM06</a></li><li><a class="tocitem" href="../../man/algorithms/INT/">INT</a></li><li><a class="tocitem" href="../../man/algorithms/LGG09/">LGG09</a></li><li><a class="tocitem" href="../../man/algorithms/ORBIT/">ORBIT</a></li><li><a class="tocitem" href="../../man/algorithms/VREP/">VREP</a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-4" type="checkbox"/><label class="tocitem" for="menuitem-4"><span class="docs-label">Benchmarks</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/benchmarks/repeatability/">Repeatability evaluations</a></li><li><a class="tocitem" href="../../man/benchmarks/model_library/">Model library</a></li><li><a class="tocitem" href="../../man/benchmarks/benchmarks/">Benchmark repository</a></li><li><a class="tocitem" href="../../man/benchmarks/filtered_oscillator/">Filtered oscillator</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-5" type="checkbox" checked/><label class="tocitem" for="menuitem-5"><span class="docs-label">Further examples</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../man/examples_overview/">Overview</a></li><li><a class="tocitem" href="../DuffingOscillator/">Duffing oscillator</a></li><li><a class="tocitem" href="../LaubLoomis/">Laub-Loomis</a></li><li><a class="tocitem" href="../ProductionDestruction/">Production-Destruction</a></li><li><a class="tocitem" href="../Brusselator/">Brusselator</a></li><li class="is-active"><a class="tocitem" href>Quadrotor</a><ul class="internal"><li><a class="tocitem" href="#Model-description"><span>Model description</span></a></li><li><a class="tocitem" href="#Specification"><span>Specification</span></a></li><li><a class="tocitem" href="#Analysis"><span>Analysis</span></a></li><li><a class="tocitem" href="#Results"><span>Results</span></a></li></ul></li><li><a class="tocitem" href="../SEIR/">Epidemic (SEIR) model</a></li><li><a class="tocitem" href="../Spacecraft/">Spacecraft</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-6" type="checkbox"/><label class="tocitem" for="menuitem-6"><span class="docs-label">API Reference</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/systems/">Systems</a></li><li><a class="tocitem" href="../../lib/reachsets/">Reach-sets</a></li><li><a class="tocitem" href="../../lib/flowpipes/">Flowpipes</a></li><li><input class="collapse-toggle" id="menuitem-6-4" type="checkbox"/><label class="tocitem" for="menuitem-6-4"><span class="docs-label">Linear solvers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/algorithms/A20/">A20</a></li><li><a class="tocitem" href="../../lib/algorithms/ASB07/">ASB07</a></li><li><a class="tocitem" href="../../lib/algorithms/BFFPSV18/">BFFPSV18</a></li><li><a class="tocitem" href="../../lib/algorithms/BOX/">BOX</a></li><li><a class="tocitem" href="../../lib/algorithms/GLGM06/">GLGM06</a></li><li><a class="tocitem" href="../../lib/algorithms/INT/">INT</a></li><li><a class="tocitem" href="../../lib/algorithms/LGG09/">LGG09</a></li><li><a class="tocitem" href="../../lib/algorithms/ORBIT/">ORBIT</a></li><li><a class="tocitem" href="../../lib/algorithms/VREP/">VREP</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-6-5" type="checkbox"/><label class="tocitem" for="menuitem-6-5"><span class="docs-label">Nonlinear solvers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/algorithms/CARLIN/">CARLIN</a></li><li><a class="tocitem" href="../../lib/algorithms/QINT/">QINT</a></li><li><a class="tocitem" href="../../lib/algorithms/TMJets/">TMJets</a></li></ul></li><li><a class="tocitem" href="../../lib/solutions/">Solutions</a></li><li><a class="tocitem" href="../../lib/discretize/">Discretization</a></li><li><a class="tocitem" href="../../lib/projections/">Projections</a></li><li><a class="tocitem" href="../../lib/clustering/">Clustering</a></li><li><a class="tocitem" href="../../lib/operations/">Further set operations</a></li><li><a class="tocitem" href="../../lib/distributed/">Distributed computations</a></li><li><a class="tocitem" href="../../lib/internals/">Internal functions and macros</a></li></ul></li><li><a class="tocitem" href="../../man/faq/">Frequently Asked Questions (FAQ)</a></li><li><a class="tocitem" href="../../bibliography/">Bibliography</a></li><li><a class="tocitem" href="../../about/">How to contribute</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Further examples</a></li><li class="is-active"><a href>Quadrotor</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Quadrotor</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaReach/ReachabilityAnalysis.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaReach/ReachabilityAnalysis.jl/blob/master/examples/Quadrotor/Quadrotor.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Quadrotor"><a class="docs-heading-anchor" href="#Quadrotor">Quadrotor</a><a id="Quadrotor-1"></a><a class="docs-heading-anchor-permalink" href="#Quadrotor" title="Permalink"></a></h1><div class="admonition is-info" id="Overview-441a41197a4b9f5d"><header class="admonition-header">Overview<a class="admonition-anchor" href="#Overview-441a41197a4b9f5d" title="Permalink"></a></header><div class="admonition-body"><p>System type: Polynomial continuous system<br/>State dimension: 12<br/>Application domain: Mechanical engineering</p></div></div><h2 id="Model-description"><a class="docs-heading-anchor" href="#Model-description">Model description</a><a id="Model-description-1"></a><a class="docs-heading-anchor-permalink" href="#Model-description" title="Permalink"></a></h2><p>We study the dynamics of a quadrotor, derived in <a href="../../bibliography/#Beard08">Beard [Bea08]</a> and used in <a href="../../bibliography/#GerettiSABCCDFK21">Geretti <em>et al.</em> [GSA+21]</a>. Starting with the state variables, we have the inertial (north) position <span>$x_1$</span>, the inertial (east) position <span>$x_2$</span>, the altitude <span>$x_3$</span>, the longitudinal velocity <span>$x_4$</span>, the lateral velocity <span>$x_5$</span>, the vertical velocity <span>$x_6$</span>, the roll angle <span>$x_7$</span>, the pitch angle <span>$x_8$</span>, the yaw angle <span>$x_9$</span>, the roll rate <span>$x_{10}$</span>, the pitch rate <span>$x_{11}$</span>, and the yaw rate <span>$x_{12}$</span>. We further require the following parameters: gravity constant <span>$g = 9.81$</span> [m/s<span>$^2$</span>], radius of center mass <span>$R = 0.1$</span> [m], distance of rotors to center mass <span>$l = 0.5$</span> [m], rotor mass <span>$M_{rotor} = 0.1$</span> [kg], center mass <span>$M = 1$</span> [kg], and total mass <span>$m = M + 4M_{rotor}$</span>.</p><p>From the above parameters, we can compute the moments of inertia as</p><p class="math-container">\[\begin{aligned}
+    J_x &amp;= 0.4 M R^2 + 2 l^2 M_{rotor}, \\
+    J_y &amp;= J_x, \\
+    J_z &amp;= 0.4 M R^2 + 4 l^2 M_{rotor}.
+\end{aligned}\]</p><p>Finally, we can write the set of ordinary differential equations for the quadrotor according to <a href="../../bibliography/#Beard08">Beard [Bea08]</a>, Eq. (16)-(19):</p><p class="math-container">\[\begin{aligned}
+    \dot{x}_1 &amp;= \cos(x_8)\cos(x_9)x_4 + \Big(\sin(x_7)\sin(x_8)\cos(x_9) - \cos(x_7)\sin(x_9)\Big)x_5 \\
+    &amp;~~~ + \Big(\cos(x_7)\sin(x_8)\cos(x_9) + \sin(x_7)\sin(x_9)\Big)x_6 \\
+    \dot{x}_2 &amp;= \cos(x_8)\sin(x_9)x_4 + \Big(\sin(x_7)\sin(x_8)\sin(x_9) + \cos(x_7)\cos(x_9)\Big)x_5 \\
+    &amp;~~~ + \Big(\cos(x_7)\sin(x_8)\sin(x_9) - \sin(x_7)\cos(x_9)\Big)x_6 \\
+    \dot{x}_3 &amp;= \sin(x_8)x_4 - \sin(x_7)\cos(x_8)x_5 - \cos(x_7)\cos(x_8)x_6 \\
+    \dot{x}_4 &amp;= x_{12}x_5 - x_{11}x_6 - g\sin(x_8) \\
+    \dot{x}_5 &amp;= x_{10}x_6 - x_{12}x_4 + g\cos(x_8)\sin(x_7) \\
+    \dot{x}_6 &amp;= x_{11}x_4 - x_{10}x_5 + g\cos(x_8)\cos(x_7) - \dfrac{F}{m} \\
+    \dot{x}_7 &amp;= x_{10} + \sin(x_7)\tan(x_8)x_{11} + \cos(x_7)\tan(x_8)x_{12} \\
+    \dot{x}_8 &amp;= \cos(x_7)x_{11} - \sin(x_7)x_{12} \\
+    \dot{x}_9 &amp;= \dfrac{\sin(x_7)}{\cos(x_8)}x_{11} + \dfrac{\cos(x_7)}{\cos(x_8)}x_{12} \\
+    \dot{x}_{10} &amp;= \dfrac{J_y - J_z}{J_x}x_{11}x_{12} + \dfrac{1}{J_x}τ_ϕ \\
+    \dot{x}_{11} &amp;= \dfrac{J_z - J_x}{J_y}x_{10}x_{12} + \dfrac{1}{J_y}τ_θ \\
+    \dot{x}_{12} &amp;= \dfrac{J_x - J_y}{J_z}x_{10}x_{11} + \dfrac{1}{J_z}τ_ψ
+\end{aligned}\]</p><p>To check interesting control specifications, we stabilize the quadrotor using simple PD controllers for height, roll, and pitch. The inputs to the controller are the desired values for height, roll, and pitch <span>$u_1$</span>, <span>$u_2$</span>, and <span>$u_3$</span>, respectively. The equations of the controllers are:</p><p class="math-container">\[\begin{aligned}
+    F &amp;= m \, g - 10(x_3 - u_1) + 3x_6 \; &amp; (\text{height control}) \\
+    τ_ϕ &amp;= -(x_7 - u_2) - x_{10} &amp; (\text{roll control}) \\
+    τ_θ &amp;= -(x_8 - u_3) - x_{11} &amp; (\text{pitch control})
+\end{aligned}\]</p><p>We leave the heading uncontrolled by setting <span>$τ_ψ = 0$</span>.</p><pre><code class="language-julia hljs">using ReachabilityAnalysis
+using ReachabilityBase.Arrays: SingleEntryVector
+
+# parameters of the model
+const g = 9.81            # gravity constant in m/s^2
+const R = 0.1             # radius of center mass in m
+const l = 0.5             # distance of rotors to center mass in m
+const Mrotor = 0.1        # rotor mass in kg
+const M = 1.0             # center mass in kg
+const m = M + 4 * Mrotor  # total mass in kg
+const mg = m * g;
+
+# moments of inertia
+const Jx = 0.4 * M * R^2 + 2 * l^2 * Mrotor
+const Jy = Jx
+const Jz = 0.4 * M * R^2 + 4 * l^2 * Mrotor
+const Cyzx = (Jy - Jz) / Jx
+const Czxy = (Jz - Jx) / Jy
+const Cxyz = 0.0; #(Jx - Jy)/Jz
+
+# control parameters
+const u₁ = 1.0
+const u₂ = 0.0
+const u₃ = 0.0
+
+@taylorize function quadrotor!(dx, x, p, t)
+    x₁, x₂, x₃, x₄, x₅, x₆, x₇, x₈, x₉, x₁₀, x₁₁, x₁₂ = x
+
+    # equations of the controllers
+    F = (mg - 10 * (x₃ - u₁)) + 3 * x₆  # height control
+    τϕ = -(x₇ - u₂) - x₁₀               # roll control
+    τθ = -(x₈ - u₃) - x₁₁               # pitch control
+    local τψ = 0.0                    # heading is uncontrolled
+
+    Tx = τϕ / Jx
+    Ty = τθ / Jy
+    Tz = τψ / Jz
+    F_m = F / m
+
+    # some abbreviations
+    sx7 = sin(x₇)
+    cx7 = cos(x₇)
+    sx8 = sin(x₈)
+    cx8 = cos(x₈)
+    sx9 = sin(x₉)
+    cx9 = cos(x₉)
+
+    sx7sx9 = sx7 * sx9
+    sx7cx9 = sx7 * cx9
+    cx7sx9 = cx7 * sx9
+    cx7cx9 = cx7 * cx9
+    sx7cx8 = sx7 * cx8
+    cx7cx8 = cx7 * cx8
+    sx7_cx8 = sx7 / cx8
+    cx7_cx8 = cx7 / cx8
+
+    x4cx8 = cx8 * x₄
+
+    p11 = sx7_cx8 * x₁₁
+    p12 = cx7_cx8 * x₁₂
+    xdot9 = p11 + p12
+
+    # differential equations for the quadrotor
+    dx[1] = (cx9 * x4cx8 + (sx7cx9 * sx8 - cx7sx9) * x₅) + (cx7cx9 * sx8 + sx7sx9) * x₆
+    dx[2] = (sx9 * x4cx8 + (sx7sx9 * sx8 + cx7cx9) * x₅) + (cx7sx9 * sx8 - sx7cx9) * x₆
+    dx[3] = (sx8 * x₄ - sx7cx8 * x₅) - cx7cx8 * x₆
+    dx[4] = (x₁₂ * x₅ - x₁₁ * x₆) - g * sx8
+    dx[5] = (x₁₀ * x₆ - x₁₂ * x₄) + g * sx7cx8
+    dx[6] = (x₁₁ * x₄ - x₁₀ * x₅) + (g * cx7cx8 - F_m)
+    dx[7] = x₁₀ + sx8 * xdot9
+    dx[8] = cx7 * x₁₁ - sx7 * x₁₂
+    dx[9] = xdot9
+    dx[10] = Cyzx * (x₁₁ * x₁₂) + Tx
+    dx[11] = Czxy * (x₁₀ * x₁₂) + Ty
+    dx[12] = Cxyz * (x₁₀ * x₁₁) + Tz
+    return dx
+end;</code></pre><h2 id="Specification"><a class="docs-heading-anchor" href="#Specification">Specification</a><a id="Specification-1"></a><a class="docs-heading-anchor-permalink" href="#Specification" title="Permalink"></a></h2><p>The task is to change the height from <span>$0$</span> m to <span>$1$</span> m within <span>$5$</span> s. More precisely, a goal region <span>$[0.98,1.02]$</span> of the height <span>$x_3$</span> has to be reached within <span>$5$</span> s and the height has to stay below <span>$1.4$</span> m for all times. After <span>$1$</span> s, the height should stay above <span>$0.9$</span> m. The initial value for the position and velocities (i.e., from <span>$x_1$</span> to <span>$x_6$</span>) is uncertain and given by <span>$[-Δ, Δ]$</span> m, with <span>$Δ = 0.4$</span>. All other variables are initialized to <span>$0$</span>. This preliminary analysis must be followed by a corresponding evolution for <span>$Δ = 0.1$</span> and <span>$Δ = 0.8$</span> while keeping all the settings the same. No goals are specified for these cases: the objective instead is to understand the scalability of the tool.</p><pre><code class="language-julia hljs">const T = 5.0
+const v3 = SingleEntryVector(3, 12, 1.0)
+
+@inline function quad_property(sol)
+    tf = tend(sol)
+
+    # Condition: b1 = (x[3] &lt; 1.4) for all time
+    unsafe1 = HalfSpace(-v3, -1.4) # unsafe: -x3 &lt;= -1.4
+    b1 = all([isdisjoint(unsafe1, set(R)) for R in sol(0.0 .. tf)])
+    #b1 = ρ(v3, sol) &lt; 1.4
+
+    # Condition: x[3] &gt; 0.9 for t ≥ 1.0
+    unsafe2 = HalfSpace(v3, 0.9) # unsafe: x3 &lt;= 0.9
+    b2 = all([isdisjoint(unsafe2, set(R)) for R in sol(1.0 .. tf)])
+
+    # Condition: x[3] ⊆ Interval(0.98, 1.02) for t = 5.0
+    b3 = set(project(sol[end]; vars=(3))) ⊆ Interval(0.98, 1.02)
+
+    return b1 &amp;&amp; b2 &amp;&amp; b3
+end
+
+function quadrotor(; Wpos, Wvel)
+    # initial condition
+    ΔX0 = [Wpos, Wpos, Wpos, Wvel, Wvel, Wvel, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    X0 = Hyperrectangle(zeros(12), ΔX0)
+
+    # initial-value problem
+    prob = @ivp(x&#39; = quadrotor!(x), dim:12, x(0) ∈ X0)
+
+    return prob
+end;</code></pre><h2 id="Analysis"><a class="docs-heading-anchor" href="#Analysis">Analysis</a><a id="Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Analysis" title="Permalink"></a></h2><h3 id="Case-1:-smaller-uncertainty"><a class="docs-heading-anchor" href="#Case-1:-smaller-uncertainty">Case 1: smaller uncertainty</a><a id="Case-1:-smaller-uncertainty-1"></a><a class="docs-heading-anchor-permalink" href="#Case-1:-smaller-uncertainty" title="Permalink"></a></h3><pre><code class="language-julia hljs">Wpos = 0.1
+Wvel = 0.1
+prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
+alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
+
+sol = solve(prob; T=T, alg=alg)
+solz1 = overapproximate(sol, Zonotope);</code></pre><p>Verify that the specification holds:</p><pre><code class="language-julia hljs">@assert quad_property(solz1) &quot;the property should be proven&quot;</code></pre><h3 id="Case-2:-intermediate-uncertainty"><a class="docs-heading-anchor" href="#Case-2:-intermediate-uncertainty">Case 2: intermediate uncertainty</a><a id="Case-2:-intermediate-uncertainty-1"></a><a class="docs-heading-anchor-permalink" href="#Case-2:-intermediate-uncertainty" title="Permalink"></a></h3><pre><code class="language-julia hljs">Wpos = 0.4
+Wvel = 0.4
+prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
+alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
+
+sol = solve(prob; T=T, alg=alg)
+solz2 = overapproximate(sol, Zonotope);</code></pre><p>Verify that the specification holds:</p><pre><code class="language-julia hljs">@assert quad_property(solz2) &quot;the property should be proven&quot;</code></pre><h3 id="Case-3:-large-uncertainty"><a class="docs-heading-anchor" href="#Case-3:-large-uncertainty">Case 3: large uncertainty</a><a id="Case-3:-large-uncertainty-1"></a><a class="docs-heading-anchor-permalink" href="#Case-3:-large-uncertainty" title="Permalink"></a></h3><pre><code class="language-julia hljs">Wpos = 0.8
+Wvel = 0.8
+prob = quadrotor(; Wpos=Wpos, Wvel=Wvel)
+alg = TMJets(; abstol=1e-7, orderT=5, orderQ=1, adaptive=false)
+
+sol = solve(prob; T=T, alg=alg)
+solz3 = overapproximate(sol, Zonotope);</code></pre><p>The specification does not hold in this case:</p><pre><code class="language-julia hljs">@assert !quad_property(solz3) &quot;the property should not be proven&quot;</code></pre><h2 id="Results"><a class="docs-heading-anchor" href="#Results">Results</a><a id="Results-1"></a><a class="docs-heading-anchor-permalink" href="#Results" title="Permalink"></a></h2><pre><code class="language-julia hljs">using Plots
+
+fig = plot(solz3; vars=(0, 3), linecolor=&quot;green&quot;, color=:green, alpha=0.8)
+plot!(solz2; vars=(0, 3), linecolor=&quot;blue&quot;, color=:blue, alpha=0.8)
+plot!(solz1; vars=(0, 3), linecolor=&quot;yellow&quot;, color=:yellow, alpha=0.8,
+      xlab=&quot;t&quot;, ylab=&quot;x3&quot;,
+      xtick=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0], ytick=[-1.0, -0.5, 0.0, 0.5, 1.0, 1.5],
+      xlims=(0.0, 5.0), ylims=(-1.0, 1.5))</code></pre><img src="ccd0dbc5.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Brusselator/">« Brusselator</a><a class="docs-footer-nextpage" href="../SEIR/">Epidemic (SEIR) model »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Saturday 23 August 2025 08:37">Saturday 23 August 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
