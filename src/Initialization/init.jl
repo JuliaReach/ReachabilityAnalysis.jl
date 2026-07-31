@@ -43,9 +43,11 @@ using LazySets: ×  # resolve conflict
 import TaylorModels
 using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 using TaylorModels.ValidatedInteg: shrink_wrapping!
+import TaylorSeries
+using TaylorSeries: default_space
 
 # method extensions for Taylor model reach-sets
-import TaylorModels: domain, remainder, polynomial, get_order, evaluate
+import TaylorModels: domain, remainder, polynomial, evaluate
 
 # aliases for set types
 const CPA = CartesianProductArray

@@ -25,7 +25,10 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
 
     # fix the working variables and maximum order in the global
     # parameters struct (_params_TaylorN_)
-    set_variables("x"; numvars=n, order=2 * orderQ)
+    space = default_space[]
+    if space.num_vars != n || space.order != 2 * orderQ
+        variables!("x"; numvars=n, order=2 * orderQ, nowarn=true)
+    end
 
     # initial set
     X0 = initial_state(ivp_norm)
