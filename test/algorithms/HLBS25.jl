@@ -18,11 +18,11 @@ using ReachabilityAnalysis, Test
 
     # recursive false
     alg = HLBS25(; δ=δ,
-                    approx_model=CorrectionHullMatrixZonotope(),
-                    taylor_order=5,
-                    max_order=5,
-                    reduction_method=LazySets.GIR05(),
-                    recursive=false)
+                 approx_model=CorrectionHullMatrixZonotope(),
+                 taylor_order=5,
+                 max_order=5,
+                 reduction_method=LazySets.GIR05(),
+                 recursive=false)
     sol1 = solve(prob, alg; T=T)
 
     @test_broken X0 ⊆ set(sol[1])  # TODO add inclusion check for SPZ
@@ -34,16 +34,16 @@ using ReachabilityAnalysis, Test
     @test sol1.alg.taylor_order == 5
     @test sol1.alg.approx_model isa CorrectionHullMatrixZonotope
     @test setrep(sol1) == setrep(alg) ==
-            SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
+          SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
     @test rsetrep(alg) == ReachSet{N,setrep(alg)}
 
     # recursive true
     alg2 = HLBS25(; δ=δ,
-                    approx_model=CorrectionHullMatrixZonotope(; recursive=true),
-                    taylor_order=4,
-                    max_order=4,
-                    reduction_method=LazySets.GIR05(),
-                    recursive=true)
+                  approx_model=CorrectionHullMatrixZonotope(; recursive=true),
+                  taylor_order=4,
+                  max_order=4,
+                  reduction_method=LazySets.GIR05(),
+                  recursive=true)
     sol2 = solve(prob, alg2; T=T)
 
     @test isa(sol2.alg, HLBS25)
@@ -52,7 +52,7 @@ using ReachabilityAnalysis, Test
     @test sol2.alg.max_order_zono == 4
     @test sol2.alg.taylor_order == 4
     @test setrep(sol2) == setrep(alg) ==
-            SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
+          SparsePolynomialZonotope{N,Vector{N},Matrix{N},Matrix{N},Matrix{Int},Vector{Int}}
     @test rsetrep(alg) == ReachSet{N,setrep(alg)}
 end
 
@@ -75,12 +75,12 @@ end
 
     # recursive true
     alg = HLBS25(; δ=δ,
-                    approx_model=CorrectionHullMatrixZonotope(; recursive=true),
-                    taylor_order=4,
-                    max_order=4,
-                    max_order_zono=20,
-                    reduction_method=LazySets.GIR05(),
-                    recursive=true)
+                 approx_model=CorrectionHullMatrixZonotope(; recursive=true),
+                 taylor_order=4,
+                 max_order=4,
+                 max_order_zono=20,
+                 reduction_method=LazySets.GIR05(),
+                 recursive=true)
 
     @test isa(alg, HLBS25)
     @test alg.δ == δ
