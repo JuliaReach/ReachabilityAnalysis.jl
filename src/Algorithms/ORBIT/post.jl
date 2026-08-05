@@ -2,7 +2,7 @@ function post(alg::ORBIT{N,VT,AM}, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroT, kwargs...) where {N,VT,AM}
     @unpack δ, approx_model = alg
 
-    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
+    NSTEPS = compute_nsteps(δ, tspan; kwargs...)
 
     U = inputset(ivp)
 

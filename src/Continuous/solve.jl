@@ -281,11 +281,20 @@ function _get_T(Δt::TimeInterval; check_zero::Bool=true, check_positive::Bool=t
     return T
 end
 
-function compute_nsteps(δ, Δt)
+# this implementation avoids evaluation of `_compute_nsteps` unless needed
+function compute_nsteps(δ, tspan; kwargs...)
+    NSTEPS = get(kwargs, :NSTEPS, nothing)
+    if isnothing(NSTEPS)
+        return _compute_nsteps(δ, tspan)
+    end
+    return NSTEPS
+end
+
+function _compute_nsteps(δ, Δt)
     isempty(Δt) && return zero(δ)
     # Get time horizon from the time span imposing that it is of the form (0, T).
     T = _get_T(Δt; check_zero=true, check_positive=true)
-    return NSTEPS = ceil(Int, T / δ)
+    return ceil(Int, T / δ)
 end
 
 function _get_cpost(ivp, args...; kwargs...)
