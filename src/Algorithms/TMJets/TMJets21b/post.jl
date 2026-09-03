@@ -48,7 +48,7 @@ function post(alg::TMJets21b{N}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
                              adaptive=adaptive,
                              minabstol=minabstol,
                              validatesteps=validatesteps,
-                             ε=ε, δ=ε, absorb_steps=absorb_steps)
+                             ε=ε, δ=δ, absorb_steps=absorb_steps)
     tv = TMSol.time
     xv = TMSol.fp
     xTM1v = TMSol.xTM
