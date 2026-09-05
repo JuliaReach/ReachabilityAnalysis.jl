@@ -42,7 +42,7 @@ vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)))
 domain(R::TaylorModelReachSet) = domain(first(R.X)) # normalized time domain
 remainder(R::TaylorModelReachSet) = remainder.(R.X)
 polynomial(R::TaylorModelReachSet) = polynomial.(R.X)
-get_order(R::TaylorModelReachSet) = get_order.(R.X)
+get_order(R::TaylorModelReachSet) = TaylorSeries.order.(R.X)
 expansion_point(R::TaylorModelReachSet) = [Xi.x0 for Xi in R.X]
 
 function shift(R::TaylorModelReachSet, t0::Number)
@@ -145,7 +145,7 @@ function _shrink_wrapping(R::TaylorModelReachSet)
     shrink_wrapping!(Wfp)
 
     # transform back to a TaylorModel1 of TaylorN
-    orderT = get_order(set(R)[1])
+    orderT = TaylorSeries.order(set(R)[1])
     p = [Taylor1(TaylorN(polynomial(Wfp[i])), orderT) for i in 1:n]
     Y = [TaylorModel1(p[i], zeroI, zeroI, dt) for i in 1:n]
 
@@ -388,7 +388,12 @@ end
 function convert(::Type{<:TaylorModelReachSet}, H::AbstractHyperrectangle{N};
                  orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT) where {N}
     n = dim(H)
-    x = variables!("x"; numvars=n, order=orderQ)
+    space = default_space[]
+    if space.num_vars != n || space.order != orderQ
+        x = variables!("x"; numvars=n, order=orderQ, nowarn=true)
+    else
+        x = TaylorSeries.variables(N, space)
+    end
 
     # preallocations
     vTM = Vector{TaylorModel1{TaylorN{N},N}}(undef, n)
@@ -420,7 +425,12 @@ function overapproximate(Z::AbstractZonotope{N}, ::Type{<:TaylorModelReachSet};
                          orderQ::Integer=2, orderT::Integer=8, Δt::TimeInterval=zeroT,
                          indices=1:dim(Z), box_reduction=false) where {N}
     n = dim(Z)
-    x = variables!("x"; numvars=n, order=orderQ)
+    space = default_space[]
+    if space.num_vars != n || space.order != orderQ
+        x = variables!("x"; numvars=n, order=orderQ, nowarn=true)
+    else
+        x = TaylorSeries.variables(N, space)
+    end
 
     if order(Z) > 1
         if box_reduction
@@ -475,7 +485,12 @@ function _overapproximate_structured(Z::AbstractZonotope{N}, ::Type{<:TaylorMode
                                      orderQ::Integer=2, orderT::Integer=8,
                                      Δt::TimeInterval=zeroT) where {N}
     n = dim(Z)
-    x = variables!("x"; numvars=n, order=orderQ)
+    space = default_space[]
+    if space.num_vars != n || space.order != orderQ
+        x = variables!("x"; numvars=n, order=orderQ, nowarn=true)
+    else
+        x = TaylorSeries.variables(N, space)
+    end
 
     # check structure
     order(Z) == 2 ||
@@ -512,7 +527,12 @@ function _overapproximate_structured(Zcp::CartesianProduct{N,<:Zonotope,<:Interv
                                      orderQ::Integer=2, orderT::Integer=8,
                                      Δt::TimeInterval=zeroT) where {N}
     n = dim(Zcp)
-    x = variables!("x"; numvars=n, order=orderQ)
+    space = default_space[]
+    if space.num_vars != n || space.order != orderQ
+        x = variables!("x"; numvars=n, order=orderQ, nowarn=true)
+    else
+        x = TaylorSeries.variables(N, space)
+    end
 
     # check structure
     Z = Zcp.X
@@ -555,7 +575,12 @@ function _overapproximate_structured_full(Zcp::CartesianProduct{N,<:Zonotope,<:I
                                           orderQ::Integer=2, orderT::Integer=8,
                                           Δt::TimeInterval=zeroT) where {N}
     n = dim(Zcp) - 1
-    x = variables!("x"; numvars=n + 1, order=orderQ)
+    space = default_space[]
+    if space.num_vars != n || space.order != orderQ
+        x = variables!("x"; numvars=n, order=orderQ, nowarn=true)
+    else
+        x = TaylorSeries.variables(N, space)
+    end
 
     # check structure
     # not checking structure
