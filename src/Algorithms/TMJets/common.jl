@@ -1,8 +1,5 @@
 # shared functionality among TMJets implementations
 
-using TaylorModels: TaylorModelN, fp_rpa, remainder
-using TaylorModels.ValidatedInteg: _DEF_MINABSTOL, validated_integ, validated_integ2
-
 # =================================
 # Default values for the parameters
 # =================================
@@ -11,13 +8,6 @@ const DEFAULT_MAX_STEPS_TMJETS = 2000
 const DEFAULT_ABS_TOL_TMJETS = 1e-10
 const DEFAULT_ORDER_T_TMJETS = 8
 const DEFAULT_ORDER_Q_TMJETS = 2
-
-"""
-    TMJets
-
-The algorithm TMJets defaults to `TMJets21b`.
-"""
-const TMJets = TMJets21b
 
 # =======================================================================
 # Initialization functions to prepare the input for validated integration

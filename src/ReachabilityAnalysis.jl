@@ -86,9 +86,8 @@ using ..FLOWSTARModule: FLOWSTAR
 include("Algorithms/QINT/QINTModule.jl")
 using ..QINTModule: QINT
 
-include("Algorithms/TMJets/TMJets21a/TMJets21a.jl")
-
-include("Algorithms/TMJets/TMJets21b/TMJets21b.jl")
+include("Algorithms/TMJets/TMJetsModule.jl")
+using ..TMJetsModule: TMJets21a, TMJets21b, TMJets
 
 include("Algorithms/TMJets/common.jl")
 
