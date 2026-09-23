@@ -42,7 +42,7 @@ vars(R::TaylorModelReachSet) = Tuple(Base.OneTo(length(R.X)))
 domain(R::TaylorModelReachSet) = domain(first(R.X)) # normalized time domain
 remainder(R::TaylorModelReachSet) = remainder.(R.X)
 polynomial(R::TaylorModelReachSet) = polynomial.(R.X)
-get_order(R::TaylorModelReachSet) = TaylorSeries.order.(R.X)
+order(R::TaylorModelReachSet) = TaylorSeries.order.(R.X)
 expansion_point(R::TaylorModelReachSet) = [Xi.x0 for Xi in R.X]
 
 function shift(R::TaylorModelReachSet, t0::Number)

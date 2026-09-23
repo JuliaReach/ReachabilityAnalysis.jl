@@ -22,7 +22,7 @@ using LazySets: AffineMap, LinearMap, ResetMap
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
 # required to avoid conflicts with TaylorIntegration
-using LazySets: order
+import LazySets: order
 
 # JuliaReach internal functions
 import ReachabilityBase
@@ -65,7 +65,7 @@ import HybridSystems: HybridSystem, guard, mode
 import MathematicalSystems: ConstrainedLinearControlParametricContinuousSystem,
                             ConstrainedLinearControlParametricDiscreteSystem
 
-import CommonSolve: solve # common solve name
+import CommonSolve: solve
 
 # ======================
 # Useful constants
