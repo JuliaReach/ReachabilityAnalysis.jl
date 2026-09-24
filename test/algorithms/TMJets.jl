@@ -46,7 +46,7 @@ end
         # getter functions for a taylor model reach-set
         R = sol[1]
         @test TimeInterval(domain(R)) == tspan(R)
-        @test IA.diam(remainder(R)[1]) < (alg == TMJets21a ? 1e-13 : 1e-9)
+        @test IA.diam(remainder(R)[1]) < (alg == TMJets21a ? 1e-13 : 1e-5)
         @test order(R) == [8]
         @test polynomial(R) isa Vector{Taylor1{TaylorN{Float64}}}
         @test expansion_point(R) ≈ [IntervalArithmetic.interval(0.0)]

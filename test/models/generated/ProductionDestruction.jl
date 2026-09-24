@@ -38,7 +38,7 @@ end
 X0 = Hyperrectangle(; low=[9.5, 0.01, 0.01], high=[10, 0.01, 0.01])
 prob = @ivp(x' = prod_dest_I!(x), dim:3, x(0) ∈ X0);
 
-sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1, δ=1e-10));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
@@ -59,7 +59,7 @@ end
 X0 = Hyperrectangle(; low=[9.98, 0.01, 0.01, 0.296], high=[9.98, 0.01, 0.01, 0.304])
 prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
 
-sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1, δ=1e-10));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
@@ -67,7 +67,7 @@ property, vol = prod_dest_verif(sol)
 X0 = Hyperrectangle(; low=[9.5, 0.01, 0.01, 0.296], high=[10, 0.01, 0.01, 0.304])
 prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
 
-sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1, δ=1e-10));
 
 property, vol = prod_dest_verif(sol)
 @assert property "the property should be proven"
