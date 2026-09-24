@@ -22,7 +22,7 @@ using LazySets: AffineMap, LinearMap, ResetMap
 # required to avoid conflicts with IntervalMatrices
 using LazySets: Interval, radius, sample, ∅, dim, scale, scale!, ⊂, matrix, isbounded
 # required to avoid conflicts with TaylorIntegration
-using LazySets: order
+import LazySets: order
 
 # JuliaReach internal functions
 import ReachabilityBase
@@ -43,10 +43,11 @@ using LazySets: ×  # resolve conflict
 import TaylorModels
 using TaylorModels: TaylorModel1, TaylorN, fp_rpa
 using TaylorModels.ValidatedInteg: shrink_wrapping!
+import TaylorSeries
+using TaylorSeries: default_space
 
 # method extensions for Taylor model reach-sets
-import TaylorModels: domain, remainder, polynomial, get_order, evaluate
-import TaylorSeries
+import TaylorModels: domain, remainder, polynomial, evaluate
 
 # aliases for set types
 const CPA = CartesianProductArray
@@ -64,7 +65,7 @@ import HybridSystems: HybridSystem, guard, mode
 import MathematicalSystems: ConstrainedLinearControlParametricContinuousSystem,
                             ConstrainedLinearControlParametricDiscreteSystem
 
-import CommonSolve: solve # common solve name
+import CommonSolve: solve
 
 # ======================
 # Useful constants

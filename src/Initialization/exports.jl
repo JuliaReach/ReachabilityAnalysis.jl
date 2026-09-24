@@ -53,8 +53,7 @@ export
       source_invariant,
       target_invariant,
 # getter functions for Taylor model reach-sets
-      domain, remainder, polynomial, get_order, expansion_point,
-      numrsets,
+      domain, remainder, polynomial, expansion_point, numrsets,
 
 # Concrete operations
       project,
