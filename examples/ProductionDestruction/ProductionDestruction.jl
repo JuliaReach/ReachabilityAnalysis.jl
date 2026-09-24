@@ -135,7 +135,7 @@ prob = @ivp(x' = prod_dest_I!(x), dim:3, x(0) ∈ X0);
 
 # #### Analysis
 
-sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1, δ=1e-10));
 
 # Verify that the specification holds:
 
@@ -177,7 +177,7 @@ prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
 
 # #### Analysis
 
-sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=9e-13, orderT=6, orderQ=1, δ=1e-10));
 
 # Verify that the specification holds:
 
@@ -205,7 +205,7 @@ prob = @ivp(x' = prod_dest_IP!(x), dim:4, x(0) ∈ X0);
 
 # #### Analysis
 
-sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1));
+sol = solve(prob; T=100.0, alg=TMJets(; abstol=1e-12, orderT=6, orderQ=1, δ=1e-10));
 
 # Verify that the specification holds:
 
