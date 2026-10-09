@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+	\node[draw,circle,rounded corners,thick] (loc) {
+		\begin{tabular}{@{} c @{}}
+		$x' = v$ \\[1mm]
+		$v' = -g$ \\[1mm]
+		\hline \\[-2mm]
+		$x \geq 0$
+		\end{tabular}};
+	%
+	\draw[->,>=stealth, loop right,looseness=3] (loc) to node[right] {
+		\begin{tabular}{@{} c @{}}
+		$x = 0$ \\[1mm]
+	    $v < 0$ \\[1mm]
+		\hline \\[-2mm]
+		$v' := -cv$
+		\end{tabular}} (loc);
+\end{tikzpicture}
