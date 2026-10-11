@@ -1,5 +1,5 @@
 using ReachabilityAnalysis, Test
-import Aqua, ExplicitImports
+import Aqua, ExplicitImports, JET
 
 @testset "ExplicitImports tests" begin
     ignores_all_explicit_imports_are_public = (:AbstractDirections, :AbstractReductionMethod,
@@ -83,6 +83,11 @@ import Aqua, ExplicitImports
                                           all_qualified_accesses_are_public=(ignore=ignores_all_qualified_accesses_are_public,),
                                           no_implicit_imports=(ignore=ignores_no_implicit_imports,),
                                           no_stale_explicit_imports=(ignore=ignores_no_stale_explicit_imports,))
+end
+
+@testset "JET tests" begin
+    # false positives for Base functionality
+    JET.test_package(ReachabilityAnalysis; target_modules=(ReachabilityAnalysis,))
 end
 
 @testset "Aqua tests" begin
