@@ -2,7 +2,8 @@
 function post(alg::HLBS25, ivp::IVP{<:AbstractContinuousSystem}, tspan;
               Δt0::TimeInterval=zeroT, kwargs...)
     δ = alg.δ
-    NSTEPS = get(kwargs, :NSTEPS, compute_nsteps(δ, tspan))
+
+    NSTEPS = compute_nsteps(δ, tspan; kwargs...)
 
     # discretize system
     ivp_discr = discretize(ivp, δ, alg.approx_model)
