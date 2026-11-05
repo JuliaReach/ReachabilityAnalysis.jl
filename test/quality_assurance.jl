@@ -15,7 +15,12 @@ import Aqua, ExplicitImports
                                                :default_space)
     ignores_all_qualified_accesses_are_public = (:GIR05, :Slice, :_DEF_MINABSTOL, :_default_sampler,
                                                  :GLOBAL_RNG, :value, :taylor_expmap_remainder,
-                                                 :taylor_expmap_truncation)
+                                                 :taylor_expmap_truncation,
+                                                 # package extensions
+                                                 # ReachabilityAnalysisFlowstarExt
+                                                 :_FLOWSTAR, :_solution,
+                                                 # ReachabilityAnalysisFlowstarSymbolicsExt
+                                                 :_extract_model)
     # due to reexporting multiple packages
     ignores_no_implicit_imports = (:HybridSystems, # due to reexporting HybridSystems:
                                    :AbstractHybridSystem, :AutonomousSwitching, :GraphAutomaton,
