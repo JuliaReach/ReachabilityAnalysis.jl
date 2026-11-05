@@ -1,6 +1,7 @@
 function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, timespan;
               Δt0::TimeInterval=zeroT, kwargs...) where {ST,OT,PT,IT}
-    @required Flowstar
+    mod = Base.get_extension(@__MODULE__, :ReachabilityAnalysisFlowstarExt)
+    require(mod, :Flowstar; fun_name="post")
 
     @unpack step_size, order, remainder_estimation, precondition, cutoff, precision, verbose, scheme = alg
 
@@ -9,10 +10,10 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
     @assert t0 == 0.0
 
     # extract model file
-    model = if isa(ivp.s, BlackBoxContinuousSystem{String})
+    if isa(ivp.s, BlackBoxContinuousSystem{String})
         # the model is provided in .flow form
         # consistency of t0, T, X0 with the model is not checked
-        ivp.s.f
+        model = ivp.s.f
     else
         s, n = system(ivp), statedim(ivp)
 
@@ -40,9 +41,6 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
         plot_states = n > 1 ? "$(fstr[1][1]),$(fstr[2][1])" : "t,$(fstr[1][1])" # seems mandatory?
         gen_plots = false # ignored?
 
-        setting = FlowstarSetting(step_size, T, order, name, remainder_estimation, precondition,
-                                  cutoff, precision, plot_states, verbose; gen_plots)
-
         # names of state variables
         states = join([fi[1] for fi in fstr], ",")
 
@@ -52,11 +50,13 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
         # equations of motion
         eom = join(["$(fi[1])' = $(fi[2])" for fi in fstr], "\n ")
 
-        ContinuousReachModel(states, params, setting, scheme, eom, dom)
+        model = _model(step_size, T, order, name, remainder_estimation,
+                       precondition, cutoff, precision, plot_states, verbose,
+                       gen_plots, states, params, scheme, eom, dom)
     end
 
     # call Flow*; use Val(true) to obtain TaylorModel1 of TaylorN
-    sol = FlowstarContinuousSolution(model, Val(true))
+    sol = _solution(model, nothing)
     flow = sol.flow
 
     # preallocate output flowpipe
@@ -73,4 +73,16 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
     end
     ext = Dict{Symbol,Any}()
     return Flowpipe(F, ext)
+end
+
+# see ReachabilityAnalysisFlowstarExt.jl
+function _model(step_size, T, order, name, remainder_estimation, precondition,
+                cutoff, precision, plot_states, verbose, gen_plots, states,
+                params, scheme, eom, dom)
+    error()
+end
+
+# see ReachabilityAnalysisFlowstarExt.jl
+function _solution(model, dummy)
+    error()
 end
