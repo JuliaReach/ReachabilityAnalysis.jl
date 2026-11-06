@@ -10,7 +10,7 @@ using LazySets: Hyperrectangle, LazySet, overapproximate
 using MathematicalSystems: AbstractContinuousSystem, BlackBoxContinuousSystem,
                            IVP, initial_state, statedim, system
 using Parameters: @unpack
-using ReachabilityBase.Require: @required
+using ReachabilityBase.Require: @required, require
 using Requires: @require
 
 import ..ReachabilityAnalysis: post, numtype, rsetrep
