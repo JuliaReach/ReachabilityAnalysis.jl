@@ -5,20 +5,15 @@ using ..ReachabilityAnalysis: AbstractContinuousPost, Flowpipe, TimeInterval,
 
 using IntervalArithmetic: sup
 import IntervalArithmetic as IA
-using IntervalBoxes: IntervalBox
-using LazySets: Hyperrectangle, LazySet, overapproximate
 using MathematicalSystems: AbstractContinuousSystem, BlackBoxContinuousSystem,
-                           IVP, initial_state, statedim, system
+                           IVP
 using Parameters: @unpack
-using ReachabilityBase.Require: @required
-using Requires: @require
+using ReachabilityBase.Require: require
 
 import ..ReachabilityAnalysis: post, numtype, rsetrep
 
 include("FLOWSTAR.jl")
 include("post.jl")
-
-include("init.jl")
 
 export FLOWSTAR
 
