@@ -36,7 +36,7 @@ abstract type AbstractReachSet{N} end
 # convenience union for dispatch on structs that behave like a set
 const SetOrReachSet = Union{LazySet,IA.Interval,IntervalBox,AbstractReachSet}
 
-"""
+@doc """
     set(R::AbstractReachSet)
 
 Return the geometric set represented by this reach-set.
@@ -49,12 +49,13 @@ Return the geometric set represented by this reach-set.
 
 The set wrapped by the given reach-set.
 """
-function set(::AbstractReachSet) end
+set(::AbstractReachSet)
+function set end
 
 # no-op
 set(X::LazySet) = X
 
-"""
+@doc """
     setrep(R::AbstractReachSet)
 
 Return the type of the set representation of this reach-set.
@@ -67,9 +68,10 @@ Return the type of the set representation of this reach-set.
 
 Type of the set representation of the given reach-set.
 """
-function setrep(::AbstractReachSet) end
+setrep(::AbstractReachSet)
+function setrep end
 
-"""
+@doc """
     tstart(R::AbstractReachSet)
 
 Return the initial time of this reach-set.
@@ -82,9 +84,10 @@ Return the initial time of this reach-set.
 
 A float representing the initial time of the given reach-set.
 """
-function tstart(::AbstractReachSet) end
+tstart(::AbstractReachSet)
+function tstart end
 
-"""
+@doc """
     tend(R::AbstractReachSet)
 
 Return the final time of this reach-set.
@@ -97,9 +100,10 @@ Return the final time of this reach-set.
 
 A float representing the final time of the given reach-set.
 """
-function tend(::AbstractReachSet) end
+tend(::AbstractReachSet)
+function tend end
 
-"""
+@doc """
     tspan(R::AbstractReachSet)
 
 Return time span of this reach-set.
@@ -112,7 +116,8 @@ Return time span of this reach-set.
 
 The interval representing the time span of the given reach-set.
 """
-function tspan(::AbstractReachSet) end
+tspan(::AbstractReachSet)
+function tspan end
 
 # if `contiguous` is true, we assume that the time span of each reach-set in this slice
 # is sorted, e.g. F[1:4] so it suffices to look at the first and last reach-sets
@@ -149,7 +154,7 @@ function tspan(F::VRT; contiguous=false) where {RT<:AbstractReachSet,VRT<:Abstra
     return TimeInterval(t0, tf)
 end
 
-"""
+@doc """
     dim(R::AbstractReachSet)
 
 Return the ambient dimension of the reach-set.
@@ -162,7 +167,8 @@ Return the ambient dimension of the reach-set.
 
 An integer corresponding to the ambient dimension of the given reach-set.
 """
-function LazySets.dim(::AbstractReachSet) end
+dim(::AbstractReachSet)
+function dim end
 
 # for internal use (dimensional checks in solve)
 _dim(X::AbstractReachSet) = dim(X)
@@ -182,7 +188,7 @@ A new reach-set of the sam type and the same field values as `R`.
 """
 Base.copy(R::AbstractReachSet) = deepcopy(R)
 
-"""
+@doc """
     shift(R::AbstractReachSet, t0::Number)
 
 Perform a time-shift of the given reach-set.
@@ -197,7 +203,8 @@ Perform a time-shift of the given reach-set.
 A new reach-set of the same type of `R` such that its time-span has been shifted
 by `t0`.
 """
-function shift(R::AbstractReachSet, t0::Number) end
+shift(R::AbstractReachSet, t0::Number)
+function shift end
 
 # ------------------------------
 # Methods to check disjointness
