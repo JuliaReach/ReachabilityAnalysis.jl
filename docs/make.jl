@@ -198,7 +198,7 @@ makedocs(; sitename="ReachabilityAnalysis.jl",
                                     PARAMETRIC_SYSTEMS,
                                     #LINEAR_PDE,
                                     HYBRID_SYSTEMS,
-                                    CLOCKED_SYSTEMS
+                                    CLOCKED_SYSTEMS,
                                     #
                                     ),
                 "Manual" => [

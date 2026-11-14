@@ -41,7 +41,6 @@ function post(alg::A20{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
     F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-
         #=
         # TEMP: static + with preallocation not implemented
         if static == Val(true)

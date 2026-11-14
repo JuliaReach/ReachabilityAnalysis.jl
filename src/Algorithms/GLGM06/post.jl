@@ -4,7 +4,7 @@
 function post(alg::GLGM06{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroT, kwargs...) where {N}
     @unpack δ, approx_model, max_order, static, dim, ngens,
-    preallocate, reduction_method, disjointness_method = alg
+            preallocate, reduction_method, disjointness_method = alg
 
     if isnothing(NSTEPS)
         if haskey(kwargs, :NSTEPS)
@@ -35,7 +35,6 @@ function post(alg::GLGM06{N}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing
     F = Vector{ReachSet{N,ZT}}(undef, NSTEPS)
 
     if got_homogeneous
-
         #=
         # TEMP: static + with preallocation not implemented
         if static == Val(true)

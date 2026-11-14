@@ -42,10 +42,10 @@ function load_XFZ18_reach()
             dom1 = @set t * (T - t) >= 0 && g >= 0
             dom2 = @set g >= 0
             @constraint(model, ϵ >= 0.0)
-            @constraint(model, LΦ ∈ SOSCone(), domain = dom1)
-            @constraint(model, ϵ - LΦ ∈ SOSCone(), domain = dom1)
-            @constraint(model, Φ₀ - V₀ ∈ SOSCone(), domain = dom2)
-            @constraint(model, ϵ + V₀ - Φ₀ ∈ SOSCone(), domain = dom2)
+            @constraint(model, LΦ ∈ SOSCone(), domain=dom1)
+            @constraint(model, ϵ - LΦ ∈ SOSCone(), domain=dom1)
+            @constraint(model, Φ₀ - V₀ ∈ SOSCone(), domain=dom2)
+            @constraint(model, ϵ + V₀ - Φ₀ ∈ SOSCone(), domain=dom2)
 
             @objective(model, Min, ϵ)
             return model

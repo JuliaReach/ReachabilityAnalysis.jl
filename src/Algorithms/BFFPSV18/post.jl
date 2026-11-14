@@ -4,7 +4,7 @@
 function post(alg::BFFPSV18{N,ST}, ivp::IVP{<:AbstractDiscreteSystem}, NSTEPS=nothing;
               Δt0::TimeInterval=zeroT, kwargs...) where {N,ST}
     @unpack δ, approx_model, vars, block_indices,
-    row_blocks, column_blocks = alg
+            row_blocks, column_blocks = alg
 
     if isnothing(NSTEPS)
         if haskey(kwargs, :NSTEPS)

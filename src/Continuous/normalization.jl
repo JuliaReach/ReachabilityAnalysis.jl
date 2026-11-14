@@ -285,7 +285,7 @@ The transformations described above are analogous in the discrete case, i.e.
 for the linear and affine cases respectively.
 """
 function normalize(system::AbstractSystem)
-    throw(ArgumentError("the system type $(typeof(system)) is currently not supported"))
+    return throw(ArgumentError("the system type $(typeof(system)) is currently not supported"))
 end
 
 """
@@ -593,7 +593,7 @@ function _normalize(ivp::IVP{<:CBBCS}, ::Type{AbstractNonlinearContinuousSystem}
 end
 
 function _normalize(ivp::IVP{<:AbstractContinuousSystem}, ::Type{AbstractNonlinearContinuousSystem})
-    throw(ArgumentError("can't normalize this nonlinear initial-value problemof type $(typeof(ivp))"))
+    return throw(ArgumentError("can't normalize this nonlinear initial-value problemof type $(typeof(ivp))"))
 end
 
 _normalize_initial_state(ivp, X0) = X0
