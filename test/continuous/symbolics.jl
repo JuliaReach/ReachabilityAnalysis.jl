@@ -30,14 +30,14 @@ using ReachabilityAnalysis: _jacobian_function,
     # @test isa(aux, StaticArray) && aux == Jv_st
 
     # same using MathematicalSystems types
-    sys = @system(u' = f(u), dim = 2)
+    sys = @system(u' = f(u), dim=2)
     J = _jacobian_function(sys, var)
     @test J(v) == Jv
     Jexpr = _jacobian_expression(sys, var)
     @test isequal(Jexpr0, Jexpr)
 
     U0 = VPolygon([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
-    ivp = @ivp(u' = f(u), dim = 2, u(0) ∈ U0)
+    ivp = @ivp(u' = f(u), dim=2, u(0) ∈ U0)
     J = _jacobian_function(ivp, var)
     @test J(v) == Jv
     Jexpr = _jacobian_expression(ivp, var)

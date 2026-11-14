@@ -105,8 +105,8 @@ function (fp::Flowpipe)(t::Number)
             end
         end
     end
-    throw(ArgumentError("time $t does not belong to the time span, " *
-                        "$(tspan(fp)), of the given flowpipe"))
+    return throw(ArgumentError("time $t does not belong to the time span, " *
+                               "$(tspan(fp)), of the given flowpipe"))
 end
 
 # evaluate a flowpipe at a given time interval: gives possibly more than one reach set

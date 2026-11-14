@@ -55,8 +55,8 @@ end
 
 # TODO remove but add comment in docs
 function project(::TaylorModelReachSet, ::NTuple{D,Int}) where {D}
-    throw(ArgumentError("the concrete projection of a Taylor model reach-set is not " *
-                        "available; try to first overapproximate the Taylor model and then project"))
+    return throw(ArgumentError("the concrete projection of a Taylor model reach-set is not " *
+                               "available; try to first overapproximate the Taylor model and then project"))
 end
 
 # constructor with a time point

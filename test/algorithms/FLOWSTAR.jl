@@ -33,7 +33,7 @@ end
         dx[1] = 1.5 * x[1] - x[1] * x[2]
         return dx[2] = -3 * x[2] + x[1] * x[2]
     end
-    ivp = @ivp(x' = f!(x), dim = 2, x(0) ∈ X0)
+    ivp = @ivp(x' = f!(x), dim=2, x(0) ∈ X0)
     sol = @suppress solve(ivp; tspan=(0, 1), alg=FLOWSTAR(; δ=0.02))
     RT = TaylorModelReachSet{Float64,IntervalArithmetic.Interval{Float64}}
     @test sol isa RA.ReachSolution{Flowpipe{Float64,RT,Vector{RT}},

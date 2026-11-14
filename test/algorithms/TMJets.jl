@@ -78,7 +78,7 @@ end
     # Initial velocity
     X0 = Singleton(-U0 * sin.(2 * π / L0 * x))
     # IVP definition
-    prob = @ivp(x' = burgers!(x), dim = 4, x(0) ∈ X0)
+    prob = @ivp(x' = burgers!(x), dim=4, x(0) ∈ X0)
     sol = solve(prob; tspan=(0.0, 1.0), alg=TMJets21b())
     @test dim(sol) == 4
 end
