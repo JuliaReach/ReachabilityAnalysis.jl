@@ -119,7 +119,7 @@ end
 # outer bloating a polytope into a polytope
 function _bloat(P::LazySet, ε)
     A, b = tosimplehrep(P)
-    bε = copy(b)
+    bε = collect(b)
     for i in eachindex(b)
         bε[i] += ε * opnorm(transpose(A[i, :]))
     end
