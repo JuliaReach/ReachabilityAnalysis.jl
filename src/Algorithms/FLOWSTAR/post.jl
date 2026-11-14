@@ -14,7 +14,7 @@ function post(alg::FLOWSTAR{ST,OT,PT,IT}, ivp::IVP{<:AbstractContinuousSystem}, 
     else
         # extract model from Julia code (via Symbolics)
         model = _extract_model(ivp, step_size, T, order, remainder_estimation,
-                             precondition, cutoff, precision, verbose, scheme)
+                               precondition, cutoff, precision, verbose, scheme)
     end
 
     # call Flow*; use Val(true) to obtain TaylorModel1 of TaylorN
@@ -39,7 +39,7 @@ end
 
 # see ReachabilityAnalysisFlowstarSymbolicsExt.jl
 function _extract_model(ivp, step_size, T, order, remainder_estimation,
-                      precondition, cutoff, precision, verbose, scheme)
+                        precondition, cutoff, precision, verbose, scheme)
     mod = Base.get_extension(@__MODULE__, :ReachabilityAnalysisFlowstarSymbolicsExt)
     require(mod, [:Flowstar, :Symbolics]; fun_name="post")
     return error()
