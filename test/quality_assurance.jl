@@ -98,3 +98,9 @@ end
                   # persistent tasks started failing occasionally on CI runs in January 2026
                   persistent_tasks=false)
 end
+
+@testset "No boxed closure captures" begin
+    if isdefined(Test, :detect_closure_boxes)  # Julia >= v"1.14"
+        @test isempty(Test.detect_closure_boxes(ReachabilityAnalysis))
+    end
+end
