@@ -4,7 +4,6 @@
 
 using LinearAlgebra: Diagonal, I, dot, isdiag, mul!, tr, norm
 using Parameters: @unpack
-using RecipesBase: @recipe, @series
 using Reexport: @reexport
 using SparseArrays: SparseMatrixCSC, SparseVector, sparsevec, spzeros
 using StaticArrays: MMatrix, SMatrix, SVector

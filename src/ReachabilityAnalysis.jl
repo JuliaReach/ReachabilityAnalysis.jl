@@ -102,7 +102,4 @@ include("Hybrid/transitions.jl")
 include("Hybrid/time_triggered.jl")
 include("Hybrid/solve.jl")
 
-# visualization
-include("Flowpipes/recipes.jl")
-
 end # module
