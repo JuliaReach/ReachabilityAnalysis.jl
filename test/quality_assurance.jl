@@ -2,10 +2,12 @@ using ReachabilityAnalysis, Test
 import Aqua, ExplicitImports
 
 @testset "ExplicitImports tests" begin
-    ignores_all_explicit_imports_are_public = (:AbstractDirections, :AbstractReductionMethod,
+    ignores_all_explicit_imports_are_public = (:AbstractDirections, :AbstractLazyReachSet,
+                                               :AbstractReachSet, :AbstractReductionMethod,
                                                :DEFAULT_ALPHA, :DEFAULT_ASPECT_RATIO,
                                                :DEFAULT_COLOR, :DEFAULT_GRID, :DEFAULT_LABEL,
                                                :PLOT_POLAR_DIRECTIONS, :PLOT_PRECISION,
+                                               :ReachSolution, :VPOLY,
                                                :_check_constrained_dimensions, :_expmv,
                                                :_plot_singleton_list, :plot_recipe,
                                                :shrink_wrapping!, :solve, :_exp_remainder,

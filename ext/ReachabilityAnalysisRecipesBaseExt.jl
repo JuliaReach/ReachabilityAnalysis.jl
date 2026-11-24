@@ -1,9 +1,21 @@
+module ReachabilityAnalysisRecipesBaseExt
+
+using RecipesBase: @recipe, @series
+using ReachabilityAnalysis: VPOLY, AbstractLazyReachSet, AbstractReachSet, Flowpipe, HybridFlowpipe,
+                            MixedFlowpipe, Projection, ReachSet, ReachSolution, ShiftedFlowpipe,
+                            TaylorModelReachSet, TemplateReachSet, flowpipe, setrep
+using ReachabilityAnalysis.ORBITModule: ORBIT
+
 #=
 The plotting functions in this file are adapted from those in LazySets.jl.
 See the relevant docstrings in LazySets for the description of the available options.
 =#
 
-using LazySets: plot_recipe
+import LazySets
+using LazySets: AbstractPolyhedron, AbstractPolytope, AbstractSingleton, AbstractZonotope, HPolygon,
+                Intersection, LazySet, Singleton, Zonotope, constraints_list, convex_hull, dim,
+                isbounded, ngens, overapproximate, plot_recipe, project,
+                remove_redundant_generators, set, vertices_list, _check_constrained_dimensions
 LazySetsRecipesBaseExt = Base.get_extension(LazySets, :LazySetsRecipesBaseExt)
 using .LazySetsRecipesBaseExt: PLOT_PRECISION,
                                PLOT_POLAR_DIRECTIONS,
@@ -70,7 +82,6 @@ end
 # ---------------------------------------
 # Specialization for template reach-sets
 # ---------------------------------------
-using LazySets: _check_constrained_dimensions
 
 function _is_compatible_projection(R::TemplateReachSet, vars)
     X = set(R)
@@ -353,3 +364,5 @@ end
     end
     return x, y
 end
+
+end  # module
